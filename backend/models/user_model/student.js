@@ -89,8 +89,14 @@ const studentSchema = new mongoose.Schema({
        default:false,
    },
    otp:{
-    type:String
-   }
+   type:String
+  },
+  otpExpires: {
+    type:Date
+  },
+  otpVerified: { 
+    type: Boolean, default: false 
+  },
 }, { timestamps: true });
 
 const Student = mongoose.model('Student', studentSchema);
