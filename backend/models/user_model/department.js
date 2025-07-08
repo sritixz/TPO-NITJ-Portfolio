@@ -14,7 +14,13 @@ const departmentSchema = new mongoose.Schema({
   },
   otp:{
    type:String
-  }
+  },
+  otpExpires: {
+    type:Date
+  },
+  otpVerified: { 
+    type: Boolean, default: false 
+  },
 }, { timestamps: true });
 
 const Department = mongoose.model('Department', departmentSchema);

@@ -10,72 +10,73 @@ import nodemailer from "nodemailer";
 import LoginAttempt from "../models/loginattempt.js";
 import axios from 'axios';
 
-const generateOTP = () => {
-    return Math.floor(100000 + Math.random() * 900000).toString();
+const generateOTP = () => Math.floor(100000 + Math.random() * 900000).toString();
+
+export const sendOtp = async (req, res) => {
+  const { email } = req.body;
+
+  const user = await Student.findOne({ email }) ||
+               await Recuiter.findOne({ email }) ||
+               await Professor.findOne({ email }) ||
+               await Alumni.findOne({ email }) ||
+               await Admin.findOne({ email });
+
+  if (!user) return res.status(401).json({ message: "Email is not Registered" });
+
+  const otp = generateOTP();
+  const expiry = new Date(Date.now() + 5 * 60 * 1000);
+
+  user.otp = otp;
+  user.otpExpires = expiry;
+  user.otpVerified = false;
+  await user.save();
+
+  const mailOptions = {
+    from: process.env.EMAIL_USER,
+    to: email,
+    subject: "Password Reset OTP",
+    text: `Your OTP for password reset is: ${otp}`,
   };
 
-  export const sendOtp = async (req, res) => {
-    const { email } = req.body;
-    const student = await Student.findOne({ email });
-    const recuiter = await Recuiter.findOne({ email });
-    const professor = await Professor.findOne({ email });
-    const alumni = await Alumni.findOne({ email });
-    const admin = await Admin.findOne({ email });
+  const transporter = nodemailer.createTransport({
+    service: "gmail",
+    auth: {
+      user: process.env.EMAIL_USER,
+      pass: process.env.EMAIL_PASS,
+    },
+  });
 
-    if (!student && !recuiter && !professor && !alumni && !admin) {
-        return res.status(401).json({ message: "Email is not Registered" });
-    }
+  transporter.sendMail(mailOptions, (error) => {
+    if (error) return res.status(500).json({ message: "Failed to send OTP" });
+    res.status(200).json({ message: "OTP sent successfully" });
+  });
+};
 
-    const user = student || recuiter || professor || alumni || admin;
 
-    const otp = generateOTP();
-    user.otp = otp;
-    await user.save();
-  
-    const mailOptions = {
-      from: process.env.EMAIL_USER,
-      to: email,
-      subject: "Password Reset OTP",
-      text: `Your OTP for password reset is: ${otp}`,
-    };
-    const transporter = nodemailer.createTransport({
-        service: "gmail",
-        auth: {
-          user: process.env.EMAIL_USER,
-          pass: process.env.EMAIL_PASS,
-        },
-      });
-    transporter.sendMail(mailOptions, (error, info) => {
-      if (error) {
-        return res.status(500).json({ message: "Failed to send OTP" });
-      }
-      res.status(200).json({ message: "OTP sent successfully" });
-    });
-  };
+export const verifyOtp = async (req, res) => {
+  const { email, otp } = req.body;
 
-  export const verifyOtp =async (req, res) => {
-    const { email, otp } = req.body;
-    const student = await Student.findOne({ email });
-    const recuiter = await Recuiter.findOne({ email });
-    const professor = await Professor.findOne({ email });
-    const alumni = await Alumni.findOne({ email });
-    const admin = await Admin.findOne({ email });
+  const user = await Student.findOne({ email }) ||
+               await Recuiter.findOne({ email }) ||
+               await Professor.findOne({ email }) ||
+               await Alumni.findOne({ email }) ||
+               await Admin.findOne({ email });
 
-    if (!student && !recuiter && !professor && !alumni && !admin) {
-        return res.status(401).json({ message: "Email is not Registered" });
-    }
+  if (!user) return res.status(401).json({ message: "Email is not Registered" });
 
-    const user = student || recuiter || professor || alumni || admin;
-  
-    if (!user || user.otp !== otp) {
-      return res.status(401).json({ message: "Invalid OTP" });
-    }
-  
-    user.otp = null;
-    await user.save();
-  
-    res.status(200).json({ message: "OTP verified successfully" });
-  };
+  const now = Date.now();
+  if (!user.otp || user.otp !== otp || now > user.otpExpires) {
+    return res.status(401).json({ message: "Invalid or expired OTP" });
+  }
+
+  user.otp = null;
+  user.otpExpires = null;
+  user.otpVerified = true;
+  await user.save();
+
+  res.status(200).json({ message: "OTP verified successfully" });
+};
+
 
 export const LockedResendOTP = async (req, res) => {
     try {
@@ -136,26 +137,31 @@ export const LockedResendOTP = async (req, res) => {
         res.status(500).json({ message: "Internal Server Error" });
     }
 };
-  export const resetPassword =async (req, res) => {
-    const { email, newPassword } = req.body;
-    const student = await Student.findOne({ email });
-    const recuiter = await Recuiter.findOne({ email });
-    const professor = await Professor.findOne({ email });
-    const alumni = await Alumni.findOne({ email });
-    const admin = await Admin.findOne({ email });
+ export const resetPassword = async (req, res) => {
+  const { email, newPassword } = req.body;
 
-    if (!student && !recuiter && !professor && !alumni && !admin) {
-        return res.status(401).json({ message: "Email is not Registered" });
-    }
+  const user = await Student.findOne({ email }) ||
+               await Recuiter.findOne({ email }) ||
+               await Professor.findOne({ email }) ||
+               await Alumni.findOne({ email }) ||
+               await Admin.findOne({ email });
 
-    const user = student || recuiter || professor || alumni || admin;
-    const salt = await bcrypt.genSalt(10);
-    const hashedPassword = await bcrypt.hash(newPassword, salt);
-    user.password = hashedPassword;
-    await user.save();
-  
-    res.status(200).json({ message: "Password reset successfully" });
-  };
+  if (!user) return res.status(401).json({ message: "Email is not Registered" });
+
+  if (!user.otpVerified) {
+    return res.status(403).json({ message: "OTP verification required before resetting password" });
+  }
+
+  const salt = await bcrypt.genSalt(10);
+  const hashedPassword = await bcrypt.hash(newPassword, salt);
+
+  user.password = hashedPassword;
+  user.otpVerified = false; 
+  await user.save();
+
+  res.status(200).json({ message: "Password reset successfully" });
+};
+
    export const login = async (req, res) => {
       try {
          console.log("hello from login");
