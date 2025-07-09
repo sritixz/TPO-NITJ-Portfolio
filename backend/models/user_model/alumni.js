@@ -21,14 +21,8 @@ const alumniSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
-  otp:{
-   type:String
-  },
-  otpExpires: {
-    type:Date
-  },
-  otpVerified: { 
-    type: Boolean, default: false 
+  otp: {
+    type: String
   },
 }, { timestamps: true });
 
