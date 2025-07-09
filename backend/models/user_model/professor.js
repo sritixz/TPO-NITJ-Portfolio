@@ -10,15 +10,10 @@ const professorSchema = new mongoose.Schema({
   password: {
     type: String,
   },
-  otp:{
-   type:String
+  otp: {
+    type: String
   },
-  otpExpires: {
-    type:Date
-  },
-  otpVerified: { 
-    type: Boolean, default: false 
-  },
+
 }, { timestamps: true });
 
 const Professor = mongoose.model('Professor', professorSchema);

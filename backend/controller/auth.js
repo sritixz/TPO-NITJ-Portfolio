@@ -9,8 +9,7 @@ import bcrypt from "bcrypt";
 import nodemailer from "nodemailer";
 import LoginAttempt from "../models/loginattempt.js";
 import axios from 'axios';
-
-const generateOTP = () => Math.floor(100000 + Math.random() * 900000).toString();
+import OtpVerification from "../models/OtpVerification.js";
 
 export const sendOtp = async (req, res) => {
   const { email } = req.body;
@@ -21,22 +20,23 @@ export const sendOtp = async (req, res) => {
                await Alumni.findOne({ email }) ||
                await Admin.findOne({ email });
 
-  if (!user) return res.status(401).json({ message: "Email is not Registered" });
+  if (!user) return res.status(401).json({ message: "Email is not registered" });
 
-  const otp = generateOTP();
-  const expiry = new Date(Date.now() + 5 * 60 * 1000);
+  const otp = Math.floor(100000 + Math.random() * 900000).toString();
+  const expiry = new Date(Date.now() + 5 * 60 * 1000); // 5 minutes
 
-  user.otp = otp;
-  user.otpExpires = expiry;
-  user.otpVerified = false;
-  await user.save();
-
-  const mailOptions = {
-    from: process.env.EMAIL_USER,
-    to: email,
-    subject: "Password Reset OTP",
-    text: `Your OTP for password reset is: ${otp}`,
-  };
+  await OtpVerification.findOneAndUpdate(
+    { email },
+    {
+      email,
+      otp,
+      otpExpires: expiry,
+      otpVerified: false,
+      otpAttempts: 0,
+      otpBlockedUntil: null
+    },
+    { upsert: true, new: true }
+  );
 
   const transporter = nodemailer.createTransport({
     service: "gmail",
@@ -46,37 +46,52 @@ export const sendOtp = async (req, res) => {
     },
   });
 
+  const mailOptions = {
+    from: process.env.EMAIL_USER,
+    to: email,
+    subject: "Password Reset OTP",
+    text: `Your OTP for password reset is: ${otp}`,
+  };
+
   transporter.sendMail(mailOptions, (error) => {
     if (error) return res.status(500).json({ message: "Failed to send OTP" });
     res.status(200).json({ message: "OTP sent successfully" });
   });
 };
 
-
 export const verifyOtp = async (req, res) => {
   const { email, otp } = req.body;
 
-  const user = await Student.findOne({ email }) ||
-               await Recuiter.findOne({ email }) ||
-               await Professor.findOne({ email }) ||
-               await Alumni.findOne({ email }) ||
-               await Admin.findOne({ email });
-
-  if (!user) return res.status(401).json({ message: "Email is not Registered" });
+  const otpRecord = await OtpVerification.findOne({ email });
+  if (!otpRecord) return res.status(401).json({ message: "OTP not requested" });
 
   const now = Date.now();
-  if (!user.otp || user.otp !== otp || now > user.otpExpires) {
+
+  if (otpRecord.otpBlockedUntil && now < otpRecord.otpBlockedUntil.getTime()) {
+    const waitSeconds = Math.ceil((otpRecord.otpBlockedUntil.getTime() - now) / 1000);
+    return res.status(429).json({ message: `Too many attempts. Try again in ${waitSeconds} seconds.` });
+  }
+
+  if (!otpRecord.otp || otpRecord.otp !== otp || now > otpRecord.otpExpires) {
+    otpRecord.otpAttempts = (otpRecord.otpAttempts || 0) + 1;
+
+    if (otpRecord.otpAttempts >= 5) {
+      otpRecord.otpBlockedUntil = new Date(now + 20 * 60 * 1000); 
+    }
+
+    await otpRecord.save();
     return res.status(401).json({ message: "Invalid or expired OTP" });
   }
 
-  user.otp = null;
-  user.otpExpires = null;
-  user.otpVerified = true;
-  await user.save();
+  otpRecord.otpVerified = true;
+  otpRecord.otp = null;
+  otpRecord.otpExpires = null;
+  otpRecord.otpAttempts = 0;
+  otpRecord.otpBlockedUntil = null;
+  await otpRecord.save();
 
   res.status(200).json({ message: "OTP verified successfully" });
 };
-
 
 export const LockedResendOTP = async (req, res) => {
     try {
@@ -93,17 +108,17 @@ export const LockedResendOTP = async (req, res) => {
         const transporter = nodemailer.createTransport({
             service: "gmail",
             auth: {
-              user: process.env.EMAIL_USER,
-              pass: process.env.EMAIL_PASS,
+                user: process.env.EMAIL_USER,
+                pass: process.env.EMAIL_PASS,
             },
-          });
-          const mailOptions = {
-              from: process.env.EMAIL_USER,
-              to: email,
-              subject: 'Security OTP for Account Unlock',
-              text: `Your new OTP is: ${newOTP}`,
-          };
-          await transporter.sendMail(mailOptions);
+        });
+        const mailOptions = {
+            from: process.env.EMAIL_USER,
+            to: email,
+            subject: 'Security OTP for Account Unlock',
+            text: `Your new OTP is: ${newOTP}`,
+        };
+        await transporter.sendMail(mailOptions);
 
         res.status(200).json({ message: "New OTP sent" });
     } catch (error) {
@@ -111,7 +126,7 @@ export const LockedResendOTP = async (req, res) => {
     }
 };
 
-  export const LockedverifyOTP = async (req, res) => {
+export const LockedverifyOTP = async (req, res) => {
     try {
         const { email, otp } = req.body;
 
@@ -137,7 +152,7 @@ export const LockedResendOTP = async (req, res) => {
         res.status(500).json({ message: "Internal Server Error" });
     }
 };
- export const resetPassword = async (req, res) => {
+export const resetPassword = async (req, res) => {
   const { email, newPassword } = req.body;
 
   const user = await Student.findOne({ email }) ||
@@ -146,9 +161,11 @@ export const LockedResendOTP = async (req, res) => {
                await Alumni.findOne({ email }) ||
                await Admin.findOne({ email });
 
-  if (!user) return res.status(401).json({ message: "Email is not Registered" });
+  if (!user) return res.status(401).json({ message: "Email is not registered" });
 
-  if (!user.otpVerified) {
+  const otpRecord = await OtpVerification.findOne({ email });
+
+  if (!otpRecord || !otpRecord.otpVerified) {
     return res.status(403).json({ message: "OTP verification required before resetting password" });
   }
 
@@ -156,104 +173,107 @@ export const LockedResendOTP = async (req, res) => {
   const hashedPassword = await bcrypt.hash(newPassword, salt);
 
   user.password = hashedPassword;
-  user.otpVerified = false; 
   await user.save();
+
+  otpRecord.otpVerified = false;
+  await otpRecord.save();
 
   res.status(200).json({ message: "Password reset successfully" });
 };
 
-   export const login = async (req, res) => {
-      try {
-         console.log("hello from login");
-          const { email, password/* code */ } = req.body;
-          let loginAttempt = await LoginAttempt.findOne({ email });
-          if (loginAttempt && loginAttempt.isLocked) {
-              return res.status(400).json({ message: "Account locked. Please check your email for OTP." });
-          }
-          const student = await Student.findOne({ email });
-          const recuiter = await Recuiter.findOne({ email });
-          const professor = await Professor.findOne({ email });
-          const alumni = await Alumni.findOne({ email });
-          const admin = await Admin.findOne({ email });
-          const department = await Department.findOne({ email });
-  
-          if (!student && !recuiter && !professor && !alumni && !admin && !department) {
-              return res.status(401).json({ message: "Email is not Registered" });
-          }
-  
-          const user = student || recuiter || professor || alumni || admin || department;
-  
-          let isPasswordValid;
-          if (user.password.startsWith('$2')) {
-              isPasswordValid = await bcrypt.compare(password, user.password);
-          } else {
-              isPasswordValid = password === user.password;
-              const salt = await bcrypt.genSalt(10);
-              const hashedPassword = await bcrypt.hash(password, salt);
-              await user.updateOne({ password: hashedPassword });
-          }
-  
-          if (!isPasswordValid) {
-              if (!loginAttempt) {
-                  loginAttempt = new LoginAttempt({ email, attempts: 1 });
-              } else {
-                  loginAttempt.attempts += 1;
-              }
-              if (loginAttempt.attempts >= 10) {
-                  loginAttempt.isLocked = true;
-                  const otp = Math.floor(100000 + Math.random() * 900000).toString();
-                  loginAttempt.otp = otp;
-                  loginAttempt.otpExpires = new Date(Date.now() + 5 * 60 * 1000);
-                  const transporter = nodemailer.createTransport({
+
+export const login = async (req, res) => {
+    try {
+        console.log("hello from login");
+        const { email, password/* code */ } = req.body;
+        let loginAttempt = await LoginAttempt.findOne({ email });
+        if (loginAttempt && loginAttempt.isLocked) {
+            return res.status(400).json({ message: "Account locked. Please check your email for OTP." });
+        }
+        const student = await Student.findOne({ email });
+        const recuiter = await Recuiter.findOne({ email });
+        const professor = await Professor.findOne({ email });
+        const alumni = await Alumni.findOne({ email });
+        const admin = await Admin.findOne({ email });
+        const department = await Department.findOne({ email });
+
+        if (!student && !recuiter && !professor && !alumni && !admin && !department) {
+            return res.status(401).json({ message: "Email is not Registered" });
+        }
+
+        const user = student || recuiter || professor || alumni || admin || department;
+
+        let isPasswordValid;
+        if (user.password.startsWith('$2')) {
+            isPasswordValid = await bcrypt.compare(password, user.password);
+        } else {
+            isPasswordValid = password === user.password;
+            const salt = await bcrypt.genSalt(10);
+            const hashedPassword = await bcrypt.hash(password, salt);
+            await user.updateOne({ password: hashedPassword });
+        }
+
+        if (!isPasswordValid) {
+            if (!loginAttempt) {
+                loginAttempt = new LoginAttempt({ email, attempts: 1 });
+            } else {
+                loginAttempt.attempts += 1;
+            }
+            if (loginAttempt.attempts >= 10) {
+                loginAttempt.isLocked = true;
+                const otp = Math.floor(100000 + Math.random() * 900000).toString();
+                loginAttempt.otp = otp;
+                loginAttempt.otpExpires = new Date(Date.now() + 5 * 60 * 1000);
+                const transporter = nodemailer.createTransport({
                     service: "gmail",
                     auth: {
-                      user: process.env.EMAIL_USER,
-                      pass: process.env.EMAIL_PASS,
+                        user: process.env.EMAIL_USER,
+                        pass: process.env.EMAIL_PASS,
                     },
-                  });
-                  const mailOptions = {
-                      from: process.env.EMAIL_USER,
-                      to: email,
-                      subject: 'Security OTP for Account Unlock',
-                      text: `Your OTP for account unlock is: ${otp}`,
-                  };
-  
-                  console.log("will send mail now");
-                  await transporter.sendMail(mailOptions);
-                  console.log("mail sent");
-              }
-  
-              await loginAttempt.save();
-              return res.status(401).json({ message: "Invalid password" });
-          }
-  
-          if (loginAttempt) {
-              await LoginAttempt.deleteOne({ email });
-          }
-  
-          let userType = "";
-          if (user == student) userType = "Student";
-          else if (user == recuiter) userType = "Recuiter";
-          else if (user == professor) userType = "Professor";
-          else if (user == alumni) userType = "Alumni";
-          else if (user == admin) userType = "Admin";
-          else if (user == department) userType = "Department";
-  
-          const token = jwt.sign({ userId: user._id, userType: userType }, process.env.JWT_SECRET, { expiresIn: process.env.JWT_EXPIRES_IN });
-          if (!token) {
-              return res.status(500).json({ message: "Failed to generate token" });
-          }
-   
-          res.cookie("token", token, {
-              httpOnly: true,
-              sameSite: process.env.NODE_ENV === "production" ? "None" : "Lax",
-              secure: process.env.NODE_ENV === "production",
-              expires: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
-          });
+                });
+                const mailOptions = {
+                    from: process.env.EMAIL_USER,
+                    to: email,
+                    subject: 'Security OTP for Account Unlock',
+                    text: `Your OTP for account unlock is: ${otp}`,
+                };
+
+                console.log("will send mail now");
+                await transporter.sendMail(mailOptions);
+                console.log("mail sent");
+            }
+
+            await loginAttempt.save();
+            return res.status(401).json({ message: "Invalid password" });
+        }
+
+        if (loginAttempt) {
+            await LoginAttempt.deleteOne({ email });
+        }
+
+        let userType = "";
+        if (user == student) userType = "Student";
+        else if (user == recuiter) userType = "Recuiter";
+        else if (user == professor) userType = "Professor";
+        else if (user == alumni) userType = "Alumni";
+        else if (user == admin) userType = "Admin";
+        else if (user == department) userType = "Department";
+
+        const token = jwt.sign({ userId: user._id, userType: userType }, process.env.JWT_SECRET, { expiresIn: process.env.JWT_EXPIRES_IN });
+        if (!token) {
+            return res.status(500).json({ message: "Failed to generate token" });
+        }
+
+        res.cookie("token", token, {
+            httpOnly: true,
+            sameSite: process.env.NODE_ENV === "production" ? "None" : "Lax",
+            secure: process.env.NODE_ENV === "production",
+            expires: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
+        });
         console.log("hello");
-          if (userType === "Student" && student) {
+        if (userType === "Student" && student) {
             try {
-               const adjustedBatch = student.batch || '2026';
+                const adjustedBatch = student.batch || '2026';
                 const updatedStudent = await Student.findByIdAndUpdate(
                     student._id,
                     {
@@ -265,18 +285,18 @@ export const LockedResendOTP = async (req, res) => {
                     { new: true }
                 );
 
-                return res.status(200).json({ message: "Login Successful",  user: updatedStudent, userType });
+                return res.status(200).json({ message: "Login Successful", user: updatedStudent, userType });
             } catch (error) {
                 console.error("Error fetching ERP data:", error);
                 return res.status(500).json({ message: "Login Successful, but failed to fetch ERP data", user, userType });
             }
         }
-          res.status(200).json({ message: "Login Successful", user: user, userType: userType });
-      } catch (error) {
-          res.status(500).json({ message: "Internal Server Error" });
-      }
-  };
-  
+        res.status(200).json({ message: "Login Successful", user: user, userType: userType });
+    } catch (error) {
+        res.status(500).json({ message: "Internal Server Error" });
+    }
+};
+
 //   export const login = async (req, res) => {
 //       try {
 //          console.log("hello from login");
@@ -291,13 +311,13 @@ export const LockedResendOTP = async (req, res) => {
 //           const alumni = await Alumni.findOne({ email });
 //           const admin = await Admin.findOne({ email });
 //           const department = await Department.findOne({ email });
-  
+
 //           if (!student && !recuiter && !professor && !alumni && !admin && !department) {
 //               return res.status(401).json({ message: "Email is not Registered" });
 //           }
-  
+
 //           const user = student || recuiter || professor || alumni || admin || department;
-  
+
 //           let isPasswordValid;
 //           if (user.password.startsWith('$2')) {
 //               isPasswordValid = await bcrypt.compare(password, user.password);
@@ -307,7 +327,7 @@ export const LockedResendOTP = async (req, res) => {
 //               const hashedPassword = await bcrypt.hash(password, salt);
 //               await user.updateOne({ password: hashedPassword });
 //           }
-  
+
 //           if (!isPasswordValid) {
 //               if (!loginAttempt) {
 //                   loginAttempt = new LoginAttempt({ email, attempts: 1 });
@@ -332,24 +352,24 @@ export const LockedResendOTP = async (req, res) => {
 //                       subject: 'Security OTP for Account Unlock',
 //                       text: `Your OTP for account unlock is: ${otp}`,
 //                   };
-  
+
 //                   console.log("will send mail now");
 //                   await transporter.sendMail(mailOptions);
 //                   console.log("mail sent");
 //               }
-  
+
 //               await loginAttempt.save();
 //               return res.status(401).json({ message: "Invalid password" });
 //           }
-  
+
 // /*           if (code && code !== '21cm') {
 //               return res.status(401).json({ message: "Invalid code" });
 //           } */
-  
+
 //           if (loginAttempt) {
 //               await LoginAttempt.deleteOne({ email });
 //           }
-  
+
 //           let userType = "";
 //           if (user == student) userType = "Student";
 //           else if (user == recuiter) userType = "Recuiter";
@@ -357,12 +377,12 @@ export const LockedResendOTP = async (req, res) => {
 //           else if (user == alumni) userType = "Alumni";
 //           else if (user == admin) userType = "Admin";
 //           else if (user == department) userType = "Department";
-  
+
 //           const token = jwt.sign({ userId: user._id, userType: userType }, process.env.JWT_SECRET, { expiresIn: process.env.JWT_EXPIRES_IN });
 //           if (!token) {
 //               return res.status(500).json({ message: "Failed to generate token" });
 //           }
-   
+
 //           res.cookie("token", token, {
 //               httpOnly: true,
 //               sameSite: process.env.NODE_ENV === "production" ? "None" : "Lax",
@@ -398,7 +418,7 @@ export const LockedResendOTP = async (req, res) => {
 //                     },
 //                     { new: true }
 //                 );
-               
+
 
 //                 return res.status(200).json({ message: "Login Successful",  user: updatedStudent, userType });
 //             } catch (error) {
@@ -415,21 +435,21 @@ export const LockedResendOTP = async (req, res) => {
 export const logout = (req, res) => {
     res.cookie('token', '', { httpOnly: true, expires: new Date(0), path: '/' });
     res.status(200).json({ message: 'Logged out successfully' });
-  }
+}
 
 
 export const ssignup = async (req, res) => {
     try {
-        const {name, email, password, rollno, department } = req.body;
+        const { name, email, password, rollno, department } = req.body;
         const student = await Student.findOne({ email });
         if (student) {
             return res.status(401).json({ message: "Email already exists" });
         }
         const salt = await bcrypt.genSalt(10);
         const hashedPassword = await bcrypt.hash(password, salt);
-        const newStudent = new Student({name, email, password: hashedPassword, rollno, department });
+        const newStudent = new Student({ name, email, password: hashedPassword, rollno, department });
         await newStudent.save();
-        const token = jwt.sign({ userId: newStudent._id, userType: "Student" }, process.env.JWT_SECRET,{expiresIn:process.env.JWT_EXPIRES_IN});
+        const token = jwt.sign({ userId: newStudent._id, userType: "Student" }, process.env.JWT_SECRET, { expiresIn: process.env.JWT_EXPIRES_IN });
         if (!token) {
             return res.status(500).json({ message: "Failed to generate token" });
         }
@@ -438,25 +458,25 @@ export const ssignup = async (req, res) => {
             sameSite: process.env.NODE_ENV === "production" ? "None" : "Lax",
             secure: process.env.NODE_ENV === "production",
             expires: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
-        });   
+        });
         res.status(200).json({ message: "Signup successful", user: newStudent });
     } catch (error) {
         res.status(500).json({ message: "Internal Server Error" });
     }
- }
+}
 
 export const psignup = async (req, res) => {
     try {
-        const {name, email, password, facultyId, department } = req.body;
+        const { name, email, password, facultyId, department } = req.body;
         const professor = await Professor.findOne({ email });
         if (professor) {
             return res.status(401).json({ message: "Email already exists" });
         }
         const salt = await bcrypt.genSalt(10);
         const hashedPassword = await bcrypt.hash(password, salt);
-        const newProfessor = new Professor({name, email, password: hashedPassword, facultyId, department });
+        const newProfessor = new Professor({ name, email, password: hashedPassword, facultyId, department });
         await newProfessor.save();
-        const token = jwt.sign({ userId: newProfessor._id, userType: "Professor" }, process.env.JWT_SECRET,{expiresIn:process.env.JWT_EXPIRES_IN});
+        const token = jwt.sign({ userId: newProfessor._id, userType: "Professor" }, process.env.JWT_SECRET, { expiresIn: process.env.JWT_EXPIRES_IN });
         if (!token) {
             return res.status(500).json({ message: "Failed to generate token" });
         }
@@ -465,26 +485,26 @@ export const psignup = async (req, res) => {
             sameSite: process.env.NODE_ENV === "production" ? "None" : "Lax",
             secure: process.env.NODE_ENV === "production",
             expires: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
-        });   
+        });
         res.status(200).json({ message: "Signup successful", user: newProfessor });
     } catch (error) {
         res.status(500).json({ message: "Internal Server Error" });
     }
-    }
+}
 
 export const rsignup = async (req, res) => {
     try {
- 
-        const {name, email, password, company, designation } = req.body;
+
+        const { name, email, password, company, designation } = req.body;
         const recuiter = await Recuiter.findOne({ email });
         if (recuiter) {
             return res.status(401).json({ message: "Email already exists" });
         }
         const salt = await bcrypt.genSalt(10);
         const hashedPassword = await bcrypt.hash(password, salt);
-        const newRecuiter = new Recuiter({name, email, password: hashedPassword, company, designation });
+        const newRecuiter = new Recuiter({ name, email, password: hashedPassword, company, designation });
         await newRecuiter.save();
-        const token = jwt.sign({ userId: newRecuiter._id, userType: "Recuiter" }, process.env.JWT_SECRET,{expiresIn:process.env.JWT_EXPIRES_IN});
+        const token = jwt.sign({ userId: newRecuiter._id, userType: "Recuiter" }, process.env.JWT_SECRET, { expiresIn: process.env.JWT_EXPIRES_IN });
         if (!token) {
             return res.status(500).json({ message: "Failed to generate token" });
         }
@@ -493,27 +513,27 @@ export const rsignup = async (req, res) => {
             sameSite: process.env.NODE_ENV === "production" ? "None" : "Lax",
             secure: process.env.NODE_ENV === "production",
             expires: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
-        });   
+        });
         res.status(200).json({ message: "Signup successful", user: newRecuiter });
     } catch (error) {
         res.status(500).json({ message: "Internal Server Error" });
     }
-    }
+}
 
 
 export const asignup = async (req, res) => {
     try {
- 
-        const {name, email, password, company, designation } = req.body;
+
+        const { name, email, password, company, designation } = req.body;
         const recuiter = await Recuiter.findOne({ email });
         if (recuiter) {
             return res.status(401).json({ message: "Email already exists" });
         }
         const salt = await bcrypt.genSalt(10);
         const hashedPassword = await bcrypt.hash(password, salt);
-        const newRecuiter = new Recuiter({name, email, password: hashedPassword, company, designation });
+        const newRecuiter = new Recuiter({ name, email, password: hashedPassword, company, designation });
         await newRecuiter.save();
-        const token = jwt.sign({ userId: newRecuiter._id, userType: "Recuiter" }, process.env.JWT_SECRET,{expiresIn:process.env.JWT_EXPIRES_IN});
+        const token = jwt.sign({ userId: newRecuiter._id, userType: "Recuiter" }, process.env.JWT_SECRET, { expiresIn: process.env.JWT_EXPIRES_IN });
         if (!token) {
             return res.status(500).json({ message: "Failed to generate token" });
         }
@@ -522,11 +542,11 @@ export const asignup = async (req, res) => {
             sameSite: process.env.NODE_ENV === "production" ? "None" : "Lax",
             secure: process.env.NODE_ENV === "production",
             expires: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
-        });   
+        });
         res.status(200).json({ message: "Signup successful", user: newRecuiter });
     } catch (error) {
         res.status(500).json({ message: "Internal Server Error" });
     }
-    }
+}
 
 
