@@ -37,65 +37,59 @@ const studentSchema = new mongoose.Schema({
   batch: {
     type: String,
   },
-  course:{
-    type:String,
-    enum:["B.Tech","M.Tech","MBA","M.Sc.","PHD","B.Sc.-B.Ed."]
+  course: {
+    type: String,
+    enum: ["B.Tech", "M.Tech", "MBA", "M.Sc.", "PHD", "B.Sc.-B.Ed."]
   },
   address: {
     type: String,
-    },
+  },
   cgpa: {
     type: String,
-   },
-  gender: {
-    type:String,
-     enum: ['Male', 'Female', 'Other'],
   },
-  category:{
-    type:String,
-    enum: ['General','GEN-EWS', 'SC', 'ST', 'OBC-NCL','OBC'],
+  gender: {
+    type: String,
+    enum: ['Male', 'Female', 'Other'],
+  },
+  category: {
+    type: String,
+    enum: ['General', 'GEN-EWS', 'SC', 'ST', 'OBC-NCL', 'OBC'],
   },
   active_backlogs: {
     type: Boolean,
-    default:false,
+    default: false,
   },
   backlogs_history: {
     type: Boolean,
-    default:false,
+    default: false,
   },
-  debarred:{
-    type:Boolean,
-    default:false,
+  debarred: {
+    type: Boolean,
+    default: false,
   },
-  disability:{
-    type:Boolean,
-    default:false,
+  disability: {
+    type: Boolean,
+    default: false,
   },
   image: {
     type: String,
-    },
+  },
   placementstatus: {
-        type: String,
-        enum: ['Not Placed','Below Dream', 'Dream', 'Super Dream'  ],
-        default:'Not Placed',
-    },
+    type: String,
+    enum: ['Not Placed', 'Below Dream', 'Dream', 'Super Dream'],
+    default: 'Not Placed',
+  },
   internshipstatus: {
-        type: String,
-        enum: ['No Intern','2m Intern', '6m Intern', '11m Intern'],
-        default:'No Intern',
+    type: String,
+    enum: ['No Intern', '2m Intern', '6m Intern', '11m Intern'],
+    default: 'No Intern',
   },
-  account_deactivate:{
-       type:Boolean,
-       default:false,
-   },
-   otp:{
-   type:String
+  account_deactivate: {
+    type: Boolean,
+    default: false,
   },
-  otpExpires: {
-    type:Date
-  },
-  otpVerified: { 
-    type: Boolean, default: false 
+  otp: {
+    type: String
   },
 }, { timestamps: true });
 
