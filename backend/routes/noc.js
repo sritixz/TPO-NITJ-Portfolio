@@ -6,6 +6,8 @@ import { existsSync, mkdirSync } from 'fs'; // Import synchronous methods
 const router = express.Router();
 
 import {createNOC, getAllNOCs, getNOCById, updateNOC, deleteNOC, uploadOfferLetter, getAllNOCstoprofessors, getAllNOCstodepartments} from '../controller/noc.js';
+import { restrictTo } from "../utils/restrict.js";
+import Student from "../models/user_model/student.js";
 
 const uploadDir = path.join(process.cwd(), 'uploads', 'offer-letters');
 if (!existsSync(uploadDir)) {
@@ -32,13 +34,13 @@ const upload = multer({
   }
 });
 
-router.post('/', createNOC);
-router.get('/', getAllNOCs);
-router.get('/getonp', getAllNOCstoprofessors);
-router.get('/getond', getAllNOCstodepartments);
-router.post('/upload-offer-letter/:id', upload.single('offerLetter'), uploadOfferLetter);
-router.get('/:id', getNOCById);
-router.put('/:id', updateNOC);
-router.delete('/:id', deleteNOC);
+router.post('/',restrictTo('Student'), createNOC);
+router.get('/', restrictTo('Student'),getAllNOCs);
+router.get('/getonp', restrictTo('Professor'), getAllNOCstoprofessors);
+router.get('/getond', restrictTo('Department'), getAllNOCstodepartments);
+router.post('/upload-offer-letter/:id',restrictTo('Student'), upload.single('offerLetter'), uploadOfferLetter);
+router.get('/:id',restrictTo('Professor'), getNOCById);
+router.put('/:id',restrictTo('Professor'), updateNOC);
+router.delete('/:id', restrictTo('Professor'), deleteNOC);
 
 export default router;

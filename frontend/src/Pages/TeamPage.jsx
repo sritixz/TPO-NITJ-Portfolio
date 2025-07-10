@@ -1,15 +1,24 @@
 import React, { useEffect, useState } from 'react';
+import { useLocation } from 'react-router-dom';
 import axios from 'axios';
 import TeamSection from '../components/Developers/TeamSection.jsx';
 import Header from '../components/header';
 import Footer from '../components/footer';
-import BouncingLoader from '../components/BouncingLoader';
+
 
 const TeamPage = () => {
     const [teamData, setTeamData] = useState({ coordinator: [], devTeam: [], developers: [] });
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [activeTab, setActiveTab] = useState(false);
+
+        useEffect(() => {
+        if (location.pathname === '/dev-team') {
+            setActiveTab(true);
+        } else {
+            setActiveTab(false);
+        }
+    }, [location.pathname]);
 
     useEffect(() => {
         const fetchTeamData = async () => {

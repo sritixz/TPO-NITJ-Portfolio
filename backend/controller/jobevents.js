@@ -66,22 +66,3 @@ export const getJobEvents = async (req, res) => {
     });
   }
 };
-
-export const createJobProfile = async (req, res) => {
-  try {
-    const jobProfile = new JobProfile(req.body);
-    const savedJob = await jobProfile.save();
-    res.status(201).json({
-      success: true,
-      message: "Job profile created successfully",
-      data: savedJob,
-    });
-  } catch (error) {
-    console.error("Error creating job profile:", error);
-    res.status(400).json({
-      success: false,
-      message: "Error creating job profile",
-      error: error.message,
-    });
-  }
-};

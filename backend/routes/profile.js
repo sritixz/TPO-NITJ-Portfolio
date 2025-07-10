@@ -1,5 +1,6 @@
 import express from 'express';
 const router = express.Router();
+import { restrictTo } from '../utils/restrict.js';
 import {sprofile,updatesProfile,handlesProfilePhoto,changepass} from '../controller/profile.js';
 import Student from '../models/user_model/student.js';
 import multer from 'multer';
@@ -43,9 +44,9 @@ const storage = multer.diskStorage({
 const upload = multer({ storage: storage });
 
 
-router.get('/get',sprofile);
-router.put('/update',updatesProfile);
-router.post('/change-pass',changepass);
-router.put('/update-picture', upload.single("file"),handlesProfilePhoto);
+router.get('/get',restrictTo('Student'), sprofile);
+router.put('/update',restrictTo('Student'),updatesProfile);
+router.post('/change-pass',restrictTo('Student'),changepass);
+router.put('/update-picture',restrictTo('Student','Professor'), upload.single("file"),handlesProfilePhoto);
 
 export default router;

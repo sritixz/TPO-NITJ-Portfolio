@@ -19,7 +19,6 @@ import Downloads from "./Pages/Downloads";
 import TeamPage from "./Pages/TeamPage";
 import FAQ from "./Pages/Faqs";
 import ErrorPage from "./Pages/ErrorPage";
-import AlumniLogin from "./Pages/ALogin";
 import AssessmentAttemptPage from "./Pages/Mock-test";
 import WhyRecruitPage from "./Pages/WhyRecruitPage";
 import Placementstatistics from "./Pages/Placementstatistic";
@@ -29,11 +28,12 @@ const AppContent = () => {
   const dispatch = useDispatch();
   const { authUser, userType } = useSelector((state) => state.auth);
 
-
+  
+  
   useEffect(() => {
     dispatch(checkAuth());
   }, [dispatch]);
-
+  
   const getDashboardPath = () => {
     if (authUser) {
       switch (userType) {
@@ -66,6 +66,7 @@ const AppContent = () => {
         <Route path="/recruiter" element={<Recruiter />} />
         <Route path="/faq" element={<FAQ />} />
         <Route path="/team" element={<TeamPage />} />
+        <Route path="/dev-team" element={<TeamPage />} />
         <Route path="/departmental-brochure" element={<Downloads />} />
         <Route path="/whyrecruit" element={< WhyRecruitPage/>} />
 

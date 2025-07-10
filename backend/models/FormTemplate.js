@@ -3,12 +3,10 @@ import mongoose from "mongoose";
 const formFieldSchema = new mongoose.Schema({
   fieldName: {
     type: String,
-    required: true
   },
   fieldType: {
     type: String,
-    enum: ['text', 'number', 'email', 'date', 'select'],
-    required: true
+    // enum: ['text', 'number', 'email', 'date', 'select'],
   },
   value: String,
   isRequired: {
@@ -32,7 +30,6 @@ const formTemplateSchema = new mongoose.Schema({
   jobId: {
    type: mongoose.Schema.Types.ObjectId,
     ref: 'JobProfile',
-    required: true
   },
   title: {
     type: String,

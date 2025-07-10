@@ -36,21 +36,25 @@ const TeamMemberCard = ({ image, name, department,batch, linkedinUrl, githubUrl,
                 </a>
             )}
             {email && (
-                <a 
-                    href={`mailto:${email}`} 
-                    className="p-3 rounded-full text-red-600 hover:bg-red-600 hover:text-white transition-all"
-                >
-                    <FaEnvelope size={20} />
-                </a>
-            )}
-            {mobile && (
-                <a 
-                    href={`tel:${mobile}`} 
-                    className="p-3  rounded-full text-green-600 hover:bg-green-500 hover:text-white transition-all"
-                >
-                    <FaPhone size={20} />
-                </a>
-            )}
+    <a 
+        href={`mailto:${email}`} 
+        className="flex items-center gap-2 p-3 rounded-full text-red-600 hover:bg-red-600 hover:text-white transition-all"
+    >
+        <FaEnvelope size={20} />
+         {role === 'Coordinator' && (<span className='text-gray-500 font-grotesk hover:text-white'>{email}</span>)}
+    </a>
+)}
+
+           {mobile && (
+    <a 
+        href={`tel:${mobile}`} 
+        className="flex items-center gap-2 p-3 rounded-full text-green-600 hover:bg-green-500 hover:text-white transition-all"
+    >
+        <FaPhone size={18} />
+         {role === 'Coordinator' && (<span className='text-gray-500 font-grotesk hover:text-white'>{mobile}</span>)}
+    </a>
+)}
+
             {website && (
                 <a 
                     href={website} 

@@ -7,11 +7,12 @@ import {
     rejectJAF,
     updateJAF
     } from "../controller/jaf.js";
+import { restrictTo } from "../utils/restrict.js";
 
-router.post("/create", createJobAnnouncementForm);
-router.get("/get",getjaf);
-router.put("/approvejaf/:_id", approveJAF);
-router.put("/rejectjaf/:_id", rejectJAF);
-router.put("/updatejaf/:_id", updateJAF);
+router.post("/create",restrictTo('Professor','Recuiter'), createJobAnnouncementForm);
+router.get("/get",restrictTo('Professor','Recuiter'),getjaf);
+router.put("/approvejaf/:_id",restrictTo('Professor'), approveJAF);
+router.put("/rejectjaf/:_id", restrictTo('Professor'), rejectJAF);
+router.put("/updatejaf/:_id", restrictTo('Professor','Recuiter'), updateJAF);
 
 export default router;

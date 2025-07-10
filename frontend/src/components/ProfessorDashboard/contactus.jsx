@@ -10,7 +10,9 @@ const ContactRequests = () => {
   useEffect(() => {
     const fetchContactForms = async () => {
       try {
-        const response = await axios.get(`${import.meta.env.REACT_APP_BASE_URL}/contactus/get`);
+        const response = await axios.get(`${import.meta.env.REACT_APP_BASE_URL}/contactus/get`, {
+          withCredentials: true,
+        });
         setContactForms(response.data);
         setLoading(false);
       } catch (error) {

@@ -78,7 +78,8 @@ export const uploadOfferLetter = async (req, res) => {
 
 export const getAllNOCs = async (req, res) => {
   try {
-    const nocs = await NOC.find();
+    const studentId= req.user.userId;
+    const nocs = await NOC.find({ studentId })
     res.status(200).json(nocs);
   } catch (err) {
     res.status(500).json({ error: err.message });

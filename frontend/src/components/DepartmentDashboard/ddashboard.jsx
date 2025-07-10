@@ -275,7 +275,7 @@ const DepartmentDashboard = () => {
   <div className="container mx-auto text-center">
     <div
       onClick={() => {
-        navigate("/team");
+        navigate("/dev-team");
         onClick?.();
       }}
       className="group cursor-pointer inline-flex items-center justify-center gap-2 transition-all duration-300"

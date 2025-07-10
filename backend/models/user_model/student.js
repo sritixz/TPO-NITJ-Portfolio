@@ -21,25 +21,13 @@ const studentSchema = new mongoose.Schema({
   },
   department: {
     type: String,
-    // enum: [
-    //           "INTEGRATED TEACHER EDUCATION PROGRAMME", "BIO TECHNOLOGY", "CHEMICAL ENGINEERING", "CIVIL ENGINEERING", 
-    //           "COMPUTER SCIENCE AND ENGINEERING", "ELECTRICAL ENGINEERING", "ELECTRONICS AND COMMUNICATION ENGINEERING", 
-    //           "INDUSTRIAL AND PRODUCTION ENGINEERING", "INFORMATION TECHNOLOGY", "INSTRUMENTATION AND CONTROL ENGINEERING", 
-    //           "MECHANICAL ENGINEERING", "TEXTILE TECHNOLOGY", "DATA SCIENCE AND ENGINEERING", "ELECTRONICS AND VLSI ENGINEERING", 
-    //           "MATHEMATICS AND COMPUTING", "CHEMISTRY", "MATHEMATICS", "PHYSICS", "ARTIFICIAL INTELLIGENCE", 
-    //           "COMPUTER SCIENCE AND ENGINEERING (INFORMATION SECURITY)", "CONTROL AND INSTRUMENTATION ENGINEERING", 
-    //           "DATA ANALYTICS", "DESIGN ENGINEERING", "ELECTRIC VEHICLE DESIGN", "GEOTECHNICAL AND GEO-ENVIRONMENTAL ENGINEERING", 
-    //           "INDUSTRIAL ENGINEERING AND DATA ANALYTICS", "POWER SYSTEMS AND RELIABILITY", "RENEWABLE ENERGY", 
-    //           "SIGNAL PROCESSING AND MACHINE LEARNING", "STRUCTURAL AND CONSTRUCTION ENGINEERING", "TEXTILE ENGINEERING AND MANAGEMENT", 
-    //           "VLSI DESIGN", "MACHINE INTELLIGENCE AND AUTOMATION", "THERMAL AND ENERGY ENGINEERING", "HUMANITIES AND MANAGEMENT"
-    //       ]
   },
   batch: {
     type: String,
   },
   course:{
     type:String,
-    enum:["B.Tech","M.Tech","MBA","M.Sc.","PHD","B.Sc.-B.Ed."]
+    // enum:["B.Tech","M.Tech","MBA","M.Sc.","PHD","B.Sc.-B.Ed."]
   },
   address: {
     type: String,
@@ -49,11 +37,11 @@ const studentSchema = new mongoose.Schema({
    },
   gender: {
     type:String,
-     enum: ['Male', 'Female', 'Other'],
+    //  enum: ['Male', 'Female', 'Other'],
   },
   category:{
     type:String,
-    enum: ['General','GEN-EWS', 'SC', 'ST', 'OBC-NCL','OBC'],
+    // enum: ['General','GEN-EWS', 'SC', 'ST', 'OBC-NCL','OBC'],
   },
   active_backlogs: {
     type: Boolean,
@@ -76,12 +64,12 @@ const studentSchema = new mongoose.Schema({
     },
   placementstatus: {
         type: String,
-        enum: ['Not Placed','Below Dream', 'Dream', 'Super Dream'  ],
+        // enum: ['Not Placed','Below Dream', 'Dream', 'Super Dream'  ],
         default:'Not Placed',
     },
   internshipstatus: {
         type: String,
-        enum: ['No Intern','2m Intern', '6m Intern', '11m Intern'],
+        // enum: ['No Intern','2m Intern', '6m Intern', '11m Intern'],
         default:'No Intern',
   },
   account_deactivate:{
@@ -96,3 +84,18 @@ const studentSchema = new mongoose.Schema({
 const Student = mongoose.model('Student', studentSchema);
 
 export default Student;
+
+
+
+    // department enum: [
+    //           "INTEGRATED TEACHER EDUCATION PROGRAMME", "BIO TECHNOLOGY", "CHEMICAL ENGINEERING", "CIVIL ENGINEERING", 
+    //           "COMPUTER SCIENCE AND ENGINEERING", "ELECTRICAL ENGINEERING", "ELECTRONICS AND COMMUNICATION ENGINEERING", 
+    //           "INDUSTRIAL AND PRODUCTION ENGINEERING", "INFORMATION TECHNOLOGY", "INSTRUMENTATION AND CONTROL ENGINEERING", 
+    //           "MECHANICAL ENGINEERING", "TEXTILE TECHNOLOGY", "DATA SCIENCE AND ENGINEERING", "ELECTRONICS AND VLSI ENGINEERING", 
+    //           "MATHEMATICS AND COMPUTING", "CHEMISTRY", "MATHEMATICS", "PHYSICS", "ARTIFICIAL INTELLIGENCE", 
+    //           "COMPUTER SCIENCE AND ENGINEERING (INFORMATION SECURITY)", "CONTROL AND INSTRUMENTATION ENGINEERING", 
+    //           "DATA ANALYTICS", "DESIGN ENGINEERING", "ELECTRIC VEHICLE DESIGN", "GEOTECHNICAL AND GEO-ENVIRONMENTAL ENGINEERING", 
+    //           "INDUSTRIAL ENGINEERING AND DATA ANALYTICS", "POWER SYSTEMS AND RELIABILITY", "RENEWABLE ENERGY", 
+    //           "SIGNAL PROCESSING AND MACHINE LEARNING", "STRUCTURAL AND CONSTRUCTION ENGINEERING", "TEXTILE ENGINEERING AND MANAGEMENT", 
+    //           "VLSI DESIGN", "MACHINE INTELLIGENCE AND AUTOMATION", "THERMAL AND ENERGY ENGINEERING", "HUMANITIES AND MANAGEMENT"
+    //       ]
