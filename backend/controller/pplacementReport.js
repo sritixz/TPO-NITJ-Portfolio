@@ -4,6 +4,7 @@ import Student from '../models/user_model/student.js';
 export const getPlacementReports = async (req, res) => {
   console.log('Received request for placement reports');
   try {
+    console.log('Query parameters:', req.query);
     const { batch, degree, department, type } = req.query;
     const filter = {};
     if (batch) filter.batch = batch;

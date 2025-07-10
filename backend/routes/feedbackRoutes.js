@@ -7,14 +7,14 @@ import {
   getFeedbackByStudent,
   deleteFeedback 
 } from '../controller/feedbackController.js';
+import { restrictTo } from '../utils/restrict.js';
 
 const router = express.Router();
 
-router.post('/', createFeedback);
-router.put('/', updateFeedback);
-router.get('/get', getFeedback);
-router.get('/', getAllFeedback);
-router.get('/student/:studentName', getFeedbackByStudent);
-router.delete('/:id', deleteFeedback);
+router.post('/', restrictTo('Recuiter'), createFeedback);
+router.put('/', restrictTo('Recuiter'), updateFeedback);
+router.get('/get',restrictTo('Recuiter'), getFeedback);
+router.get('/',restrictTo('Professor'), getAllFeedback);
+router.delete('/:id',restrictTo('Professor'), deleteFeedback);
 
 export default router;

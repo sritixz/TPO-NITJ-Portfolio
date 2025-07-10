@@ -10,9 +10,18 @@ import nodemailer from "nodemailer";
 import LoginAttempt from "../models/loginattempt.js";
 import axios from 'axios';
 
-const generateOTP = () => {
-    return Math.floor(100000 + Math.random() * 900000).toString();
-  };
+// const generateOTP = () => {
+//     return Math.floor(100000 + Math.random() * 900000).toString();
+//   };
+
+const generateOTP = (length = 6) => {
+  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+  let otp = '';
+  for (let i = 0; i < length; i++) {
+    otp += chars.charAt(Math.floor(Math.random() * chars.length));
+  }
+  return otp;
+};
 
   export const sendOtp = async (req, res) => {
     const { email } = req.body;
@@ -31,12 +40,16 @@ const generateOTP = () => {
     const otp = generateOTP();
     user.otp = otp;
     await user.save();
-  
     const mailOptions = {
       from: process.env.EMAIL_USER,
       to: email,
-      subject: "Password Reset OTP",
-      text: `Your OTP for password reset is: ${otp}`,
+      subject: "Password Reset Request",
+      html: `<div style="font-family: Arial, sans-serif; color: #333;">
+    <p>You requested to reset your password.</p>
+    <p><strong>Your OTP to reset your password is:</strong> <span style="font-size: 1.5em; color: #007bff;">${otp}</span></p>
+    <p>If you didn’t request this, you can safely ignore this email.</p>
+    <p>Best regards,<br/>TPO Dev Team</p>
+  </div>`,
     };
     const transporter = nodemailer.createTransport({
         service: "gmail",
@@ -82,12 +95,17 @@ export const LockedResendOTP = async (req, res) => {
         const { email } = req.body;
         const loginAttempt = await LoginAttempt.findOne({ email });
         if (!loginAttempt || !loginAttempt.isLocked) {
-            return res.status(400).json({ message: "Account not locked" });
+            return res.status(400).json({ message: "Invalid request" });
         }
-        const newOTP = Math.floor(100000 + Math.random() * 900000).toString();
+        if(Date.now() < loginAttempt.otpExpires){
+         return res.status(400).json({ message: "Please wait for the current OTP to expire before requesting a new one." });
+         }
+        // const newOTP = Math.floor(100000 + Math.random() * 900000).toString();
+        const newOTP = generateOTP();
         const otpExpires = new Date(Date.now() + 5 * 60 * 1000);
         loginAttempt.otp = newOTP;
         loginAttempt.otpExpires = otpExpires;
+        loginAttempt.otpAttempts = 0;
         await loginAttempt.save();
         const transporter = nodemailer.createTransport({
             service: "gmail",
@@ -100,7 +118,10 @@ export const LockedResendOTP = async (req, res) => {
               from: process.env.EMAIL_USER,
               to: email,
               subject: 'Security OTP for Account Unlock',
-              text: `Your new OTP is: ${newOTP}`,
+              html: `<p>Dear User,</p>
+  <p><strong>Your new OTP to unlock your account is:</strong> <span style="font-size: 1.2em;">${newOTP}</span></p>
+  <p>Please do not share this code with anyone.</p>
+  <p>Thank you,<br/>TPO Dev Team</p>`,
           };
           await transporter.sendMail(mailOptions);
 
@@ -115,20 +136,29 @@ export const LockedResendOTP = async (req, res) => {
         const { email, otp } = req.body;
 
         const loginAttempt = await LoginAttempt.findOne({ email });
+
         if (!loginAttempt || !loginAttempt.isLocked) {
             return res.status(401).json({ message: "Invalid request" });
         }
 
-        if (loginAttempt.otp !== otp) {
-            return res.status(401).json({ message: "Invalid OTP" });
+        if (loginAttempt.otpAttempts >= 5) {
+            return res.status(401).json({ message: "Too many wrong attempts." });
         }
+
         if (Date.now() > loginAttempt.otpExpires) {
             return res.status(401).json({ message: "OTP has expired" });
         }
+
+        if (loginAttempt.otp !== otp) {
+            loginAttempt.otpAttempts +=1 ;
+            return res.status(401).json({ message: "Invalid OTP" });
+        }
+
         loginAttempt.isLocked = false;
-        loginAttempt.attempts = 0;
+        loginAttempt.loginAttempts = 0;
         loginAttempt.otp = null;
         loginAttempt.otpExpires = null;
+        loginAttempt.otpAttempts = 0;
         await loginAttempt.save();
 
         res.status(200).json({ message: "Account unlocked. Please login again." });
@@ -136,6 +166,7 @@ export const LockedResendOTP = async (req, res) => {
         res.status(500).json({ message: "Internal Server Error" });
     }
 };
+
   export const resetPassword =async (req, res) => {
     const { email, newPassword } = req.body;
     const student = await Student.findOne({ email });
@@ -156,12 +187,48 @@ export const LockedResendOTP = async (req, res) => {
   
     res.status(200).json({ message: "Password reset successfully" });
   };
+  
    export const login = async (req, res) => {
+      
+      const { email, password,captchaInput } = req.body;
+      const captchaToken = req.cookies.captchaToken;
+
+       if (!captchaToken) {
+          console.error("CAPTCHA token missing");
+          return res.status(400).json({ success: false, error: "CAPTCHA token missing" });
+       }
+       const transporter = nodemailer.createTransport({
+                    service: "gmail",
+                    auth: {
+                      user: process.env.EMAIL_USER,
+                      pass: process.env.EMAIL_PASS,
+                    },
+                  });
       try {
-         console.log("hello from login");
-          const { email, password/* code */ } = req.body;
+         const decoded = jwt.verify(captchaToken, process.env.JWT_SECRET);
+         if (!decoded.verified || decoded.expires < Date.now() || decoded.attempts >= decoded.maxAttempts) {
+         res.clearCookie("captchaToken");
+         return res.status(400).json({ success: false, error: "Invalid or expired CAPTCHA" });
+         }
+
+        if (decoded.text !== captchaInput) {
+        res.clearCookie("captchaToken");
+        return res.status(400).json({ success: false, error: "CAPTCHA not verified" });
+         }
           let loginAttempt = await LoginAttempt.findOne({ email });
           if (loginAttempt && loginAttempt.isLocked) {
+              if(Date.now() > loginAttempt.otpExpires){
+                    const mailOptions = {
+                      from: process.env.EMAIL_USER,
+                      to: email,
+                      subject: 'Security OTP for Account Unlock',
+                      html: `<p>Dear User,</p>
+  <p><strong>Your OTP to unlock your account is:</strong> <span style="font-size: 1.2em;">${otp}</span></p>
+  <p>Please do not share this code with anyone.</p>
+  <p>Thank you,<br/>TPO Dev Team</p>`,
+                  };
+                  await transporter.sendMail(mailOptions);
+              }
               return res.status(400).json({ message: "Account locked. Please check your email for OTP." });
           }
           const student = await Student.findOne({ email });
@@ -189,32 +256,46 @@ export const LockedResendOTP = async (req, res) => {
   
           if (!isPasswordValid) {
               if (!loginAttempt) {
-                  loginAttempt = new LoginAttempt({ email, attempts: 1 });
+                  loginAttempt = new LoginAttempt({ email, loginAttempts: 1 });
               } else {
-                  loginAttempt.attempts += 1;
+                  loginAttempt.loginAttempts += 1;
               }
-              if (loginAttempt.attempts >= 10) {
+              if(loginAttempt.loginAttempts==3){
+                   const ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress;
+                   const mailOptions = {
+                      from: process.env.EMAIL_USER,
+                      to: email,
+                      subject: 'Alert: Suspicious Login Attempts Detected',
+                       html: `
+  <div style="font-family: Arial, sans-serif; color: #333;">
+    <h2 style="color: #d9534f;">🔒 Alert: Suspicious Login Attempts Detected</h2>
+    <p>We noticed <strong>3 unsuccessful login attempts</strong> on your account.</p>
+    <p><strong>IP Address:</strong> ${ip}</p>
+    <p>If this wasn't you, we strongly recommend you <strong>change your password</strong> immediately.</p>
+    <p>Stay safe,<br/>TPO Dev Team</p>
+  </div>`,
+                  };
+                  await transporter.sendMail(mailOptions);
+              }
+              if (loginAttempt.loginAttempts >= 7) {
+                  const ip= req.headers['x-forwarded-for'] || req.socket.remoteAddress;
                   loginAttempt.isLocked = true;
-                  const otp = Math.floor(100000 + Math.random() * 900000).toString();
+                //   const otp = Math.floor(100000 + Math.random() * 900000).toString();
+                  const otp = generateOTP();
                   loginAttempt.otp = otp;
                   loginAttempt.otpExpires = new Date(Date.now() + 5 * 60 * 1000);
-                  const transporter = nodemailer.createTransport({
-                    service: "gmail",
-                    auth: {
-                      user: process.env.EMAIL_USER,
-                      pass: process.env.EMAIL_PASS,
-                    },
-                  });
+                  loginAttempt.ip = ip;
                   const mailOptions = {
                       from: process.env.EMAIL_USER,
                       to: email,
                       subject: 'Security OTP for Account Unlock',
-                      text: `Your OTP for account unlock is: ${otp}`,
+                      html: `<p>Dear User,</p>
+  <p>For security reasons, we have temporarily locked your account for 24 hours due to multiple unauthorized access attempts.</p>
+  <p><strong>Your OTP to unlock your account is:</strong> <span style="font-size: 1.2em;">${otp}</span></p>
+  <p>Please do not share this code with anyone.</p>
+  <p>Thank you,<br/>TPO Dev Team</p>`,
                   };
-  
-                  console.log("will send mail now");
                   await transporter.sendMail(mailOptions);
-                  console.log("mail sent");
               }
   
               await loginAttempt.save();
@@ -244,7 +325,6 @@ export const LockedResendOTP = async (req, res) => {
               secure: process.env.NODE_ENV === "production",
               expires: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
           });
-        console.log("hello");
           if (userType === "Student" && student) {
             try {
                const adjustedBatch = student.batch || '2026';
@@ -258,15 +338,18 @@ export const LockedResendOTP = async (req, res) => {
                     },
                     { new: true }
                 );
-
+                res.clearCookie("captchaToken");
                 return res.status(200).json({ message: "Login Successful",  user: updatedStudent, userType });
             } catch (error) {
                 console.error("Error fetching ERP data:", error);
                 return res.status(500).json({ message: "Login Successful, but failed to fetch ERP data", user, userType });
             }
         }
+          res.clearCookie("captchaToken");
           res.status(200).json({ message: "Login Successful", user: user, userType: userType });
       } catch (error) {
+            console.error("Error in login route:", error); 
+          res.clearCookie("captchaToken");
           res.status(500).json({ message: "Internal Server Error" });
       }
   };
@@ -304,11 +387,11 @@ export const LockedResendOTP = async (req, res) => {
   
 //           if (!isPasswordValid) {
 //               if (!loginAttempt) {
-//                   loginAttempt = new LoginAttempt({ email, attempts: 1 });
+//                   loginAttempt = new LoginAttempt({ email, loginAttempts: 1 });
 //               } else {
-//                   loginAttempt.attempts += 1;
+//                   loginAttempt.loginAttempts += 1;
 //               }
-//               if (loginAttempt.attempts >= 10) {
+//               if (loginAttempt.loginAttempts >= 10) {
 //                   loginAttempt.isLocked = true;
 //                   const otp = Math.floor(100000 + Math.random() * 900000).toString();
 //                   loginAttempt.otp = otp;
@@ -335,10 +418,6 @@ export const LockedResendOTP = async (req, res) => {
 //               await loginAttempt.save();
 //               return res.status(401).json({ message: "Invalid password" });
 //           }
-  
-// /*           if (code && code !== '21cm') {
-//               return res.status(401).json({ message: "Invalid code" });
-//           } */
   
 //           if (loginAttempt) {
 //               await LoginAttempt.deleteOne({ email });
@@ -410,117 +489,3 @@ export const logout = (req, res) => {
     res.cookie('token', '', { httpOnly: true, expires: new Date(0), path: '/' });
     res.status(200).json({ message: 'Logged out successfully' });
   }
-
-
-export const ssignup = async (req, res) => {
-    try {
-        const {name, email, password, rollno, department } = req.body;
-        const student = await Student.findOne({ email });
-        if (student) {
-            return res.status(401).json({ message: "Email already exists" });
-        }
-        const salt = await bcrypt.genSalt(10);
-        const hashedPassword = await bcrypt.hash(password, salt);
-        const newStudent = new Student({name, email, password: hashedPassword, rollno, department });
-        await newStudent.save();
-        const token = jwt.sign({ userId: newStudent._id, userType: "Student" }, process.env.JWT_SECRET,{expiresIn:process.env.JWT_EXPIRES_IN});
-        if (!token) {
-            return res.status(500).json({ message: "Failed to generate token" });
-        }
-        res.cookie("token", token, {
-            httpOnly: true,
-            sameSite: process.env.NODE_ENV === "production" ? "None" : "Lax",
-            secure: process.env.NODE_ENV === "production",
-            expires: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
-        });   
-        res.status(200).json({ message: "Signup successful", user: newStudent });
-    } catch (error) {
-        res.status(500).json({ message: "Internal Server Error" });
-    }
- }
-
-export const psignup = async (req, res) => {
-    try {
-        const {name, email, password, facultyId, department } = req.body;
-        const professor = await Professor.findOne({ email });
-        if (professor) {
-            return res.status(401).json({ message: "Email already exists" });
-        }
-        const salt = await bcrypt.genSalt(10);
-        const hashedPassword = await bcrypt.hash(password, salt);
-        const newProfessor = new Professor({name, email, password: hashedPassword, facultyId, department });
-        await newProfessor.save();
-        const token = jwt.sign({ userId: newProfessor._id, userType: "Professor" }, process.env.JWT_SECRET,{expiresIn:process.env.JWT_EXPIRES_IN});
-        if (!token) {
-            return res.status(500).json({ message: "Failed to generate token" });
-        }
-        res.cookie("token", token, {
-            httpOnly: true,
-            sameSite: process.env.NODE_ENV === "production" ? "None" : "Lax",
-            secure: process.env.NODE_ENV === "production",
-            expires: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
-        });   
-        res.status(200).json({ message: "Signup successful", user: newProfessor });
-    } catch (error) {
-        res.status(500).json({ message: "Internal Server Error" });
-    }
-    }
-
-export const rsignup = async (req, res) => {
-    try {
- 
-        const {name, email, password, company, designation } = req.body;
-        const recuiter = await Recuiter.findOne({ email });
-        if (recuiter) {
-            return res.status(401).json({ message: "Email already exists" });
-        }
-        const salt = await bcrypt.genSalt(10);
-        const hashedPassword = await bcrypt.hash(password, salt);
-        const newRecuiter = new Recuiter({name, email, password: hashedPassword, company, designation });
-        await newRecuiter.save();
-        const token = jwt.sign({ userId: newRecuiter._id, userType: "Recuiter" }, process.env.JWT_SECRET,{expiresIn:process.env.JWT_EXPIRES_IN});
-        if (!token) {
-            return res.status(500).json({ message: "Failed to generate token" });
-        }
-        res.cookie("token", token, {
-            httpOnly: true,
-            sameSite: process.env.NODE_ENV === "production" ? "None" : "Lax",
-            secure: process.env.NODE_ENV === "production",
-            expires: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
-        });   
-        res.status(200).json({ message: "Signup successful", user: newRecuiter });
-    } catch (error) {
-        res.status(500).json({ message: "Internal Server Error" });
-    }
-    }
-
-
-export const asignup = async (req, res) => {
-    try {
- 
-        const {name, email, password, company, designation } = req.body;
-        const recuiter = await Recuiter.findOne({ email });
-        if (recuiter) {
-            return res.status(401).json({ message: "Email already exists" });
-        }
-        const salt = await bcrypt.genSalt(10);
-        const hashedPassword = await bcrypt.hash(password, salt);
-        const newRecuiter = new Recuiter({name, email, password: hashedPassword, company, designation });
-        await newRecuiter.save();
-        const token = jwt.sign({ userId: newRecuiter._id, userType: "Recuiter" }, process.env.JWT_SECRET,{expiresIn:process.env.JWT_EXPIRES_IN});
-        if (!token) {
-            return res.status(500).json({ message: "Failed to generate token" });
-        }
-        res.cookie("token", token, {
-            httpOnly: true,
-            sameSite: process.env.NODE_ENV === "production" ? "None" : "Lax",
-            secure: process.env.NODE_ENV === "production",
-            expires: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
-        });   
-        res.status(200).json({ message: "Signup successful", user: newRecuiter });
-    } catch (error) {
-        res.status(500).json({ message: "Internal Server Error" });
-    }
-    }
-
-

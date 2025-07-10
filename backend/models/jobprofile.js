@@ -216,7 +216,7 @@ const JobProfileSchema = new mongoose.Schema(
     },
     job_sector:{
        type:String,
-       enum:['PSU','Private'],
+      //  enum:['PSU','Private'],
        default:'Private'
     },
     job_salary: {

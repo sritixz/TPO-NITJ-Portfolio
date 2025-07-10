@@ -112,7 +112,6 @@ const Pdashboard = () => {
     // {label:"Mock Assessment",icon:faUser, path:"/pdashboard/mock-assessment"},
     // {label:"Companies",icon:faBuilding, path:"/pdashboard/company-analysis"},
  /*    { label: "Upload Doc", icon: faUpload, path: "/pdashboard/uploads" }, */
-    // { label: "Add students", icon: faUserPlus, path: "/pdashboard/add-students" },
     
   ];
 
@@ -305,7 +304,6 @@ const Pdashboard = () => {
             <Route path="contact-request" element={<ContactRequests />} />
             <Route path="conversation" element={<ConversationLog />} />
             <Route path="placement-insights" element={<PPlacementReport />} />
-            {/* <Route path="add-students" element={<AddStudentForm/>} /> */}
             <Route path="add-recruiter" element={<RecruiterForm/>} />
             {/* <Route path="placement-policy" element={<PlacementPolicy />} /> */}
             <Route path="profile" element={<Profile />} />

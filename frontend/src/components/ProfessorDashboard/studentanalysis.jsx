@@ -2483,15 +2483,11 @@ const StudentAnalyticsDashboard = () => {
                           </div>
                           <div>
                             <label className="text-sm font-medium text-gray-700">Email</label>
-                            {editMode ? (
-                              <Input
-                                value={editedStudent.email}
-                                onChange={(e) => handleChange("email", e.target.value)}
-                                className="mt-1"
-                              />
-                            ) : (
                               <p className="mt-1 text-gray-900">{student.email}</p>
-                            )}
+                          </div>
+                           <div>
+                            <label className="text-sm font-medium text-gray-700">Roll Number</label>
+                              <p className="mt-1 text-gray-900">{student.rollno}</p>
                           </div>
                           <div>
                             <label className="text-sm font-medium text-gray-700">Phone</label>
@@ -2504,10 +2500,6 @@ const StudentAnalyticsDashboard = () => {
                             ) : (
                               <p className="mt-1 text-gray-900">{student.phone}</p>
                             )}
-                          </div>
-                          <div>
-                            <label className="text-sm font-medium text-gray-700">Roll Number</label>
-                              <p className="mt-1 text-gray-900">{student.rollno}</p>
                           </div>
                           <div>
                             <label className="text-sm font-medium text-gray-700">Category</label>
@@ -2579,7 +2571,7 @@ const StudentAnalyticsDashboard = () => {
                                 className="mt-1"
                               />
                             ) : (
-                              <p className="mt-1 text-gray-900">{student.debarred ? "Yes" : "No"}</p>
+                              <p className="mt-1 text-gray-900">{student.debarred? "Yes" : "No"}</p>
                             )}
                           </div>
                         </CardContent>

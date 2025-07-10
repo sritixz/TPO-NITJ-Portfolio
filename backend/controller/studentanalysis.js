@@ -262,11 +262,12 @@ export const Studentprofileupdate = async (req, res) => {
         if(course!="") student.course = course;
         if(cgpa!="") student.cgpa = cgpa;
         if(gender!="") student.gender = gender;
-        if(debarred!="")student.debarred=debarred;
+        student.debarred=debarred;
         if(placementstatus!="") student.placementstatus = placementstatus;
         if(active_backlogs!="") student.active_backlogs = active_backlogs;
         if(backlogs_history!="") student.backlogs_history = backlogs_history;
         await student.save();
+        console.log("Student profile updated successfully:", student);
         res.status(200).json({ message: 'Profile updated successfully'});
     } catch (error) {
         console.error('Error updating user profile:', error);

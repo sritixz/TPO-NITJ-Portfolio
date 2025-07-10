@@ -50,25 +50,13 @@ export const pprofile = async (req, res) => {
 export const updatesProfile = async (req, res) => {
     try {
         const userId = req.user.userId;
-        const { name, email, phone,rollno,department,batch,address,cgpa,gender } = req.body;
-
-        if (!name || !email) {
-            return res.status(400).json({ message: 'Name, email are required' });
-        }
+        const { phone,address } = req.body;
         const student = await Student.findById(userId);
         if (!student) {
             return res.status(404).json({ message: 'Student not found' });
         }
-        student.name = name;
-        student.email = email;
         student.phone = phone;
         student.address = address;
-        if(rollno!="") student.rollno = rollno;
-        if(department!="") student.department = department;
-        if(batch!="") student.batch = batch;
-        if(cgpa!="") student.cgpa = cgpa;
-        if(gender!="") student.gender = gender;
-
         await student.save();
         res.status(200).json({ message: 'Profile updated successfully', user:student });
     } catch (error) {

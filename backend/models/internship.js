@@ -14,12 +14,12 @@ const InternshipSchema = new mongoose.Schema(
     },
     internship_offer_mode:{
       type:String,
-      enum:['Off-Campus','On-Campus'],
+      // enum:['Off-Campus','On-Campus'],
       default:'On-Campus',
     },
     internship_type: {
       type: String,
-      enum:['Intern','Intern+PPO','Intern+FTE','FTE'],
+      // enum:['Intern','Intern+PPO','Intern+FTE','FTE'],
     },
     internship_category:{
       type:String,
@@ -32,15 +32,15 @@ const InternshipSchema = new mongoose.Schema(
     },
     internship_duration: {
        type:String,
-       enum:['2m Intern','6m Intern','11m Intern']
+      //  enum:['2m Intern','6m Intern','11m Intern']
     },
     batch:{
         type:String,
-        enum:['2022','2023','2024','2025','2026','2027','2028','2029','2030']
+        // enum:['2022','2023','2024','2025','2026','2027','2028','2029','2030']
     },
     degree: {
       type:String,
-      enum:["B.Tech","M.Tech","MBA","M.Sc.","PHD","B.Sc.-B.Ed."],
+      // enum:["B.Tech","M.Tech","MBA","M.Sc.","PHD","B.Sc.-B.Ed."],
     },
     stipend:{
       type:String,

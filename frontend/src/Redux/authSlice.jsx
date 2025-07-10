@@ -30,13 +30,13 @@ export const checkAuth = () => async (dispatch) => {
     const response = await axios.get(`${import.meta.env.REACT_APP_BASE_URL}/check-auth`, {
       withCredentials: true,
     });
-    if (response.ok) {
-      dispatch(setAuthUser({ authUser: true, userData: response.data ,userType: response.data.userType}));
-    }
+      dispatch(setAuthUser({ authUser: true, userData: response.data.user , userType: response.data.userType}));
+
   } catch (error) {
     console.error('Error during authentication check', error);
     dispatch(setAuthUser({ authUser: false, userData: null , userType: null }));
   }
 };
+
 
 export default authSlice.reducer;

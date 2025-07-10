@@ -1,10 +1,10 @@
 import express from "express";
 const router=express.Router();
 
-import {getCaptchaChallenge,verifyCaptchaSolution} from "../controller/captchaController.js";
+import { generateCaptcha,verifyCaptcha} from "../controller/captchaController.js";
 
-router.get("/challenge", getCaptchaChallenge);
-router.post("/verify", verifyCaptchaSolution);
+router.get("/generate", generateCaptcha);
+router.post("/verify", verifyCaptcha);
 
 export default router;
 

@@ -8,13 +8,14 @@ import {
     updateExperience,
     deleteExperience
     } from "../controller/sharedexperience.js";
+import { restrictTo } from "../utils/restrict.js";
 
 
-router.get('/', getAllExperiences);
-router.get('/:id', getExperience);
+router.get('/', restrictTo('Professor','Student'), getAllExperiences);
+router.get('/:id', restrictTo('Professor','Student'), getExperience);
 
-router.post('/submit', submitExperience);
-router.post('/:id', updateExperience);
-router.delete('/:id', deleteExperience);
+router.post('/submit', restrictTo('Student'), submitExperience);
+router.post('/:id', restrictTo('Professor','Student'), updateExperience);
+router.delete('/:id',restrictTo('Professor','Student'), deleteExperience);
 
 export default router;

@@ -9,24 +9,22 @@ const OfferTrackerSchema = new mongoose.Schema(
     offer:[{
         offer_type:{
             type:String,
-            enum:['Intern','Intern+PPO','Intern+FTE','FTE']
+            // enum:['Intern','Intern+PPO','Intern+FTE','FTE']
         },
         offer_category:{
             type:String,
-            // enum:['Not Considered','Below Dream','Dream','Super Dream']
         },
         offer_sector:{
             type:String,
-            enum:['PSU','Private'],
+            // enum:['PSU','Private'],
             default:'Private'
         },
         offer_ctc:{
             type:String,
         },
-        jobId:{
-            type: mongoose.Schema.Types.ObjectId,
-            ref: "JobProfile",
-        }
+        offer_intern_duration:{
+            type:String,
+        },
     }]
   },
   { timestamps: true }
