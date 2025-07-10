@@ -8,6 +8,7 @@ import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
 import nodemailer from "nodemailer";
 import LoginAttempt from "../models/loginattempt.js";
+import OtpVerification from "../models/OtpVerification.js";
 import axios from 'axios';
 
 // const generateOTP = () => {
@@ -23,23 +24,31 @@ const generateOTP = (length = 6) => {
   return otp;
 };
 
-  export const sendOtp = async (req, res) => {
+  export const sendResetPasswordOtp = async (req, res) => {
     const { email } = req.body;
-    const student = await Student.findOne({ email });
-    const recuiter = await Recuiter.findOne({ email });
-    const professor = await Professor.findOne({ email });
-    const alumni = await Alumni.findOne({ email });
-    const admin = await Admin.findOne({ email });
+    const user = await Student.findOne({ email }) ||
+               await Recuiter.findOne({ email }) ||
+               await Professor.findOne({ email }) ||
+               await Alumni.findOne({ email }) ||
+               await Admin.findOne({ email });
 
-    if (!student && !recuiter && !professor && !alumni && !admin) {
-        return res.status(401).json({ message: "Email is not Registered" });
-    }
+   if (!user) return res.status(401).json({ message: "Email is not registered" });
+     const expiry = new Date(Date.now() + 5 * 60 * 1000);
+     const otp = generateOTP();
 
-    const user = student || recuiter || professor || alumni || admin;
+    await OtpVerification.findOneAndUpdate(
+    { email },
+    {
+      email,
+      otp,
+      otpExpires: expiry,
+      otpAttempts: 0,
+      ip: req.headers['x-forwarded-for'] || req.socket.remoteAddress,
+      timestamp: new Date(),
+    },
+    { upsert: true, new: true }
+  );
 
-    const otp = generateOTP();
-    user.otp = otp;
-    await user.save();
     const mailOptions = {
       from: process.env.EMAIL_USER,
       to: email,
@@ -66,27 +75,50 @@ const generateOTP = (length = 6) => {
     });
   };
 
-  export const verifyOtp =async (req, res) => {
+  export const verifyResetPasswordOtp =async (req, res) => {
     const { email, otp } = req.body;
-    const student = await Student.findOne({ email });
-    const recuiter = await Recuiter.findOne({ email });
-    const professor = await Professor.findOne({ email });
-    const alumni = await Alumni.findOne({ email });
-    const admin = await Admin.findOne({ email });
+    const user = await Student.findOne({ email }) ||
+               await Recuiter.findOne({ email }) ||
+               await Professor.findOne({ email }) ||
+               await Alumni.findOne({ email }) ||
+               await Admin.findOne({ email });
 
-    if (!student && !recuiter && !professor && !alumni && !admin) {
-        return res.status(401).json({ message: "Email is not Registered" });
+    if (!user) return res.status(401).json({ message: "Email is not registered" });
+
+    const otpVerification = await OtpVerification.findOne({ email });
+
+    if (!otpVerification || !otpVerification.otp) {
+      return res.status(400).json({ message: "OTP not requested" });
+    }
+    if (otpVerification.otpAttempts >= 5) {
+      return res.status(400).json({ message: "Too many wrong attempts." });
     }
 
-    const user = student || recuiter || professor || alumni || admin;
-  
-    if (!user || user.otp !== otp) {
-      return res.status(401).json({ message: "Invalid OTP" });
+    if (Date.now() > otpVerification.otpExpires) {
+        return res.status(400).json({ message: "OTP has expired" });
     }
-  
-    user.otp = null;
-    await user.save();
-  
+    if( otpVerification.otp !== otp) {
+        otpVerification.otpAttempts += 1;
+        await otpVerification.save();
+        return res.status(400).json({ message: "Invalid OTP" });
+    }
+
+    otpVerification.otp= null;
+    otpVerification.otpExpires = null;
+    otpVerification.otpAttempts = 0;
+    otpVerification.ip = null;
+    otpVerification.timestamp = new Date();
+
+    await otpVerification.save();
+    
+    const resetPasswordtoken= jwt.sign({ email }, process.env.JWT_SECRET, { expiresIn: '10m' });
+    res.cookie("resetPasswordToken", resetPasswordtoken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "strict",
+      expires: new Date(Date.now() + 10 * 60 * 1000), // 10 minutes
+    });
+
     res.status(200).json({ message: "OTP verified successfully" });
   };
 
@@ -159,6 +191,7 @@ export const LockedResendOTP = async (req, res) => {
         loginAttempt.otp = null;
         loginAttempt.otpExpires = null;
         loginAttempt.otpAttempts = 0;
+        loginAttempt.ip = null;
         await loginAttempt.save();
 
         res.status(200).json({ message: "Account unlocked. Please login again." });

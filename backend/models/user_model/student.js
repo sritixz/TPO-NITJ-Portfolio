@@ -31,7 +31,7 @@ const studentSchema = new mongoose.Schema({
   },
   address: {
     type: String,
-    },
+  },
   cgpa: {
     type: String,
    },
@@ -45,19 +45,19 @@ const studentSchema = new mongoose.Schema({
   },
   active_backlogs: {
     type: Boolean,
-    default:false,
+    default: false,
   },
   backlogs_history: {
     type: Boolean,
-    default:false,
+    default: false,
   },
-  debarred:{
-    type:Boolean,
-    default:false,
+  debarred: {
+    type: Boolean,
+    default: false,
   },
-  disability:{
-    type:Boolean,
-    default:false,
+  disability: {
+    type: Boolean,
+    default: false,
   },
   image: {
     type: String,
@@ -72,13 +72,14 @@ const studentSchema = new mongoose.Schema({
         // enum: ['No Intern','2m Intern', '6m Intern', '11m Intern'],
         default:'No Intern',
   },
-  account_deactivate:{
-       type:Boolean,
-       default:false,
-   },
-   otp:{
-    type:String
-   }
+
+  account_deactivate: {
+    type: Boolean,
+    default: false,
+  },
+  otp: {
+    type: String
+  },
 }, { timestamps: true });
 
 const Student = mongoose.model('Student', studentSchema);

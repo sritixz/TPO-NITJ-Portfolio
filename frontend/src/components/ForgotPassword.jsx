@@ -32,7 +32,7 @@ const ForgotPassword = () => {
     e.preventDefault();
     try {
       await toast.promise(
-        axios.post(`${import.meta.env.REACT_APP_BASE_URL}/auth/send-otp`, { email }),
+        axios.post(`${import.meta.env.REACT_APP_BASE_URL}/auth/send-resetpassword-otp`, { email }),
         {
           loading: "Sending OTP...",
           success: "OTP sent successfully!",
@@ -72,7 +72,7 @@ const ForgotPassword = () => {
     }
     try {
       await toast.promise(
-        axios.post(`${import.meta.env.REACT_APP_BASE_URL}/auth/verify-otp`, { email, otp }),
+        axios.post(`${import.meta.env.REACT_APP_BASE_URL}/auth/verify-resetpassword-otp`, { email, otp }),
         {
           loading: "Verifying OTP...",
           success: "OTP verified successfully!",
