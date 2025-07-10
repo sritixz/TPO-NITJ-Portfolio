@@ -1,12 +1,12 @@
 import express from "express";
 const router=express.Router();
 
-import {LockedResendOTP,LockedverifyOTP,sendOtp,verifyOtp,resetPassword,login,logout} from "../controller/auth.js";
+import {LockedResendOTP,LockedverifyOTP,sendResetPasswordOtp,verifyResetPasswordOtp,resetPassword,login,logout} from "../controller/auth.js";
 
 router.post("/login",login);
 router.post('/logout',logout);
-router.post('/send-otp',sendOtp);
-router.post('/verify-otp',verifyOtp);
+router.post('/send-resetpassword-otp',sendResetPasswordOtp);
+router.post('/verify-resetpassword-otp',verifyResetPasswordOtp);
 router.post('/locked-verify-otp',LockedverifyOTP);
 router.post('/locked-resend-otp',LockedResendOTP);
 router.post('/reset-password',resetPassword);

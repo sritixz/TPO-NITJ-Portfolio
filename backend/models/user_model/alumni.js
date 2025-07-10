@@ -21,9 +21,9 @@ const alumniSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
-  otp:{
-   type:String
-  }
+  otp: {
+    type: String
+  },
 }, { timestamps: true });
 
 const Alumni = mongoose.model('Alumni', alumniSchema);

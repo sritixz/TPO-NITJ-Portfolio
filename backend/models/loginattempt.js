@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
 
 const loginAttemptSchema = new mongoose.Schema({
-    email: { type: String, required: true, unique: true },
+    email: { type: String },
     isLocked: { type: Boolean, default: false },
     loginAttempts: { type: Number, default: 0 },
     otp: { type: String, default: null },

@@ -16,8 +16,8 @@ const recuiterSchema = new mongoose.Schema({
   designation: {
     type: String,
   },
-  otp:{
-   type:String
+  otp: {
+    type: String
   },
 }, { timestamps: true });
 
