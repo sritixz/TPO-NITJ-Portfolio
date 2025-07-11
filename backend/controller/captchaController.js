@@ -156,10 +156,10 @@ export const verifyCaptcha = async (req, res) => {
   }
 
   // Bot detection: reject fast submissions
-  // if (interactionTime < 500) {
-  //   console.warn("Suspicious interaction detected: too fast");
-  //   return res.status(400).json({ success: false, error: "Suspicious interaction" });
-  // }
+  if (interactionTime < 500) {
+    console.warn("Suspicious interaction detected: too fast", interactionTime);
+    return res.status(400).json({ success: false, error: "Suspicious interaction" });
+  }
 
   try {
     const decoded = jwt.verify(captchaToken, process.env.JWT_SECRET);

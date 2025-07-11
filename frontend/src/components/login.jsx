@@ -209,6 +209,7 @@ import React, { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import axios from "axios";
 import toast from "react-hot-toast";
+import { useRef } from "react";
 import { useDispatch } from "react-redux";
 import { setAuthUser } from "../Redux/authSlice";
 import { Eye, EyeOff, RefreshCcw,ShieldCheck } from "lucide-react";
@@ -226,6 +227,7 @@ const LoginSignup = () => {
   const [captchaInput, setCaptchaInput] = useState("");
   const [captchaImage, setCaptchaImage] = useState("");
   const [captchaVerified, setCaptchaVerified] = useState(false);
+  const captchaStartTime = useRef(null);
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
@@ -245,6 +247,7 @@ const LoginSignup = () => {
       setCaptchaImage(response.data.image);
       setCaptchaInput("");
       setCaptchaVerified(false);
+      captchaStartTime.current = Date.now();
     } catch (error) {
       console.error("Error fetching CAPTCHA:", error);
       toast.error("Failed to load CAPTCHA. Please try again.");
@@ -256,11 +259,11 @@ const LoginSignup = () => {
   };
 
   const handleCaptchaVerify = async () => {
-    const startTime = Date.now();
+      const interactionTime = Date.now() - captchaStartTime.current;
     try {
       const response = await axios.post(
         `${import.meta.env.REACT_APP_BASE_URL}/captcha/verify`,
-        { captchaInput, interactionTime: Date.now() - startTime },
+        { captchaInput, interactionTime},
         { withCredentials: true }
       );
       if (response.data.success) {
