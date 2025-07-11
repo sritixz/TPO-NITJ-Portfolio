@@ -9,6 +9,8 @@ import bcrypt from "bcrypt";
 import nodemailer from "nodemailer";
 import LoginAttempt from "../models/loginattempt.js";
 import OtpVerification from "../models/OtpVerification.js";
+import ResetPasswordToken from "../models/resetpassword.js";
+import { v4 as uuidv4 } from "uuid";
 import axios from 'axios';
 
 // const generateOTP = () => {
@@ -54,7 +56,7 @@ const generateOTP = (length = 6) => {
       to: email,
       subject: "Password Reset Request",
       html: `<div style="font-family: Arial, sans-serif; color: #333;">
-    <p>You requested to reset your password.</p>
+    <p>Dear User,</p>
     <p><strong>Your OTP to reset your password is:</strong> <span style="font-size: 1.5em; color: #007bff;">${otp}</span></p>
     <p>If you didn’t request this, you can safely ignore this email.</p>
     <p>Best regards,<br/>TPO Dev Team</p>
@@ -97,21 +99,28 @@ const generateOTP = (length = 6) => {
     if (Date.now() > otpVerification.otpExpires) {
         return res.status(400).json({ message: "OTP has expired" });
     }
+
     if( otpVerification.otp !== otp) {
         otpVerification.otpAttempts += 1;
         await otpVerification.save();
         return res.status(400).json({ message: "Invalid OTP" });
     }
 
-    otpVerification.otp= null;
-    otpVerification.otpExpires = null;
-    otpVerification.otpAttempts = 0;
-    otpVerification.ip = null;
-    otpVerification.timestamp = new Date();
+    await OtpVerification.deleteOne({ email });
 
-    await otpVerification.save();
-    
-    const resetPasswordtoken= jwt.sign({ email }, process.env.JWT_SECRET, { expiresIn: '10m' });
+    const resetId = uuidv4();
+
+    await ResetPasswordToken.findOneAndUpdate(
+      { email },
+      {
+        email,
+        resetId,
+        timestamp: new Date(),
+      },
+      { upsert: true, new: true }
+    );
+
+    const resetPasswordtoken= jwt.sign({ email,resetId }, process.env.JWT_SECRET, { expiresIn: '10m' });
     res.cookie("resetPasswordToken", resetPasswordtoken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
@@ -202,6 +211,23 @@ export const LockedResendOTP = async (req, res) => {
 
   export const resetPassword =async (req, res) => {
     const { email, newPassword } = req.body;
+    const resetPasswordToken = req.cookies?.resetPasswordToken;
+    if (!resetPasswordToken) {
+        return res.status(401).json({ message: "Reset Token not found" });
+    }
+    try{
+    const decoded = jwt.verify(resetPasswordToken, process.env.JWT_SECRET);
+    if (!decoded || decoded.email !== email) {
+        return res.status(401).json({ message: "Unauthorized" });
+    }
+    const resetpasswordData = await ResetPasswordToken.findOne({ email });
+    if (!resetpasswordData) {
+        return res.status(401).json({ message: "Invalid request" });
+    }
+    if (decoded.resetId !== resetpasswordData.resetId) {
+        return res.status(401).json({ message: "Reset Token expired" });
+    }
+
     const student = await Student.findOne({ email });
     const recuiter = await Recuiter.findOne({ email });
     const professor = await Professor.findOne({ email });
@@ -213,12 +239,20 @@ export const LockedResendOTP = async (req, res) => {
     }
 
     const user = student || recuiter || professor || alumni || admin;
+
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(newPassword, salt);
     user.password = hashedPassword;
     await user.save();
-  
+
+    res.clearCookie("resetPasswordToken");
+    await ResetPasswordToken.deleteOne({ email });
+
     res.status(200).json({ message: "Password reset successfully" });
+
+    }catch(error){
+        res.status(500).json({ message: "Invalid Token" });
+    }
   };
   
    export const login = async (req, res) => {

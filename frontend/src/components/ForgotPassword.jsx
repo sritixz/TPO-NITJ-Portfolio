@@ -17,7 +17,7 @@ const ForgotPassword = () => {
   const navigate = useNavigate();
 
   const passwordCriteria = [
-    { id: 1, text: "At least 8 characters", regex: /^.{8,}$/ },
+    { id: 1, text: "At least 12 characters", regex: /^.{12,}$/ },
     { id: 2, text: "At least one lowercase letter", regex: /[a-z]/ },
     { id: 3, text: "At least one uppercase letter", regex: /[A-Z]/ },
     { id: 4, text: "At least one number", regex: /\d/ },
@@ -45,17 +45,31 @@ const ForgotPassword = () => {
     }
   };
 
+  // const handleOtpChange = (index, value) => {
+  //   // if (!/^\d*$/.test(value)) return;
+  //   if (!/^[A-Z0-9]*$/.test(value)) return;
+
+  //   const newOtpValues = [...otpValues];
+  //   newOtpValues[index] = value;
+  //   setOtpValues(newOtpValues);
+
+  //   if (value !== "" && index < 5) {
+  //     otpRefs.current[index + 1].current.focus();
+  //   }
+  // };
+
   const handleOtpChange = (index, value) => {
-    if (!/^\d*$/.test(value)) return;
+  const upperValue = value.toUpperCase();
+  if (!/^[A-Z0-9]*$/.test(upperValue)) return;
 
-    const newOtpValues = [...otpValues];
-    newOtpValues[index] = value;
-    setOtpValues(newOtpValues);
+  const newOtpValues = [...otpValues];
+  newOtpValues[index] = upperValue;
+  setOtpValues(newOtpValues);
 
-    if (value !== "" && index < 5) {
-      otpRefs.current[index + 1].current.focus();
-    }
-  };
+  if (upperValue !== "" && index < 5) {
+    otpRefs.current[index + 1].current.focus();
+  }
+};
 
   const handleKeyDown = (index, e) => {
     if (e.key === "Backspace" && !otpValues[index] && index > 0) {
@@ -72,7 +86,7 @@ const ForgotPassword = () => {
     }
     try {
       await toast.promise(
-        axios.post(`${import.meta.env.REACT_APP_BASE_URL}/auth/verify-resetpassword-otp`, { email, otp }),
+        axios.post(`${import.meta.env.REACT_APP_BASE_URL}/auth/verify-resetpassword-otp`, { email, otp }, { withCredentials: true }),
         {
           loading: "Verifying OTP...",
           success: "OTP verified successfully!",
@@ -100,7 +114,7 @@ const ForgotPassword = () => {
         axios.post(`${import.meta.env.REACT_APP_BASE_URL}/auth/reset-password`, {
           email,
           newPassword,
-        }),
+        }, { withCredentials: true }),
         {
           loading: "Resetting password...",
           success: "Password reset successfully!",
@@ -115,13 +129,15 @@ const ForgotPassword = () => {
 
   const handlePaste = (e) => {
     e.preventDefault();
-    const pastedData = e.clipboardData.getData("text");
-    const pastedNumbers = pastedData.match(/\d/g);
+    // const pastedData = e.clipboardData.getData("text");
+    // const pastedNumbers = pastedData.match(/\d/g);
+    const pastedData = e.clipboardData.getData("text").toUpperCase();
+    const pastedChars = pastedData.match(/[A-Z0-9]/g);
     
-    if (pastedNumbers && pastedNumbers.length) {
+    if (pastedChars && pastedChars.length) {
       const newOtpValues = [...otpValues];
-      for (let i = 0; i < Math.min(6, pastedNumbers.length); i++) {
-        newOtpValues[i] = pastedNumbers[i];
+      for (let i = 0; i < Math.min(6, pastedChars.length); i++) {
+        newOtpValues[i] = pastedChars[i];
       }
       setOtpValues(newOtpValues);
       const nextEmptyIndex = newOtpValues.findIndex(value => !value);
