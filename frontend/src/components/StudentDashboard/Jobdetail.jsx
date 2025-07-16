@@ -64,6 +64,7 @@ const Jobdetail = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [status, setStatus] = useState("");
+  const [checking, setChecking] = useState(true);
   const [application, setApplication] = useState(false);
   const [isdeadlineOver, setIsdeadlineOver] = useState(false);
   const [timeLeft, setTimeLeft] = useState("");
@@ -97,6 +98,7 @@ const Jobdetail = () => {
   useEffect(() => {
     const fetchEligibility = async () => {
       try {
+        setChecking(true);
         const response = await axios.get(
           `${
             import.meta.env.REACT_APP_BASE_URL
@@ -105,6 +107,7 @@ const Jobdetail = () => {
         );
         setStatus(response.data || "");
         setIsdeadlineOver(response.data.isDeadlineOver);
+        setChecking(false);
       } catch (error) {
         setError("Failed to fetch eligibility status. Please try again.");
       }
@@ -553,8 +556,9 @@ const Jobdetail = () => {
               status.eligible ? "text-green-600" : "text-red-600"
             }`}
           >
-            {status.eligible ? "Eligible" : "Not Eligible"}
-            {status.reason ? ` (${status.reason})` : ""}
+            {checking? "Checking...": status?.eligible? "Eligible": `Not Eligible${status?.reason ? ` (${status.reason})` : ""}`}
+            {/* {status.eligible ? "Eligible" : "Not Eligible"}
+            {status.reason ? ` (${status.reason})` : ""} */}
           </span>
         </div>
         <div className="mt-6 flex justify-end space-x-4">

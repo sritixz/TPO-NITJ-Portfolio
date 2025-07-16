@@ -9,21 +9,17 @@ const PlacementSchema = new mongoose.Schema(
     company_name: {
       type: String,
     },
-    company_logo: {
-      type: String,
-    },
     placement_offer_mode:{
       type:String,
-      enum:['Off-Campus','On-Campus'],
+      // enum:['Off-Campus','On-Campus'],
       default:'On-Campus',
     },
     placement_type: {
       type: String,
-      enum:['Intern','Intern+PPO','Intern+FTE','FTE'],
+      // enum:['Intern','Intern+PPO','Intern+FTE','FTE'],
     },
-    placement_category:{
+    placement_category:{ //tech, non-tech
       type:String,
-      enum: ['Tech', 'Non-Tech','Tech+Non-Tech'],
     },
     placement_sector:{
       type:String,
@@ -83,15 +79,7 @@ const PlacementSchema = new mongoose.Schema(
             "INDUSTRIAL ENGINEERING AND DATA ANALYTICS", "POWER SYSTEMS AND RELIABILITY", "RENEWABLE ENERGY", 
             "SIGNAL PROCESSING AND MACHINE LEARNING", "STRUCTURAL AND CONSTRUCTION ENGINEERING", "TEXTILE ENGINEERING AND MANAGEMENT", 
             "VLSI DESIGN", "MACHINE INTELLIGENCE AND AUTOMATION", "THERMAL AND ENERGY ENGINEERING", "HUMANITIES AND MANAGEMENT"
-            // "Biotechnology","Chemical Engineering","Civil Engineering","Computer Science & Engineering","Data Science and Engineering","Electrical Engineering",
-            // "Electronics & Communication Engineering","Electronics and VLSI Engineering","Industrial and Production Engineering",
-            // "Information Technology","Instrumentation and Control Engineering","Mathematics and Computing","Mechanical Engineering",
-            // "Textile Technology","Structural and Construction Engineering","Geotechnical and Geo-Environmental Engineering",
-            // "Information Security","Electric Vehicle Design","Signal Processing and Machine Learning","VLSI Design","Industrial Engineering and Data Analytics",
-            // "Manufacturing Technology With Machine Learning","Data Analytics","Control and Instrumentation","Machine Intelligence and Automation",
-            // "Mathematics and Computing","Design Engineering","Thermal and Energy Engineering","Textile Engineering and Management","Renewable Energy",
-            // "Artificial Intelligence","Power Systems and Reliability","Finance","Human Resource","Marketing","Chemistry","Mathematics",
-            // "Physics"
+
           ],
         },
         category:{

@@ -4,6 +4,10 @@ import { getBrochures, addBrochure, updateBrochure, deleteBrochure } from '../co
 
 const router = express.Router();
 
+// import { attachFingerprint, limitFingerprint } from '../utils/fingerprint.js';
+// router.use(attachFingerprint);
+// router.use(limitFingerprint);
+
 router.get('/get', getBrochures);
 router.post('/add', restrictTo('Admin'), addBrochure);
 router.put('/update/:id', restrictTo('Admin'), updateBrochure);

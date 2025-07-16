@@ -14,6 +14,8 @@ import JobAnnouncementForm from "../models/jaf.js";
 import axios from "axios";
 import OfferTracker from "../models/offertracker.js";
 import SummerInternTracker from "../models/summer_intern_tracker.js";
+import Offer from "../models/offer.js";
+import SummerIntern from "../models/summer_internship.js";
 import Recruiter from "../models/user_model/recuiter.js";
 import GuestHouseBooking from "../models/travel_planner/room.js";
 import VehicleRequisition from "../models/travel_planner/vehicle.js";
@@ -185,14 +187,16 @@ export const createJobProfilecopy = async (req, res) => {
 
     // Determine job_class based on CTC
     let job_class;
-    if (ctc < 5) {
-      job_class = "Below Dream";
-    } else if (ctc >= 5 && ctc < 12) {
-      job_class = "Dream";
-    } else if (ctc >= 12) {
-      job_class = "Super Dream";
-    } else {
-      job_class = "Below Dream"; // Default for invalid/undefined CTC
+    if (ctc > 20 || job_sector==='PSU') {
+      job_class = "A";
+    } else if (ctc > 12 && ctc <= 20) {
+      job_class = "B";
+    } else if (ctc > 5 && ctc <= 12) {
+      job_class = "C";
+    } else if (ctc <= 5) {
+      job_class = "D";
+    }else {
+      job_class = "D"; // Default for invalid/undefined CTC
     }
    console.log(job_class);
     // Create new JobProfile
@@ -219,6 +223,7 @@ export const createJobProfilecopy = async (req, res) => {
       deadline: deadline || new Date(),
       Approved_Status,
       Applied_Students: [],
+      final_shortlisted_students: [],
       completed: false,
       visibility: true,
       recruiter_editing_allowed: false,
@@ -343,54 +348,73 @@ export const updateJob = async (req, res) => {
     const oldJob = job.toObject();
     const updateData = req.body;
 
-    // This function compares only the keys in newObj (updateData).
     const detectNestedChanges = (oldObj, newObj) => {
       let diff = {};
-
       Object.keys(newObj).forEach(key => {
         const oldValue = oldObj ? oldObj[key] : undefined;
         const newValue = newObj[key];
-
-        // If both values are arrays, compare added/removed items.
         if (Array.isArray(newValue) && Array.isArray(oldValue)) {
           const added = newValue.filter(item => !oldValue.includes(item));
           const removed = oldValue.filter(item => !newValue.includes(item));
           if (added.length > 0 || removed.length > 0) {
             diff[key] = { added, removed };
           }
-        }
-        // If both values are objects (but not arrays), compare recursively.
-        else if (
-          newValue &&
-          typeof newValue === 'object' &&
-          !Array.isArray(newValue)
-        ) {
+        } else if (newValue && typeof newValue === 'object' && !Array.isArray(newValue)) {
           const nestedDiff = detectNestedChanges(oldValue, newValue);
           if (Object.keys(nestedDiff).length > 0) {
             diff[key] = nestedDiff;
           }
-        }
-        // For all other types, log the change if values differ.
-        else if (oldValue !== newValue) {
+        } else if (oldValue !== newValue) {
           diff[key] = { oldValue, newValue };
         }
       });
-
       return diff;
     };
 
-    // Compute differences only for the fields present in updateData.
     const changes = detectNestedChanges(oldJob, updateData);
+    console.log(changes);
+
+    // Handle CTC change
+    if (changes?.job_salary?.ctc|| changes?.job_sector) {
+      // const ctc = parseFloat(updateData?.job_salary?.ctc || oldJob?.job_salary?.ctc || 0);
+ let ctc;
+if (updateData?.job_salary?.ctc === '') {
+  ctc = 0;
+} else if (updateData?.job_salary?.ctc !== undefined) {
+  ctc = parseFloat(updateData.job_salary.ctc);
+} else if (oldJob?.job_salary?.ctc !== undefined) {
+  ctc = parseFloat(oldJob.job_salary.ctc);
+} else {
+  ctc = 0;
+}
+
+      const sector = updateData?.job_sector || oldJob?.job_sector || "Private";
+      console.log("CTC:", ctc, "Sector:", sector);
+      let job_class;
+
+         if (ctc > 20 || sector==='PSU') {
+      job_class = "A";
+    } else if (ctc > 12 && ctc <= 20) {
+      job_class = "B";
+    } else if (ctc > 5 && ctc <= 12) {
+      job_class = "C";
+    } else if (ctc <= 5) {
+      job_class = "D";
+    }else {
+      job_class = "D"; // Default for invalid/undefined CTC
+    }
+   console.log(job_class);
+
+      updateData.job_class = job_class;
+    }
 
     if (Object.keys(changes).length > 0) {
-      // Update the job document.
       const updatedJob = await JobProfile.findByIdAndUpdate(
         _id,
         updateData,
         { new: true }
       );
 
-      // Log only the actual changes.
       updatedJob.auditLogs.push({
         editedBy: user._id,
         email: user.email,
@@ -401,16 +425,101 @@ export const updateJob = async (req, res) => {
       await updatedJob.save();
     }
 
-    res.status(200).json({ 
-      success: true, 
-      message: 'Job updated successfully', 
-      job: await JobProfile.findById(_id) 
+    res.status(200).json({
+      success: true,
+      message: 'Job updated successfully',
+      job: await JobProfile.findById(_id)
     });
   } catch (error) {
     console.error('Error updating job:', error.message);
     res.status(500).json({ success: false, error: 'Server Error' });
   }
 };
+
+// export const updateJob = async (req, res) => {
+//   try {
+//     const userId = req.user.userId;
+//     const { _id } = req.params;
+//     const recruiter = await Recuiter.findById(userId);
+//     const professor = await Professor.findById(userId);
+//     const user = recruiter || professor;
+//     const job = await JobProfile.findById(_id);
+
+//     if (!job) {
+//       return res.status(404).json({ success: false, message: 'Job not found' });
+//     }
+
+//     const oldJob = job.toObject();
+//     const updateData = req.body;
+
+//     // This function compares only the keys in newObj (updateData).
+//     const detectNestedChanges = (oldObj, newObj) => {
+//       let diff = {};
+
+//       Object.keys(newObj).forEach(key => {
+//         const oldValue = oldObj ? oldObj[key] : undefined;
+//         const newValue = newObj[key];
+
+//         // If both values are arrays, compare added/removed items.
+//         if (Array.isArray(newValue) && Array.isArray(oldValue)) {
+//           const added = newValue.filter(item => !oldValue.includes(item));
+//           const removed = oldValue.filter(item => !newValue.includes(item));
+//           if (added.length > 0 || removed.length > 0) {
+//             diff[key] = { added, removed };
+//           }
+//         }
+//         // If both values are objects (but not arrays), compare recursively.
+//         else if (
+//           newValue &&
+//           typeof newValue === 'object' &&
+//           !Array.isArray(newValue)
+//         ) {
+//           const nestedDiff = detectNestedChanges(oldValue, newValue);
+//           if (Object.keys(nestedDiff).length > 0) {
+//             diff[key] = nestedDiff;
+//           }
+//         }
+//         // For all other types, log the change if values differ.
+//         else if (oldValue !== newValue) {
+//           diff[key] = { oldValue, newValue };
+//         }
+//       });
+
+//       return diff;
+//     };
+
+//     // Compute differences only for the fields present in updateData.
+//     const changes = detectNestedChanges(oldJob, updateData);
+
+//     if (Object.keys(changes).length > 0) {
+//       // Update the job document.
+//       const updatedJob = await JobProfile.findByIdAndUpdate(
+//         _id,
+//         updateData,
+//         { new: true }
+//       );
+
+//       // Log only the actual changes.
+//       updatedJob.auditLogs.push({
+//         editedBy: user._id,
+//         email: user.email,
+//         changes,
+//         timestamp: new Date(),
+//       });
+
+//       await updatedJob.save();
+//     }
+
+//     res.status(200).json({ 
+//       success: true, 
+//       message: 'Job updated successfully', 
+//       job: await JobProfile.findById(_id) 
+//     });
+//   } catch (error) {
+//     console.error('Error updating job:', error.message);
+//     res.status(500).json({ success: false, error: 'Server Error' });
+//   }
+// };
 
 
 export const deleteJob = async (req, res) => {
@@ -423,59 +532,6 @@ export const deleteJob = async (req, res) => {
     res.status(500).json({ success: false, error: 'Server Error' });
   }
 };
-export const getJobProfiletostudent = async (req, res) => {
-  try {
-    const studentId = req.user.userId;
-    if (!studentId) {
-      return res.status(400).json({ message: "User ID is missing in the request." });
-    }
-
-    const student = await Student.findById({ _id: studentId });
-    let batch='2026'
-
-    const course = student.course;
-
-    const JobProfiles = await JobProfile.find({
-      Approved_Status: true,
-      eligibility_criteria: {
-        $elemMatch: {
-          eligible_batch: batch,
-          course_allowed: course,
-        },
-      },
-    });
-
-    const applied = [];
-    const notApplied = [];
-    const liveButNotApplied = [];
-
-    const currentDate = new Date();
-
-    JobProfiles.forEach((job) => {
-      const isApplied = job.Applied_Students.includes(studentId);
-      const isLive = new Date(job.deadline) > currentDate;
-
-      if (isApplied) {
-        applied.push(job);
-      } else if (!isApplied && isLive) {
-        liveButNotApplied.push(job);
-      } else {
-        notApplied.push(job);
-      }
-    });
-
-    return res.status(200).json({
-      applied,
-      notApplied,
-      liveButNotApplied,
-    });
-  } catch (error) {
-    console.error("Error fetching job status:", error);
-    return res.status(500).json({ message: "An error occurred while fetching job status." });
-  }
-};
-
-
 // export const getJobProfiletostudent = async (req, res) => {
 //   try {
 //     const studentId = req.user.userId;
@@ -484,30 +540,7 @@ export const getJobProfiletostudent = async (req, res) => {
 //     }
 
 //     const student = await Student.findById({ _id: studentId });
-//     let batch;
-
-//     try {
-//       const rollNumbers = [student.rollno];
-//       const course = student.course;
-//       const response = await axios.post(`${process.env.ERP_SERVER}`, rollNumbers);
-//       const erpStudents = response.data.data;
-//       const erpData = erpStudents[0];
-//       const erpBatch = erpData.batch;
-
-//       const courseDurations = {
-//         "B.Tech": 4,
-//         "M.Tech": 2,
-//         "B.Sc.-B.Ed.": 4,
-//         "MBA": 2,
-//         "M.Sc.": 2,
-//       };
-//       const adjustment = courseDurations[course] || 0;
-//       const adjustedBatch = String(Number(erpBatch) + adjustment);
-//       batch = adjustedBatch;
-//     } catch (erpError) {
-//       console.error("ERP server error, falling back to database batch:", erpError);
-//       batch = student.batch;
-//     }
+//     let batch='2027'
 
 //     const course = student.course;
 
@@ -552,6 +585,82 @@ export const getJobProfiletostudent = async (req, res) => {
 // };
 
 
+export const getJobProfiletostudent = async (req, res) => {
+  try {
+    const studentId = req.user.userId;
+    if (!studentId) {
+      return res.status(400).json({ message: "User ID is missing in the request." });
+    }
+
+    const student = await Student.findById({ _id: studentId });
+    let batch;
+
+    try {
+      const rollNumbers = [student.rollno];
+      const course = student.course;
+      const response = await axios.post(`${process.env.ERP_SERVER}`, rollNumbers);
+      const erpStudents = response.data.data;
+      const erpData = erpStudents[0];
+      const erpBatch = erpData.batch;
+
+      const courseDurations = {
+        "B.Tech": 4,
+        "M.Tech": 2,
+        "B.Sc.-B.Ed.": 4,
+        "MBA": 2,
+        "M.Sc.": 2,
+      };
+      const adjustment = courseDurations[course] || 0;
+      const adjustedBatch = String(Number(erpBatch) + adjustment);
+      batch = adjustedBatch;
+    } catch (erpError) {
+      console.error("ERP server error, falling back to database batch:", erpError);
+      batch = student.batch;
+    }
+
+    const course = student.course;
+
+    const JobProfiles = await JobProfile.find({
+      Approved_Status: true,
+      eligibility_criteria: {
+        $elemMatch: {
+          eligible_batch: batch,
+          course_allowed: course,
+        },
+      },
+    });
+
+    const applied = [];
+    const notApplied = [];
+    const liveButNotApplied = [];
+
+    const currentDate = new Date();
+
+    JobProfiles.forEach((job) => {
+      const isApplied = job.Applied_Students.includes(studentId);
+      const isLive = new Date(job.deadline) > currentDate;
+
+      if (isApplied) {
+        applied.push(job);
+      } else if (!isApplied && isLive) {
+        liveButNotApplied.push(job);
+      } else {
+        notApplied.push(job);
+      }
+    });
+
+    return res.status(200).json({
+      applied,
+      notApplied,
+      liveButNotApplied,
+    });
+  } catch (error) {
+    console.error("Error fetching job status:", error);
+    return res.status(500).json({ message: "An error occurred while fetching job status." });
+  }
+};
+
+
 export const getJobProfiledetails = async (req, res) => {
   try {
     const { _id } = req.params;
@@ -564,9 +673,9 @@ export const getJobProfiledetails = async (req, res) => {
 
 export const getJobProfilesForProfessors = async (req, res) => {
   try {
-    const approvedJobs = await JobProfile.find({ Approved_Status: true, completed:false });
-    const notApprovedJobs = await JobProfile.find({ Approved_Status: false });
-    const completed= await JobProfile.find({completed:true});
+    const approvedJobs = await JobProfile.find({ Approved_Status: true, completed:false }).sort({ createdAt: -1 });
+    const notApprovedJobs = await JobProfile.find({ Approved_Status: false }).sort({ createdAt: -1 });
+    const completed= await JobProfile.find({completed:true}).sort({ updatedAt: -1 });
     const feedbacks = await Feedback.find({});
     const feedbackByCompany = feedbacks.reduce((acc, feedback) => {
       acc[feedback.company] = feedback;
@@ -828,97 +937,97 @@ export const rejectJobProfile = async (req, res) => {
 // };
 
 
-function checkEligible(offerHistory, targetOfferType, targetCategory,jobSector) {
-  const eligibilityMatrix = {
-    'Below Dream': {
-      'Intern':{
-        'Below Dream': [],
-        "Dream": ['Intern+FTE', 'FTE'],
-        "Super Dream": ['Intern+FTE', 'FTE']
-      },
-      'Intern+PPO': {
-        'Below Dream': [],
-        "Dream": ['Intern+FTE', 'FTE'],
-        "Super Dream": ['Intern+FTE', 'FTE']
-      },
-      'FTE': {
-        'Below Dream': [],
-        "Dream": ['Intern+FTE', 'FTE'],
-        "Super Dream": ["Intern+FTE", 'FTE']
-      },
-      'Intern+FTE': {
-        'Below Dream': [],
-        "Dream": ['Intern+FTE', 'FTE'],
-        "Super Dream": ['Intern+FTE', 'FTE']
-      }
-    },
-    "Dream": {
-      'Intern+PPO': {
-        'Below Dream': [],
-        "Dream": ["FTE"],
-        "Super Dream": ['Intern+FTE', 'FTE', 'Intern+PPO']
-      },
-      'FTE': {
-        'Below Dream': [],
-        "Dream": [],
-        "Super Dream": ['Intern+FTE', 'FTE', 'Intern+PPO']
-      },
-      'Intern+FTE': {
-        'Below Dream': [],
-        "Dream": [],
-        "Super Dream": ['Intern+FTE', 'FTE', 'Intern+PPO']
-      }
-    },
-    "Super Dream": {
-      'Intern+PPO': {
-        'Below Dream': [],
-        "Dream": ['FTE'],
-        "Super Dream": ['FTE']
-      },
-      'FTE': {
-        'Below Dream': [],
-        "Dream": [],
-        "Super Dream": []
-      },
-      'Intern+FTE': {
-        'Below Dream': [],
-        "Dream": [],
-        "Super Dream": []
-      }
-    }
-  };
-      // Check if student has Intern+FTE or FTE offer in Super Dream category
-  const hasSuperDreamOffer = offerHistory.some(
-    offer => 
-      (offer.offer_type === 'Intern+FTE' || offer.offer_type === 'FTE') &&
-      offer.offer_category === 'Super Dream'
-  );
+// function checkEligible(offerHistory, targetOfferType, targetCategory,jobSector) {
+//   const eligibilityMatrix = {
+//     'Below Dream': {
+//       'Intern':{
+//         'Below Dream': [],
+//         "Dream": ['Intern+FTE', 'FTE'],
+//         "Super Dream": ['Intern+FTE', 'FTE']
+//       },
+//       'Intern+PPO': {
+//         'Below Dream': [],
+//         "Dream": ['Intern+FTE', 'FTE'],
+//         "Super Dream": ['Intern+FTE', 'FTE']
+//       },
+//       'FTE': {
+//         'Below Dream': [],
+//         "Dream": ['Intern+FTE', 'FTE'],
+//         "Super Dream": ["Intern+FTE", 'FTE']
+//       },
+//       'Intern+FTE': {
+//         'Below Dream': [],
+//         "Dream": ['Intern+FTE', 'FTE'],
+//         "Super Dream": ['Intern+FTE', 'FTE']
+//       }
+//     },
+//     "Dream": {
+//       'Intern+PPO': {
+//         'Below Dream': [],
+//         "Dream": ["FTE"],
+//         "Super Dream": ['Intern+FTE', 'FTE', 'Intern+PPO']
+//       },
+//       'FTE': {
+//         'Below Dream': [],
+//         "Dream": [],
+//         "Super Dream": ['Intern+FTE', 'FTE', 'Intern+PPO']
+//       },
+//       'Intern+FTE': {
+//         'Below Dream': [],
+//         "Dream": [],
+//         "Super Dream": ['Intern+FTE', 'FTE', 'Intern+PPO']
+//       }
+//     },
+//     "Super Dream": {
+//       'Intern+PPO': {
+//         'Below Dream': [],
+//         "Dream": ['FTE'],
+//         "Super Dream": ['FTE']
+//       },
+//       'FTE': {
+//         'Below Dream': [],
+//         "Dream": [],
+//         "Super Dream": []
+//       },
+//       'Intern+FTE': {
+//         'Below Dream': [],
+//         "Dream": [],
+//         "Super Dream": []
+//       }
+//     }
+//   };
+//       // Check if student has Intern+FTE or FTE offer in Super Dream category
+//   const hasSuperDreamOffer = offerHistory.some(
+//     offer => 
+//       (offer.offer_type === 'Intern+FTE' || offer.offer_type === 'FTE') &&
+//       offer.offer_category === 'Super Dream'
+//   );
 
-  // If student has Super Dream Intern+FTE or FTE offer, they are ineligible
-  if (hasSuperDreamOffer && jobSector === 'PSU' && targetCategory === 'Dream') {
-    return "Not eligible";
-  }
+//   // If student has Super Dream Intern+FTE or FTE offer, they are ineligible
+//   if (hasSuperDreamOffer && jobSector === 'PSU' && targetCategory === 'Dream') {
+//     return "Not eligible";
+//   }
 
-  // Bypass eligibility matrix check for PSU Dream jobs if no Super Dream Intern+FTE or FTE offer
-  if (jobSector === 'PSU' && targetCategory === 'Dream') {
-    return "Eligible";
-  }
-  console.log("no problem upto here",offerHistory);
-  console.log(targetOfferType, targetCategory);
-   // Iterate through all previous offers, and if any makes the student ineligible, return false
-   for (const offer of offerHistory) {
-    const { offer_type, offer_category } = offer;
-    console.log(offer_type, offer_category);
-    const eligibleOffers = (
-      eligibilityMatrix?.[offer_category]?.[offer_type]?.[targetCategory] || []
-    );
-    if (!eligibleOffers.includes(targetOfferType)) {
-      return "Not eligible";
-    }
-  }
+//   // Bypass eligibility matrix check for PSU Dream jobs if no Super Dream Intern+FTE or FTE offer
+//   if (jobSector === 'PSU' && targetCategory === 'Dream') {
+//     return "Eligible";
+//   }
+//   console.log("no problem upto here",offerHistory);
+//   console.log(targetOfferType, targetCategory);
+//    // Iterate through all previous offers, and if any makes the student ineligible, return false
+//    for (const offer of offerHistory) {
+//     const { offer_type, offer_category } = offer;
+//     console.log(offer_type, offer_category);
+//     const eligibleOffers = (
+//       eligibilityMatrix?.[offer_category]?.[offer_type]?.[targetCategory] || []
+//     );
+//     if (!eligibleOffers.includes(targetOfferType)) {
+//       return "Not eligible";
+//     }
+//   }
 
-  return "Eligible";
-}
+//   return "Eligible";
+// }
 
 
 // export const checkEligibility = async (req, res) => {
@@ -1224,13 +1333,13 @@ export const checkEligibility = async (req, res) => {
     //now evaluating according to college placement policy
     const jobType = job.job_type;
     const jobSector = job.job_sector;
-    const jobCategory=job.job_category;
+    const jobCategory=job.job_class;
     const jobctc= job.job_salary.ctc;
 
 
     // if student is 3rd year B.Tech student then checking for summer intern
     if(updatedStudent.batch=='2027' && updatedStudent.course=='B.Tech'){
-    const SummerInternHistory=await SummerIntern.findOne({batch:'2027',course:'B.Tech'});
+    const SummerInternHistory=await SummerInternTracker.findOne({batch:'2027',course:'B.Tech'});
     if(SummerInternHistory?.studentsId.includes(studentId)){
       return res.json({ eligible: false, reason: "You have already Summer Intern" });
     }}
@@ -1238,6 +1347,9 @@ export const checkEligibility = async (req, res) => {
 
     // if student is not btech 3rd year student then we will deal with offer tracker
     else{
+    if((jobType === "Intern+FTE" || jobType === "FTE") && (jobctc==0 || !jobctc)){
+       return res.json({ eligible: false, reason: "CTC is not mentioned, please inform TPO" });
+    }
     const studentOfferHistory = await OfferTracker.findOne({ studentId });
 
     // if any offer that student has, is PSU offer then he will not be eligible for any other job offer
@@ -1287,6 +1399,10 @@ export const checkEligibility = async (req, res) => {
 
     // for B.Tech students we have two offers policy
       else if(updatedStudent.course==='B.Tech'){
+        console.log("B.Tech student offer history", studentOfferHistory?.offer);
+        console.log("B.Tech student job category", jobCategory);
+        console.log("B.Tech student job type", jobType);
+        console.log("B.Tech student job ctc", jobctc);
       if(studentOfferHistory?.offer.length==1){
       const currentCTC = +studentOfferHistory?.offer[0].offer_ctc || 0;
       const jobCTC = +jobctc || 0;
@@ -1329,10 +1445,258 @@ export const checkEligibility = async (req, res) => {
   }
 };
 
+export const addfinalshortlistStudent = async (req, res) => {
+  const { jobId, students } = req.body;
+
+  try {
+    // Validate jobId
+    if (!mongoose.Types.ObjectId.isValid(jobId)) {
+      return res.status(400).json({ error: 'Invalid job ID' });
+    }
+
+    // Validate job existence
+    const job = await JobProfile.findById(jobId);
+    if (!job) {
+      return res.status(404).json({ error: 'Job not found' });
+    }
+
+    // Validate input
+    if (!Array.isArray(students) || students.length === 0) {
+      return res.status(400).json({ error: 'Students array is required and cannot be empty' });
+    }
+
+    // Validate student IDs and group by batch, course, and action
+    const groupedStudents = {};
+    for (const student of students) {
+      if (!student.studentId || !mongoose.Types.ObjectId.isValid(student.studentId)) {
+        return res.status(400).json({ error: `Invalid or missing student ID: ${student.studentId || 'undefined'}` });
+      }
+      if (!['add', 'remove'].includes(student.action)) {
+        return res.status(400).json({ error: `Invalid action for student ${student.studentId}: ${student.action}` });
+      }
+
+      const studentData = await Student.findById(student.studentId);
+      if (!studentData) {
+        return res.status(404).json({ error: `Student with ID ${student.studentId} not found` });
+      }
+
+      const key = `${studentData.batch}-${studentData.course}-${student.action}`;
+      if (!groupedStudents[key]) {
+        groupedStudents[key] = {
+          batch: studentData.batch,
+          course: studentData.course,
+          action: student.action,
+          students: [],
+        };
+      }
+
+      if (student.action === 'add') {
+        groupedStudents[key].students.push({
+          studentId: student.studentId,
+          name: studentData.name,
+          gender: studentData.gender,
+          department: studentData.department,
+          category: studentData.category,
+          job_type: student.jobtype || job.job_type,
+          job_role: student.jobrole || job.job_role,
+          ctc: student.ctc || (job.job_salary?.ctc !== '0' ? job.job_salary.ctc : undefined),
+          stipend: student.stipend || job.job_salary?.stipend,
+          intern_duration: student.internduration || job.internship_duration,
+        });
+      } else {
+        groupedStudents[key].students.push({
+          studentId: student.studentId,
+        });
+      }
+    }
+
+    // Validate existing final_shortlisted_students
+    const validStudentIds = job.final_shortlisted_students
+      .filter((id) => {
+        const isValid = mongoose.Types.ObjectId.isValid(id);
+        if (!isValid) {
+          console.warn(`Invalid student ID found in JobProfile.final_shortlisted_students: ${id}`);
+        }
+        return isValid;
+      })
+      .map((id) => id.toString());
+
+    // Process each batch-course-action group
+    for (const [key, group] of Object.entries(groupedStudents)) {
+      const { batch, course, action, students } = group;
+
+      if (course === 'B.Tech' && batch === '2027') {
+        let summerIntern = await SummerIntern.findOne({ jobId, batch, course });
+        let summerInternTracker = await SummerInternTracker.findOne({ batch, course });
+
+        if (action === 'add') {
+          if (!summerIntern) {
+            summerIntern = new SummerIntern({
+              jobId,
+              company_name: job.company_name,
+              batch,
+              course,
+              offer_mode: job.job_sector === 'PSU' ? 'PSU' : 'On-Campus',
+              offer_sector: job.job_sector || 'Private',
+              result_date: new Date(),
+              shortlisted_students: students,
+              visibility: true,
+            });
+          } else {
+            summerIntern.shortlisted_students.push(...students);
+          }
+          await summerIntern.save();
+
+          // Update SummerInternTracker
+          if (!summerInternTracker) {
+            summerInternTracker = new SummerInternTracker({
+              batch,
+              course,
+              studentsId: students.map((s) => mongoose.Types.ObjectId.createFromHexString(s.studentId)),
+            });
+          } else {
+            const newStudentIds = students.map((s) => mongoose.Types.ObjectId.createFromHexString(s.studentId));
+            summerInternTracker.studentsId = [
+              ...new Set([
+                ...summerInternTracker.studentsId.map((id) => id.toString()),
+                ...newStudentIds.map((id) => id.toString()),
+              ]),
+            ].map((id) => mongoose.Types.ObjectId.createFromHexString(id));
+          }
+          await summerInternTracker.save();
+        } else if (action === 'remove') {
+          if (summerIntern) {
+            summerIntern.shortlisted_students = summerIntern.shortlisted_students.filter(
+              (s) => !students.some((student) => student.studentId === s.studentId.toString())
+            );
+            if (summerIntern.shortlisted_students.length === 0) {
+              await SummerIntern.deleteOne({ _id: summerIntern._id });
+            } else {
+              await summerIntern.save();
+            }
+          }
+          if (summerInternTracker) {
+            const removeStudentIds = students.map((s) => s.studentId);
+            summerInternTracker.studentsId = summerInternTracker.studentsId.filter(
+              (id) => !removeStudentIds.includes(id.toString())
+            );
+            if (summerInternTracker.studentsId.length === 0) {
+              await SummerInternTracker.deleteOne({ _id: summerInternTracker._id });
+            } else {
+              await summerInternTracker.save();
+            }
+          }
+        }
+      } else {
+        let offer = await Offer.findOne({ jobId, batch, course });
+
+        if (action === 'add') {
+          if (!offer) {
+            offer = new Offer({
+              jobId,
+              company_name: job.company_name,
+              batch,
+              course,
+              offer_mode: job.job_sector === 'PSU' ? 'PSU' : 'On-Campus',
+              offer_sector: job.job_sector || 'Private',
+              result_date: new Date(),
+              shortlisted_students: students,
+              visibility: true,
+            });
+          } else {
+            offer.shortlisted_students.push(...students);
+          }
+          await offer.save();
+
+          // Update OfferTracker for each student
+          for (const student of students) {
+            let offer_category;
+             if (student.ctc > 20 || job.job_sector==='PSU') {
+      offer_category = "A";
+    } else if (student.ctc > 12 && student.ctc <= 20) {
+      offer_category= "B";
+    } else if (student.ctc > 5 && student.ctc <= 12) {
+      offer_category= "C";
+    } else if (student.ctc <= 5) {
+      offer_category = "D";
+    }else {
+      offer_category= "D"; // Default for invalid/undefined CTC
+    }
+
+            const offerDetails = {
+              offer_type: student.job_type,
+              offer_category:offer_category,
+              offer_sector: job.job_sector || 'Private',
+              offer_ctc: student.ctc,
+              offer_intern_duration: student.intern_duration,
+            };
+
+            let offerTracker = await OfferTracker.findOne({ studentId: student.studentId });
+            if (!offerTracker) {
+              offerTracker = new OfferTracker({
+                studentId: mongoose.Types.ObjectId.createFromHexString(student.studentId),
+                offer: [offerDetails],
+              });
+            } else {
+              offerTracker.offer.push(offerDetails);
+            }
+            await offerTracker.save();
+          }
+        } else if (action === 'remove') {
+          if (offer) {
+            offer.shortlisted_students = offer.shortlisted_students.filter(
+              (s) => !students.some((student) => student.studentId === s.studentId.toString())
+            );
+            if (offer.shortlisted_students.length === 0) {
+              await Offer.deleteOne({ _id: offer._id });
+            } else {
+              await offer.save();
+            }
+          }
+
+          // Remove from OfferTracker
+          for (const student of students) {
+            const offerTracker = await OfferTracker.findOne({ studentId: student.studentId });
+            if (offerTracker) {
+              // Remove the offer matching the jobId (assuming one offer per jobId for simplicity)
+              offerTracker.offer = offerTracker.offer.filter(
+                (o) => o.offer_type !== students.find((s) => s.studentId === student.studentId)?.job_type
+              );
+              if (offerTracker.offer.length === 0) {
+                await OfferTracker.deleteOne({ _id: offerTracker._id });
+              } else {
+                await offerTracker.save();
+              }
+            }
+          }
+        }
+      }
+
+      // Update JobProfile's final_shortlisted_students
+      if (action === 'add') {
+        const newStudentIds = students.map((s) => s.studentId);
+        job.final_shortlisted_students = [
+          ...new Set([...validStudentIds, ...newStudentIds]),
+        ].map((id) => mongoose.Types.ObjectId.createFromHexString(id));
+      } else if (action === 'remove') {
+        const removeStudentIds = students.map((s) => s.studentId);
+        job.final_shortlisted_students = validStudentIds
+          .filter((id) => !removeStudentIds.includes(id))
+          .map((id) => mongoose.Types.ObjectId.createFromHexString(id));
+      }
+    }
+
+    await job.save();
+
+    return res.status(200).json({ message: 'Shortlist updated successfully' });
+  } catch (error) {
+    console.error('Error in addfinalshortlistStudent:', error);
+    return res.status(500).json({ error: 'Server error', details: error.message });
+  }
+};
 export const addshortlistStudents = async (req, res) => {
   try {
     const { jobId, stepIndex, students } = req.body;
-    console.log(students);
 
     if (!mongoose.Types.ObjectId.isValid(jobId)) {
       return res.status(400).json({ error: 'Invalid job ID' });
@@ -1425,573 +1789,504 @@ export const addshortlistStudents = async (req, res) => {
         }
       }
     }
-    else {
-      const jobType = job.job_type;
-      const jobSector= job.job_sector;
-      const createInternship = ['Intern', 'Intern+PPO', 'Intern+FTE'].includes(jobType);
-      const createPlacement = ['Intern+FTE', 'FTE'].includes(jobType);
-      const jobClassOrder = ["notplaced", "Below Dream", "Dream", "Super Dream"];
-      let internshipDuration = job.internship_duration || 'N/A';
+    // else {
+    //   const jobType = job.job_type;
+    //   const jobSector= job.job_sector;
+    //   const createInternship = ['Intern', 'Intern+PPO', 'Intern+FTE'].includes(jobType);
+    //   const createPlacement = ['Intern+FTE', 'FTE'].includes(jobType);
+    //   const jobClassOrder = ["notplaced", "Below Dream", "Dream", "Super Dream"];
+    //   let internshipDuration = job.internship_duration || 'N/A';
 
-      // Group students by batch and degree
-      const studentGroups = {};
-      const studentsToRemove = new Set();
+    //   // Group students by batch and degree
+    //   const studentGroups = {};
+    //   const studentsToRemove = new Set();
 
-      for (const student of students) {
-        const studentId = student.studentId;
-        const dbStudent = await Student.findById(studentId);
+    //   for (const student of students) {
+    //     const studentId = student.studentId;
+    //     const dbStudent = await Student.findById(studentId);
 
 
-        if (dbStudent) {
-          const key = `${dbStudent.batch}-${dbStudent.course}`;
+    //     if (dbStudent) {
+    //       const key = `${dbStudent.batch}-${dbStudent.course}`;
 
-          if (!studentGroups[key]) {
-            studentGroups[key] = {
-              batch: dbStudent.batch,
-              degree: dbStudent.course,
-              students: [],
-              jobId: jobId
-            };
-          }
+    //       if (!studentGroups[key]) {
+    //         studentGroups[key] = {
+    //           batch: dbStudent.batch,
+    //           degree: dbStudent.course,
+    //           students: [],
+    //           jobId: jobId
+    //         };
+    //       }
 
-          if (student.shortlisted) {
-            studentGroups[key].students.push({
-              studentId: studentId,
-              name: dbStudent.name,
-              image: dbStudent.image || '',
-              email: dbStudent.email || 'N/A',
-              gender: dbStudent.gender,
-              department: dbStudent.department,
-              category: dbStudent.category || 'N/A',
-            });
+    //       if (student.shortlisted) {
+    //         studentGroups[key].students.push({
+    //           studentId: studentId,
+    //           name: dbStudent.name,
+    //           image: dbStudent.image || '',
+    //           email: dbStudent.email || 'N/A',
+    //           gender: dbStudent.gender,
+    //           department: dbStudent.department,
+    //           category: dbStudent.category || 'N/A',
+    //         });
 
-            let jobClassIndex;
-            if(jobType === "Intern" || (jobType === "Intern+PPO" && job.job_salary.ctc==0 ) ){
-                 jobClassIndex=1;
-            }
-            else{
-              if (job.job_salary.ctc >= 20) {
-                jobClassIndex = 3;
-              } 
-              else if (job.job_salary.ctc < 4.5) {
-                jobClassIndex = 0;
-              } 
-              else if ((dbStudent.course === "B.Tech" || dbStudent.course === "M.Tech") && (dbStudent.department === "COMPUTER SCIENCE AND ENGINEERING" || dbStudent.department === "INFORMATION TECHNOLOGY"|| dbStudent.department ==="COMPUTER SCIENCE AND ENGINEERING (INFORMATION SECURITY)" || dbStudent.department ==="DATA SCIENCE AND ENGINEERING" || dbStudent.department ==="ARTIFICIAL INTELLIGENCE"|| dbStudent.department==="DATA ANALYTICS")) {
-                if (job.job_salary.ctc >= 10 && job.job_salary.ctc < 20) {
-                  jobClassIndex = 2;
-                } else {
-                  jobClassIndex = 1;
-                }
-              }
-              else if ((dbStudent.course === "B.Tech" || dbStudent.course === "M.Tech") && 
-                         (dbStudent.department === "ELECTRONICS AND COMMUNICATION ENGINEERING" || 
-                          dbStudent.department === "INSTRUMENTATION AND CONTROL ENGINEERING" || 
-                          dbStudent.department === "ELECTRONICS AND VLSI ENGINEERING" || 
-                          dbStudent.department === "ELECTRICAL ENGINEERING"||
-                          dbStudent.department === "CONTROL AND INSTRUMENTATION ENGINEERING")) {
-                if (job.job_salary.ctc >= 8 && job.job_salary.ctc < 20) {
-                  jobClassIndex = 2;
-                } else {
-                  jobClassIndex = 1;
-                }
-              } else if (dbStudent.course === "B.Tech" || dbStudent.course === "M.Tech") {
-                if (job.job_salary.ctc >= 6 && job.job_salary.ctc < 20) {
-                  jobClassIndex = 2;
-                } else {
-                  jobClassIndex = 1;
-                }
-              } else if (dbStudent.course === "MBA") {
-                if (job.job_salary.ctc >= 5 && job.job_salary.ctc < 20) {
-                  jobClassIndex = 2;
-                } else {
-                  jobClassIndex = 1;
-                }
-              } else if (dbStudent.course === "M.Sc.") {
-                if (job.job_salary.ctc >= 6 && job.job_salary.ctc < 20) {
-                  jobClassIndex = 2;
-                } else {
-                  jobClassIndex = 1;
-                }
-              }
-            }
+    //         let jobClassIndex;
+    //         if(jobType === "Intern" || (jobType === "Intern+PPO" && job.job_salary.ctc==0 ) ){
+    //              jobClassIndex=1;
+    //         }
+    //         else{
+    //           if (job.job_salary.ctc >= 20) {
+    //             jobClassIndex = 3;
+    //           } 
+    //           else if (job.job_salary.ctc < 4.5) {
+    //             jobClassIndex = 0;
+    //           } 
+    //           else if ((dbStudent.course === "B.Tech" || dbStudent.course === "M.Tech") && (dbStudent.department === "COMPUTER SCIENCE AND ENGINEERING" || dbStudent.department === "INFORMATION TECHNOLOGY"|| dbStudent.department ==="COMPUTER SCIENCE AND ENGINEERING (INFORMATION SECURITY)" || dbStudent.department ==="DATA SCIENCE AND ENGINEERING" || dbStudent.department ==="ARTIFICIAL INTELLIGENCE"|| dbStudent.department==="DATA ANALYTICS")) {
+    //             if (job.job_salary.ctc >= 10 && job.job_salary.ctc < 20) {
+    //               jobClassIndex = 2;
+    //             } else {
+    //               jobClassIndex = 1;
+    //             }
+    //           }
+    //           else if ((dbStudent.course === "B.Tech" || dbStudent.course === "M.Tech") && 
+    //                      (dbStudent.department === "ELECTRONICS AND COMMUNICATION ENGINEERING" || 
+    //                       dbStudent.department === "INSTRUMENTATION AND CONTROL ENGINEERING" || 
+    //                       dbStudent.department === "ELECTRONICS AND VLSI ENGINEERING" || 
+    //                       dbStudent.department === "ELECTRICAL ENGINEERING"||
+    //                       dbStudent.department === "CONTROL AND INSTRUMENTATION ENGINEERING")) {
+    //             if (job.job_salary.ctc >= 8 && job.job_salary.ctc < 20) {
+    //               jobClassIndex = 2;
+    //             } else {
+    //               jobClassIndex = 1;
+    //             }
+    //           } else if (dbStudent.course === "B.Tech" || dbStudent.course === "M.Tech") {
+    //             if (job.job_salary.ctc >= 6 && job.job_salary.ctc < 20) {
+    //               jobClassIndex = 2;
+    //             } else {
+    //               jobClassIndex = 1;
+    //             }
+    //           } else if (dbStudent.course === "MBA") {
+    //             if (job.job_salary.ctc >= 5 && job.job_salary.ctc < 20) {
+    //               jobClassIndex = 2;
+    //             } else {
+    //               jobClassIndex = 1;
+    //             }
+    //           } else if (dbStudent.course === "M.Sc.") {
+    //             if (job.job_salary.ctc >= 6 && job.job_salary.ctc < 20) {
+    //               jobClassIndex = 2;
+    //             } else {
+    //               jobClassIndex = 1;
+    //             }
+    //           }
+    //         }
 
-            if(createInternship){
-              dbStudent.internshipstatus=internshipDuration;
-            }
-            if(createPlacement){
-            dbStudent.placementstatus = jobClassOrder[jobClassIndex];
-            }
-            await dbStudent.save();
+    //         if(createInternship){
+    //           dbStudent.internshipstatus=internshipDuration;
+    //         }
+    //         if(createPlacement){
+    //         dbStudent.placementstatus = jobClassOrder[jobClassIndex];
+    //         }
+    //         await dbStudent.save();
 
-            let offerTracker = await OfferTracker.findOne({ studentId });
-            if (!offerTracker) {
-              offerTracker = new OfferTracker({ studentId, offer: [] });
-            }
+    //         let offerTracker = await OfferTracker.findOne({ studentId });
+    //         if (!offerTracker) {
+    //           offerTracker = new OfferTracker({ studentId, offer: [] });
+    //         }
 
-            const offerCategory = jobClassIndex === 0 ? 'Not Considered' : 
-                                jobClassIndex === 1 ? 'Below Dream' : 
-                                jobClassIndex === 2 ? 'Dream' : 'Super Dream';
+    //         const offerCategory = jobClassIndex === 0 ? 'Not Considered' : 
+    //                             jobClassIndex === 1 ? 'Below Dream' : 
+    //                             jobClassIndex === 2 ? 'Dream' : 'Super Dream';
             
-            const offerExists = offerTracker.offer.some(
-              offer => offer.jobId.toString() === jobId.toString()
-            );
+    //         const offerExists = offerTracker.offer.some(
+    //           offer => offer.jobId.toString() === jobId.toString()
+    //         );
 
-            if (!offerExists) {
-              offerTracker.offer.push({
-                offer_type: jobType,
-                offer_category: offerCategory,
-                offer_sector: jobSector,
-                jobId: jobId
-              });
-              await offerTracker.save();
-            }
-          } else {
-            // Track students to remove and remove from OfferTracker
-            studentsToRemove.add(`${key}-${studentId}`);
+    //         if (!offerExists) {
+    //           offerTracker.offer.push({
+    //             offer_type: jobType,
+    //             offer_category: offerCategory,
+    //             offer_sector: jobSector,
+    //             jobId: jobId
+    //           });
+    //           await offerTracker.save();
+    //         }
+    //       } else {
+    //         // Track students to remove and remove from OfferTracker
+    //         studentsToRemove.add(`${key}-${studentId}`);
             
-            let offerTracker = await OfferTracker.findOne({ studentId });
-            if (offerTracker) {
-              offerTracker.offer = offerTracker.offer.filter(
-                offer => offer.jobId != null && offer.jobId.toString() !== jobId.toString()
-              );
-              if (offerTracker.offer.length === 0) {
-                await OfferTracker.deleteOne({ studentId });
-              } else {
-                await offerTracker.save();
-              }
-            }
-          }
-        } else {
-          console.error(`Student not found for ID: ${studentId}`);
-        }
-      }
+    //         let offerTracker = await OfferTracker.findOne({ studentId });
+    //         if (offerTracker) {
+    //           offerTracker.offer = offerTracker.offer.filter(
+    //             offer => offer.jobId != null && offer.jobId.toString() !== jobId.toString()
+    //           );
+    //           if (offerTracker.offer.length === 0) {
+    //             await OfferTracker.deleteOne({ studentId });
+    //           } else {
+    //             await offerTracker.save();
+    //           }
+    //         }
+    //       }
+    //     } else {
+    //       console.error(`Student not found for ID: ${studentId}`);
+    //     }
+    //   }
 
-      // Process each batch-degree combination
-      for (const key in studentGroups) {
-        const group = studentGroups[key];
-        const placementData = group.students;
+    //   // Process each batch-degree combination
+    //   for (const key in studentGroups) {
+    //     const group = studentGroups[key];
+    //     const placementData = group.students;
 
-        // Check for existing Internship
-        if (createInternship) {
-          let internship = await Internship.findOne({
-            jobId: group.jobId,
-            batch: group.batch,
-            degree: group.degree
-          });
+    //     // Check for existing Internship
+    //     if (createInternship) {
+    //       let internship = await Internship.findOne({
+    //         jobId: group.jobId,
+    //         batch: group.batch,
+    //         degree: group.degree
+    //       });
 
-          if (internship) {
-            const existingStudentIds = new Set(
-              internship.shortlisted_students.map(s => s.studentId.toString())
-            );
+    //       if (internship) {
+    //         const existingStudentIds = new Set(
+    //           internship.shortlisted_students.map(s => s.studentId.toString())
+    //         );
             
-            const newStudents = placementData.filter(
-              student => !existingStudentIds.has(student.studentId.toString())
-            );
+    //         const newStudents = placementData.filter(
+    //           student => !existingStudentIds.has(student.studentId.toString())
+    //         );
             
-            if (studentsToRemove.size > 0) {
-              internship.shortlisted_students = internship.shortlisted_students.filter(
-                student => !studentsToRemove.has(`${key}-${student.studentId.toString()}`)
-              );
-            }
+    //         if (studentsToRemove.size > 0) {
+    //           internship.shortlisted_students = internship.shortlisted_students.filter(
+    //             student => !studentsToRemove.has(`${key}-${student.studentId.toString()}`)
+    //           );
+    //         }
             
-            internship.shortlisted_students.push(...newStudents);
-            internship.result_date = new Date();
-            await internship.save();
-          } else {
-            const internship = new Internship({
-              jobId: group.jobId,
-              company_name: job.company_name,
-              company_logo: job.company_logo || '',
-              internship_offer_mode: 'On-Campus',
-              internship_type: job.job_type,
-              internship_category: job.job_category,
-              internship_duration: internshipDuration,
-              internship_sector: job.job_sector,
-              batch: group.batch,
-              degree: group.degree,
-              stipend: job.job_salary?.stipend || 'N/A',
-              role: job.job_role || '',
-              result_date: new Date(),
-              shortlisted_students: placementData,
-            });
-            await internship.save();
-          }
-        }
+    //         internship.shortlisted_students.push(...newStudents);
+    //         internship.result_date = new Date();
+    //         await internship.save();
+    //       } else {
+    //         const internship = new Internship({
+    //           jobId: group.jobId,
+    //           company_name: job.company_name,
+    //           company_logo: job.company_logo || '',
+    //           internship_offer_mode: 'On-Campus',
+    //           internship_type: job.job_type,
+    //           internship_category: job.job_category,
+    //           internship_duration: internshipDuration,
+    //           internship_sector: job.job_sector,
+    //           batch: group.batch,
+    //           degree: group.degree,
+    //           stipend: job.job_salary?.stipend || 'N/A',
+    //           role: job.job_role || '',
+    //           result_date: new Date(),
+    //           shortlisted_students: placementData,
+    //         });
+    //         await internship.save();
+    //       }
+    //     }
 
-        // Check for existing Placement
-        if (createPlacement) {
-          console.log("placement create ho rhi hai");
-          let placement = await Placement.findOne({
-            jobId: group.jobId,
-            batch: group.batch,
-            degree: group.degree
-          });
+    //     // Check for existing Placement
+    //     if (createPlacement) {
+    //       console.log("placement create ho rhi hai");
+    //       let placement = await Placement.findOne({
+    //         jobId: group.jobId,
+    //         batch: group.batch,
+    //         degree: group.degree
+    //       });
 
-          if (placement) {
-            const existingStudentIds = new Set(
-              placement.shortlisted_students.map(s => s.studentId.toString())
-            );
+    //       if (placement) {
+    //         const existingStudentIds = new Set(
+    //           placement.shortlisted_students.map(s => s.studentId.toString())
+    //         );
             
-            const newStudents = placementData.filter(
-              student => !existingStudentIds.has(student.studentId.toString())
-            );
+    //         const newStudents = placementData.filter(
+    //           student => !existingStudentIds.has(student.studentId.toString())
+    //         );
             
-            if (studentsToRemove.size > 0) {
-              placement.shortlisted_students = placement.shortlisted_students.filter(
-                student => !studentsToRemove.has(`${key}-${student.studentId.toString()}`)
-              );
-            }
+    //         if (studentsToRemove.size > 0) {
+    //           placement.shortlisted_students = placement.shortlisted_students.filter(
+    //             student => !studentsToRemove.has(`${key}-${student.studentId.toString()}`)
+    //           );
+    //         }
             
-            placement.shortlisted_students.push(...newStudents);
-            placement.result_date = new Date();
-            await placement.save();
-          } else {
-            const placement = new Placement({
-              jobId: group.jobId,
-              company_name: job.company_name,
-              company_logo: job.company_logo || '',
-              placement_type: job.job_type,
-              placement_category: job.job_category,
-              placement_offer_mode: 'On-Campus',
-              placement_sector: job.job_sector,
-              batch: group.batch,
-              degree: group.degree,
-              ctc: job.job_salary?.ctc || 'N/A',
-              base_salary: job.job_salary?.base_salary || 'N/A',
-              role: job.job_role || '',
-              result_date: new Date(),
-              shortlisted_students: placementData,
-            });
-            await placement.save();
-          }
-        }
-      }
-    }
+    //         placement.shortlisted_students.push(...newStudents);
+    //         placement.result_date = new Date();
+    //         await placement.save();
+    //       } else {
+    //         const placement = new Placement({
+    //           jobId: group.jobId,
+    //           company_name: job.company_name,
+    //           company_logo: job.company_logo || '',
+    //           placement_type: job.job_type,
+    //           placement_category: job.job_category,
+    //           placement_offer_mode: 'On-Campus',
+    //           placement_sector: job.job_sector,
+    //           batch: group.batch,
+    //           degree: group.degree,
+    //           ctc: job.job_salary?.ctc || 'N/A',
+    //           base_salary: job.job_salary?.base_salary || 'N/A',
+    //           role: job.job_role || '',
+    //           result_date: new Date(),
+    //           shortlisted_students: placementData,
+    //         });
+    //         await placement.save();
+    //       }
+    //     }
+    //   }
+    // }
 
     await job.save();
-    
-    // const notification = new Notification({
-    //   type: "STUDENT_SHORTLISTED",
-    //   message: `${students.length} students shortlisted for ${job.company_name} - ${job.job_role}`,
-    //   jobId: job._id,
-    // });
-
-    // await notification.save();
-
     res.status(200).json({ message: 'Students processed successfully.' });
   } catch (error) {
     console.error('Error shortlisting students:', error);
     res.status(500).json({ error: 'Internal server error' });
   }
 };
-// export const addshortlistStudents = async (req, res) => {
+
+// export const finalshortlisteligible = async (req, res) => {
 //   try {
-//     const { jobId, stepIndex, students } = req.body;
-
-//     if (!mongoose.Types.ObjectId.isValid(jobId)) {
-//       return res.status(400).json({ error: 'Invalid job ID' });
-//     }
-
-//     const job = await JobProfile.findById(jobId);
-//     if (!job) {
-//       return res.status(404).json({ error: 'Job not found' });
-//     }
-
-//     if (stepIndex < 0 || stepIndex >= job.Hiring_Workflow.length) {
-//       return res.status(400).json({ error: 'Invalid step index' });
-//     }
-
-//     const step = job.Hiring_Workflow[stepIndex];
-//     if (!step) {
-//       return res.status(400).json({ error: 'Step not found' });
-//     }
-
-//     const studentIds = [];
-//     const absentIds = [];
-
-//     for (const student of students) {
-//         const studentId = student.studentId;
-
-//         if (student.absent) {
-//           if (step.shortlisted_students.includes(studentId)) {
-//             step.shortlisted_students = step.shortlisted_students.filter(
-//               (id) => id.toString() !== studentId.toString()
-//             );
-//           }
-//           if (!step.absent_students.includes(studentId)) {
-//             absentIds.push(studentId);
-//           }
-//           for (let i = stepIndex + 1; i < job.Hiring_Workflow.length; i++) {
-//             const nextStep = job.Hiring_Workflow[i];
-//             nextStep.eligible_students = nextStep.eligible_students.filter(
-//               (id) => id.toString() !== studentId.toString()
-//             );
-//             nextStep.shortlisted_students = nextStep.shortlisted_students.filter(
-//               (id) => id.toString() !== studentId.toString()
-//             );
-//             nextStep.absent_students = nextStep.absent_students.filter(
-//               (id) => id.toString() !== studentId.toString()
-//             );
-//           }
-//         } else if (student.shortlisted) {
-//           if (step.absent_students.includes(studentId)) {
-//             step.absent_students = step.absent_students.filter(
-//               (id) => id.toString() !== studentId.toString()
-//             );
-//           }
-//           if (!step.shortlisted_students.includes(studentId)) {
-//             studentIds.push(studentId);
-//           }
-//         } else {
-//           if (step.shortlisted_students.includes(studentId)) {
-//             step.shortlisted_students = step.shortlisted_students.filter(
-//               (id) => id.toString() !== studentId.toString()
-//             );
-//           }
-//           if (step.absent_students.includes(studentId)) {
-//             step.absent_students = step.absent_students.filter(
-//               (id) => id.toString() !== studentId.toString()
-//             );
-//           }
-//         }
-//     }
-
-//     step.shortlisted_students.push(...studentIds);
-//     step.absent_students.push(...absentIds);
-
-//     if (job.Hiring_Workflow[stepIndex + 1]) {
-//       const nextStep = job.Hiring_Workflow[stepIndex + 1];
-//       for (const studentId of studentIds) {
-//         if (!nextStep.eligible_students.includes(studentId)) {
-//           nextStep.eligible_students.push(studentId);
-//         }
-//       }
-//     } 
-//       else {
-//         const placementData = [];
-//         const jobType = job.job_type;
-//         const createInternship = ['Intern', 'Intern+PPO', 'Intern+FTE'].includes(jobType);
-//         const createPlacement = ['Intern+FTE','FTE'].includes(jobType);
-//         const jobClassOrder = ["notplaced", "Below Dream", "Dream", "Super Dream"];
-//         let internshipDuration = job.internship_duration || 'N/A';
-
-
-//         for (const studentId of studentIds) {
-//           const student = await Student.findById(studentId);
-//           if (student) {
-//             if(createInternship){
-//               student.internshipstatus=internshipDuration;
-//             }
-
-//             if(createPlacement){
-//               let jobClassIndex;
-//               if(job.ctc>=20){
-//                 jobClassIndex = 3;
-//               }
-//               else if(job.ctc<4.5){
-//                 jobClassIndex = 0;
-//               }
-//               else if((student.course=="B.Tech"|| student.course=="M.Tech") && (student.department=="COMPUTER SCIENCE AND ENGINEERING"||student.department=="INFORMATION TECHNOLOGY")){
-//                 if(job.ctc>=10 && job.ctc<20){
-//                   jobClassIndex = 2;
-//                 }
-//                 else{
-//                   jobClassIndex = 1;
-//                 }
-//               }
-//               else if((student.course=="B.Tech"|| student.course=="M.Tech") && (student.department=="ELECTRONICS AND COMMUNICATION ENGINEERING"|| student.department=="INSTRUMENTATION AND CONTROL ENGINEERING"||student.department=="ELECTRONICS AND VLSI ENGINEERING"||student.department=="ELECTRICAL ENGINEERING")){
-//                if(job.ctc>=8 && job.ctc<20){
-//                  jobClassIndex = 2;
-//                }
-//                else{
-//                  jobClassIndex = 1;
-//                }
-//               }
-//               else if(student.course=="B.Tech"|| student.course=="M.Tech"){
-//                if(job.ctc>=6 && job.ctc<20){
-//                  jobClassIndex = 2;
-//                }
-//                else{
-//                  jobClassIndex = 1;
-//                }
-//               }
-//               else if(student.course=="MBA"){
-//                if(job.ctc>=5 && job.ctc<20){
-//                  jobClassIndex = 2;
-//                }
-//                else{
-//                  jobClassIndex = 1;
-//                }
-//               }
-//               else if(student.course=="M.Sc."){
-//                if(job.ctc>=6 && job.ctc<20){
-//                  jobClassIndex = 2;
-//                }
-//                else{
-//                  jobClassIndex = 1;
-//                }
-//               }
-//               student.placementstatus=jobClassOrder[jobClassIndex];
-//             }
-
-//             await student.save();
-//             placementData.push({
-//               studentId: studentId,
-//               name: student.name,
-//               image: student.image || '',
-//               email: student.email || 'N/A',
-//               gender: student.gender,
-//               department: student.department,
-//               category: student.category || 'N/A',
-//             });
-//           } else {
-//             console.error(`Student not found for ID: ${studentId}`);
-//           }
-//         }
-  
-//         if (createInternship) {
-//           const internship = new Internship({
-//             company_name: job.company_name,
-//             company_logo: job.company_logo || '',
-//             internship_offer_mode: 'On-Campus',
-//             internship_type: job.job_category,
-//             internship_duration: internshipDuration,
-//             batch: job.eligibility_criteria?.eligible_batch,
-//             degree: job.eligibility_criteria?.course_allowed,
-//             stipend: job.job_salary?.stipend || 'N/A',
-//             role: job.job_role || '',
-//             result_date: new Date(),
-//             shortlisted_students: placementData,
-//           });
-//           await internship.save();
-//         }
-  
-//         if (createPlacement) {
-//           const placement = new Placement({
-//             company_name: job.company_name,
-//             company_logo: job.company_logo || '',
-//             placement_type: job.job_category,
-//             placement_offer_mode: 'On-Campus',
-//             batch: job.eligibility_criteria?.eligible_batch,
-//             degree: job.eligibility_criteria?.course_allowed,
-//             ctc: job.job_salary?.ctc || 'N/A',
-//             base_salary: job.job_salary?.base_salary || 'N/A',
-//             role: job.job_role || '',
-//             result_date: new Date(),
-//             shortlisted_students: placementData,
-//           });
-//           await placement.save();
-//         }
-//       }
-
-//     await job.save();
+//     const { jobId } = req.body;
     
-//     const notification = new Notification({
-//       type: "STUDENT_SHORTLISTED",
-//       message: `${students.length} students shortlisted for ${job.company_name} - ${job.job_role}`,
-//       jobId: job._id,
-//     });
-
-//     await notification.save();
-
-//     res.status(200).json({ message: 'Students processed successfully.' });
-//   } catch (error) {
-//     console.error('Error shortlisting students:', error);
-//     res.status(500).json({ error: 'Internal server error' });
-//   }
-// };
-
-/* export const eligibleinthis = async (req, res) => {
-  try {
-    const { jobId, stepIndex } = req.body;
-    const jobProfile = await JobProfile.findById(jobId);
-    if (!jobProfile) {
-      return res.status(404).json({ error: 'Job profile not found' });
-    }
-
-    const step = jobProfile.Hiring_Workflow[stepIndex];
-    if (!step) {
-      return res.status(404).json({ error: 'Step not found' });
-    }
-
-    const eligible_studentsid = step.eligible_students;
-    const shortlisted_studentsid = step.shortlisted_students || [];
-    const absent_studentsid = step.absent_students || [];
-
-    const submissions = await FormSubmission.find({
-      studentId: { $in: eligible_studentsid },
-      jobId,
-    });
-
-    const eligibleStudents = submissions.map(submission => {
-      const nameField = submission.fields.find(field => field.fieldName === 'Name');
-      const emailField = submission.fields.find(field => field.fieldName === 'Email');
-
-      const studentId = submission.studentId;
-      const isShortlisted = shortlisted_studentsid.includes(studentId);
-      const isAbsent = absent_studentsid.includes(studentId);
-      console.log(submission.studentId.name);
-
-      return {
-        studentId,
-        name: nameField ? nameField.value : submission.studentId.name,
-        email: emailField ? emailField.value : submission.studentId.email,
-        shortlisted: isShortlisted,
-        absent: isAbsent,
-      };
-    });
-
-    res.status(200).json({ eligibleStudents });
-  } catch (error) {
-    console.error('Error in eligibleinthis:', error);
-    res.status(500).json({ error: 'Internal server error' });
-  }
-}; */
-
-
-// export const eligibleinthis = async (req, res) => {
-//   try {
-//     const { jobId, stepIndex } = req.body;
+//     // Find job profile
 //     const jobProfile = await JobProfile.findById(jobId);
 //     if (!jobProfile) {
 //       return res.status(404).json({ error: 'Job profile not found' });
 //     }
 
-//     const step = jobProfile.Hiring_Workflow[stepIndex];
-//     if (!step) {
-//       return res.status(404).json({ error: 'Step not found' });
+//     // Determine eligible students based on hiring workflow
+//     let eligible_studentsid;
+//     if (jobProfile.Hiring_Workflow && jobProfile.Hiring_Workflow.length > 0) {
+//       // Get shortlisted students from the last step of hiring workflow
+//       const lastStep = jobProfile.Hiring_Workflow[jobProfile.Hiring_Workflow.length - 1];
+//       eligible_studentsid = lastStep.shortlisted_students || [];
+//     } else {
+//       // If no hiring workflow, use all applied students
+//       eligible_studentsid = jobProfile.Applied_Students || [];
 //     }
 
-//     const eligible_studentsid = step.eligible_students;
-//     const shortlisted_studentsid = step.shortlisted_students || [];
-//     const absent_studentsid = step.absent_students || [];
-//     const students = await Student.find({ _id: { $in: eligible_studentsid } }, 'name');
+//     if (!eligible_studentsid.length) {
+//       return res.status(200).json({ 
+//         eligibleStudents: [],
+//         starredFields: []
+//       });
+//     }
+
+//     // Fetch the form template to get starred fields
+//     const formTemplate = await FormTemplate.findOne({ jobId });
+//     if (!formTemplate) {
+//       return res.status(404).json({ error: 'Form template not found' });
+//     }
+
+//     // Get fieldNames of starred fields
+//     const starredFields = formTemplate.fields
+//       .filter(field => field.fieldStar)
+//       .map(field => ({
+//         fieldName: field.fieldName,
+//         fieldType: field.fieldType
+//       }));
+
+//     // Fetch student details and form submissions
+//     const students = await Student.find(
+//       { _id: { $in: eligible_studentsid } }, 
+//       'name'
+//     );
+    
 //     const submissions = await FormSubmission.find(
-//       { studentId: { $in: eligible_studentsid }, jobId },
+//       { 
+//         studentId: { $in: eligible_studentsid }, 
+//         jobId 
+//       },
 //       'studentId fields'
 //     );
-//     const emailMap = {};
+
+//     // Map submissions to include values of starred fields
+//     const fieldValuesMap = {};
 //     submissions.forEach(submission => {
-//       const emailField = submission.fields.find(field => field.fieldType === 'email');
-//       if (emailField) {
-//         emailMap[submission.studentId.toString()] = emailField.value;
-//       }
+//       const studentId = submission.studentId.toString();
+//       fieldValuesMap[studentId] = {};
+//       starredFields.forEach(starredField => {
+//         const field = submission.fields.find(f => f.fieldName === starredField.fieldName);
+//         fieldValuesMap[studentId][starredField.fieldName] = field ? field.value : '';
+//       });
 //     });
-//     const eligibleStudents = students.map(student => ({
-//       studentId: student._id,
-//       name: student.name,
-//       email: emailMap[student._id.toString()] || '', // Email from FormSubmission or empty string
-//       shortlisted: shortlisted_studentsid.includes(student._id.toString()),
-//       absent: absent_studentsid.includes(student._id.toString()),
-//     }));
-//     res.status(200).json({ eligibleStudents });
+
+//     // Prepare response data
+//     const eligibleStudents = students.map(student => {
+//       const studentId = student._id.toString();
+//       const studentData = {
+//         studentId,
+//         name: student.name,
+//         shortlisted: jobProfile.final_shortlisted_students.includes(studentId),
+//       };
+
+//       // Add starred field values
+//       starredFields.forEach(starredField => {
+//         studentData[starredField.fieldName] = fieldValuesMap[studentId]?.[starredField.fieldName] || '';
+//       });
+
+//       return studentData;
+//     });
+
+//     res.status(200).json({ 
+//       eligibleStudents,
+//       starredFields
+//     });
 //   } catch (error) {
-//     console.error('Error in eligibleinthis:', error);
+//     console.error('Error in finalshortlisteligible:', error);
 //     res.status(500).json({ error: 'Internal server error' });
 //   }
 // };
 
 
+export const finalshortlisteligible = async (req, res) => {
+  try {
+    const { jobId } = req.body;
+
+    // Validate jobId
+    if (!mongoose.Types.ObjectId.isValid(jobId)) {
+      return res.status(400).json({ error: 'Invalid job ID' });
+    }
+
+    // Find job profile
+    const jobProfile = await JobProfile.findById(jobId);
+    if (!jobProfile) {
+      return res.status(404).json({ error: 'Job profile not found' });
+    }
+
+    // Determine eligible students based on hiring workflow
+    let eligible_studentsid;
+    if (jobProfile.Hiring_Workflow && jobProfile.Hiring_Workflow.length > 0) {
+      const lastStep = jobProfile.Hiring_Workflow[jobProfile.Hiring_Workflow.length - 1];
+      eligible_studentsid = lastStep.shortlisted_students || [];
+    } else {
+      eligible_studentsid = jobProfile.Applied_Students || [];
+    }
+
+    if (!eligible_studentsid.length) {
+      return res.status(200).json({
+        eligibleStudents: [],
+        starredFields: [],
+      });
+    }
+
+    // Fetch the form template to get starred fields
+    const formTemplate = await FormTemplate.findOne({ jobId });
+    if (!formTemplate) {
+      return res.status(404).json({ error: 'Form template not found' });
+    }
+
+    // Get fieldNames of starred fields
+    const starredFields = formTemplate.fields
+      .filter((field) => field.fieldStar)
+      .map((field) => ({
+        fieldName: field.fieldName,
+        fieldType: field.fieldType,
+      }));
+
+    // Fetch student details
+    const students = await Student.find(
+      { _id: { $in: eligible_studentsid } },
+      'name batch course'
+    );
+
+    // Fetch form submissions
+    const submissions = await FormSubmission.find(
+      {
+        studentId: { $in: eligible_studentsid },
+        jobId,
+      },
+      'studentId fields'
+    );
+
+    // Map submissions to include values of starred fields
+    const fieldValuesMap = {};
+    submissions.forEach((submission) => {
+      const studentId = submission.studentId.toString();
+      fieldValuesMap[studentId] = {};
+      starredFields.forEach((starredField) => {
+        const field = submission.fields.find((f) => f.fieldName === starredField.fieldName);
+        fieldValuesMap[studentId][starredField.fieldName] = field ? field.value : '';
+      });
+    });
+
+    // Fetch offer and summer intern data for shortlisted students
+    const finalShortlistedIds = jobProfile.final_shortlisted_students.map((id) => id.toString());
+    const offers = await Offer.find({ jobId, 'shortlisted_students.studentId': { $in: finalShortlistedIds } });
+    const summerInterns = await SummerIntern.find({
+      jobId,
+      'shortlisted_students.studentId': { $in: finalShortlistedIds },
+    });
+
+    // Create a map for offer/summer intern data
+    const offerDataMap = {};
+    offers.forEach((offer) => {
+      offer.shortlisted_students.forEach((student) => {
+        const studentId = student.studentId.toString();
+        offerDataMap[studentId] = {
+          job_type: student.job_type,
+          job_role: student.job_role,
+          ctc: student.ctc,
+          stipend: student.stipend,
+          intern_duration: student.intern_duration,
+        };
+      });
+    });
+
+    summerInterns.forEach((intern) => {
+      intern.shortlisted_students.forEach((student) => {
+        const studentId = student.studentId.toString();
+        offerDataMap[studentId] = {
+          job_type: student.job_type,
+          job_role: student.job_role,
+          ctc: student.ctc,
+          stipend: student.stipend,
+          intern_duration: student.intern_duration,
+        };
+      });
+    });
+
+    // Prepare response data
+    const eligibleStudents = students.map((student) => {
+      const studentId = student._id.toString();
+      const isShortlisted = finalShortlistedIds.includes(studentId);
+      const studentData = {
+        studentId,
+        name: student.name,
+        shortlisted: isShortlisted,
+        batch: student.batch,
+        course: student.course,
+      };
+
+      // Add starred field values
+      starredFields.forEach((starredField) => {
+        studentData[starredField.fieldName] = fieldValuesMap[studentId]?.[starredField.fieldName] || '';
+      });
+
+      // Add job-related fields
+      if (isShortlisted) {
+        const offerData = offerDataMap[studentId] || {};
+        studentData.job_type = offerData.job_type || '';
+        studentData.job_role = offerData.job_role || '';
+        studentData.ctc = offerData.ctc || '';
+        studentData.stipend = offerData.stipend || '';
+        studentData.intern_duration = offerData.intern_duration || '';
+      } else {
+        studentData.job_type = jobProfile.job_type || '';
+        studentData.job_role = jobProfile.job_role || '';
+        studentData.ctc = jobProfile.job_salary?.ctc && jobProfile.job_salary.ctc !== '0' ? jobProfile.job_salary.ctc : '';
+        studentData.stipend = jobProfile.job_salary?.stipend || '';
+        studentData.intern_duration = jobProfile.internship_duration || '';
+      }
+
+      return studentData;
+    });
+
+    res.status(200).json({
+      eligibleStudents,
+      starredFields,
+    });
+  } catch (error) {
+    console.error('Error in finalshortlisteligible:', error);
+    res.status(500).json({ error: 'Internal server error', details: error.message });
+  }
+};
 export const eligibleinthis = async (req, res) => {
   try {
     const { jobId, stepIndex } = req.body;
@@ -2059,7 +2354,7 @@ export const eligibleinthis = async (req, res) => {
 
     res.status(200).json({ 
       eligibleStudents,
-      starredFields // Include starred fields in response for dynamic rendering
+      starredFields
     });
   } catch (error) {
     console.error('Error in eligibleinthis:', error);
@@ -2067,77 +2362,6 @@ export const eligibleinthis = async (req, res) => {
   }
 };
 
-/* export const viewshortlisting=async(req,res)=>{
-  try {
-    const { jobId, stepIndex } = req.body;
-    const jobProfile = await JobProfile.findById(jobId);
-    if (!jobProfile) {
-      return res.status(404).json({ error: 'Job profile not found' });
-    }
-    const shortlisted_studentsid = jobProfile.Hiring_Workflow[stepIndex]?.shortlisted_students;
-    const submissions = await FormSubmission.find({
-      studentId: { $in: shortlisted_studentsid },
-      jobId,
-    });
-    const shortlistedStudents = submissions.map(submission => {
-      const nameField = submission.fields.find(field => field.fieldName === 'Name');
-      const emailField = submission.fields.find(field => field.fieldType === 'Email');
-
-      return {
-        name: nameField ? nameField.value : submission.studentId.name,
-        email: emailField ? emailField.value : submission.studentId.email,
-      };
-    });
-    res.status(200).json({ shortlistedStudents });
-  } catch (error) {
-    console.error('Error in eligibleinthis:', error);
-    res.status(500).json({ error: 'Internal server error' });
-  }
-}; */
-
-// export const viewshortlisting = async (req, res) => {
-//   try {
-//     const { jobId, stepIndex } = req.body;
-//     const jobProfile = await JobProfile.findById(jobId);
-//     if (!jobProfile) {
-//       return res.status(404).json({ error: 'Job profile not found' });
-//     }
-
-//     const step = jobProfile.Hiring_Workflow[stepIndex];
-//     if (!step) {
-//       return res.status(404).json({ error: 'Step not found' });
-//     }
-
-//     const shortlisted_studentsid = step.shortlisted_students || [];
-//     const students = await Student.find(
-//       { _id: { $in: shortlisted_studentsid } },
-//       'name'
-//     );
-//     const submissions = await FormSubmission.find(
-//       { studentId: { $in: shortlisted_studentsid }, jobId },
-//       'studentId fields'
-//     );
-
-//     const emailMap = {};
-//     submissions.forEach(submission => {
-//       const emailField = submission.fields.find(field => field.fieldType === 'Email');
-//       if (emailField) {
-//         emailMap[submission.studentId.toString()] = emailField.value;
-//       }
-//     });
-
-//     const shortlistedStudents = students.map(student => ({
-//       studentId: student._id,
-//       name: student.name, // Name from Student model
-//       email: emailMap[student._id.toString()] || '', // Email from FormSubmission or empty string
-//     }));
-
-//     res.status(200).json({ shortlistedStudents });
-//   } catch (error) {
-//     console.error('Error in viewshortlisting:', error);
-//     res.status(500).json({ error: 'Internal server error' });
-//   }
-// };
 
 export const viewshortlisting = async (req, res) => {
   try {

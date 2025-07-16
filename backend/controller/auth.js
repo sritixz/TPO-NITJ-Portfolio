@@ -123,8 +123,8 @@ const generateOTP = (length = 6) => {
     const resetPasswordtoken= jwt.sign({ email,resetId }, process.env.JWT_SECRET, { expiresIn: '10m' });
     res.cookie("resetPasswordToken", resetPasswordtoken, {
       httpOnly: true,
+      sameSite: process.env.NODE_ENV === "production" ? "None" : "Lax",
       secure: process.env.NODE_ENV === "production",
-      sameSite: "strict",
       expires: new Date(Date.now() + 10 * 60 * 1000), // 10 minutes
     });
 
@@ -394,17 +394,32 @@ export const LockedResendOTP = async (req, res) => {
           });
           if (userType === "Student" && student) {
             try {
-               const adjustedBatch = student.batch || '2026';
+                const rollNumbers = [student.rollno];
+                const course = student.course;
+                const response = await axios.post(`${process.env.ERP_SERVER}`, rollNumbers, {
+                    });
+                const erpStudents = response.data.data;
+                const erpData = erpStudents[0];
+                const erpBatch = erpData.batch;
+                const courseDurations = {
+                "B.Tech": 4,
+                "M.Tech": 2,
+                "B.Sc.-B.Ed.": 4,
+                "MBA": 2,
+                "M.Sc.": 2
+                };
+               const adjustment = courseDurations[course] || 0; // Default to 0 if course not found
+               const adjustedBatch = String(Number(erpBatch) + adjustment);
                 const updatedStudent = await Student.findByIdAndUpdate(
                     student._id,
                     {
-                        cgpa: '8.36',
+                        cgpa: erpData.cgpa,
                         batch: adjustedBatch,
-                        active_backlogs: false,
-                        backlogs_history: false
+                        active_backlogs: erpData.active_backlogs === 'true',
+                        backlogs_history: erpData.backlogs_history === 'true'
                     },
                     { new: true }
-                );
+                );     
                 res.clearCookie("captchaToken");
                 return res.status(200).json({ message: "Login Successful",  user: updatedStudent, userType });
             } catch (error) {
