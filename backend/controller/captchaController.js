@@ -132,8 +132,8 @@ const generateCaptchaImage = (text) => {
 
     res.cookie("captchaToken", captchaToken, {
       httpOnly: true,
+      sameSite: process.env.NODE_ENV === "production" ? "None" : "Lax",
       secure: process.env.NODE_ENV === "production",
-      sameSite: "strict",
       maxAge: 5 * 60 * 1000,
     });
 
@@ -181,8 +181,8 @@ export const verifyCaptcha = async (req, res) => {
     // Update cookie with new token
     res.cookie("captchaToken", updatedToken, {
       httpOnly: true,
+      sameSite: process.env.NODE_ENV === "production" ? "None" : "Lax",
       secure: process.env.NODE_ENV === "production",
-      sameSite: "strict",
       maxAge: 5 * 60 * 1000,
     });
 

@@ -3,7 +3,7 @@ const router=express.Router();
 
 import { restrictTo } from "../utils/restrict.js";
 
-import {toggleEditingAllowed,getEditingAllowedStatus,incompletedJobProfile,updateInterviewLink,updategdLink,updateOthersLink, updateoaLink , checkEligibility, getJobProfiletostudent,getJobProfiledetails, getJobsByRecruiter,createJobProfilecopy,updateJob,deleteJob,getJobProfilesForProfessors,approveJobProfile,rejectJobProfile,addshortlistStudents,eligibleinthis,viewshortlisting,getspecificJobProfilesForProfessors, completedJobProfile, getAllCompanies } from "../controller/jobprofile.js";
+import {addfinalshortlistStudent,finalshortlisteligible,toggleEditingAllowed,getEditingAllowedStatus,incompletedJobProfile,updateInterviewLink,updategdLink,updateOthersLink, updateoaLink , checkEligibility, getJobProfiletostudent,getJobProfiledetails, getJobsByRecruiter,createJobProfilecopy,updateJob,deleteJob,getJobProfilesForProfessors,approveJobProfile,rejectJobProfile,addshortlistStudents,eligibleinthis,viewshortlisting,getspecificJobProfilesForProfessors, completedJobProfile, getAllCompanies } from "../controller/jobprofile.js";
 
 router.get("/", getAllCompanies);
 router.get("/eligibility/:_id/", restrictTo('Student'), checkEligibility);
@@ -23,9 +23,11 @@ router.put("/incompletejob/:_id", restrictTo('Professor'), incompletedJobProfile
 router.put("/completejob/:_id",restrictTo('Professor'), completedJobProfile);
 router.put("/rejectjob/:_id", restrictTo('Professor'), rejectJobProfile);
 router.post("/add-shortlist-students", restrictTo('Professor'), addshortlistStudents);
+router.post("/add-final-shortlist-students", restrictTo('Professor'), addfinalshortlistStudent);
 
 
 router.post("/eligible_students", restrictTo('Professor'),eligibleinthis);
+router.post("/final_eligible_students", restrictTo('Professor'),finalshortlisteligible);
 router.post("/shortlisted_students", restrictTo('Professor'),viewshortlisting);
 router.post("/set-interview-links", restrictTo('Professor'),updateInterviewLink );
 router.post("/set-gd-links", restrictTo('Professor'),updategdLink );

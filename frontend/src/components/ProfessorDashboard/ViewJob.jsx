@@ -16,6 +16,7 @@ import InterviewLinkManager from "./interviewlink";
 import GDLinkManager from "./gdlink";
 import OaLinkManager from "./oalink";
 import OthersLinkManager from "./otherslink";
+import FinalShortlistStudents from "./finalshortlist";
 import AuditLogs from "../AuditLogs";
 import { FaArrowLeft } from "react-icons/fa";
 import ReactQuill from 'react-quill';
@@ -79,6 +80,7 @@ const ViewJobDetails = ({ job, onClose, oneditingAllowedUpdate }) => {
   );
   const [currentCriteriaIndex, setCurrentCriteriaIndex] = useState(0);
   const [editingCriteriaIndex, setEditingCriteriaIndex] = useState(null);
+  const [addingFinalShortlist, setAddingFinalShortlist] = useState(false);
 
   const handleToggleEditing = async () => {
     try {
@@ -1219,6 +1221,15 @@ const ViewJobDetails = ({ job, onClose, oneditingAllowedUpdate }) => {
     );
   }
 
+    if (addingFinalShortlist) {
+    return (
+      <FinalShortlistStudents
+        jobId={job._id}
+        onClose={() => setAddingFinalShortlist(false)}
+      />
+    );
+  }
+
   if (viewingAppliedStudents) {
     return (
       <AppliedStudents
@@ -1379,6 +1390,18 @@ const ViewJobDetails = ({ job, onClose, oneditingAllowedUpdate }) => {
               </Button>
             )
           )}
+        </div>
+                <div className="p-8 bg-white border border-gray-200 rounded-2xl shadow-lg hover:shadow-xl transition-shadow duration-300 relative mt-8">
+          <h3 className="text-2xl font-semibold text-custom-blue mb-6">
+            Final Shortlist
+          </h3>
+          <Button
+            className="w-full bg-green-500 hover:bg-green-600 text-white"
+            onClick={() => setAddingFinalShortlist(true)}
+          >
+            <Plus className="mr-2 h-4 w-4 text-white" />
+            Manage Final Shortlist
+          </Button>
         </div>
         <AuditLogs logs={job.auditLogs || []} />
       </div>

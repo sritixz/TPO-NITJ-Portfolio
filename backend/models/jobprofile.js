@@ -192,8 +192,8 @@ const JobProfileSchema = new mongoose.Schema(
     },
     internship_duration: {
       type: String,
-      enum:['2m Intern','6m Intern','11m Intern','N/A'],
-      default:'N/A'
+      // enum:['2m Intern','6m Intern','11m Intern','N/A'],
+      // default:'N/A'
     },
     company_name: {
       type: String,
@@ -319,12 +319,15 @@ const JobProfileSchema = new mongoose.Schema(
     },
     job_class: {
       type: String,
-      enum: ["Below Dream", "Dream", "Super Dream"],
     },
     Applied_Students:[{
       type: mongoose.Schema.Types.ObjectId,
       ref: "Student",
   }],
+    final_shortlisted_students: [{
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Student",
+    }],
     Approved_Status: {
       type: Boolean,
       default: false
