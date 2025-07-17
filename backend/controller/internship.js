@@ -1,20 +1,7 @@
 import Internship from '../models/internship.js';
+import SummerIntern from '../models/summer_internship.js';
 import moment from 'moment'; 
 
-export const getTodayInternships = async (req, res) => {
-  try {
-    const startOfDay = moment().startOf('day').toDate();
-    const endOfDay = moment().endOf('day').toDate();
-
-    const todayInternships = await Internship.find({
-      createdAt: { $gte: startOfDay, $lte: endOfDay },
-    });
-
-    res.json(todayInternships);
-  } catch (error) {
-    res.status(500).json({ error: 'Internal server error' });
-  }
-};
 
 export const getAllInternships = async (req, res) => {
   try {
@@ -149,7 +136,7 @@ export const getLastSevenDaysInternships = async (req, res) => {
     const endOfToday = new Date();
     endOfToday.setHours(23, 59, 59, 999);
 
-    const internships = await Internship.find({
+    const internships = await SummerIntern.find({
       createdAt: {
         $gte: startOfLastSevenDays,
         $lte: endOfToday,
