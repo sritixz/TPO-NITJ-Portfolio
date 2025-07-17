@@ -49,6 +49,7 @@ export const getEligibleUpcomingInterviews = async (req, res) => {
             interview_date: step.details?.interview_date,
             interview_time: step.details?.interview_time,
             interview_info: step.details?.interview_info,
+            interview_venue: step.details?.interview_venue,
             interview_link: isLinkVisible ? studentInterviewLink?.interviewLink || "No link available" : "Link not visible",
             isLinkVisible,
             was_shortlisted:
@@ -112,6 +113,7 @@ export const getEligiblePastInterviews = async (req, res) => {
             interview_date: step.details?.interview_date,
             interview_time: step.details?.interview_time,
             interview_info: step.details?.interview_info,
+            interview_venue: step.details?.interview_venue,
             interview_link: isLinkVisible ? studentInterviewLink?.interviewLink || "No link available" : "Link not visible",
             isLinkVisible,
             was_shortlisted:

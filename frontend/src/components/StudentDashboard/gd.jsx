@@ -66,6 +66,7 @@ const GD = () => {
               gd_date={gd.gd_date}
               gd_login_time={gd.gd_time}
               gd_info={gd.gd_info}
+              gd_venue={gd.gd_venue}
               isLinkVisible={gd.isLinkVisible}
               gd_link={gd.gd_link}
               was_shortlisted={gd.was_shortlisted}
@@ -88,6 +89,7 @@ const GD = () => {
               gd_date={gd.gd_date}
               gd_login_time={gd.gd_time}
               gd_info={gd.gd_info}
+              gd_venue={gd.gd_venue}
               gd_link={gd.gd_link}
               isLinkVisible={gd.isLinkVisible}
               was_shortlisted={gd.was_shortlisted}

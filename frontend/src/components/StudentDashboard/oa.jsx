@@ -69,6 +69,7 @@ const OnlineAssessment = () => {
               oa_login_time={oa.oa_login_time}
               oa_duration={oa.oa_duration}
               oa_info={oa.oa_info}
+              oa_venue={oa.oa_venue}
               isLinkVisible={oa.isLinkVisible}
               oa_link={oa.oa_link}
               was_shortlisted={oa.was_shortlisted}
@@ -91,6 +92,7 @@ const OnlineAssessment = () => {
               oa_date={oa.oa_date}
               oa_login_time={oa.oa_login_time}
               oa_duration={oa.oa_duration}
+              oa_venue={oa.oa_venue}
               oa_info={oa.oa_info}
               oa_link={oa.oa_link}
               isLinkVisible={oa.isLinkVisible}

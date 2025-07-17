@@ -6,7 +6,8 @@ import {
   CheckCircle, 
   Info,
   EyeOff,
-  XCircle
+  XCircle,
+  MapPin
 } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 
@@ -16,6 +17,7 @@ export default function OthersCard({
   others_round_name,
   others_time,
   others_info,
+  others_venue,
   others_link,
   was_shortlisted,
   isLinkVisible,
@@ -124,6 +126,11 @@ export default function OthersCard({
             <Clock className="mr-2 text-custom-blue" size={16} />
             <span className="font-medium mr-1">Time:</span>
             <span className="text-gray-600">{others_time || "Not Provided"}</span>
+          </div>
+          <div className="flex items-center text-gray-700 text-sm">
+            <MapPin className="mr-2 text-custom-blue" size={16} />
+            <span className="font-medium mr-1">Venue:</span>
+            <span className="text-gray-600">{others_venue || "Not Provided"}</span>
           </div>
 
           <div className="flex items-center text-gray-700 text-sm">

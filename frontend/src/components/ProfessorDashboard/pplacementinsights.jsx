@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { saveAs } from 'file-saver';
+import ExcelJS from 'exceljs';
 import * as XLSX from 'xlsx';
 import { FaFileExcel, FaSpinner, FaFilter } from 'react-icons/fa';
 import { MdKeyboardArrowLeft, MdKeyboardArrowRight, MdInfo } from 'react-icons/md';
@@ -362,33 +363,208 @@ const PPlacementReport = () => {
     fetchReportData(filters);
   };
 
-  const exportToExcel = () => {
-    if (reportData.length === 0) return;
+  // const exportToExcel = () => {
+  //   if (reportData.length === 0) return;
     
-    const exportData = reportData.map(item => ({
-      'Sr.No': item.sr_no,
-      'Roll No.': item.roll_no,
-      'Name': item.name,
-      'Branch': item.branch,
-      'Gender': item.gender,
-      'Category': item.category,
-      'Date Result': item.date_result,
-      'Profile': item.profile,
-      'Company': item.company,
-      'Package (LPA)': item.package,
-      'Student Status': item.student_status,
-    }));
+  //   const exportData = reportData.map(item => ({
+  //     'Sr.No': item.sr_no,
+  //     'Roll No.': item.roll_no,
+  //     'Name': item.name,
+  //     'Branch': item.branch,
+  //     'Gender': item.gender,
+  //     'Category': item.category,
+  //     'Date Result': item.date_result,
+  //     'Profile': item.profile,
+  //     'Company': item.company,
+  //     'Package (LPA)': item.package,
+  //     'Student Status': item.student_status,
+  //   }));
 
-    const worksheet = XLSX.utils.json_to_sheet(exportData);
-    const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, 'Placement Reports');
+  //   const worksheet = XLSX.utils.json_to_sheet(exportData);
+  //   const workbook = XLSX.utils.book_new();
+  //   XLSX.utils.book_append_sheet(workbook, worksheet, 'Placement Reports');
     
-    const excelBuffer = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' });
-    const data = new Blob([excelBuffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+  //   const excelBuffer = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' });
+  //   const data = new Blob([excelBuffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
     
-    const date = new Date().toISOString().split('T')[0];
-    saveAs(data, `Placement_Report_${date}.xlsx`);
+  //   const date = new Date().toISOString().split('T')[0];
+  //   saveAs(data, `Placement_Report_${date}.xlsx`);
+  // };
+
+//   const exportToExcel = () => {
+//   if (reportData.length === 0) return;
+
+//   const workbook = XLSX.utils.book_new();
+
+//   // Case 1: Branch is selected – export single sheet
+//   if (filters.department) {
+//     const exportData = reportData.map(item => ({
+//       'Sr.No': item.sr_no,
+//       'Roll No.': item.roll_no,
+//       'Name': item.name,
+//       'Branch': item.branch,
+//       'Gender': item.gender,
+//       'Category': item.category,
+//       'Date Result': item.date_result,
+//       'Profile': item.profile,
+//       'Company': item.company,
+//       'Package (LPA)': item.package,
+//       'Student Status': item.student_status,
+//     }));
+
+//     const worksheet = XLSX.utils.json_to_sheet(exportData);
+//     XLSX.utils.book_append_sheet(workbook, worksheet, filters.department);
+//   } 
+
+//   // Case 2: No branch selected – export one sheet per department
+//   else {
+//     const grouped = reportData.reduce((acc, item) => {
+//       const dept = item.branch || "Unknown";
+//       if (!acc[dept]) acc[dept] = [];
+//       acc[dept].push(item);
+//       return acc;
+//     }, {});
+
+//     Object.entries(grouped).forEach(([dept, records]) => {
+//       const exportData = records.map(item => ({
+//         'Sr.No': item.sr_no,
+//         'Roll No.': item.roll_no,
+//         'Name': item.name,
+//         'Branch': item.branch,
+//         'Gender': item.gender,
+//         'Category': item.category,
+//         'Date Result': item.date_result,
+//         'Profile': item.profile,
+//         'Company': item.company,
+//         'Package (LPA)': item.package,
+//         'Student Status': item.student_status,
+//       }));
+
+//       const worksheet = XLSX.utils.json_to_sheet(exportData);
+//       XLSX.utils.book_append_sheet(workbook, worksheet, dept.substring(0, 31)); // Sheet names must be ≤ 31 chars
+//     });
+//   }
+
+//   const excelBuffer = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' });
+//   const data = new Blob([excelBuffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+//   const date = new Date().toISOString().split('T')[0];
+//   saveAs(data, `Placement_Report_${date}.xlsx`);
+// };
+
+
+const exportToExcel = async () => {
+  if (reportData.length === 0) return;
+
+  const workbook = new ExcelJS.Workbook();
+
+ const createSheetWithData = (sheetName, data) => {
+  const sheet = workbook.addWorksheet(sheetName.substring(0, 31));
+
+  sheet.columns = [
+    { header: 'Sr.No', key: 'sr_no', width: 10 },
+    { header: 'Roll No.', key: 'roll_no', width: 15 },
+    { header: 'Name', key: 'name', width: 20 },
+    { header: 'Branch', key: 'branch', width: 30 },
+    { header: 'Gender', key: 'gender', width: 10 },
+    { header: 'Category', key: 'category', width: 15 },
+    { header: 'Date Result', key: 'date_result', width: 15 },
+    { header: 'Profile', key: 'profile', width: 20 },
+    { header: 'Company', key: 'company', width: 20 },
+    { header: 'Package (LPA)', key: 'package', width: 15 },
+    { header: 'Student Status', key: 'student_status', width: 20 }
+  ];
+
+  // Add data rows
+  data.forEach((item, idx) => {
+    const row = sheet.addRow({
+      sr_no: idx + 1,
+      roll_no: item.roll_no,
+      name: item.name,
+      branch: item.branch,
+      gender: item.gender,
+      category: item.category,
+      date_result: item.date_result,
+      profile: item.profile,
+      company: item.company,
+      package: item.package,
+      student_status: item.student_status
+    });
+
+    if (item.isDoublePlaced) {
+      row.eachCell((cell) => {
+        cell.fill = {
+          type: 'pattern',
+          pattern: 'solid',
+          fgColor: { argb: '228B22' } // light blue
+        };
+      });
+    }
+  });
+
+  // Apply gray header and black borders
+  const headerRow = sheet.getRow(1);
+  headerRow.eachCell((cell) => {
+    cell.fill = {
+      type: 'pattern',
+      pattern: 'solid',
+      fgColor: { argb: 'FFD3D3D3' } // light gray
+    };
+    cell.border = {
+      top: { style: 'thin', color: { argb: 'FF000000' } },
+      left: { style: 'thin', color: { argb: 'FF000000' } },
+      bottom: { style: 'thin', color: { argb: 'FF000000' } },
+      right: { style: 'thin', color: { argb: 'FF000000' } }
+    };
+  });
+
+  // Set border for all cells
+  sheet.eachRow((row) => {
+    row.eachCell((cell) => {
+      cell.border = {
+        top: { style: 'thin', color: { argb: 'FF000000' } },
+        left: { style: 'thin', color: { argb: 'FF000000' } },
+        bottom: { style: 'thin', color: { argb: 'FF000000' } },
+        right: { style: 'thin', color: { argb: 'FF000000' } }
+      };
+    });
+  });
+
+  // Enable filter and sorting
+  sheet.autoFilter = {
+    from: {
+      row: 1,
+      column: 1
+    },
+    to: {
+      row: 1,
+      column: sheet.columns.length
+    }
   };
+};
+
+
+  if (filters.department) {
+    createSheetWithData(filters.department, reportData);
+  } else {
+    const grouped = reportData.reduce((acc, item) => {
+      const dept = item.branch || "Unknown";
+      if (!acc[dept]) acc[dept] = [];
+      acc[dept].push(item);
+      return acc;
+    }, {});
+    Object.entries(grouped).forEach(([dept, data]) => {
+      createSheetWithData(dept, data);
+    });
+  }
+
+  const buffer = await workbook.xlsx.writeBuffer();
+  const blob = new Blob([buffer], {
+    type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+  });
+  const date = new Date().toISOString().split('T')[0];
+  saveAs(blob, `Placement_Report_${date}.xlsx`);
+};
+
 
   const indexOfLastRow = currentPage * rowsPerPage;
   const indexOfFirstRow = indexOfLastRow - rowsPerPage;
@@ -433,8 +609,8 @@ const PPlacementReport = () => {
                 style={{backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='6' fill='none' viewBox='0 0 12 6'%3E%3Cpath fill='%23204080' d='M0 0L6 6L12 0H0Z'/%3E%3C/svg%3E")`, backgroundPosition: 'right 0.75rem center', backgroundSize: '12px 6px'}}
               >
                 <option value="">Select Type</option>
-                <option value="placement">Placement</option>
-                <option value="internship">Internship</option>
+                <option value="placement">Placement (Internship + Job)</option>
+                <option value="summer_intern">Summer Internship</option>
               </select>
             </div>
             {/* Batch */}
@@ -453,7 +629,7 @@ const PPlacementReport = () => {
                 ))}
               </select>
             </div>
-            {/* Degree */}
+            {/* Course*/}
             <div>
               <label className="block text-gray-700 font-medium mb-2">Course</label>
               <select

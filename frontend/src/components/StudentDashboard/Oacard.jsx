@@ -5,6 +5,7 @@ import {
   Link as LinkIcon, 
   CheckCircle, 
   Info,
+  MapPin,
   EyeOff,
   XCircle
 } from 'lucide-react';
@@ -17,6 +18,7 @@ export default function OACard({
   oa_duration,
   oa_info,
   oa_link,
+  oa_venue,
   was_shortlisted,
   isLinkVisible,
 }) {
@@ -125,6 +127,11 @@ export default function OACard({
             <Clock className="mr-2 text-custom-blue" size={16} />
             <span className="font-medium mr-1">Duration:</span>
             <span className="text-gray-600">{oa_duration || "Not Provided"}</span>
+          </div>
+          <div className="flex items-center text-gray-700 text-sm">
+            <MapPin className="mr-2 text-custom-blue" size={16} />
+            <span className="font-medium mr-1">Venue:</span>
+            <span className="text-gray-600">{oa_venue || "Not Provided"}</span>
           </div>
 
           <div className="flex items-center text-gray-700 text-sm">
