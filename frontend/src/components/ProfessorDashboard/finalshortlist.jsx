@@ -208,7 +208,7 @@ const FinalShortlistStudents = ({ jobId, onClose }) => {
               />
             </td>
             <td className="px-4 py-2 border text-center">
-              <select
+              {/* <select
                 value={student.intern_duration}
                 onChange={(e) => handleInputChange(students.findIndex((s) => s.studentId === student.studentId), 'intern_duration', e.target.value)}
                 className="w-full px-2 py-1 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100"
@@ -220,7 +220,15 @@ const FinalShortlistStudents = ({ jobId, onClose }) => {
                     {option.label}
                   </option>
                 ))}
-              </select>
+              </select> */}
+              <input
+                type="Number"
+                value={student.intern_duration}
+                onChange={(e) => handleInputChange(students.findIndex((s) => s.studentId === student.studentId), 'intern_duration', e.target.value)}
+                className="w-full px-2 py-1 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100"
+                placeholder="Enter Intern Duration"
+                disabled={isDisabled}
+              />
             </td>
           </>
         )}

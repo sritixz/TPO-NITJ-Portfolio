@@ -2886,6 +2886,7 @@ const CreateJob = ({ onJobCreated, onCancel }) => {
             <p>Login Time: {step.details.oa_login_time || "N/A"}</p>
             <p>Duration: {step.details.oa_duration || "N/A"}</p>
             <p>Info: {step.details.oa_info || "N/A"}</p>
+            <p>Venue: {step.details.oa_venue || "N/A"}</p>
           </div>
         );
       case "Interview":
@@ -2895,6 +2896,7 @@ const CreateJob = ({ onJobCreated, onCancel }) => {
             <p>Date: {step.details.interview_date || "N/A"}</p>
             <p>Time: {step.details.interview_time || "N/A"}</p>
             <p>Info: {step.details.interview_info || "N/A"}</p>
+            <p>Venue: {step.details.interview_venue || "N/A"}</p>
           </div>
         );
       case "GD":
@@ -2903,6 +2905,7 @@ const CreateJob = ({ onJobCreated, onCancel }) => {
             <p>Date: {step.details.gd_date || "N/A"}</p>
             <p>Time: {step.details.gd_time || "N/A"}</p>
             <p>Info: {step.details.gd_info || "N/A"}</p>
+            <p>Venue: {step.details.gd_venue || "N/A"}</p>
           </div>
         );
       case "Others":
@@ -2913,6 +2916,7 @@ const CreateJob = ({ onJobCreated, onCancel }) => {
             <p>Time: {step.details.others_login_time || "N/A"}</p>
             <p>Duration: {step.details.others_duration || "N/A"}</p>
             <p>Info: {step.details.others_info || "N/A"}</p>
+            <p>Venue: {step.details.others_venue || "N/A"}</p>
           </div>
         );
       default:
@@ -3060,15 +3064,22 @@ const CreateJob = ({ onJobCreated, onCancel }) => {
             {["Intern", "Intern+PPO", "Intern+FTE"].includes(formData.job_type) && (
               <div>
                 <label className="block text-gray-700 font-semibold mb-2">
-                  Internship Duration<span className="text-red-500"> *</span>
+                  Internship Duration<span className="text-red-500 text-sm"> (in month) *</span>
                 </label>
-                <Select
+                {/* <Select
                   required
                   options={internshipDurationOptions}
                   onChange={(option) => handleSelectChange("internship_duration", option)}
                   value={internshipDurationOptions.find((option) => option.value === formData.internship_duration)}
                   className="w-full border-2 border-gray-200 rounded-xl p-1.5 focus:outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-100 transition-all duration-300"
-                />
+                /> */}
+               <input
+                type="Number"
+                name="internship_duration"
+                value={formData.internship_duration}
+                onChange={handleChange}
+                className="w-full border-2 border-gray-200 rounded-xl p-3 focus:outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-100 transition-all duration-300"
+              />
               </div>
             )}
             <div>
@@ -3421,6 +3432,13 @@ const CreateJob = ({ onJobCreated, onCancel }) => {
                   onChange={handleStepDetailsChange}
                   className="border-2 border-gray-200 rounded-xl p-3 focus:outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-100 transition-all duration-300"
                 />
+                <textarea
+                  name="oa_venue"
+                  placeholder="OA Venue"
+                  value={workflowStep.details.oa_venue || ""}
+                  onChange={handleStepDetailsChange}
+                  className="border-2 border-gray-200 rounded-xl p-3 focus:outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-100 transition-all duration-300"
+                />
               </div>
             )}
 
@@ -3465,6 +3483,13 @@ const CreateJob = ({ onJobCreated, onCancel }) => {
                   onChange={handleStepDetailsChange}
                   className="border-2 border-gray-200 rounded-xl p-3 focus:outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-100 transition-all duration-300"
                 />
+                <textarea
+                  name="interview_venue"
+                  placeholder="Interview Venue"
+                  value={workflowStep.details.interview_venue || ""}
+                  onChange={handleStepDetailsChange}
+                  className="border-2 border-gray-200 rounded-xl p-3 focus:outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-100 transition-all duration-300"
+                />
               </div>
             )}
 
@@ -3490,6 +3515,13 @@ const CreateJob = ({ onJobCreated, onCancel }) => {
                   name="gd_info"
                   placeholder="GD Info"
                   value={workflowStep.details.gd_info || ""}
+                  onChange={handleStepDetailsChange}
+                  className="border-2 border-gray-200 rounded-xl p-3 focus:outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-100 transition-all duration-300"
+                />
+                <textarea
+                  name="gd_venue"
+                  placeholder="GD Venue"
+                  value={workflowStep.details.gd_venue || ""}
                   onChange={handleStepDetailsChange}
                   className="border-2 border-gray-200 rounded-xl p-3 focus:outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-100 transition-all duration-300"
                 />
@@ -3535,6 +3567,13 @@ const CreateJob = ({ onJobCreated, onCancel }) => {
                     name="others_info"
                     placeholder="Round Info"
                     value={workflowStep.details.others_info || ""}
+                    onChange={handleStepDetailsChange}
+                    className="border-2 border-gray-200 rounded-xl p-3 focus:outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-100 transition-all duration-300"
+                  />
+                  <textarea
+                    name="others_venue"
+                    placeholder="Round Venue"
+                    value={workflowStep.details.others_venue || ""}
                     onChange={handleStepDetailsChange}
                     className="border-2 border-gray-200 rounded-xl p-3 focus:outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-100 transition-all duration-300"
                   />

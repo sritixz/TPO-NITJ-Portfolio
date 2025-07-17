@@ -1,5 +1,6 @@
 import FormSubmission from '../models/FormSubmission.js';
 import JobProfile from '../models/jobprofile.js';
+import JobEligibility from '../models/eligibility.js';
 import mongoose from 'mongoose';
 
 // Fetch existing submission for a job and student
@@ -26,6 +27,13 @@ export const submitForm = async (req, res) => {
     if (existingSubmission) {
       return res.status(400).json({ message: 'You have already applied for this job' });
     }
+
+    // Check if the student is eligible for the job
+    const eligibility = await JobEligibility.findOne({ jobId, studentId });
+    if (!eligibility || !eligibility.eligible) {
+      return res.status(403).json({ message: 'You are not eligible to apply for this job' });
+    }
+    console.log(eligibility);
     const formSubmission = new FormSubmission({
       jobId,
       studentId,

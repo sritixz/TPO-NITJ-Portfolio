@@ -48,6 +48,7 @@ export const getEligibleUpcomingGDs = async (req, res) => {
             gd_date: step.details?.gd_date,
             gd_time: step.details?.gd_time,
             gd_info: step.details?.gd_info,
+            gd_venue: step.details?.gd_venue,
             gd_link: isLinkVisible ? studentGDLink?.gdLink || "No link available" : "Link not visible",
             isLinkVisible,
             was_shortlisted:
@@ -112,6 +113,7 @@ export const getEligiblePastGDs = async (req, res) => {
             gd_date: step.details?.gd_date,
             gd_time: step.details?.gd_time,
             gd_info: step.details?.gd_info,
+            gd_venue: step.details?.gd_venue,
             gd_link: isLinkVisible ? studentGDLink?.gdLink || "No link available" : "Link not visible",
             isLinkVisible, // Add this field to indicate visibility
             was_shortlisted:

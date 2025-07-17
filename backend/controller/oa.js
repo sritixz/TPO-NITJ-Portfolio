@@ -48,6 +48,7 @@ export const getEligibleUpcomingOAs = async (req, res) => {
             oa_login_time: step.details?.oa_login_time || step.details?.login_time,
             oa_duration: step.details?.oa_duration,
             oa_info: step.details?.oa_info,
+            oa_venue: step.details?.oa_venue,
             oa_link: isLinkVisible ? studentOALink?.oaLink || "No link available" : "Link not visible",
             isLinkVisible,
             was_shortlisted:
@@ -111,6 +112,7 @@ export const getEligiblePastOAs = async (req, res) => {
             oa_login_time: step.details?.oa_login_time || step.details?.login_time,
             oa_duration: step.details?.oa_duration,
             oa_info: step.details?.oa_info,
+            oa_venue: step.details?.oa_venue,
             oa_link: isLinkVisible ? studentOALink?.oaLink || "No link available" : "Link not visible",
             isLinkVisible,
             was_shortlisted:

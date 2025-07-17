@@ -19,6 +19,7 @@ const OfferTrackerSchema = new mongoose.Schema(
         },
         offer_ctc:{
             type:String,
+            default:'0',
         },
         offer_intern_duration:{
             type:String,

@@ -192,8 +192,6 @@ const JobProfileSchema = new mongoose.Schema(
     },
     internship_duration: {
       type: String,
-      // enum:['2m Intern','6m Intern','11m Intern','N/A'],
-      // default:'N/A'
     },
     company_name: {
       type: String,
@@ -216,7 +214,6 @@ const JobProfileSchema = new mongoose.Schema(
     },
     job_sector:{
        type:String,
-      //  enum:['PSU','Private'],
        default:'Private'
     },
     job_salary: {
@@ -241,7 +238,6 @@ const JobProfileSchema = new mongoose.Schema(
         {
           step_type: {
             type: String,
-            /* enum: ["Resume Shortlisting", "OA", "Interview", "GD","Others"], */
           },
           details: {
             type: mongoose.Schema.Types.Mixed,

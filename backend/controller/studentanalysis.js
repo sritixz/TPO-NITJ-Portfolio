@@ -1,6 +1,7 @@
 import Student from '../models/user_model/student.js';
 import JobProfile from '../models/jobprofile.js';
 import OfferTracker from '../models/offertracker.js';
+import SummerInternTracker from '../models/summer_intern_tracker.js';
 import mongoose from 'mongoose';
 import axios from 'axios';
 
@@ -335,6 +336,49 @@ export const updateOfferTracker = async (req, res) => {
     res.status(200).json({ message: 'Offer tracker updated successfully', data: offerTracker });
   } catch (error) {
     console.error('Error updating offer tracker:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+};
+
+
+
+export const updateSummerInternTracker = async (req, res) => {
+  try {
+    const { batch, course, studentsId } = req.body;
+
+    // Validate input
+    if (!batch || !course || !Array.isArray(studentsId)) {
+      return res.status(400).json({ message: 'Batch, course, and studentsId array are required' });
+    }
+
+    // Validate students exist
+    for (const studentId of studentsId) {
+      const student = await Student.findById(studentId);
+      if (!student) {
+        return res.status(404).json({ message: `Student not found: ${studentId}` });
+      }
+      if (student.batch !== batch || student.course !== course) {
+        return res.status(400).json({ message: `Student ${studentId} does not match batch or course` });
+      }
+    }
+
+    // Update or create summer intern tracker
+    let tracker = await SummerInternTracker.findOne({ batch, course });
+    
+    if (tracker) {
+      tracker.studentsId = [...new Set([...tracker.studentsId, ...studentsId])]; // Avoid duplicates
+      await tracker.save();
+    } else {
+      tracker = await SummerInternTracker.create({
+        batch,
+        course,
+        studentsId
+      });
+    }
+
+    res.status(200).json({ message: 'Summer intern tracker updated successfully', data: tracker });
+  } catch (error) {
+    console.error('Error updating summer intern tracker:', error);
     res.status(500).json({ message: 'Server error' });
   }
 };

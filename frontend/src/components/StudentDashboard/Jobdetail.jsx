@@ -408,6 +408,12 @@ const Jobdetail = () => {
                               Duration: <span className="font-normal">{step.details?.oa_duration || "N/A"}</span>
                             </span>
                           </div>
+                          <div className="flex items-center text-gray-700">
+                            <MapPin className="mr-2 w-3.5 h-3.5 text-indigo-500" />
+                            <span className="font-medium">
+                              Venue: <span className="font-normal">{step.details?.oa_venue || "N/A"}</span>
+                            </span>
+                          </div>
                         </>
                       )}
                       {step.step_type === "Interview" && (
@@ -430,6 +436,12 @@ const Jobdetail = () => {
                               Time: <span className="font-normal">{step.details?.interview_time || "N/A"}</span>
                             </span>
                           </div>
+                           <div className="flex items-center text-gray-700">
+                            <MapPin className="mr-2 w-3.5 h-3.5 text-emerald-500" />
+                            <span className="font-medium">
+                              Venue: <span className="font-normal">{step.details?.interview_venue || "N/A"}</span>
+                            </span>
+                          </div>
                         </>
                       )}
                       {step.step_type === "GD" && (
@@ -445,6 +457,12 @@ const Jobdetail = () => {
                             <Clock className="mr-2 w-3.5 h-3.5 text-emerald-500" />
                             <span className="font-medium">
                               Time: <span className="font-normal">{step.details?.gd_time || "N/A"}</span>
+                            </span>
+                          </div>
+                           <div className="flex items-center text-gray-700">
+                            <MapPin className="mr-2 w-3.5 h-3.5 text-emerald-500" />
+                            <span className="font-medium">
+                              Venue: <span className="font-normal">{step.details?.gd_venue || "N/A"}</span>
                             </span>
                           </div>
                         </>
@@ -467,6 +485,12 @@ const Jobdetail = () => {
                             <Clock className="mr-2 w-3.5 h-3.5 text-amber-500" />
                             <span className="font-medium">
                               Duration: <span className="font-normal">{step.details?.others_duration || "N/A"}</span>
+                            </span>
+                          </div>
+                           <div className="flex items-center text-gray-700">
+                            <MapPin className="mr-2 w-3.5 h-3.5 text-amber-500" />
+                            <span className="font-medium">
+                              Venue: <span className="font-normal">{step.details?.others_venue || "N/A"}</span>
                             </span>
                           </div>
                         </>

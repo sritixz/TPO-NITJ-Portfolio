@@ -373,6 +373,20 @@ function Profile() {
                   <div className="text-white mx-4 bg-custom-blue h-10 w-10 p-2 justify-center items-center rounded-full">
                     <CheckCircle2 />
                   </div>
+                  <p className="font-italic tracking-tight">10th Percentage:</p>
+                </div>
+                <div className="flex items-center">
+                  <div className="text-white mx-4 bg-custom-blue h-10 w-10 p-2 justify-center items-center rounded-full">
+                    <CheckCircle2 />
+                  </div>
+                  <p className="font-italic tracking-tight">
+                    12th Percentage: 
+                  </p>
+                </div>
+                {/* <div className="flex items-center">
+                  <div className="text-white mx-4 bg-custom-blue h-10 w-10 p-2 justify-center items-center rounded-full">
+                    <CheckCircle2 />
+                  </div>
                   <p className="font-italic tracking-tight">Placement Status: {formData.placementstatus}</p>
                 </div>
                 <div className="flex items-center">
@@ -382,7 +396,7 @@ function Profile() {
                   <p className="font-italic tracking-tight">
                     Internship Status: {formData.internshipstatus}
                   </p>
-                </div>
+                </div> */}
                 <div className="flex items-center">
                   <div className="text-white mx-4 bg-custom-blue h-10 w-10 p-2 justify-center items-center rounded-full">
                     <CheckCircle2 />

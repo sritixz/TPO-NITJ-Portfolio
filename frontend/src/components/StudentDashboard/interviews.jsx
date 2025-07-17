@@ -55,6 +55,7 @@ const InterviewsData = () => {
               interview_time={job.interview_time}
               interview_type={job.interview_type}
               interview_info={job.interview_info}
+              interview_venue={job.interview_venue}
               interview_link={job.interview_link}
               isLinkVisible={job.isLinkVisible}
               was_selected={job.was_shortlisted}
@@ -80,6 +81,7 @@ const InterviewsData = () => {
               interview_time={job.interview_time}
               interview_type={job.interview_type}
               interview_info={job.interview_info}
+              interview_venue={job.interview_venue}
               interview_link={job.interview_link}
               isLinkVisible={job.isLinkVisible}
               was_selected={job.was_shortlisted}

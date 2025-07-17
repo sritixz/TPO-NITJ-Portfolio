@@ -48,6 +48,7 @@ export const getEligibleUpcomingOthers = async (req, res) => {
             others_round_name: step.details?.others_round_name,
             others_time: step.details?.others_time,
             others_info: step.details?.others_info,
+            others_venue: step.details?.others_venue,
             others_link: isLinkVisible ? studentOthersLink?.interviewLink || "No link available" : "Link not visible",
             isLinkVisible,
             was_shortlisted:

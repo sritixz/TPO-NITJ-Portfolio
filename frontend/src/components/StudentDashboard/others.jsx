@@ -69,6 +69,7 @@ const Others = () => {
               others_round_name = {others.others_round_name}
               others_login_time={others.others_time}
               others_info={others.others_info}
+              others_venue={others.others_venue}
               others_link={others.others_link}
               isLinkVisible={others.isLinkVisible}
               was_shortlisted={others.was_shortlisted}
@@ -92,6 +93,7 @@ const Others = () => {
               others_round_name = {others.others_round_name}
               other_login_time={others.others_time}
               others_info={others.others_info}
+              others_venue={others.others_venue}
               others_link={others.others_link}
               was_shortlisted={others.was_shortlisted}
               isLinkVisible={others.isLinkVisible}

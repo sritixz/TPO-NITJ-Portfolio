@@ -11,6 +11,7 @@ import mongoose from "mongoose";
 import nodemailer from "nodemailer";
 import Feedback from "../models/Feedback.js";
 import JobAnnouncementForm from "../models/jaf.js";
+import JobEligibility from "../models/eligibility.js";
 import axios from "axios";
 import OfferTracker from "../models/offertracker.js";
 import SummerInternTracker from "../models/summer_intern_tracker.js";
@@ -263,12 +264,12 @@ export const createJobProfilecopy = async (req, res) => {
     );
 
     // Create and save notification
-    const notification = new Notification({
-      type: "JOB_CREATED",
-      message: `New job profile created for ${company_name || "Unknown Company"} - ${job_role || "Unknown Role"}`,
-      jobId: savedProfile._id,
-    });
-    await notification.save();
+    // const notification = new Notification({
+    //   type: "JOB_CREATED",
+    //   message: `New job profile created for ${company_name || "Unknown Company"} - ${job_role || "Unknown Role"}`,
+    //   jobId: savedProfile._id,
+    // });
+    // await notification.save();
 
     return res.status(201).json({
       message: "Job profile created successfully!",
@@ -347,6 +348,39 @@ export const updateJob = async (req, res) => {
 
     const oldJob = job.toObject();
     const updateData = req.body;
+
+      if (updateData.Hiring_Workflow) {
+      const newWorkflow = updateData.Hiring_Workflow;
+      const oldWorkflow = oldJob.Hiring_Workflow || [];
+
+      // Check if a new step is being added
+      if (newWorkflow.length > oldWorkflow.length) {
+        const newStep = newWorkflow[newWorkflow.length - 1]; // Get the newly added step
+        const stepIndex = newWorkflow.length - 1;
+
+        // Populate eligible_students based on step position
+        if (stepIndex === 0) {
+          // First step: use Applied_Students
+          newStep.eligible_students = job.Applied_Students || [];
+        } else {
+          // Subsequent steps: use shortlisted_students from previous step
+          newStep.eligible_students = oldWorkflow[stepIndex - 1]?.shortlisted_students || [];
+        }
+
+        // Ensure absent_students and shortlisted_students are initialized as empty arrays
+        newStep.absent_students = newStep.absent_students || [];
+        newStep.shortlisted_students = newStep.shortlisted_students || [];
+      }
+
+      // Ensure all steps have the correct structure
+      updateData.Hiring_Workflow = newWorkflow.map((step) => ({
+        step_type: step.step_type,
+        details: step.details || {},
+        eligible_students: step.eligible_students || [],
+        absent_students: step.absent_students || [],
+        shortlisted_students: step.shortlisted_students || [],
+      }));
+    }
 
     const detectNestedChanges = (oldObj, newObj) => {
       let diff = {};
@@ -1438,6 +1472,21 @@ export const checkEligibility = async (req, res) => {
     const currentDate = new Date();
     const isDeadlineOver = job.deadline && currentDate > job.deadline;
     const hasApplied = job.Applied_Students.includes(studentId);
+
+    const jobEligibility=await JobEligibility.findOne({ studentId, jobId: _id });
+    if (jobEligibility) {
+      jobEligibility.eligible = true;
+      await jobEligibility.save();
+    }
+    else{
+      const newJobEligibility = new JobEligibility({
+        studentId,
+        jobId: _id,
+        eligible: true
+      });
+      await newJobEligibility.save();
+    }
+    
     return res.json({ eligible: true, reason: "Eligible to apply", applied: hasApplied, isDeadlineOver });
   } catch (error) {
     console.error(error);
@@ -1536,7 +1585,7 @@ export const addfinalshortlistStudent = async (req, res) => {
               company_name: job.company_name,
               batch,
               course,
-              offer_mode: job.job_sector === 'PSU' ? 'PSU' : 'On-Campus',
+              offer_mode: 'On-Campus',
               offer_sector: job.job_sector || 'Private',
               result_date: new Date(),
               shortlisted_students: students,
@@ -1597,7 +1646,7 @@ export const addfinalshortlistStudent = async (req, res) => {
               company_name: job.company_name,
               batch,
               course,
-              offer_mode: job.job_sector === 'PSU' ? 'PSU' : 'On-Campus',
+              offer_mode:'On-Campus',
               offer_sector: job.job_sector || 'Private',
               result_date: new Date(),
               shortlisted_students: students,
@@ -1694,6 +1743,7 @@ export const addfinalshortlistStudent = async (req, res) => {
     return res.status(500).json({ error: 'Server error', details: error.message });
   }
 };
+
 export const addshortlistStudents = async (req, res) => {
   try {
     const { jobId, stepIndex, students } = req.body;
