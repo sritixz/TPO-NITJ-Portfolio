@@ -152,7 +152,7 @@ const StudentDashboard = () => {
  
   }
   catch(error){
- 
+  console.error("Error fetching recent internships:", error);
   }
 }
 
@@ -215,7 +215,7 @@ const StudentDashboard = () => {
     return (
       <div className="bg-white rounded-lg shadow-lg overflow-hidden border border-gray-200 transition-all duration-300 hover:shadow-xl h-[320px] w-full max-w-3xl">
         <div className="px-4 py-3 bg-custom-blue text-white">
-          <h2 className="text-lg font-medium">Notifications</h2>
+          <h2 className="text-lg font-medium">Job Notifications</h2>
         </div>
 
         <div

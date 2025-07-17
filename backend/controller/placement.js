@@ -1,5 +1,7 @@
+import Offer from '../models/offer.js';
 import Placement from '../models/placement.js'; 
 import moment from 'moment';
+import Student from '../models/user_model/student.js';
 
 export const getTodayPlacements = async (req, res) => {
   try {
@@ -170,7 +172,19 @@ export const getFilteredPlacements = async (req, res) => {
 
 export const getLastSevenDaysPlacements = async (req, res) => {
   try {
-    const allPlacements = await Placement.find({});
+    const studentId = req.user.userId;
+    console.log('Fetching last seven days placements for student:', studentId);
+
+    // Fetch the student's details to get their batch and course
+    const student = await Student.findById(studentId).select('batch course');
+    if (!student) {
+      console.error('Student not found:', studentId);
+      return res.status(404).json({ error: 'Student not found' });
+    }
+
+    const { batch, course } = student;
+    console.log('Student batch:', batch, 'Student course:', course);
+
     const today = new Date();
     const startOfLastSevenDays = new Date(today);
     startOfLastSevenDays.setDate(today.getDate() - 7);
@@ -179,44 +193,50 @@ export const getLastSevenDaysPlacements = async (req, res) => {
     const endOfToday = new Date(today);
     endOfToday.setHours(23, 59, 59, 999);
 
-    const placements = await Placement.find({
-      $expr: {
-        $and: [
-          {
-            $gte: [
+    const placements = await Offer.find({
+      $and: [
+        {
+          $expr: {
+            $and: [
               {
-                $cond: {
-                  if: { $eq: [{ $type: "$createdAt" }, "date"] },
-                  then: "$createdAt",
-                  else: { $dateFromString: { dateString: "$createdAt" } },
-                },
+                $gte: [
+                  {
+                    $cond: {
+                      if: { $eq: [{ $type: '$createdAt' }, 'date'] },
+                      then: '$createdAt',
+                      else: { $dateFromString: { dateString: '$createdAt' } },
+                    },
+                  },
+                  startOfLastSevenDays,
+                ],
               },
-              startOfLastSevenDays,
+              {
+                $lte: [
+                  {
+                    $cond: {
+                      if: { $eq: [{ $type: '$createdAt' }, 'date'] },
+                      then: '$createdAt',
+                      else: { $dateFromString: { dateString: '$createdAt' } },
+                    },
+                  },
+                  endOfToday,
+                ],
+              },
             ],
           },
-          {
-            $lte: [
-              {
-                $cond: {
-                  if: { $eq: [{ $type: "$createdAt" }, "date"] },
-                  then: "$createdAt",
-                  else: { $dateFromString: { dateString: "$createdAt" } },
-                },
-              },
-              endOfToday,
-            ],
-          },
-        ],
-      },
+        },
+        { batch: batch }, // Match student's batch
+        { course: course }, // Match student's course
+      ],
     }).sort({ createdAt: -1 });
 
     res.status(200).json(placements);
   } catch (error) {
-    console.error("Error with details:", {
+    console.error('Error with details:', {
       message: error.message,
       stack: error.stack,
     });
-    res.status(500).json({ error: "Internal server error" });
+    res.status(500).json({ error: 'Internal server error' });
   }
 };
 

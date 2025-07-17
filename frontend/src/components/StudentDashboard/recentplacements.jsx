@@ -39,14 +39,14 @@ const styles = StyleSheet.create({
     fontSize: 15, 
     fontWeight: 'bold', 
     color: '#1f2937', 
-    fontFamily: 'NotoSansDevanagari' // Use Devanagari font for Hindi text
+    fontFamily: 'NotoSansDevanagari'
   },
   collegeNameEnglish: {
     textAlign: 'center', 
     fontSize: 13, 
     fontWeight: 'bold', 
     color: '#1f2937', 
-    fontFamily: 'Helvetica' // Use Helvetica for English text
+    fontFamily: 'Helvetica'
   },
   headerMetadata: { 
     fontSize: 8, 
@@ -130,23 +130,31 @@ const PlacementPDF = ({ placement }) => (
             <Text style={styles.value}>{placement.company_name || 'N/A'}</Text>
           </View>
           <View style={styles.gridItem}>
-            <Text style={styles.label}>Placement Type:</Text>
-            <Text style={styles.value}>{placement.placement_type || 'N/A'}</Text>
-          </View>
-          <View style={styles.gridItem}>
             <Text style={styles.label}>Batch:</Text>
             <Text style={styles.value}>{placement.batch || 'N/A'}</Text>
           </View>
           <View style={styles.gridItem}>
-            <Text style={styles.label}>Degree:</Text>
-            <Text style={styles.value}>{placement.degree || 'N/A'}</Text>
+            <Text style={styles.label}>Course:</Text>
+            <Text style={styles.value}>{placement.course || 'N/A'}</Text>
           </View>
           <View style={styles.gridItem}>
-            <Text style={styles.label}>CTC:</Text>
+            <Text style={styles.label}>Offer Mode:</Text>
+            <Text style={styles.value}>{placement.offer_mode || 'N/A'}</Text>
+          </View>
+          <View style={styles.gridItem}>
+            <Text style={styles.label}>Offer Sector:</Text>
+            <Text style={styles.value}>{placement.offer_sector || 'N/A'}</Text>
+          </View>
+          <View style={styles.gridItem}>
+            <Text style={styles.label}>Result Date:</Text>
             <Text style={styles.value}>
-              {placement.ctc >= 100 
-                ? `₹${(placement.ctc / 100).toFixed(2)} Cr` 
-                : `₹${placement.ctc} LPA`}
+              {placement.result_date 
+                ? new Date(placement.result_date).toLocaleDateString('en-GB', {
+                    day: '2-digit',
+                    month: '2-digit',
+                    year: 'numeric'
+                  })
+                : 'N/A'}
             </Text>
           </View>
         </View>
@@ -156,23 +164,31 @@ const PlacementPDF = ({ placement }) => (
         <Text style={styles.sectionTitle}>Selected Students</Text>
         <View style={styles.table}>
           <View style={styles.tableHeader}>
-            <Text style={[styles.tableCell, { fontWeight: 'semibold', flex: 1 }]}>Student Name</Text>
-            <Text style={[styles.tableCell, { fontWeight: 'semibold', flex: 1 }]}>Email Address</Text>
+            <Text style={[styles.tableCell, { fontWeight: 'semibold', flex: 1, marginRight: 10 }]}>Student Name</Text>
+            <Text style={[styles.tableCell, { fontWeight: 'semibold', flex: 1 }]}>Gender</Text>
+            <Text style={[styles.tableCell, { fontWeight: 'semibold', flex: 1, marginRight: 10 }]}>Department</Text>
+            <Text style={[styles.tableCell, { fontWeight: 'semibold', flex: 1 }]}>Job Type</Text>
+            <Text style={[styles.tableCell, { fontWeight: 'semibold', flex: 1 }]}>Job Role</Text>
+            <Text style={[styles.tableCell, { fontWeight: 'semibold', flex: 1 }]}>CTC</Text>
+            <Text style={[styles.tableCell, { fontWeight: 'semibold', flex: 1 }]}>Stipend</Text>
+            <Text style={[styles.tableCell, { fontWeight: 'semibold', flex: 1 }]}>Duration</Text>
           </View>
           {placement?.shortlisted_students?.length > 0 ? (
             placement.shortlisted_students.map((student, index) => (
               <View key={index} style={styles.tableRow}>
-                <Text style={[styles.tableCell, { flex: 1 }]}>
-                  {student.name || 'N/A'}
-                </Text>
-                <Text style={[styles.tableCell,{ flex: 1 }]}>
-                  {student.email || 'N/A'}
-                </Text>
+                <Text style={[styles.tableCell, { flex: 1, marginRight: 10 }]}>{student.name || 'N/A'}</Text>
+                <Text style={[styles.tableCell, { flex: 1 }]}>{student.gender || 'N/A'}</Text>
+                <Text style={[styles.tableCell, { flex: 1, marginRight: 10 }]}>{student.department || 'N/A'}</Text>
+                <Text style={[styles.tableCell, { flex: 1 }]}>{student.job_type || 'N/A'}</Text>
+                <Text style={[styles.tableCell, { flex: 1 }]}>{student.job_role || 'N/A'}</Text>
+                <Text style={[styles.tableCell, { flex: 1 }]}>{student.ctc || 'N/A'}</Text>
+                <Text style={[styles.tableCell, { flex: 1 }]}>{student.stipend || 'N/A'}</Text>
+                <Text style={[styles.tableCell, { flex: 1 }]}>{student.intern_duration || 'N/A'}</Text>
               </View>
             ))
           ) : (
             <View style={styles.tableRow}>
-              <Text style={[styles.tableCell, { flex: 2 }]}>
+              <Text style={[styles.tableCell, { flex: 8 }]}>
                 No students shortlisted yet.
               </Text>
             </View>
@@ -224,14 +240,20 @@ const PlacementDetailsDownload = ({ placement }) => {
             {placement.company_name || 'N/A'}
           </div>
           <div className="text-xs text-gray-600">
-            {`${placement.placement_type || 'N/A'} - ${placement.degree || 'N/A'}`}
+            {`${placement.offer_mode || 'N/A'} - ${placement.course || 'N/A'}`}
           </div>
           <div className="text-xs text-gray-400 mt-2">
-            {new Date(placement.createdAt).toLocaleDateString('en-US', {
-              day: 'numeric',
-              month: 'long',
-              year: 'numeric',
-            })}
+            {placement.result_date 
+              ? new Date(placement.result_date).toLocaleDateString('en-GB', {
+                  day: '2-digit',
+                  month: '2-digit',
+                  year: 'numeric'
+                }).split('/').join('')
+              : new Date(placement.createdAt).toLocaleDateString('en-GB', {
+                  day: '2-digit',
+                  month: '2-digit',
+                  year: 'numeric'
+                }).split('/').join('')}
           </div>
         </div>
         <Download
@@ -247,7 +269,7 @@ const RecentPlacement = ({ placements = [], loading = false }) => {
     return (
       <div className="bg-white rounded-lg shadow-lg overflow-hidden border border-gray-200 transition-all duration-300 hover:shadow-xl h-[320px]">
         <div className="px-4 py-3 bg-custom-blue text-white">
-          <h2 className="text-lg font-medium">Recent Placements</h2>
+          <h2 className="text-lg font-medium">Recent Placements Result</h2>
         </div>
         <CardSkeleton />
       </div>
@@ -258,7 +280,7 @@ const RecentPlacement = ({ placements = [], loading = false }) => {
     return (
       <div className="bg-white rounded-lg shadow-lg overflow-hidden border border-gray-200 transition-all duration-300 hover:shadow-xl h-[320px]">
         <div className="px-4 py-3 bg-custom-blue text-white">
-          <h2 className="text-lg font-medium">Recent Placements</h2>
+          <h2 className="text-lg font-medium">Recent Placements Result</h2>
         </div>
         <div className="p-6 text-center text-gray-600">
           No placement data available
@@ -270,7 +292,7 @@ const RecentPlacement = ({ placements = [], loading = false }) => {
   return (
     <div className="bg-white rounded-lg shadow-lg overflow-hidden border border-gray-200 transition-all duration-300 hover:shadow-xl h-[320px]">
       <div className="px-4 py-3 bg-custom-blue text-white">
-        <h2 className="text-lg font-medium">Recent Placements</h2>
+        <h2 className="text-lg font-medium">Recent Placements Result</h2>
       </div>
       <div className="h-[calc(100%-48px)] overflow-hidden">
         {loading ? (
@@ -311,7 +333,6 @@ const RecentPlacement = ({ placements = [], loading = false }) => {
                   <PlacementDetailsDownload placement={placement} />
                 </div>
               ))}
-              {/* Duplicate content for seamless looping */}
               {placements.map((placement, index) => (
                 <div
                   key={`duplicate-${placement._id || index}`}

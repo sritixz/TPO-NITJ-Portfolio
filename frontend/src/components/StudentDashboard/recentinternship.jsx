@@ -39,14 +39,14 @@ const styles = StyleSheet.create({
     fontSize: 15, 
     fontWeight: 'bold', 
     color: '#1f2937', 
-    fontFamily: 'NotoSansDevanagari' // Use Devanagari font for Hindi text
+    fontFamily: 'NotoSansDevanagari'
   },
   collegeNameEnglish: {
     textAlign: 'center', 
     fontSize: 13, 
     fontWeight: 'bold', 
     color: '#1f2937', 
-    fontFamily: 'Helvetica' // Use Helvetica for English text
+    fontFamily: 'Helvetica'
   },
   headerMetadata: { 
     fontSize: 8, 
@@ -134,28 +134,36 @@ const InternshipDetailsDownload = ({ internship }) => {
                 <Text style={styles.value}>{internship.company_name || 'N/A'}</Text>
               </View>
               <View style={styles.gridItem}>
-                <Text style={styles.label}>Internship Type:</Text>
-                <Text style={styles.value}>{internship.internship_type || 'N/A'}</Text>
-              </View>
-              <View style={styles.gridItem}>
                 <Text style={styles.label}>Batch:</Text>
                 <Text style={styles.value}>{internship.batch || 'N/A'}</Text>
               </View>
               <View style={styles.gridItem}>
-                <Text style={styles.label}>Degree:</Text>
-                <Text style={styles.value}>{internship.degree || 'N/A'}</Text>
+                <Text style={styles.label}>Course:</Text>
+                <Text style={styles.value}>{internship.course || 'N/A'}</Text>
               </View>
               <View style={styles.gridItem}>
-                <Text style={styles.label}>Duration:</Text>
-                <Text style={styles.value}>{internship.internship_duration || 'N/A'}</Text>
+                <Text style={styles.label}>Offer Mode:</Text>
+                <Text style={styles.value}>{internship.offer_mode || 'N/A'}</Text>
               </View>
               <View style={styles.gridItem}>
-                <Text style={styles.label}>Stipend:</Text>
-                <Text style={styles.value}>{internship.stipend || 'N/A'}</Text>
+                <Text style={styles.label}>Intern Sector:</Text>
+                <Text style={styles.value}>{internship.offer_sector || 'N/A'}</Text>
               </View>
               <View style={styles.gridItem}>
-                <Text style={styles.label}>Role:</Text>
-                <Text style={styles.value}>{internship.role || 'N/A'}</Text>
+                <Text style={styles.label}>Result Date:</Text>
+                <Text style={styles.value}>
+                  {internship.result_date 
+                    ? new Date(internship.result_date).toLocaleDateString('en-GB', {
+                        day: '2-digit',
+                        month: '2-digit',
+                        year: 'numeric'
+                      })
+                    : 'N/A'}
+                </Text>
+              </View>
+              <View style={styles.gridItem}>
+                <Text style={styles.label}>Intern Role:</Text>
+                <Text style={styles.value}>{internship.shortlisted_students[0]?.job_role || 'N/A'}</Text>
               </View>
             </View>
           </View>
@@ -164,23 +172,29 @@ const InternshipDetailsDownload = ({ internship }) => {
             <Text style={styles.sectionTitle}>Selected Students</Text>
             <View style={styles.table}>
               <View style={styles.tableHeader}>
-                <Text style={[styles.tableCell, { fontWeight: 'semibold' }, { flex: 1 }]}>Student Name</Text>
-                <Text style={[styles.tableCell, { fontWeight: 'semibold' }, { flex: 1 }]}>Email Address</Text>
+                <Text style={[styles.tableCell, { fontWeight: 'semibold', flex: 1.5, marginRight: 15 }]}>Student Name</Text>
+                <Text style={[styles.tableCell, { fontWeight: 'semibold', flex: 1 }]}>Gender</Text>
+                <Text style={[styles.tableCell, { fontWeight: 'semibold', flex: 1.5, marginRight: 15 }]}>Department</Text>
+                <Text style={[styles.tableCell, { fontWeight: 'semibold', flex: 1 }]}>Job Type</Text>
+                <Text style={[styles.tableCell, { fontWeight: 'semibold', flex: 1 }]}>CTC</Text>
+                <Text style={[styles.tableCell, { fontWeight: 'semibold', flex: 1 }]}>Stipend</Text>
+                <Text style={[styles.tableCell, { fontWeight: 'semibold', flex: 1 }]}>Duration</Text>
               </View>
               {internship?.shortlisted_students?.length > 0 ? (
                 internship.shortlisted_students.map((student, index) => (
                   <View key={index} style={styles.tableRow}>
-                    <Text style={[styles.tableCell, { flex: 1 }]}>
-                      {student.name || 'N/A'}
-                    </Text>
-                    <Text style={[styles.tableCell, { flex: 1 }]}>
-                      {student.email || 'N/A'}
-                    </Text>
+                    <Text style={[styles.tableCell, { flex: 1.5, marginRight: 15}]}>{student.name || 'N/A'}</Text>
+                    <Text style={[styles.tableCell, { flex: 1 }]}>{student.gender || 'N/A'}</Text>
+                    <Text style={[styles.tableCell, { flex: 1.5, marginRight: 15 }]}>{student.department || 'N/A'}</Text>
+                    <Text style={[styles.tableCell, { flex: 1 }]}>{student.job_type || 'N/A'}</Text>
+                    <Text style={[styles.tableCell, { flex: 1 }]}>{student.ctc || 'N/A'}</Text>
+                    <Text style={[styles.tableCell, { flex: 1 }]}>{student.stipend || 'N/A'}</Text>
+                    <Text style={[styles.tableCell, { flex: 1 }]}>{student.intern_duration || 'N/A'}</Text>
                   </View>
                 ))
               ) : (
                 <View style={styles.tableRow}>
-                  <Text style={[styles.tableCell, { flex: 2 }]}>
+                  <Text style={[styles.tableCell, { flex: 8 }]}>
                     No students shortlisted yet.
                   </Text>
                 </View>
@@ -228,15 +242,20 @@ const InternshipDetailsDownload = ({ internship }) => {
             {internship.company_name || 'Company Name Not Available'}
           </div>
           <div className="text-xs text-gray-600">
-            {`${internship.internship_type || 'N/A'} - ${internship.degree || 'N/A'}`}
+            {`${internship.offer_mode || 'N/A'} - ${internship.course || 'N/A'}`}
           </div>
-
           <div className="text-xs text-gray-400 mt-2">
-            {new Date(internship.createdAt).toLocaleDateString('en-US', {
-              day: 'numeric',
-              month: 'long',
-              year: 'numeric'
-            })}
+            {internship.result_date 
+              ? new Date(internship.result_date).toLocaleDateString('en-US', {
+                  day: 'numeric',
+                  month: 'long',
+                  year: 'numeric'
+                })
+              : new Date(internship.createdAt).toLocaleDateString('en-US', {
+                  day: 'numeric',
+                  month: 'long',
+                  year: 'numeric'
+                })}
           </div>
         </div>
         <Download
@@ -252,7 +271,7 @@ const RecentInternship = ({ internships = [], loading = false }) => {
     return (
       <div className="bg-white rounded-lg shadow-lg overflow-hidden border border-gray-200 transition-all duration-300 hover:shadow-xl h-[320px]">
         <div className="px-6 py-4 bg-custom-blue text-white">
-          <h2 className="text-xl font-semibold">Recent Internships</h2>
+          <h2 className="text-xl font-semibold">Recent Summer Intern Result</h2>
         </div>
         <CardSkeleton />
       </div>
@@ -263,7 +282,7 @@ const RecentInternship = ({ internships = [], loading = false }) => {
     return (
       <div className="bg-white rounded-lg shadow-lg overflow-hidden border border-gray-200 transition-all duration-300 hover:shadow-xl h-[320px]">
         <div className="px-6 py-4 bg-custom-blue text-white">
-          <h2 className="text-xl font-semibold">Recent Internships</h2>
+          <h2 className="text-xl font-semibold">Recent Summer Intern Result</h2>
         </div>
         <div className="p-6 text-center text-gray-600">
           No internship data available
@@ -275,7 +294,7 @@ const RecentInternship = ({ internships = [], loading = false }) => {
   return (
     <div className="bg-white rounded-lg shadow-lg overflow-hidden border border-gray-200 transition-all duration-300 hover:shadow-xl h-[320px]">
       <div className="px-4 py-3 bg-custom-blue text-white">
-        <h2 className="text-lg font-medium">Recent Internships</h2>
+        <h2 className="text-lg font-medium">Recent Summer Intern Result</h2>
       </div>
       <div className="h-[calc(100%-48px)] overflow-hidden">
         {loading ? (
@@ -316,7 +335,6 @@ const RecentInternship = ({ internships = [], loading = false }) => {
                   <InternshipDetailsDownload internship={internship} />
                 </div>
               ))}
-              {/* Duplicate content for seamless looping */}
               {internships.map((internship, index) => (
                 <div
                   key={`duplicate-${internship._id || index}`}
