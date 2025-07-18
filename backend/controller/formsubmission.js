@@ -23,6 +23,7 @@ export const submitForm = async (req, res) => {
   try {
     const studentId = req.user.userId;
     const { jobId, fields, resumeUrl } = req.body;
+    console.log(fields, resumeUrl);
     const existingSubmission = await FormSubmission.findOne({ jobId, studentId });
     if (existingSubmission) {
       return res.status(400).json({ message: 'You have already applied for this job' });
