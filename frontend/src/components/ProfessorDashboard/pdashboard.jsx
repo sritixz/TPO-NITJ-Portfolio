@@ -51,7 +51,8 @@ import AddStudentForm from "./addstudents.jsx";
 import RecruiterForm from "./addrecruiter.jsx";
 import MockAssessmentProfessorDashboard from "./mockassessment.jsx"
 import { FaRegComment } from "react-icons/fa";
-import  NOCManagement from "./NOCManagement.jsx"
+import  NOCManagement from "./NOCManagement.jsx";
+import ExcelUploader from "./exceluploader.jsx";
 
 
 const Pdashboard = () => {
@@ -109,6 +110,7 @@ const Pdashboard = () => {
     { label: "Help Requests", icon: faQuestionCircle, path: "/pdashboard/help-requests" },
     { label: "Shared Experiences", icon: faShareAlt, path: "/pdashboard/experience-sharing" },
     { label: "User Requests", icon: faContactCard, path: "/pdashboard/contact-request" },
+    // { label: "Check CGPA", icon: faUpload, path: "/pdashboard/check-cgpa" },
     // {label:"Mock Assessment",icon:faUser, path:"/pdashboard/mock-assessment"},
     // {label:"Companies",icon:faBuilding, path:"/pdashboard/company-analysis"},
  /*    { label: "Upload Doc", icon: faUpload, path: "/pdashboard/uploads" }, */
@@ -305,6 +307,7 @@ const Pdashboard = () => {
             <Route path="conversation" element={<ConversationLog />} />
             <Route path="placement-insights" element={<PPlacementReport />} />
             <Route path="add-recruiter" element={<RecruiterForm/>} />
+            {/* <Route path="check-cgpa" element={<ExcelUploader/>} /> */}
             {/* <Route path="placement-policy" element={<PlacementPolicy />} /> */}
             <Route path="profile" element={<Profile />} />
             <Route path="team" element={<TeamSection />} />
