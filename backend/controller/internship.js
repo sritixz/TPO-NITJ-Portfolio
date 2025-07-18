@@ -1,6 +1,6 @@
 import Internship from '../models/internship.js';
 import SummerIntern from '../models/summer_internship.js';
-import moment from 'moment'; 
+import Student from '../models/user_model/student.js';
 
 
 export const getAllInternships = async (req, res) => {
@@ -128,6 +128,16 @@ export const getFilteredInternships = async (req, res) => {
 };
 export const getLastSevenDaysInternships = async (req, res) => {
   try {
+    const studentId= req.user?.userId;
+    // Fetch the student's details to get their batch and course
+      const student = await Student.findById(studentId).select('batch course');
+      if (!student) {
+      console.error('Student not found:', studentId);
+      return res.status(404).json({ error: 'Student not found' });
+    }
+
+    const { batch, course } = student;
+
     const today = new Date();
     const startOfLastSevenDays = new Date();
     startOfLastSevenDays.setDate(today.getDate() - 7);
@@ -137,10 +147,40 @@ export const getLastSevenDaysInternships = async (req, res) => {
     endOfToday.setHours(23, 59, 59, 999);
 
     const internships = await SummerIntern.find({
-      createdAt: {
-        $gte: startOfLastSevenDays,
-        $lte: endOfToday,
-      },
+      $and: [
+        {
+          $expr: {
+            $and: [
+              {
+                $gte: [
+                  {
+                    $cond: {
+                      if: { $eq: [{ $type: '$createdAt' }, 'date'] },
+                      then: '$createdAt',
+                      else: { $dateFromString: { dateString: '$createdAt' } },
+                    },
+                  },
+                  startOfLastSevenDays,
+                ],
+              },
+              {
+                $lte: [
+                  {
+                    $cond: {
+                      if: { $eq: [{ $type: '$createdAt' }, 'date'] },
+                      then: '$createdAt',
+                      else: { $dateFromString: { dateString: '$createdAt' } },
+                    },
+                  },
+                  endOfToday,
+                ],
+              },
+            ],
+          },
+        },
+        { batch: batch }, // Match student's batch
+        { course: course }, // Match student's course
+      ],
     }).sort({ createdAt: -1 });
 
     res.status(200).json(internships);

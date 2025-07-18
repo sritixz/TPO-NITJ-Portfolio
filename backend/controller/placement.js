@@ -173,8 +173,6 @@ export const getFilteredPlacements = async (req, res) => {
 export const getLastSevenDaysPlacements = async (req, res) => {
   try {
     const studentId = req.user.userId;
-    console.log('Fetching last seven days placements for student:', studentId);
-
     // Fetch the student's details to get their batch and course
     const student = await Student.findById(studentId).select('batch course');
     if (!student) {
@@ -183,7 +181,6 @@ export const getLastSevenDaysPlacements = async (req, res) => {
     }
 
     const { batch, course } = student;
-    console.log('Student batch:', batch, 'Student course:', course);
 
     const today = new Date();
     const startOfLastSevenDays = new Date(today);
