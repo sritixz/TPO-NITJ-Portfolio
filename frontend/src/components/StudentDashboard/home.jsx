@@ -124,6 +124,7 @@ const StudentDashboard = () => {
         import.meta.env.REACT_APP_BASE_URL
       }/placements/insights`;
       const response = await axios.get(apiUrl);
+      console.log("Placement Insights Response:", response.data);
       setStats(response.data);
     } catch (error) {
  
@@ -147,7 +148,6 @@ const StudentDashboard = () => {
     setLoading(true);
     try {
       const response=await axios.get(`${import.meta.env.REACT_APP_BASE_URL}/internships/last-seven-days`,{withCredentials:true});
-      console.log(response.data);
       setInternships(response.data);
  
   }
