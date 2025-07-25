@@ -83,7 +83,7 @@ const CreateApplicationForm = ({ jobId, onClose, onSubmit }) => {
   },
   {
     fieldName: 'Active Backlogs',
-    fieldType: 'number',
+    fieldType: 'text',
     isRequired: true,
     isAutoFill: true,
     fieldStar: false,
@@ -92,7 +92,7 @@ const CreateApplicationForm = ({ jobId, onClose, onSubmit }) => {
   },
   {
     fieldName: 'Backlogs History',
-    fieldType: 'number',
+    fieldType: 'text',
     isRequired: true,
     isAutoFill: true,
     fieldStar: false,

@@ -37,7 +37,6 @@ const studentSchema = new mongoose.Schema({
    },
   gender: {
     type:String,
-    //  enum: ['Male', 'Female', 'Other'],
   },
   category:{
     type:String,
@@ -64,12 +63,10 @@ const studentSchema = new mongoose.Schema({
     },
   placementstatus: {
         type: String,
-        // enum: ['Not Placed','Below Dream', 'Dream', 'Super Dream'  ],
         default:'Not Placed',
     },
   internshipstatus: {
         type: String,
-        // enum: ['No Intern','2m Intern', '6m Intern', '11m Intern'],
         default:'No Intern',
   },
 

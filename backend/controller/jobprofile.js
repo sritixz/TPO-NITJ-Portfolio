@@ -574,7 +574,7 @@ export const deleteJob = async (req, res) => {
 //     }
 
 //     const student = await Student.findById({ _id: studentId });
-//     let batch='2027'
+//     let batch='2026'
 
 //     const course = student.course;
 

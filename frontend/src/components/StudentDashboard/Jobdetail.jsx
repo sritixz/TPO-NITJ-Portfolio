@@ -22,6 +22,7 @@ import {
   faIndianRupeeSign,
 } from "@fortawesome/free-solid-svg-icons";
 import { useParams, useNavigate } from "react-router-dom";
+import WithdrawOTPVerification from "./withdrawotpverification";
 
 // Function to get the color theme based on step type
 const getStepTheme = (stepType) => {
@@ -69,7 +70,9 @@ const Jobdetail = () => {
   const [isdeadlineOver, setIsdeadlineOver] = useState(false);
   const [timeLeft, setTimeLeft] = useState("");
   const [description, setDescription] = useState(false);
-  const { job_id } = useParams(); 
+  const { job_id } = useParams();
+
+   const [showOTP, setShowOTP] = useState(false);
 
   const navigate = useNavigate();
   const onBack = () => {
@@ -190,6 +193,42 @@ const Jobdetail = () => {
       });
     }
   };
+
+   const handleWithdrawClick = async () => {
+    try {
+      setShowOTP(true);
+      await axios.post(
+        `${import.meta.env.REACT_APP_BASE_URL}/withdraw/send-otp`,
+        { jobId: job_id },
+        { withCredentials: true }
+      );
+    } catch (error) {
+      console.error("Failed to send OTP:", error);
+      Swal.fire({
+        title: "Error!",
+        text: "Failed to send OTP. Please try again.",
+        icon: "error",
+        confirmButtonColor: "#3085d6",
+      });
+    }
+  };
+
+   const handleVerificationSuccess = () => {
+    setShowOTP(false);
+  };
+
+   if (showOTP) {
+    return (
+      <div className="container mx-auto px-4 py-6">
+        <WithdrawOTPVerification 
+          jobId={job_id} 
+          setStatus={setStatus}
+          onSuccess={handleVerificationSuccess}
+        />
+      </div>
+    );
+  }
+
 
   if (loading)
     return (
@@ -619,7 +658,8 @@ const Jobdetail = () => {
                   </button>
                   <button
                     className="w-full sm:w-auto px-4 sm:px-5 py-2 rounded-lg font-semibold text-white bg-red-500 hover:bg-red-600 transition-all duration-200"
-                    onClick={withdrawApplication}
+                    // onClick={withdrawApplication}
+                    onClick={handleWithdrawClick}
                   >
                     Withdraw Application
                   </button>

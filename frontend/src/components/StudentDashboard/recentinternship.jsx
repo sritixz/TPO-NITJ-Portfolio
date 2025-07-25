@@ -335,14 +335,14 @@ const RecentInternship = ({ internships = [], loading = false }) => {
                   <InternshipDetailsDownload internship={internship} />
                 </div>
               ))}
-              {internships.map((internship, index) => (
+              {/* {internships.map((internship, index) => (
                 <div
                   key={`duplicate-${internship._id || index}`}
                   className="group relative px-4 py-3"
                 >
                   <InternshipDetailsDownload internship={internship} />
                 </div>
-              ))}
+              ))} */}
             </div>
           </div>
         )}
@@ -354,7 +354,7 @@ const RecentInternship = ({ internships = [], loading = false }) => {
           position: relative;
         }
         .scroll-content {
-          animation: auto-scroll 20s linear infinite;
+          animation: auto-scroll 10s linear infinite;
           display: flex;
           flex-direction: column;
         }

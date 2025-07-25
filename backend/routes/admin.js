@@ -97,4 +97,8 @@ router.put("/devteam/:id",upload.single("imageFile"), updateDeveloperProfile);
 router.delete("/devteam", deleteDeveloperProfiles);
 router.post("/devteam",upload.single("imageFile"), addNewDeveloper);
 
+//logs routes
+
+
+
 export default router;
