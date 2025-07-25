@@ -38,3 +38,20 @@ export const getContactForms = async (req, res) => {
       res.status(500).json({ message: 'An error occurred while fetching contact forms.', error });
     }
   };
+
+
+  export const deleteContactForm = async (req, res) => {
+  try {
+    const { id } = req.params;
+    
+    const deletedForm = await ContactForm.findByIdAndDelete(id);
+    
+    if (!deletedForm) {
+      return res.status(404).json({ message: 'Contact form not found' });
+    }
+    
+    res.status(200).json({ message: 'Contact form deleted successfully' });
+  } catch (error) {
+    res.status(500).json({ message: 'An error occurred while deleting the contact form', error });
+  }
+};

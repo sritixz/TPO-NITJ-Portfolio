@@ -19,7 +19,8 @@ import {
   faContactCard,
   faComment,
   faUserPlus,
-  faUserCheck
+  faUserCheck,
+  faCheckCircle,
 } from "@fortawesome/free-solid-svg-icons";
 
 import { Menu, X, LogOut} from "lucide-react";
@@ -110,7 +111,7 @@ const Pdashboard = () => {
     { label: "Help Requests", icon: faQuestionCircle, path: "/pdashboard/help-requests" },
     { label: "Shared Experiences", icon: faShareAlt, path: "/pdashboard/experience-sharing" },
     { label: "User Requests", icon: faContactCard, path: "/pdashboard/contact-request" },
-    // { label: "Check CGPA", icon: faUpload, path: "/pdashboard/check-cgpa" },
+    { label: "CGPA Validator", icon: faCheckCircle, path: "/pdashboard/check-cgpa" },
     // {label:"Mock Assessment",icon:faUser, path:"/pdashboard/mock-assessment"},
     // {label:"Companies",icon:faBuilding, path:"/pdashboard/company-analysis"},
  /*    { label: "Upload Doc", icon: faUpload, path: "/pdashboard/uploads" }, */
@@ -307,7 +308,7 @@ const Pdashboard = () => {
             <Route path="conversation" element={<ConversationLog />} />
             <Route path="placement-insights" element={<PPlacementReport />} />
             <Route path="add-recruiter" element={<RecruiterForm/>} />
-            {/* <Route path="check-cgpa" element={<ExcelUploader/>} /> */}
+            <Route path="check-cgpa" element={<ExcelUploader/>} />
             {/* <Route path="placement-policy" element={<PlacementPolicy />} /> */}
             <Route path="profile" element={<Profile />} />
             <Route path="team" element={<TeamSection />} />

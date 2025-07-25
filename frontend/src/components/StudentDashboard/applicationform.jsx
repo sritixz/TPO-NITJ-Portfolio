@@ -61,7 +61,6 @@ const [noFormAvailable, setNoFormAvailable] = useState(false);
           withCredentials: true,
         });
         const studentData = studentResponse.data;
-        console.log("studentData", studentData);
 
         // Fetch existing submission (if any)
         const submissionResponse = await axios.get(`${import.meta.env.REACT_APP_BASE_URL}/api/get-already/${jobId}`, {
@@ -72,19 +71,6 @@ const [noFormAvailable, setNoFormAvailable] = useState(false);
         if (submissionData) {
           setExistingSubmission(submissionData);
         }
-
-        // const populatedFields = templateFields.map((field) => {
-        //   const existingField = submissionData?.fields?.find((f) => f.fieldName === field.fieldName);
-        //   return {
-        //     ...field,
-        //     value: existingField
-        //       ? existingField.value
-        //       : field.isAutoFill
-        //       ? studentData[field.studentPropertyPath] ?? '' // Use ?? to preserve falsy values like false
-        //       : '',
-        //     isLocked: field.isAutoFill,
-        //   };
-        // });
 
         const populatedFields = templateFields.map((field) => {
           const existingField = submissionData?.fields?.find((f) => f.fieldName === field.fieldName);

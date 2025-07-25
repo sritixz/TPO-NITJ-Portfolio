@@ -39,6 +39,8 @@ import questionbankRoutes from "./routes/questionbank.js";
 import brochureRoutes from "./routes/Brochure.js";
 import nocRoutes from "./routes/noc.js";
 import eventRoutes from "./routes/Event.js";
+import cgpaCheckerRoutes from "./routes/cgpaChecker.js";
+import withdrawRoutes from "./routes/withdraw.js";
 
 import { mkdir } from 'fs/promises';
 try {
@@ -101,6 +103,7 @@ app.use('/oa',authenticate, restrictTo('Student'), oaroutes);
 app.use('/gd',authenticate, restrictTo('Student'), gdroutes);
 app.use('/others',authenticate, restrictTo('Student'), otherRoutes);
 app.use('/question-bank', authenticate,restrictTo('Student'), questionbankRoutes);
+app.use('/withdraw',authenticate, restrictTo('Student'), withdrawRoutes);
 
 //Professor routes
 app.use('/pplacementReport',authenticate, restrictTo('Professor'), pplacementReportroutes);
@@ -109,6 +112,7 @@ app.use("/companies-analysis",authenticate,restrictTo('Professor'), companiesana
 app.use('/conversations',authenticate, restrictTo('Professor'), conversationRoutes);
 app.use('/nodemailer',authenticate, restrictTo('Professor'), nodemailerRoutes);
 app.use('/add-recruiter', authenticate,restrictTo('Professor'), addRecruiterRoutes);
+app.use('/cgpa-checker',authenticate, restrictTo('Professor'), cgpaCheckerRoutes);
 
 //Admin routes
 app.use('/admin',authenticate,restrictTo('Admin'),adminRoutes);

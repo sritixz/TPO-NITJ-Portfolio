@@ -244,16 +244,16 @@ const PlacementDetailsDownload = ({ placement }) => {
           </div>
           <div className="text-xs text-gray-400 mt-2">
             {placement.result_date 
-              ? new Date(placement.result_date).toLocaleDateString('en-GB', {
-                  day: '2-digit',
-                  month: '2-digit',
+              ? new Date(placement.result_date).toLocaleDateString('en-US', {
+                  day: 'numeric',
+                  month: 'long',
                   year: 'numeric'
-                }).split('/').join('')
-              : new Date(placement.createdAt).toLocaleDateString('en-GB', {
-                  day: '2-digit',
-                  month: '2-digit',
+                })
+              : new Date(placement.createdAt).toLocaleDateString('en-US', {
+                  day: 'numeric',
+                  month: 'long',
                   year: 'numeric'
-                }).split('/').join('')}
+                })}
           </div>
         </div>
         <Download
@@ -333,14 +333,14 @@ const RecentPlacement = ({ placements = [], loading = false }) => {
                   <PlacementDetailsDownload placement={placement} />
                 </div>
               ))}
-              {placements.map((placement, index) => (
+              {/* {placements.map((placement, index) => (
                 <div
                   key={`duplicate-${placement._id || index}`}
                   className="group relative px-4 py-3"
                 >
                   <PlacementDetailsDownload placement={placement} />
                 </div>
-              ))}
+              ))} */}
             </div>
           </div>
         )}

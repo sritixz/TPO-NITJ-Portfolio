@@ -77,6 +77,7 @@ export const getStudentAnalytics = async (req, res) => {
         const rollNumbers = students.map(student => student.rollno);
         let erpDataMap = new Map();
 
+         console.log(rollNumbers);
         // Attempt to fetch ERP data, but continue even if it fails
         try {
             const response = await axios.post(`${process.env.ERP_SERVER}`, rollNumbers);

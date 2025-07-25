@@ -46,13 +46,14 @@ import toast from "react-hot-toast";
         }
       };
   const handleOtpChange = (index, value) => {
-    if (!/^\d*$/.test(value)) return;
+    const upperValue = value.toUpperCase();
+    if (!/^[A-Z0-9]*$/.test(upperValue)) return;
 
     const newOtpValues = [...otpValues];
-    newOtpValues[index] = value;
+    newOtpValues[index] = upperValue;
     setOtpValues(newOtpValues);
 
-    if (value !== "" && index < 5) {
+    if (upperValue !== "" && index < 5) {
       otpRefs.current[index + 1].current.focus();
     }
   };
@@ -65,13 +66,13 @@ import toast from "react-hot-toast";
 
   const handlePaste = (e) => {
     e.preventDefault();
-    const pastedData = e.clipboardData.getData("text");
-    const pastedNumbers = pastedData.match(/\d/g);
+    const pastedData = e.clipboardData.getData("text").toUpperCase();
+    const pastedChars = pastedData.match(/[A-Z0-9]/g);
     
-    if (pastedNumbers && pastedNumbers.length) {
+    if (pastedChars && pastedChars.length) {
       const newOtpValues = [...otpValues];
-      for (let i = 0; i < Math.min(6, pastedNumbers.length); i++) {
-        newOtpValues[i] = pastedNumbers[i];
+      for (let i = 0; i < Math.min(6, pastedChars.length); i++) {
+        newOtpValues[i] = pastedChars[i];
       }
       setOtpValues(newOtpValues);
       const nextEmptyIndex = newOtpValues.findIndex(value => !value);
