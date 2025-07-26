@@ -1,21 +1,21 @@
 import mongoose from "mongoose";
 
 const LogSchema = new mongoose.Schema({
-  studentId: {
+  userId: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "Student",
     },
+  userType:{ type: String, default: null },
   url:{ type: String, default: null },
+  method:{ type: String, default: null },
   deviceInfo:{
     browser: String,
     os: String,
     deviceType: String,
-    screenResolution: String },
+  },
   ip:{type: String},
   userAgent: {type: String},
-  timestamp: { type: Date, default: Date.now },
-});
+}, {timestamps: true});
 
-LogSchema.index({ timestamp: 1 }, { expireAfterSeconds: 9000});
+LogSchema.index({createdAt: 1 }, { expireAfterSeconds: 450000});
 
 export default mongoose.model("Logs", LogSchema);
