@@ -43,6 +43,7 @@ import{
   addNewDeveloper,
 } from "../controller/Admin/Devteam.js";
 
+import { getLogs } from "../controller/Admin/Logs.js";
 
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
@@ -98,7 +99,7 @@ router.delete("/devteam", deleteDeveloperProfiles);
 router.post("/devteam",upload.single("imageFile"), addNewDeveloper);
 
 //logs routes
-
+router.get("/getlogs", getLogs);
 
 
 export default router;

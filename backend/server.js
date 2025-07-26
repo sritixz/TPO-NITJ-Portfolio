@@ -2,11 +2,13 @@ import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
 import cookieParser from "cookie-parser";
+import useragent from 'express-useragent';
 import mongoose from "mongoose";
 import jwt from "jsonwebtoken";
 
 import { restrictTo } from "./utils/restrict.js";
 import { checkAuth } from "./controller/checkauth.js";
+import {logMiddleware} from "./utils/logs.js";
 
 import authroutes from "./routes/auth.js";
 import interviewroutes from "./routes/interview.js";
@@ -54,6 +56,7 @@ const app = express();
 dotenv.config();
 
 app.use(cors({credentials: true, origin: process.env.CLIENT_URL}));
+app.use(useragent.express());
 app.use(cookieParser());
 app.use(express.json());
 
@@ -88,6 +91,8 @@ app.get('/check-auth', authenticate, checkAuth );
 
 
 app.use('/uploads', express.static('uploads'));
+
+app.use(logMiddleware);
 
 //Public routes
 app.use('/auth', authroutes);
