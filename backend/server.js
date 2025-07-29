@@ -58,7 +58,11 @@ dotenv.config();
 app.use(cors({credentials: true, origin: process.env.CLIENT_URL}));
 app.use(useragent.express());
 app.use(cookieParser());
-app.use(express.json());
+// app.use(express.json());
+
+app.use(express.json({ limit: '10mb' }));
+app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+
 
 
 const authenticate = (req, res, next) => {
