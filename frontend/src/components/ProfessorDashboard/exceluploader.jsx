@@ -10,6 +10,8 @@ const ExcelUploader = () => {
   const [results, setResults] = useState([]);
   const [error, setError] = useState('');
   const [originalData, setOriginalData] = useState([]);
+  const [loading, setLoading] = useState(false);
+
 
   const handleFileChange = (e) => {
     setFile(e.target.files[0]);
@@ -69,53 +71,89 @@ const ExcelUploader = () => {
     }
   };
 
-  const handleUpload = async () => {
-    setError('');
-    if (!file || !emailColumn || !cgpaColumn) {
-      setError('Please select an Excel file and specify both email and CGPA column names');
-      return;
-    }
+  // const handleUpload = async () => {
+  //   setError('');
+  //   if (!file || !emailColumn || !cgpaColumn) {
+  //     setError('Please select an Excel file and specify both email and CGPA column names');
+  //     return;
+  //   }
 
-    const reader = new FileReader();
-    reader.onload = async (e) => {
-      try {
-        const data = new Uint8Array(e.target.result);
-        const workbook = XLSX.read(data, { type: 'array' });
-        const sheet = workbook.Sheets[workbook.SheetNames[0]];
-        const jsonData = XLSX.utils.sheet_to_json(sheet, { raw: false });
+  //   const reader = new FileReader();
+  //   reader.onload = async (e) => {
+  //     try {
+  //       const data = new Uint8Array(e.target.result);
+  //       const workbook = XLSX.read(data, { type: 'array' });
+  //       const sheet = workbook.Sheets[workbook.SheetNames[0]];
+  //       const jsonData = XLSX.utils.sheet_to_json(sheet, { raw: false });
 
-        setOriginalData(jsonData);
+  //       setOriginalData(jsonData);
 
-        const cleanedData = jsonData.map((row) => ({
-          ...row,
-          [cgpaColumn]: cleanCgpa(row[cgpaColumn]),
-        }));
+  //       const cleanedData = jsonData.map((row) => ({
+  //         ...row,
+  //         [cgpaColumn]: cleanCgpa(row[cgpaColumn]),
+  //       }));
 
-        if (!cleanedData[0]?.[emailColumn] && !cleanedData[0]?.[cgpaColumn]) {
-          setError(`Excel file is missing both "${emailColumn}" (email) and "${cgpaColumn}" (CGPA) columns`);
-          return;
-        } else if (!cleanedData[0]?.[emailColumn]) {
-          setError(`Excel file is missing the "${emailColumn}" (email) column`);
-          return;
-        } else if (!cleanedData[0]?.[cgpaColumn]) {
-          setError(`Excel file is missing the "${cgpaColumn}" (CGPA) column`);
-          return;
-        }
+  //       if (!cleanedData[0]?.[emailColumn] && !cleanedData[0]?.[cgpaColumn]) {
+  //         setError(`Excel file is missing both "${emailColumn}" (email) and "${cgpaColumn}" (CGPA) columns`);
+  //         return;
+  //       } else if (!cleanedData[0]?.[emailColumn]) {
+  //         setError(`Excel file is missing the "${emailColumn}" (email) column`);
+  //         return;
+  //       } else if (!cleanedData[0]?.[cgpaColumn]) {
+  //         setError(`Excel file is missing the "${cgpaColumn}" (CGPA) column`);
+  //         return;
+  //       }
 
-        const response = await axios.post(`${import.meta.env.REACT_APP_BASE_URL}/cgpa-checker/validate-cgpa`, {
-          students: cleanedData,
-          emailColumn,
-          cgpaColumn,
-          isCgpaPercentage,
-        }, { withCredentials: true });
+  //       const response = await axios.post(`${import.meta.env.REACT_APP_BASE_URL}/cgpa-checker/validate-cgpa`, {
+  //         students: cleanedData,
+  //         emailColumn,
+  //         cgpaColumn,
+  //         isCgpaPercentage,
+  //       }, { withCredentials: true });
 
-        setResults(response.data.results);
-      } catch (err) {
-        setError('Error processing file: ' + (err.response?.data?.error || err.message));
+  //       setResults(response.data.results);
+  //     } catch (err) {
+  //       setError('Error processing file: ' + (err.response?.data?.error || err.message));
+  //     }
+  //   };
+  //   reader.readAsArrayBuffer(file);
+  // };
+
+const handleUpload = async () => {
+  setError('');
+  setLoading(true); 
+  if (!file || !emailColumn || !cgpaColumn) {
+    setError('Please select an Excel file and specify both email and CGPA column names');
+     setLoading(false); 
+    return;
+  }
+
+  try {
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('emailColumn', emailColumn);
+    formData.append('cgpaColumn', cgpaColumn);
+    formData.append('isCgpaPercentage', isCgpaPercentage);
+
+    const response = await axios.post(
+      `${import.meta.env.REACT_APP_BASE_URL}/cgpa-checker/validate-cgpa`,
+      formData,
+      {
+        headers: { 'Content-Type': 'multipart/form-data' },
+        withCredentials: true,
       }
-    };
-    reader.readAsArrayBuffer(file);
-  };
+    );
+
+    setResults(response.data.results);
+    setOriginalData(response.data.originalData);
+  } catch (err) {
+    setError('Error processing file: ' + (err.response?.data?.error || err.message));
+  } finally {
+    setLoading(false);
+  }
+};
+
+
 
   return (
     <div className="max-w-7xl mx-auto p-6 bg-gray-50 min-h-screen">
@@ -168,13 +206,25 @@ const ExcelUploader = () => {
             onChange={handleFileChange}
             className="file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-custom-blue file:text-white file:hover:bg-blue-700 transition"
           />
-          <button
+          {/* <button
             onClick={handleUpload}
             className="py-2 px-6 bg-custom-blue text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition"
             disabled={!file || !emailColumn || !cgpaColumn}
           >
-            Upload and Validate
-          </button>
+            Validate
+          </button> */}
+          <button
+  onClick={handleUpload}
+  disabled={loading || !file || !emailColumn || !cgpaColumn}
+  className={`py-2 px-6 rounded-lg transition ${
+    loading || !file || !emailColumn || !cgpaColumn
+      ? 'bg-gray-400 cursor-not-allowed'
+      : 'bg-custom-blue hover:bg-blue-700 text-white'
+  }`}
+>
+  {loading ? 'Validating...' : 'Validate'}
+</button>
+
         </div>
       </div>
 
