@@ -105,8 +105,8 @@ const WithdrawOTPVerification = ({ jobId, setStatus, setShowOtp }) => {
     } catch (error) {
       console.error("Failed to withdraw application:", error);
     } finally {
-        setShowOtp(false);
       setIsSubmitting(false);
+        setShowOtp(false);
     }
   };
 

@@ -49,6 +49,7 @@ import QuestionBank from "./StudentDashboard/questionbank.jsx";
 import MockAssessmentStudentDashboard from "./StudentDashboard/mockassessment.jsx";
 import AssessmentAttempt from "./StudentDashboard/assessmentattempt.jsx";
 import JobdetailFromCalender from "./StudentDashboard/JobDetailsFromCalender.jsx";
+import PlacementRegistrationForm from "./StudentDashboard/registration-form.jsx";
 
 
 const StudentDashboard = () => {
@@ -347,6 +348,7 @@ const StudentDashboard = () => {
             <Route path="team" element={<TeamSection />} />
             <Route path="resume" element={<ResumeBuilder />} />
             <Route path="change-pass" element={<ChangePasswordForm />} />
+            <Route path="placement-registration" element={<PlacementRegistrationForm />} />
             </Routes>
         </div>
 

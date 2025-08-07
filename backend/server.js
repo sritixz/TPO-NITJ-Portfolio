@@ -43,6 +43,7 @@ import nocRoutes from "./routes/noc.js";
 import eventRoutes from "./routes/Event.js";
 import cgpaCheckerRoutes from "./routes/cgpaChecker.js";
 import withdrawRoutes from "./routes/withdraw.js";
+import placementRegistrationRoutes from "./routes/placement-registration.js";
 
 import { mkdir } from 'fs/promises';
 try {
@@ -56,6 +57,7 @@ const app = express();
 dotenv.config();
 
 app.use(cors({credentials: true, origin: process.env.CLIENT_URL}));
+app.set('trust proxy', true);
 app.use(useragent.express());
 app.use(cookieParser());
 // app.use(express.json());
@@ -139,6 +141,7 @@ app.use('/noc',authenticate,nocRoutes);
 app.use('/admin/brochure',authenticate,brochureRoutes);
 app.use("/job-events",authenticate, jobEventroutes);
 app.use("/travel-planner",authenticate,travelplannerRoutes);
+app.use("/placement-registration",authenticate,placementRegistrationRoutes);
 
 //mix routes
 app.use('/notification',authenticate,restrictTo('Student','Professor'),notificationRoutes);

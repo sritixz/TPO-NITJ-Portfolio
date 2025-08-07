@@ -43,7 +43,7 @@ export const sendWithdrawOtp = async (req, res) => {
     const mailOptions = {
       from: process.env.EMAIL_USER,
       to: email,
-      subject: "Withdraw or Edit Job Application Request",
+      subject: "Withdraw Job Application Request",
       html: `<div style="font-family: Arial, sans-serif; color: #333;">
     <p>Dear User,</p>
     <p><strong>Your OTP to withdraw your application is:</strong> <span style="font-size: 1.5em; color: #007bff;">${otp}</span></p>
