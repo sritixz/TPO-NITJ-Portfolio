@@ -205,6 +205,7 @@ export const validateCgpa = async (req, res) => {
           };
         }
       });
+    console.log("Response size (approx):", Buffer.byteLength(JSON.stringify({ results, originalData })) / 1024, "KB");
 
     res.status(200).json({ results, originalData });
 

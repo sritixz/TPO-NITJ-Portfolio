@@ -69,10 +69,13 @@ const studentSchema = new mongoose.Schema({
         type: String,
         default:'No Intern',
   },
-
   account_deactivate: {
     type: Boolean,
     default: false,
+  },
+  isInterested:{
+    type:Boolean,
+    default:true
   },
   otp: {
     type: String

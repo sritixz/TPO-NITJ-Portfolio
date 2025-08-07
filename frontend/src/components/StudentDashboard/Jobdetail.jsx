@@ -213,7 +213,7 @@ const Jobdetail = () => {
     }
   };
 
-   const handleVerificationSuccess = () => {
+   const setShowOtp = () => {
     setShowOTP(false);
   };
 
@@ -223,7 +223,8 @@ const Jobdetail = () => {
         <WithdrawOTPVerification 
           jobId={job_id} 
           setStatus={setStatus}
-          onSuccess={handleVerificationSuccess}
+          setShowOtp={setShowOtp}  
+          
         />
       </div>
     );

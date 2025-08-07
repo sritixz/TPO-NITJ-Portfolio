@@ -4,7 +4,7 @@ export const logMiddleware = async (req, res, next) => {
   try {
     if (req.method !== "GET") {
     const ua = req.useragent;
-
+    console.log(req.ip);
     await Logs.create({
       userId: req.user?.userId || null,
       userType: req.user?.userType || null,
