@@ -98,54 +98,54 @@ app.get('/check-auth', authenticate, checkAuth );
 
 app.use('/uploads', express.static('uploads'));
 
-app.use(logMiddleware);
+// app.use(logMiddleware);
 
 //Public routes
-app.use('/auth', authroutes);
-app.use('/captcha',captchaRoutes);
-app.use('/devteam',devteamroutes);
-app.use('/brochure',brochureRoutes);
-app.use("/placements",placementroutes);
-app.use("/internships",internshiptroutes);
+app.use('/auth', logMiddleware, authroutes);
+app.use('/captcha', logMiddleware, captchaRoutes);
+app.use('/devteam', logMiddleware, devteamroutes);
+app.use('/brochure', logMiddleware, brochureRoutes);
+app.use("/placements", logMiddleware, placementroutes);
+app.use("/internships", logMiddleware, internshiptroutes);
 
 //Student routes
-app.use('/interview',authenticate, restrictTo('Student'), interviewroutes);
-app.use('/oa',authenticate, restrictTo('Student'), oaroutes);
-app.use('/gd',authenticate, restrictTo('Student'), gdroutes);
-app.use('/others',authenticate, restrictTo('Student'), otherRoutes);
-app.use('/question-bank', authenticate,restrictTo('Student'), questionbankRoutes);
-app.use('/withdraw',authenticate, restrictTo('Student'), withdrawRoutes);
+app.use('/interview',authenticate, restrictTo('Student'),logMiddleware, interviewroutes);
+app.use('/oa',authenticate, restrictTo('Student'),logMiddleware, oaroutes);
+app.use('/gd',authenticate, restrictTo('Student'), logMiddleware, gdroutes);
+app.use('/others',authenticate, restrictTo('Student'),logMiddleware, otherRoutes);
+app.use('/question-bank', authenticate,restrictTo('Student'),logMiddleware, questionbankRoutes);
+app.use('/withdraw',authenticate, restrictTo('Student'),logMiddleware, withdrawRoutes);
 
 //Professor routes
-app.use('/pplacementReport',authenticate, restrictTo('Professor'), pplacementReportroutes);
-app.use("/student-analysis",authenticate, restrictTo('Professor'), studentanalysisRoutes);
-app.use("/companies-analysis",authenticate,restrictTo('Professor'), companiesanalysisRoutes);
-app.use('/conversations',authenticate, restrictTo('Professor'), conversationRoutes);
-app.use('/nodemailer',authenticate, restrictTo('Professor'), nodemailerRoutes);
-app.use('/add-recruiter', authenticate,restrictTo('Professor'), addRecruiterRoutes);
-app.use('/cgpa-checker',authenticate, restrictTo('Professor'), cgpaCheckerRoutes);
+app.use('/pplacementReport',authenticate, restrictTo('Professor'),logMiddleware, pplacementReportroutes);
+app.use("/student-analysis",authenticate, restrictTo('Professor'),logMiddleware, studentanalysisRoutes);
+app.use("/companies-analysis",authenticate,restrictTo('Professor'),logMiddleware, companiesanalysisRoutes);
+app.use('/conversations',authenticate, restrictTo('Professor'),logMiddleware, conversationRoutes);
+app.use('/nodemailer',authenticate, restrictTo('Professor'),logMiddleware, nodemailerRoutes);
+app.use('/add-recruiter', authenticate,restrictTo('Professor'),logMiddleware, addRecruiterRoutes);
+app.use('/cgpa-checker',authenticate, restrictTo('Professor'),logMiddleware, cgpaCheckerRoutes);
 
 //Admin routes
-app.use('/admin',authenticate,restrictTo('Admin'),adminRoutes);
+app.use('/admin',authenticate,restrictTo('Admin'),logMiddleware,adminRoutes);
 
 //Protected inside routes
-app.use('/jobprofile',authenticate,jobprofileroutes);
-app.use("/feedback",authenticate,feedbackRoutes);
-app.use('/sharedexperience',authenticate,sharedexperienceroutes);
-app.use("/jaf",authenticate,jafRoutes);
-app.use('/profile',authenticate, profileroutes);
-app.use("/reqhelp",authenticate,reqhelproutes);
-app.use('/contactus',contactusRoutes);
-app.use('/api',authenticate, formTemplateroutes);
-app.use('/noc',authenticate,nocRoutes);
-app.use('/admin/brochure',authenticate,brochureRoutes);
-app.use("/job-events",authenticate, jobEventroutes);
-app.use("/travel-planner",authenticate,travelplannerRoutes);
-app.use("/placement-registration",authenticate,placementRegistrationRoutes);
+app.use('/jobprofile',authenticate,logMiddleware,jobprofileroutes);
+app.use("/feedback",authenticate,logMiddleware,feedbackRoutes);
+app.use('/sharedexperience',authenticate,logMiddleware,sharedexperienceroutes);
+app.use("/jaf",authenticate,logMiddleware,jafRoutes);
+app.use('/profile',authenticate,logMiddleware, profileroutes);
+app.use("/reqhelp",authenticate, logMiddleware,reqhelproutes);
+app.use('/contactus',logMiddleware,contactusRoutes);
+app.use('/api',authenticate,logMiddleware, formTemplateroutes);
+app.use('/noc',authenticate, logMiddleware,nocRoutes);
+app.use('/admin/brochure',authenticate, logMiddleware,brochureRoutes);
+app.use("/job-events",authenticate, logMiddleware, jobEventroutes);
+app.use("/travel-planner",authenticate, logMiddleware,travelplannerRoutes);
+app.use("/placement-registration",authenticate, logMiddleware, placementRegistrationRoutes);
 
 //mix routes
-app.use('/notification',authenticate,restrictTo('Student','Professor'),notificationRoutes);
-app.use('/events',authenticate,restrictTo('Professor','Department','Admin'),eventRoutes);
+app.use('/notification',authenticate,restrictTo('Student','Professor'),logMiddleware,notificationRoutes);
+app.use('/events',authenticate,restrictTo('Professor','Department','Admin'),logMiddleware,eventRoutes);
 
 
 // app.use('/api/pdfs', authenticate, pdfroutes);
