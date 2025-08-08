@@ -424,7 +424,7 @@ const PremiumPlacementForm = () => {
         return (
           <div className="space-y-6">
             <CheckboxField 
-              label="Is you have any physical disability ?" 
+              label="Do you have any physical disability ?" 
               field={formData.physicallyDisabled} 
               onChange={handleInputChange('physicallyDisabled')}
             />
@@ -440,7 +440,7 @@ const PremiumPlacementForm = () => {
             )}
             
             <CheckboxField 
-              label="Is you are interested in placement opportunities ?" 
+              label="Are you interested in placement opportunities ?" 
               field={formData.interested} 
               onChange={handleInputChange('interested')}
             />
