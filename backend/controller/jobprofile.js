@@ -234,42 +234,45 @@ export const createJobProfilecopy = async (req, res) => {
     // Save JobProfile to database
     const savedProfile = await jobProfile.save();
 
-    //sending mail to eligible students
-    const eligibleStudents = await Promise.all(
-      eligibility_criteria.map(async (criteria) => {
-        const query = {
-          course: criteria.course_allowed,
-          department: { $in: criteria.department_allowed },
-          batch: criteria.eligible_batch,
-        };
-        return await Student.find(query).select("name email");
-      })
-    );
+const courseDurations = {
+  "B.Tech": 4,
+  "M.Tech": 2,
+  "B.Sc.-B.Ed.": 4,
+  "MBA": 2,
+  "M.Sc.": 2,
+};
 
-    // Flatten the array of students and remove duplicates (if any)
-    const uniqueStudents = [];
-    const studentEmails = new Set();
-    eligibleStudents.flat().forEach((student) => {
-      if (!studentEmails.has(student.email)) {
-        studentEmails.add(student.email);
-        uniqueStudents.push(student);
-      }
-    });
+// Generate unique (course, admissionYear) combinations
+const uniqueGroups = new Set();
+eligibility_criteria.forEach((criteria) => {
+  const course = criteria.course_allowed;
+  const passingYear = criteria.eligible_batch;
+  const duration = courseDurations[course] || 0;
+  const admissionYear = passingYear - duration;
+  const key = `${course.toLowerCase()}-${admissionYear}`;
+  uniqueGroups.add(key);
+});
 
-    // Send email to each eligible student
-    await Promise.all(
-      uniqueStudents.map(async (student) => {
-        await sendEmailToStudent(student, savedProfile);
-      })
-    );
+// Mapping of course names to email prefixes
+const coursePrefixMap = {
+  "B.Tech": "btech",
+  "M.Tech": "mtech",
+  "B.Sc.-B.Ed.": "bscbed",
+  "MBA": "mba",
+  "M.Sc.": "msc",
+};
 
-    // Create and save notification
-    // const notification = new Notification({
-    //   type: "JOB_CREATED",
-    //   message: `New job profile created for ${company_name || "Unknown Company"} - ${job_role || "Unknown Role"}`,
-    //   jobId: savedProfile._id,
-    // });
-    // await notification.save();
+// Send one email per unique (course, admissionYear) combination
+await Promise.all(
+  Array.from(uniqueGroups).map(async (key) => {
+    const [courseRaw, admissionYear] = key.split("-");
+    const prefix = coursePrefixMap[Object.keys(coursePrefixMap).find(c => c.toLowerCase() === courseRaw)] || courseRaw;
+    const email = `${prefix}${admissionYear}@nitj.ac.in`;
+
+    const pseudoStudent = { email };
+    await sendEmailToStudent(pseudoStudent, savedProfile);
+  })
+);
 
     return res.status(201).json({
       message: "Job profile created successfully!",
