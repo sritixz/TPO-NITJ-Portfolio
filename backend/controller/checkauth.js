@@ -6,7 +6,6 @@ import Admin from "../models/user_model/admin.js";
 import Department from "../models/user_model/department.js"
 
 export const checkAuth = async (req, res) => {
-  console.log("User authenticated:", req.user);
   const student= await Student.findById(req.user.userId);
   const professor= await Professor.findById(req.user.userId);
   const recuiter= await Recuiter.findById(req.user.userId);

@@ -317,7 +317,7 @@ export const LockedResendOTP = async (req, res) => {
           } else {
               isPasswordValid = password === user.password;
               const salt = await bcrypt.genSalt(10);
-              const hashedPassword = await bcrypt.hash(password, salt);
+              const hashedPassword = await bcrypt.hash(user.password, salt);
               await user.updateOne({ password: hashedPassword });
           }
   

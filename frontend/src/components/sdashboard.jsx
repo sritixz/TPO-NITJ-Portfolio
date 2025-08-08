@@ -105,7 +105,7 @@ const StudentDashboard = () => {
     { path: "/sdashboard/interviews", label: "Interview", icon: faUserTie },
     { path: "/sdashboard/gd", label: "Group Discussion", icon: faUsers },
     { path: "/sdashboard/others", label: "Other Assessments", icon: faClipboardCheck  },
-    { path: "/sdashboard/calendar", label: "Calendar", icon: faCalendarDays },
+    // { path: "/sdashboard/calendar", label: "Calendar", icon: faCalendarDays },
    /* { path: "/sdashboard/mailbox", label: "Mailbox", icon: faEnvelope }, */
     {
       path: "/sdashboard/request-help",
@@ -334,8 +334,7 @@ const StudentDashboard = () => {
             <Route path="interviews" element={<Interviews />} />
             <Route path="gd" element={<GD />} />
             <Route path="others" element={<Others />} />
-            <Route path="calendar" element={<CalendarComponent />} />
-            {/* <Route path="mailbox" element={<MailboxComponent />} /> */}
+            {/* <Route path="calendar" element={<CalendarComponent />} /> */}
             <Route path="shared-experience" element={<SharedExperience />} />
             <Route path="question-bank" element={<QuestionBank />} />
             <Route path="noc" element={<NOC />} />
