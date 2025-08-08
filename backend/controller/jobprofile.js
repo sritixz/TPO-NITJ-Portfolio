@@ -80,7 +80,7 @@ const sendEmailToStudent = async (student, jobProfile) => {
       <p><strong>Location:</strong> ${jobProfile.joblocation}</p>
       ${salaryDetails}
       <p><strong>Deadline to Apply:</strong> ${deadlineDateTime}</p>
-      <p>Please login to <a href=https://ctp.nitj.ac.in/sdashboard/job-application/${jobProfile._id}">TPO NITJ Portal</a> to apply and view more details.</p>
+      <p>Please login to <a href="https://ctp.nitj.ac.in/sdashboard/job-application/${jobProfile._id}">TPO NITJ Portal</a> to apply and view more details.</p>
       <p>Best regards,<br>TPO-NITJ</p>
     `,
   };
