@@ -154,7 +154,7 @@ const PremiumPlacementForm = () => {
     if (showSuccess) {
       const timer = setTimeout(() => {
         navigate('/sdashboard/home');
-      }, 5000);
+      }, 15000);
       return () => clearTimeout(timer);
     }
   }, [showSuccess, navigate]);
@@ -469,24 +469,37 @@ const PremiumPlacementForm = () => {
   };
 
   // Show success animation if already registered or form submitted
-  if (showSuccess) {
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
-        <div className="max-w-md mx-auto text-center">
-          <Player
-            autoplay
-            loop
-            src="/Success.json"
-            style={{ height: '300px', width: '300px' }}
-          />
-          <h2 className="text-2xl font-bold text-green-600 mb-4">
-            {isRegistered ? 'Already Registered!' : 'Registration Successful!'}
-          </h2>
-          <p className="text-slate-600">Redirecting to dashboard in 5 seconds...</p>
-        </div>
-      </div>
-    );
-  }
+ if (showSuccess) {
+  const handleJoinWhatsApp = () => {
+    // Open backend endpoint that redirects to WhatsApp group
+    window.open(`${import.meta.env.REACT_APP_BASE_URL}/placement-registration/join-whatsapp`, "_blank");
+  };
+
+  return (
+    <div className="fixed inset-0 bg-gray-50 flex items-center justify-center z-50">
+  <div className="max-w-md mx-auto text-center">
+    <Player
+      autoplay
+      loop
+      src="/Success.json"
+      style={{ height: '300px', width: '300px' }}
+    />
+    <h2 className="text-2xl font-bold text-green-600 mb-4">
+      {isRegistered ? 'Already Registered!' : 'Registration Successful!'}
+    </h2>
+    <p className="text-slate-600 mb-4">Redirecting to dashboard in 15 seconds...</p>
+    <button
+      onClick={handleJoinWhatsApp}
+      className="bg-green-500 hover:bg-green-600 text-white font-semibold py-2 px-4 rounded"
+    >
+      Join WhatsApp Group
+    </button>
+  </div>
+</div>
+
+  );
+}
+
 
   // Render form if not registered
   return (
