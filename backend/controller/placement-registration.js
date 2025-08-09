@@ -1,9 +1,17 @@
 import PlacementRegistration from '../models/placement-registration.js';
 import Student from '../models/user_model/student.js';
+import PlacementRegistrationDeadline from "../models/placement-registration-deadline.js";
 
 // Create a new placement registration
 export const createPlacementRegistration = async (req, res) => {
   try {
+     const d = await PlacementRegistrationDeadline.findOne().sort({ createdAt: -1 });
+    if (!d || !d.allowed) {
+      return res.status(403).json({
+        success: false,
+        message: 'Placement registration is currently closed',
+      });
+    }
     const studentId= req.user.userId;
     const existingRegistration = await PlacementRegistration.findOne({ studentId });
     if (existingRegistration) {
@@ -88,6 +96,65 @@ export const getPlacementRegistrationExportData = async (req, res) => {
       success: false,
       message: 'Error fetching student data',
       error: error.message
+    });
+  }
+};
+
+
+
+//deadline
+
+export const createDeadline = async (req, res) => {
+  try {
+    const { allowed, deadlinetoshow } = req.body;
+    const d = await PlacementRegistrationDeadline.create({ allowed, deadlinetoshow });
+    res.status(201).json({ success: true, data: d });
+  } catch (e) {
+    res.status(500).json({ success: false, message: e.message });
+  }
+};
+
+export const editDeadline = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { allowed, deadlinetoshow } = req.body;
+    const d = await PlacementRegistrationDeadline.findByIdAndUpdate(
+      id,
+      { allowed, deadlinetoshow },
+      { new: true }
+    );
+    if (!d) return res.status(404).json({ success: false, message: "Deadline not found" });
+    res.status(200).json({ success: true, data: d });
+  } catch (e) {
+    res.status(500).json({ success: false, message: e.message });
+  }
+};
+
+export const checkopen = async (req, res) => {
+  try {
+    const d = await PlacementRegistrationDeadline.findOne().sort({ createdAt: -1 });
+
+    if (!d) {
+      return res.status(200).json({
+        success: false,
+        message: "Deadline not set",
+        data: null
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      data: {
+        _id: d._id,
+        allowed: d.allowed,
+        deadlinetoshow: d.deadlinetoshow
+      }
+    });
+  } catch (e) {
+    res.status(500).json({
+      success: false,
+      message: e.message,
+      data: null
     });
   }
 };
