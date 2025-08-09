@@ -2,7 +2,10 @@ import express from 'express';
 import { 
   createPlacementRegistration,  
   checkStudentPlacementRegistration,
-  getPlacementRegistrationExportData
+  getPlacementRegistrationExportData,
+  createDeadline,
+  editDeadline,
+  checkopen,
 } from '../controller/placement-registration.js';
 
 import { restrictTo } from "../utils/restrict.js";
@@ -14,6 +17,11 @@ router.get('/join-whatsapp', (req, res) => {
   return res.redirect(302, whatsappUrl);
 });
 
+
+
+router.post('/create-deadline', restrictTo('Professor'), createDeadline);
+router.put('/deadline/:id', restrictTo('Professor'), editDeadline);
+router.get('/checkopen', restrictTo('Student','Professor'), checkopen);
 
 router.get('/check', restrictTo('Student'), checkStudentPlacementRegistration);
 

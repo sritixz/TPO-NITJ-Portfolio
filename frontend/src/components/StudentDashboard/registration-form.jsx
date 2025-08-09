@@ -107,6 +107,35 @@ const PremiumPlacementForm = () => {
     description: ''
   });
 
+
+const [isFormOpen, setIsFormOpen] = useState(null); // null = loading, true = open, false = closed
+const [deadline, setDeadline] = useState(null);
+
+useEffect(() => {
+  const checkFormOpen = async () => {
+    try {
+      const res = await axios.get(
+        `${import.meta.env.REACT_APP_BASE_URL}/placement-registration/checkopen`,
+        { withCredentials: true }
+      );
+      
+      if (res.data.success && res.data.data) {
+        setIsFormOpen(res.data.data.allowed);
+        setDeadline(res.data.data.deadlinetoshow);
+      } else {
+        setIsFormOpen(false);
+      }
+    } catch (err) {
+      console.error(err);
+      toast.error("Failed to check form status");
+      setIsFormOpen(false);
+    }
+  };
+
+  checkFormOpen();
+}, []);
+
+
   // Check registration status on component mount
   useEffect(() => {
     const checkRegistration = async () => {
@@ -151,7 +180,7 @@ const PremiumPlacementForm = () => {
 
   // Handle redirect after success animation
   useEffect(() => {
-    if (showSuccess) {
+    if (showSuccess || isFormOpen === false) {
       const timer = setTimeout(() => {
         navigate('/sdashboard/home');
       }, 15000);
@@ -468,6 +497,40 @@ const PremiumPlacementForm = () => {
     }
   };
 
+if (isFormOpen === null) {
+  return (
+    <div className="flex items-center justify-center min-h-screen">
+      <Player
+        autoplay
+        loop
+        src="/loading.json"
+        style={{ height: '200px', width: '200px' }}
+      />
+    </div>
+  );
+}
+
+
+if (isFormOpen === false) {
+  return (
+    <div className="fixed inset-0 bg-gray-50 flex items-center justify-center z-50">
+      <div className="max-w-md mx-auto text-center">
+        <Player
+          autoplay
+          loop
+          src="/close.json"
+          style={{ height: '300px', width: '300px' }}
+        />
+        <h2 className="text-2xl font-bold text-red-600 mb-4">
+          Placement Registration is Closed
+        </h2>
+         <p className="text-slate-600 text-sm mb-4">Redirecting to dashboard in 15 seconds...</p>
+      </div>
+    </div>
+  );
+}
+
+
   // Show success animation if already registered or form submitted
  if (showSuccess) {
   const handleJoinWhatsApp = () => {
@@ -503,7 +566,7 @@ const PremiumPlacementForm = () => {
 
   // Render form if not registered
   return (
-    <div className="min-h-screen bg-gray-50 p-4">
+    <div className="min-h-screen bg-gray-50 p-4 relative">
       <div className="max-w-4xl mx-auto">
         {/* Header */}
         <div className="text-center mb-8">
@@ -511,6 +574,20 @@ const PremiumPlacementForm = () => {
             Placement <span className="text-custom-blue">Registration</span> 
           </h1>
         </div>
+{deadline && (
+  <div className="absolute top-1 right-2 bg-red-200 text-red-800 px-4 py-2 rounded-lg shadow-md border border-red-300 text-sm font-medium">
+    Deadline: {new Date(deadline).toLocaleString("en-IN", {
+      day: "numeric",
+      month: "short",
+      year: "numeric",
+      hour: "numeric",
+      minute: "2-digit",
+      hour12: true,
+      timeZone: "Asia/Kolkata"
+    })}
+  </div>
+)}
+
 
         {/* Progress Steps */}
         <div className="flex items-center justify-center mb-8 overflow-x-auto">

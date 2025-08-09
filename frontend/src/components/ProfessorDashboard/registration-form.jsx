@@ -255,6 +255,76 @@ const PlacementRegistrationExport = () => {
   const [loading, setLoading] = useState(false);
   const [studentData, setStudentData] = useState([]);
 
+
+  const [deadline, setDeadline] = useState({
+  allowed: false,
+  deadlinetoshow: ''
+});
+const [deadlineId, setDeadlineId] = useState(null);
+const [saving, setSaving] = useState(false);
+
+function formatDateForInputIST(dateString) {
+  const date = new Date(dateString);
+
+  // Convert UTC to IST
+  const istOffset = 5.5 * 60 * 60 * 1000; // 5 hours 30 minutes in ms
+  const istDate = new Date(date.getTime() + istOffset);
+
+  const year = istDate.getUTCFullYear();
+  const month = String(istDate.getUTCMonth() + 1).padStart(2, "0");
+  const day = String(istDate.getUTCDate()).padStart(2, "0");
+  const hours = String(istDate.getUTCHours()).padStart(2, "0");
+  const minutes = String(istDate.getUTCMinutes()).padStart(2, "0");
+
+  return `${year}-${month}-${day}T${hours}:${minutes}`;
+}
+
+useEffect(() => {
+  const fetchDeadline = async () => {
+    try {
+      const res = await axios.get(`${import.meta.env.REACT_APP_BASE_URL}/placement-registration/checkopen`, { withCredentials: true });
+      if (res.data.success && res.data.data) {
+        setDeadline({
+          allowed: res.data.data.allowed,
+          deadlinetoshow: res.data.data.deadlinetoshow ? formatDateForInputIST(res.data.data.deadlinetoshow) : ''
+        });
+        setDeadlineId(res.data.data._id);
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  };
+  fetchDeadline();
+}, []);
+
+
+const saveDeadline = async () => {
+  setSaving(true);
+  try {
+    if (deadlineId) {
+      await axios.put(
+        `${import.meta.env.REACT_APP_BASE_URL}/placement-registration/deadline/${deadlineId}`,
+        deadline,
+        { withCredentials: true }
+      );
+    } else {
+      const res = await axios.post(
+        `${import.meta.env.REACT_APP_BASE_URL}/placement-registration/create-deadline`,
+        deadline,
+        { withCredentials: true }
+      );
+      setDeadlineId(res.data.data._id);
+    }
+    toast.success('Deadline updated successfully');
+  } catch (err) {
+    toast.error('Error updating deadline');
+  } finally {
+    setSaving(false);
+  }
+};
+
+
+
   useEffect(() => {
     if (filters.course) {
       let departments = [];
@@ -462,6 +532,46 @@ const PlacementRegistrationExport = () => {
         <div className="flex flex-col sm:flex-row justify-between items-center mb-6 border-b border-gray-200 pb-4">
           <h2 className="text-2xl font-bold mb-4 sm:mb-0">Student Registration <span className="text-custom-blue">Export</span></h2>
         </div>
+   <div className="bg-gray-50 p-5 rounded-lg mb-8 border border-gray-200 shadow-sm">
+  <h3 className="text-xl font-semibold text-custom-blue mb-4">Placement Registration Control</h3>
+
+  <div className="flex flex-wrap items-center gap-6">
+    {/* Toggle */}
+    <label className="flex items-center cursor-pointer">
+      <input
+        type="checkbox"
+        checked={deadline.allowed}
+        onChange={(e) => setDeadline(prev => ({ ...prev, allowed: e.target.checked }))}
+        className="hidden"
+      />
+      <div className={`w-14 h-7 flex items-center bg-gray-300 rounded-full p-1 duration-300 ease-in-out ${deadline.allowed ? 'bg-green-500' : ''}`}>
+        <div className={`bg-white w-6 h-6 rounded-full shadow-md transform duration-300 ease-in-out ${deadline.allowed ? 'translate-x-7' : ''}`}></div>
+      </div>
+    </label>
+    <span className="text-gray-700">{deadline.allowed ? 'Registration Open' : 'Registration Closed'}</span>
+
+    {/* Deadline Field */}
+    <div className="flex items-center gap-2">
+      <label className="text-gray-700 font-medium">Deadline to Show</label>
+      <input
+        type="datetime-local"
+        value={deadline.deadlinetoshow}
+        onChange={(e) => setDeadline(prev => ({ ...prev, deadlinetoshow: e.target.value }))}
+        className="border border-gray-300 rounded-lg p-2"
+      />
+    </div>
+
+    {/* Save Button */}
+    <button
+      onClick={saveDeadline}
+      disabled={saving}
+      className="bg-custom-blue text-white px-6 py-2.5 rounded-lg hover:bg-custom-blue-dark transition-all"
+    >
+      {saving ? 'Saving...' : 'Save Changes'}
+    </button>
+  </div>
+</div>
+
 
         <div className="bg-gray-50 p-5 rounded-lg mb-8 border border-gray-200 shadow-sm">
           <div className="flex items-center mb-4">
