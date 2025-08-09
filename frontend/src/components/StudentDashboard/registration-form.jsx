@@ -168,8 +168,8 @@ useEffect(() => {
         course: userData.course || '',
         batch: userData.batch || '',
         gender: userData.gender || '',
-        emailNitj: '',
-        mobileNo: '',
+        emailNitj: userData.email || '',
+        mobileNo: userData.phone || '',
         permanentAddress: userData.address || '',
         physicallyDisabled: userData.disability || false,
         category: userData.category || '',
@@ -421,6 +421,7 @@ useEffect(() => {
                 type="email" 
                 placeholder="Enter Institute email" 
                 required 
+                readOnly
                 onChange={handleInputChange('emailNitj')}
               />
               <InputField 
