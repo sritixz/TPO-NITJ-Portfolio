@@ -44,6 +44,8 @@ import eventRoutes from "./routes/Event.js";
 import cgpaCheckerRoutes from "./routes/cgpaChecker.js";
 import withdrawRoutes from "./routes/withdraw.js";
 import placementRegistrationRoutes from "./routes/placement-registration.js";
+import offerAddRoutes from "./routes/offerAdd.js";
+import insightRoutes from "./routes/insight.js";
 
 import { mkdir } from 'fs/promises';
 try {
@@ -124,6 +126,7 @@ app.use('/conversations',authenticate, restrictTo('Professor'),logMiddleware, co
 app.use('/nodemailer',authenticate, restrictTo('Professor'),logMiddleware, nodemailerRoutes);
 app.use('/add-recruiter', authenticate,restrictTo('Professor'),logMiddleware, addRecruiterRoutes);
 app.use('/cgpa-checker',authenticate, restrictTo('Professor'),logMiddleware, cgpaCheckerRoutes);
+app.use('/insight',authenticate, restrictTo('Professor'),logMiddleware, insightRoutes);
 
 //Admin routes
 app.use('/admin',authenticate,restrictTo('Admin'),logMiddleware,adminRoutes);
@@ -146,6 +149,9 @@ app.use("/placement-registration",authenticate, logMiddleware, placementRegistra
 //mix routes
 app.use('/notification',authenticate,restrictTo('Student','Professor'),logMiddleware,notificationRoutes);
 app.use('/events',authenticate,restrictTo('Professor','Department','Admin'),logMiddleware,eventRoutes);
+
+// offer-add
+app.use('/offer-add',authenticate,restrictTo('Professor'),logMiddleware,offerAddRoutes);
 
 
 // app.use('/api/pdfs', authenticate, pdfroutes);

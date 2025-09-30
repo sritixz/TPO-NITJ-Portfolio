@@ -1,60 +1,27 @@
 import mongoose from "mongoose";
 
 const NOCSchema = new mongoose.Schema({
-  studentId: { type: String }, // Student ID
-  nocId: { type: String}, // NOC ID
-  companyName: { type: String }, // Company name (in which the interns plan to apply)
-  dateSubmitted: { type: Date}, // Date of application of NOC to CTP
-  respondentEmail: { type: String }, // Respondent Email
-  salutation: { type: String, enum: ['Mr.', 'Ms.'] }, // Salutation
-  studentName: { type: String }, // Name of the student
-  rollNo: { type: String }, // Roll No.
+  studentId: { type: String },
+  nocId: { type: String},
+  companyName: { type: String },
+  dateSubmitted: { type: Date},
+  respondentEmail: { type: String },
+  salutation: { type: String },
+  studentName: { type: String },
+  rollNo: { type: String },
   batch: { type: String },
-  course: {
-    type: String,
-    //  enum:["B.Tech","M.Tech","MBA","M.Sc.","PHD","B.Sc.-B.Ed."]
-  }, // Graduate in
-  year: {
-    type: String,
-    enum: ['1st', '2nd', '3rd'],
-  }, // Year
-  semester: {
-    type: String,
-    enum: ['2nd', '4th', '6th'],
-  }, // Semester
-  department: {
-    type: String,
-    // enum: [
-    //          "INTEGRATED TEACHER EDUCATION PROGRAMME", "BIO TECHNOLOGY", "CHEMICAL ENGINEERING", "CIVIL ENGINEERING", 
-    //           "COMPUTER SCIENCE AND ENGINEERING", "ELECTRICAL ENGINEERING", "ELECTRONICS AND COMMUNICATION ENGINEERING", 
-    //           "INDUSTRIAL AND PRODUCTION ENGINEERING", "INFORMATION TECHNOLOGY", "INSTRUMENTATION AND CONTROL ENGINEERING", 
-    //           "MECHANICAL ENGINEERING", "TEXTILE TECHNOLOGY", "DATA SCIENCE AND ENGINEERING", "ELECTRONICS AND VLSI ENGINEERING", 
-    //           "MATHEMATICS AND COMPUTING", "CHEMISTRY", "MATHEMATICS", "PHYSICS", "ARTIFICIAL INTELLIGENCE", 
-    //           "COMPUTER SCIENCE AND ENGINEERING (INFORMATION SECURITY)", "CONTROL AND INSTRUMENTATION ENGINEERING", 
-    //           "DATA ANALYTICS", "DESIGN ENGINEERING", "ELECTRIC VEHICLE DESIGN", "GEOTECHNICAL AND GEO-ENVIRONMENTAL ENGINEERING", 
-    //           "INDUSTRIAL ENGINEERING AND DATA ANALYTICS", "POWER SYSTEMS AND RELIABILITY", "RENEWABLE ENERGY", 
-    //           "SIGNAL PROCESSING AND MACHINE LEARNING", "STRUCTURAL AND CONSTRUCTION ENGINEERING", "TEXTILE ENGINEERING AND MANAGEMENT", 
-    //           "VLSI DESIGN", "MACHINE INTELLIGENCE AND AUTOMATION", "THERMAL AND ENERGY ENGINEERING", "HUMANITIES AND MANAGEMENT"
-    // ],
-    required: true,
-  }, // Department
-  internshipFrom: { type: Date}, // Internship start date
-  internshipTo: { type: Date }, // Internship end date
-  internshipDuration: {
-    type: String,
-    // enum: [
-    //   'more than 30 days',
-    //   'more than 30 days and less than 45 days',
-    //   'more than 45 days less than 60 days',
-    //   'more than 60 days'
-    // ],
-  }, // Days (total internship days)
-  contactPersonName: { type: String}, // Name of contact person from company
-  contactPersonDesignation: { type: String }, // Designation
-  contactPersonPhone: { type: String }, // Contact No.
-  contactPersonEmail: { type: String }, // Email
-
-  offerLetter: { type: String }, // Offer Letter
+  course: {type: String,}, 
+  year: {type: String,},
+  semester: {type: String,},
+  department: {type: String,},
+  internshipFrom: { type: Date},
+  internshipTo: { type: Date },
+  internshipDuration: {type: String,},
+  contactPersonName: { type: String},
+  contactPersonDesignation: { type: String },
+  contactPersonPhone: { type: String },
+  contactPersonEmail: { type: String },
+  offerLetter: { type: String },
 }, { timestamps: true });
 
 const NOC = mongoose.model('NOC', NOCSchema);

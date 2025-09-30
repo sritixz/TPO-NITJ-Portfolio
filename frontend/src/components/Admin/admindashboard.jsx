@@ -13,6 +13,9 @@ import {
   faPersonChalkboard,
   faBuilding,
   faCode,
+  faRightToBracket,
+  faClipboardList,
+  faGift,
 } from "@fortawesome/free-solid-svg-icons";
 
 import { Menu, X, LogOut } from "lucide-react";
@@ -30,6 +33,9 @@ import BrochureManager from "./brochure";
 import DepartmentManager from "./department";
 import DevteamManager from "./team";
 import LogsTable from "./logs";
+import OfferTracker from "./offertracker";
+import Offer from "./offer";
+import LoginAttempts from "./loginattempt";
 
 const Admindashboard = () => {
   const [isMobile, setIsMobile] = useState(false);
@@ -82,6 +88,9 @@ const Admindashboard = () => {
     { label: "Brochure Management", icon: faBriefcase, path: "/admindashboard/brochure" },
     { label: "Devteam Management", icon: faCode, path: "/admindashboard/devteam" },
     {label: "Logs", icon: faCode, path:"/admindashboard/logs"},
+    {label: "Login Attempts", icon: faRightToBracket, path:"/admindashboard/login-attempt"},
+    {label: "Offer", icon: faGift, path:"/admindashboard/offer"},
+    {label: "Offer Tracker", icon: faClipboardList, path:"/admindashboard/offer-tracker"},
   ];
 
 
@@ -265,6 +274,9 @@ const Admindashboard = () => {
             <Route path="/brochure" element={<BrochureManager />} />
             <Route path="/devteam" element={<DevteamManager />} />
             <Route path="/logs" element={<LogsTable />} />
+            <Route path="/login-attempt" element={<LoginAttempts />} />
+            <Route path="/offer" element={<Offer />} />
+            <Route path="/offer-tracker" element={<OfferTracker />} />
             </Routes>
         </div>
 

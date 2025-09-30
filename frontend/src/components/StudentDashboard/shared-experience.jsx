@@ -189,14 +189,14 @@ const SharedExperience = () => {
         {activeTab === "myExperiences" && (
           <section>
             <div className="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-              {eligible && (
+              {/* {eligible && ( */}
                 <div
                   onClick={() => setShowEditor(true)}
                   className="bg-custom-blue border-dashed border-4 border-gray-300 rounded-xl flex items-center justify-center cursor-pointer shadow-lg hover:shadow-2xl transition-transform hover:scale-105 duration-300 text-white text-6xl p-5 h-auto w-56"
                 >
                   <FaPlus />
                 </div>
-              )}
+              {/* )} */}
               {currentUserExperiences.map((experience) => (
                 <div
                   key={experience._id}

@@ -22,11 +22,11 @@ const NoApplicationForm = ({ onClose, jobId }) => {
           No Application Form Available
         </h2>
         <p className="text-gray-500 text-center mb-6">
-          The application form for is currently unavailable.
+          The application form for this job is currently unavailable.
           <br />
-          Please contact the hiring team or try again later.
+          Please contact TPO or try again later.
         </p>
-        <div className="w-32 h-1 bg-blue-500 rounded-full"></div>
+        <div className="w-32 h-1 bg-custom-blue rounded-full"></div>
       </div>
     </div>
   );
@@ -140,7 +140,7 @@ const [noFormAvailable, setNoFormAvailable] = useState(false);
       return false;
     }
 
-    if (!resumeFile) {
+    if (!resumeFile && !existingSubmission?.resumeUrl) {
       toast.error('Please upload your resume.');
       return false;
     }
@@ -183,7 +183,13 @@ const [noFormAvailable, setNoFormAvailable] = useState(false);
 
     try {
       // Upload the resume file and get the URL
-      const resumeUrl = await uploadResume(resumeFile);
+      // const resumeUrl = await uploadResume(resumeFile);
+
+    let resumeUrl = existingSubmission?.resumeUrl || null;
+    // Upload only if new file is selected
+    if (resumeFile) {
+      resumeUrl = await uploadResume(resumeFile);
+    }
 
       const submissionData = {
         jobId,
@@ -295,12 +301,26 @@ const [noFormAvailable, setNoFormAvailable] = useState(false);
         <label className="block text-gray-700 font-medium mb-2">
           Upload Resume <span className="text-red-500">*(PDF)</span>
         </label>
+
+          {existingSubmission?.resumeUrl && (
+    <div className="mb-3">
+      <a
+        href={existingSubmission.resumeUrl}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="inline-block bg-yellow-500 text-white px-4 py-2 rounded-lg shadow hover:bg-yellow-600 transition"
+      >
+        View Previously Uploaded Resume
+      </a>
+    </div>
+  )}
+
         <input
           type="file"
           className="w-full border border-gray-300 rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
           accept=".pdf,.docx"
           onChange={handleFileChange}
-          required
+          required={!existingSubmission?.resumeUrl} 
         />
       </div>
 

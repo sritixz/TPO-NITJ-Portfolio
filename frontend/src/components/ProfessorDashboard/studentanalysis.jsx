@@ -4,11 +4,12 @@ import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
 import { Input } from '../ui/input';
 import Select from 'react-select';
 import { Button } from '../ui/button';
-import { X, Pencil, Save, Search, Filter, UserCog, GraduationCap, User, Loader2, Briefcase } from 'lucide-react';
+import { X, Pencil, Save, Search, Filter, UserCog, GraduationCap, User, Loader2, Briefcase, Download } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '../ui/dialog';
 import { toast } from 'react-hot-toast';
 import Notification from "./Notification";
+import * as XLSX from 'xlsx';
 
 const StudentAnalyticsDashboard = () => {
   const [filters, setFilters] = useState({
@@ -178,6 +179,68 @@ const StudentAnalyticsDashboard = () => {
       ...prev,
       offer: prev.offer.filter((_, i) => i !== index)
     }));
+  };
+
+  const downloadExcel = () => {
+    if (sortedStudents.length === 0) {
+      toast.error("No data to export");
+      return;
+    }
+
+    const exportData = sortedStudents.map((student) => ({
+     "Roll No": student.rollno,
+      Name: student.name,
+      Category: student.category,
+      Gender: student.gender,
+      Batch: student.batch,
+      Course: student.course,
+      Department: student.department,
+      Email: student.email,
+      CGPA: student.cgpa,
+      "Active Backlog": student.active_backlogs ? "Yes" : "No",
+      "Backlog History": student.backlogs_history ? "Yes" : "No",
+      Offer: student.offers?.length || 0
+    }));
+
+    const ws = XLSX.utils.json_to_sheet(exportData);
+
+    // Set column widths for better readability
+    const colWidths = [
+      { wch: 10 }, // Roll No
+      { wch: 28 }, // Name
+      { wch: 12 }, // Category
+      { wch: 8 }, // Gender
+      { wch: 8 }, // Batch
+      { wch: 10 }, // Course
+      { wch: 38 }, // Department
+      { wch: 25 }, // Email
+      { wch: 10 }, // CGPA
+      { wch: 10 }, // Active Backlog
+      { wch: 10 }, // Backlog History
+      { wch: 5 }, // Offer
+    ];
+    ws["!cols"] = colWidths;
+
+    // Style headers: bold and with background color
+    const headerStyle = {
+      font: { bold: true },
+      fill: { fgColor: { rgb: "E3F2FD" } }, // Light blue background
+      alignment: { horizontal: "center", vertical: "center" },
+    };
+    const headerRange = XLSX.utils.decode_range(ws["!ref"]);
+    for (let C = headerRange.s.c; C <= headerRange.e.c; ++C) {
+      const headerCell = XLSX.utils.encode_cell({ r: 0, c: C });
+      if (!ws[headerCell]) continue;
+      ws[headerCell].s = headerStyle;
+    }
+
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Students Data");
+
+    // Generate filename with timestamp
+    const timestamp = new Date().toISOString().slice(0, 19).replace(/:/g, "-");
+    XLSX.writeFile(wb, `Students_Data_${timestamp}.xlsx`);
+    toast.success("Excel file downloaded successfully!");
   };
 
   const cgpaOptions = [
@@ -792,7 +855,7 @@ const StudentAnalyticsDashboard = () => {
                 placeholder="Select CGPA"
               />
             </div>
-            <div className="space-y-2">
+            {/* <div className="space-y-2">
               <label className="text-sm font-medium text-gray-700">Placement Status</label>
               <Select
                 options={placementStatusOptions}
@@ -801,7 +864,7 @@ const StudentAnalyticsDashboard = () => {
                 className="w-full"
                 placeholder="Select Placement Status"
               />
-            </div>
+            </div> */}
             <div className="space-y-2">
               <label className="text-sm font-medium text-gray-700">Debarred</label>
               <Select
@@ -852,7 +915,7 @@ const StudentAnalyticsDashboard = () => {
                 placeholder="Select Category"
               />
             </div>
-            <div className="space-y-2">
+            {/* <div className="space-y-2">
               <label className="text-sm font-medium text-gray-700">Internship Status</label>
               <Select
                 options={internshipStatusOptions}
@@ -861,7 +924,7 @@ const StudentAnalyticsDashboard = () => {
                 className="w-full"
                 placeholder="Select Internship Status"
               />
-            </div>
+            </div> */}
             <div className="space-y-2">
               <label className="text-sm font-medium text-gray-700">Search Name</label>
               <div className="relative">
@@ -908,6 +971,15 @@ const StudentAnalyticsDashboard = () => {
               )}
               Apply Filters
             </Button>
+            {sortedStudents.length > 0 && (
+              <Button
+                className="flex items-center gap-2 bg-green-500 text-white hover:bg-green-600"
+                onClick={downloadExcel}
+              >
+                <Download className="h-4 w-4" />
+                Download Excel
+              </Button>
+            )}
           </div>
         </CardContent>
       </Card>
@@ -947,7 +1019,7 @@ const StudentAnalyticsDashboard = () => {
             }}
           >
             <DialogTrigger asChild>
-              <Card className="cursor-pointer hover:shadow-lg transition-all duration-300 border-2 hover:border-blue-400 hover:scale-105 hover:bg-white">
+              <Card className="cursor-pointer hover:shadow-lg transition-all duration-300 border-2 hover:border-custom-blue hover:scale-105 hover:bg-white">
                 <CardContent className="p-6">
                   <div className="flex items-start justify-between">
                     <div>
@@ -955,23 +1027,23 @@ const StudentAnalyticsDashboard = () => {
                         <UserCog className="h-5 w-5 text-gray-400" />
                         <h3 className="font-bold text-lg text-gray-900">{student.name}</h3>
                       </div>
-                      <p className="text-sm text-gray-500 mt-1">{student.rollno}</p>
-                      <span className="text-sm text-gray-600">{student.course}</span>
+                      <p className="text-sm text-gray-700 mt-1">{student.rollno}</p>
+                      <span className="text-sm text-gray-700">{student.course}</span>
                     </div>
-                    <GraduationCap className="h-6 w-6 text-blue-500" />
+                    <GraduationCap className="h-6 w-6 text-custom-blue" />
                   </div>
                   <div className="mt-2 space-y-2">
                     <div className="flex items-center gap-2">
-                      <span className="text-sm text-gray-600">{student.department}</span>
+                      <span className="text-sm text-gray-700">{student.department}</span>
                     </div>
                     <div className="flex items-center gap-2">
-                      <span className="text-sm text-gray-600">Batch: {student.batch}</span>
+                      <span className="text-sm text-gray-700">Batch: {student.batch}</span>
                     </div>
                     <div className="flex items-center gap-2">
-                      <span className="text-sm text-gray-600">CGPA: {student.cgpa}</span>
+                      <span className="text-sm text-gray-700">CGPA: {student.cgpa}</span>
                     </div>
                   </div>
-                  <div
+                  {/* <div
                     className={`mt-4 inline-block px-3 py-1 rounded-full text-sm font-medium ${
                       student.placementstatus === "Super Dream"
                         ? "bg-green-100 text-green-800"
@@ -983,9 +1055,9 @@ const StudentAnalyticsDashboard = () => {
                     }`}
                   >
                     {student.placementstatus}
-                  </div>
+                  </div> */}
                   <div className="mt-2">
-                    <span className="text-sm font-medium text-gray-600">
+                    <span className="text-sm font-medium text-gray-800">
                       Offers: {student.offers?.length || 0}
                     </span>
                   </div>
@@ -1077,7 +1149,7 @@ const StudentAnalyticsDashboard = () => {
                         <CardContent className="space-y-4">
                           <div>
                             <label className="text-sm font-medium text-gray-700">Placement Status</label>
-                            {editMode ? (
+                            {/* {editMode ? (
                               <Select
                                 options={placementStatusOptions}
                                 value={placementStatusOptions.find(opt => opt.value === editedStudent.placementstatus) || null}
@@ -1098,20 +1170,12 @@ const StudentAnalyticsDashboard = () => {
                               >
                                 {student.placementstatus}
                               </div>
-                            )}
+                            )} */}
+                            <p className={`mt-1 ${student.offers?.length > 0 ? "text-green-600" : "text-red-600"}`}>{student.offers?.length > 0 ? "Placed" : "Not Placed"}</p>
                           </div>
                           <div>
-                            <label className="text-sm font-medium text-gray-700">Internship Status</label>
-                            {editMode ? (
-                              <Select
-                                options={internshipStatusOptions}
-                                value={internshipStatusOptions.find(opt => opt.value === editedStudent.internshipstatus) || null}
-                                onChange={(option) => handleChange("internshipstatus", option ? option.value : "")}
-                                className="mt-1"
-                              />
-                            ) : (
-                              <p className="mt-1 text-gray-900">{student.internshipstatus}</p>
-                            )}
+                            <label className="text-sm font-medium text-gray-700">No. of Offer</label>
+                              <p className="mt-1 text-gray-900"> {student.offers?.length || 0}</p>
                           </div>
                           <div>
                             <label className="text-sm font-medium text-gray-700">Debarred</label>

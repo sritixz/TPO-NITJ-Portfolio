@@ -85,13 +85,26 @@ const CardSkeleton = () => (
 );
 
 const StudentDashboard = () => {
-  const [stats, setStats] = useState({
-    totalStudentsPlaced: 0,
-    companiesVisited: 0,
-    averagePackage: 0,
-  });
+  const [stats, setStats] = useState({totalStudentsPlaced: 0, companiesVisited: 0, averagePackage: 0});
   const [loading, setLoading] = useState(true);
   const [notifications, setNotifications] = useState([]);
+  const [placements, setPlacements] = useState([]);
+  const [internships, setInternships] = useState([]);
+
+
+  const fetchStats = async () => {
+    setLoading(true);
+    try {
+      const apiUrl = `${
+        import.meta.env.REACT_APP_BASE_URL
+      }/placements/insights`;
+      const response = await axios.get(apiUrl);
+      setStats(response.data);
+    } catch (error) {
+    } finally {
+      setTimeout(() => setLoading(false), 800);
+    }
+  };
 
   const fetchNotifications = async () => {
     setLoading(true);
@@ -108,55 +121,36 @@ const StudentDashboard = () => {
     }
   };
 
-  useEffect(() => {
-    fetchNotifications();
-  }, []);
-
-
-  const [placements,setPlacements]=useState([]);
-
-  const [internships,setInternships]=useState([]);
-
-  const fetchPlacements = async () => {
+  const recentplacements = async () => {
     setLoading(true);
     try {
-      const apiUrl = `${
-        import.meta.env.REACT_APP_BASE_URL
-      }/placements/insights`;
-      const response = await axios.get(apiUrl);
-      setStats(response.data);
+      const response = await axios.get(
+        `${import.meta.env.REACT_APP_BASE_URL}/placements/last-seven-days`,
+        { withCredentials: true }
+      );
+      setPlacements(response.data);
+    } catch (error) {}
+  };
+  
+  const recentinternship = async () => {
+    setLoading(true);
+    try {
+      const response = await axios.get(
+        `${import.meta.env.REACT_APP_BASE_URL}/internships/last-seven-days`,
+        { withCredentials: true }
+      );
+      setInternships(response.data);
     } catch (error) {
- 
-    } finally {
-      // Simulate minimum loading time for better UX
-      setTimeout(() => setLoading(false), 800);
+      console.error("Error fetching recent internships:", error);
     }
   };
-  const recentplacements=async()=>{
-    setLoading(true);
-    try {
-      const response=await axios.get(`${import.meta.env.REACT_APP_BASE_URL}/placements/last-seven-days`,{withCredentials:true});
-      setPlacements(response.data);
- 
-  }
-  catch(error){
- 
-  }
-}
-  const recentinternship=async()=>{
-    setLoading(true);
-    try {
-      const response=await axios.get(`${import.meta.env.REACT_APP_BASE_URL}/internships/last-seven-days`,{withCredentials:true});
-      setInternships(response.data);
- 
-  }
-  catch(error){
-  console.error("Error fetching recent internships:", error);
-  }
-}
 
   useEffect(() => {
-    fetchPlacements();
+    fetchStats();
+  }, []);
+
+  useEffect(() => {
+    fetchNotifications();
   }, []);
 
   useEffect(() => {
@@ -206,10 +200,7 @@ const StudentDashboard = () => {
       }
     }, [isLoading, startScroll, isHovered]);
 
-
-
-    const items =
-      notifications;
+    const items = notifications;
 
     return (
       <div className="bg-white rounded-lg shadow-lg overflow-hidden border border-gray-200 transition-all duration-300 hover:shadow-xl h-[320px] w-full max-w-3xl">
@@ -232,66 +223,77 @@ const StudentDashboard = () => {
               <CardSkeleton />
             ) : (
               <div className="space-y-2 px-1 py-1">
-  {notifications.length > 0 ? (
-    notifications.map((notification) => {
-      const notificationDate = new Date(notification.timestamp);
-      const today = new Date();
-      const isToday = 
-        notificationDate.getDate() === today.getDate() &&
-        notificationDate.getMonth() === today.getMonth() &&
-        notificationDate.getFullYear() === today.getFullYear();
-      
-       return ( <div
-        key={notification._id}
-        className="px-4 py-3 bg-white rounded-lg hover:bg-blue-50 transition-colors duration-200 border-l-3 border hover:border-custom-blue relative"
-      >
-        <div className="flex items-center">
-          <p className="text-sm text-gray-800 flex-grow">{notification.message}</p>
-          {isToday && (
-            <span className="ml-2 px-2 py-1 bg-green-100 text-green-800 text-xs font-medium rounded-full">
-              New
-            </span>
-          )}
-        </div>
-        <p className="text-xs text-gray-500 mt-1">
-          {new Date(notification.timestamp).toLocaleString('en-US', {
-            day: 'numeric',
-            month: 'short',
-            year: 'numeric',
-            hour: '2-digit',
-            minute: '2-digit',
-            hour12: true
-          })}
-        </p>
-      </div>
-    )})
-  ) : (
-    <div className="min-h-[250px] flex items-center justify-center">
-      <div className="p-6 bg-white rounded-lg text-center w-full max-w-md mx-auto">
-        {/* Icon */}
-        <div className="flex justify-center mb-3">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            className="h-12 w-12 text-custom-blue animate-bounce"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"
-            />
-          </svg>
-        </div>
-        {/* Message */}
-        <p className="text-sm text-gray-800 font-medium">No notifications available.</p>
-        <p className="text-xs text-gray-500 mt-1">You're all caught up!</p>
-      </div>
-    </div>
-  )}
-</div>
+                {notifications.length > 0 ? (
+                  notifications.map((notification) => {
+                    const notificationDate = new Date(notification.timestamp);
+                    const today = new Date();
+                    const isToday =
+                      notificationDate.getDate() === today.getDate() &&
+                      notificationDate.getMonth() === today.getMonth() &&
+                      notificationDate.getFullYear() === today.getFullYear();
+
+                    return (
+                      <div
+                        key={notification._id}
+                        className="px-4 py-3 bg-white rounded-lg hover:bg-blue-50 transition-colors duration-200 border-l-3 border hover:border-custom-blue relative"
+                      >
+                        <div className="flex items-center">
+                          <p className="text-sm text-gray-800 flex-grow">
+                            {notification.message}
+                          </p>
+                          {isToday && (
+                            <span className="ml-2 px-2 py-1 bg-green-100 text-green-800 text-xs font-medium rounded-full">
+                              New
+                            </span>
+                          )}
+                        </div>
+                        <p className="text-xs text-gray-500 mt-1">
+                          {new Date(notification.timestamp).toLocaleString(
+                            "en-US",
+                            {
+                              day: "numeric",
+                              month: "short",
+                              year: "numeric",
+                              hour: "2-digit",
+                              minute: "2-digit",
+                              hour12: true,
+                            }
+                          )}
+                        </p>
+                      </div>
+                    );
+                  })
+                ) : (
+                  <div className="min-h-[250px] flex items-center justify-center">
+                    <div className="p-6 bg-white rounded-lg text-center w-full max-w-md mx-auto">
+                      {/* Icon */}
+                      <div className="flex justify-center mb-3">
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          className="h-12 w-12 text-custom-blue animate-bounce"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          stroke="currentColor"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"
+                          />
+                        </svg>
+                      </div>
+                      {/* Message */}
+                      <p className="text-sm text-gray-800 font-medium">
+                        No notifications available.
+                      </p>
+                      <p className="text-xs text-gray-500 mt-1">
+                        You're all caught up!
+                      </p>
+                    </div>
+                  </div>
+                )}
+              </div>
             )}
           </div>
         </div>
@@ -337,18 +339,11 @@ const StudentDashboard = () => {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-6">
-          {/* Notifications Card */}
           <NotificationCard isLoading={loading} />
-
-          {/* Recent Placements Card */}
-
-         <RecentPlacements placements={placements} loading={loading} />
-
-         
-          {/* Recent Internships Card */}
-         <RecentInternship internships={internships} loading={loading}/>
+          <RecentPlacements placements={placements} loading={loading} />
+          <RecentInternship internships={internships} loading={loading} />
         </div>
-        <Notification/>
+        <Notification />
         <Graph />
       </div>
     </div>

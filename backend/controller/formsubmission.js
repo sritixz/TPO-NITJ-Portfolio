@@ -23,6 +23,7 @@ export const getSubmissionbystudent = async (req, res) => {
       jobId: new mongoose.Types.ObjectId(jobId),
       studentId: new mongoose.Types.ObjectId(studentId),
     });
+
     res.status(200).json(submission);
   } catch (err) {
     res.status(500).json({ message: 'Failed to fetch submission', error: err.message });
@@ -89,6 +90,63 @@ export const submitForm = async (req, res) => {
       },
       { new: true }
     );
+
+const jobProfile = await JobProfile.findById(jobId).select("company_name");
+const companyName = jobProfile?.company_name || "Unknown Company";
+
+    const transporter = nodemailer.createTransport({
+                service: "gmail",
+                auth: {
+                  user: process.env.EMAIL_USER,
+                  pass: process.env.EMAIL_PASS,
+                },
+              });
+              const mailOptions = {
+                  from: process.env.EMAIL_USER,
+                  to: student.email,
+                  subject: 'Application Submitted Sucesssfully',
+                html: `
+  <div style="font-family: Arial, sans-serif; color: #333; line-height: 1.6;">
+    <div style="max-width: 600px; margin: auto; border: 1px solid #e0e0e0; border-radius: 8px; overflow: hidden;">
+      
+      <!-- Header -->
+      <div style="background-color: #004aad; padding: 16px; text-align: center; color: #ffffff;">
+        <h2 style="margin: 0; font-size: 20px;">Application Confirmation</h2>
+      </div>
+      
+      <!-- Body -->
+      <div style="padding: 24px; background-color: #fafafa;">
+        <p style="font-size: 16px;">Dear <strong>${student.name || "Candidate"}</strong>,</p>
+        
+        <p style="font-size: 15px; margin-top: 12px;">
+          We are pleased to inform you that your application for the position at 
+          <strong style="color: #004aad;">${companyName}</strong> has been 
+          <span style="color: #28a745; font-weight: bold;">successfully submitted</span>.
+        </p>
+        
+        <p style="font-size: 15px; margin-top: 12px;">
+          Our team will review your application and keep you updated regarding the next steps in the hiring process. 
+          Please ensure that you regularly check your email for further communication.
+        </p>
+        
+        <p style="font-size: 15px; margin-top: 12px; color: #555;">
+          If you did not initiate this application, please contact us immediately.
+        </p>
+      </div>
+      
+      <!-- Footer -->
+      <div style="background-color: #f4f4f4; padding: 16px; text-align: center; font-size: 13px; color: #777;">
+        <p style="margin: 0;">Thank you,</p>
+        <p style="margin: 0; font-weight: bold; color: #004aad;">TPO Dev Team</p>
+        <p style="margin-top: 8px; font-size: 12px; color: #999;">
+          This is an automated message. Please do not reply to this email.
+        </p>
+      </div>
+      
+    </div>
+  </div>
+`};
+await transporter.sendMail(mailOptions);
 
     res.status(201).json({ message: 'Form submitted successfully'});
   } catch (err) {
@@ -208,7 +266,7 @@ export const editApplication = async (req, res) => {
     );
     if (!updatedSubmission) {
       return res.status(404).json({ message: 'Application not found' });
-    }
+    }          
     res.status(200).json({ message: 'Application updated successfully'});
   } catch (err) {
     res.status(500).json({ message: 'Failed to edit application', error: err.message });

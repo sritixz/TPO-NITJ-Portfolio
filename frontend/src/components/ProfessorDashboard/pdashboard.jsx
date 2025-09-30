@@ -22,6 +22,7 @@ import {
   faUserPlus,
   faUserCheck,
   faCheckCircle,
+  faTags,
 } from "@fortawesome/free-solid-svg-icons";
 
 import { Menu, X, LogOut} from "lucide-react";
@@ -39,7 +40,6 @@ import PNotifications from "./pnotifications";
 // import Mailbox from "./pmailbox";
 import ExperienceSharing from "./pexperiencesharing";
 import PPlacementReport from "./pplacementinsights";
-import PlacementPolicy from "./pplacementpolicy";
 import RequestHelpManager from "./Request";
 import Profile from "./pProfile.jsx";
 import Home from "./home";
@@ -55,7 +55,9 @@ import MockAssessmentProfessorDashboard from "./mockassessment.jsx"
 import { FaRegComment } from "react-icons/fa";
 import  NOCManagement from "./NOCManagement.jsx";
 import ExcelUploader from "./exceluploader.jsx";
+import OfferAdder from "./offeradder.jsx";
 import PlacementRegistrationExport from "./registration-form.jsx";
+import InsightDashboard from "./InsightDashboard.jsx";
 
 
 const Pdashboard = () => {
@@ -101,7 +103,8 @@ const Pdashboard = () => {
   };
 
   const menuItems = [
-    { label: "Dashboard", icon: faHome, path: "/pdashboard/home" },
+    // { label: "Dashboard", icon: faHome, path: "/pdashboard/home" },
+    { label: "Home", icon: faHome, path: "/pdashboard/home" },
     { label: "JAF",  icon: faFileWaveform, path: "/pdashboard/jaf" },
     { label: "Job Management", icon: faBriefcaseClock, path: "/pdashboard/job-profile-management" },
     {label:"Student",icon:faUser, path:"/pdashboard/student-analysis"},
@@ -109,13 +112,12 @@ const Pdashboard = () => {
     { label: "Placement Reports", icon: faChartBar, path: "/pdashboard/placement-insights" },
     { label: "Conversation Log", icon: faComment, path: "/pdashboard/conversation" },
     { label: "Add Recruiter", icon: faUserCheck, path: "/pdashboard/add-recruiter" },
-/* { label: "Mailbox", icon: faEnvelope, path: "/pdashboard/pmailbox" }, */
+    { label: "OfferAdder", icon: faTags, path: "/pdashboard/offer-adder" },
     { label: "Help Requests", icon: faQuestionCircle, path: "/pdashboard/help-requests" },
     { label: "Shared Experiences", icon: faShareAlt, path: "/pdashboard/experience-sharing" },
     { label: "User Requests", icon: faContactCard, path: "/pdashboard/contact-request" },
     { label: "CGPA Validator", icon: faCheckCircle, path: "/pdashboard/check-cgpa" },
     { label: "Placement Registration", icon: faFileAlt, path: "/pdashboard/placement-registration" },
-    // {label:"Mock Assessment",icon:faUser, path:"/pdashboard/mock-assessment"},
     // {label:"Companies",icon:faBuilding, path:"/pdashboard/company-analysis"},
  /*    { label: "Upload Doc", icon: faUpload, path: "/pdashboard/uploads" }, */
     
@@ -297,10 +299,12 @@ const Pdashboard = () => {
         <div className="container mx-auto p-4 min-h-[calc(100vh-theme(spacing.16)-theme(spacing.16))]">
           {/* Placeholder for route content */}
           <Routes>
-            <Route path="/" element={<Home />} />
-            <Route path="home" element={<Home />} />
+            <Route path="/" element={<InsightDashboard />} />
+            {/* <Route path="home" element={<Home />} /> */}
+            <Route path="home" element={<InsightDashboard />} />
             <Route path="jaf" element={<JAF/>} />
             <Route path="job-profile-management" element={<JobManagement />} />
+            <Route path="offer-adder" element={<OfferAdder />} />
             <Route path="notifications" element={<PNotifications />} />
             <Route path="help-requests" element={<RequestHelpManager />} />
             <Route path="student-analysis" element={<StudentAnalyticsDashboard />} />

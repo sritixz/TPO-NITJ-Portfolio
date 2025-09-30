@@ -14,13 +14,13 @@ const NOC = () => {
   const [showUploadPopup, setShowUploadPopup] = useState(false);
   const [selectedNocId, setSelectedNocId] = useState(null);
   const [uploadProgress, setUploadProgress] = useState(0);
-const [isUploading, setIsUploading] = useState(false);
-
+  const [isUploading, setIsUploading] = useState(false);
+console.log(userData);
   const [formData, setFormData] = useState({
     companyName: '',
     dateSubmitted: '',
     respondentEmail: userData?.email ||'',
-    salutation: userData?.gender === 'female' ? 'Ms.' : 'Mr.',
+    salutation: userData?.gender === "Female" ? 'Ms.' : 'Mr.',
     studentName: userData?.name || '',
     rollNo: userData?.rollno || '',
     course: userData?.course || '',
@@ -47,7 +47,7 @@ const [isUploading, setIsUploading] = useState(false);
       companyName: '',
       dateSubmitted: '',
       respondentEmail: userData?.email ||'',
-      salutation: userData?.gender === 'female' ? 'Ms.' : 'Mr.',
+      salutation: userData?.gender === "Female" ? 'Ms.' : 'Mr.',
       studentName: userData?.name || '',
       rollNo: userData?.rollno || '',
       course: userData?.course || '',
@@ -453,7 +453,7 @@ if (currentLineSegments.length > 0) {
     drawLine();
   
     drawText(
-      `It is to certify that ${noc.salutation} ${noc.studentName} , with Roll No. ${noc.rollNo}, is currently studying in ${noc.course}, ${noc.year} Year, ${noc.semester} Semester, in the Department of ${noc.department} at Dr. B.R. Ambedkar National Institute of Technology, Jalandhar. The Department of ${noc.department}, NIT Jalandhar has no objection if ${noc.studentName} is allowed to undergo an internship at your esteemed organization from ${new Date(noc.internshipFrom).toLocaleDateString()} to ${new Date(noc.internshipTo).toLocaleDateString()}, for a duration of ${noc.internshipDuration}.`,
+      `It is to certify that ${noc.salutation} ${noc.studentName} , with Roll No. ${noc.rollNo}, is currently studying in ${noc.course}, ${noc.year} Year, ${noc.semester} Semester, in the Department of ${noc.department} at Dr. B.R. Ambedkar National Institute of Technology, Jalandhar. The Department of ${noc.department}, NIT Jalandhar has no objection if ${noc.studentName} is allowed to undergo an internship at your esteemed organization from ${new Date(noc.internshipFrom).toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' })} to ${new Date(noc.internshipTo).toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' })}, for a duration of ${noc.internshipDuration}.`,
       {
         font: englishFont,
         align: 'justify',
@@ -727,6 +727,7 @@ if (currentLineSegments.length > 0) {
                   <option value="1st">1st</option>
                   <option value="2nd">2nd</option>
                   <option value="3rd">3rd</option>
+                  <option value="4th">4th</option>
                 </select>
               </div>
               <div>
@@ -741,14 +742,19 @@ if (currentLineSegments.length > 0) {
                   required
                 >
                   <option value="" disabled hidden>Select Semester</option>
+                  <option value="1st">1st</option>
                   <option value="2nd">2nd</option>
+                  <option value="3rd">3rd</option>
                   <option value="4th">4th</option>
+                  <option value="5th">5th</option>
                   <option value="6th">6th</option>
+                  <option value="7th">7th</option>
+                  <option value="8th">8th</option>
                 </select>
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-600">
-                  Date Submitted <span className='text-xs'>(When submitted to Department)</span> <span className="text-red-500">*</span>
+                  Date Submitted <span className='text-xs'>(When will you submit it to the department?)</span> <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="date"
@@ -814,6 +820,7 @@ if (currentLineSegments.length > 0) {
                   <option value="more than 30 days and less than 45 days">30-45 days</option>
                   <option value="more than 45 days less than 60 days">45-60 days</option>
                   <option value="more than 60 days">More than 60 days</option>
+                  <option value="6 months">6 months</option>
                 </select>
               </div>
               <div>

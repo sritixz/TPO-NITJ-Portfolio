@@ -333,14 +333,6 @@ const RecentPlacement = ({ placements = [], loading = false }) => {
                   <PlacementDetailsDownload placement={placement} />
                 </div>
               ))}
-              {/* {placements.map((placement, index) => (
-                <div
-                  key={`duplicate-${placement._id || index}`}
-                  className="group relative px-4 py-3"
-                >
-                  <PlacementDetailsDownload placement={placement} />
-                </div>
-              ))} */}
             </div>
           </div>
         )}

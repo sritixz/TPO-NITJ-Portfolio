@@ -340,6 +340,16 @@ const JobProfileSchema = new mongoose.Schema(
       type:Boolean,
       default:false
     },
+  attachments: [
+  {
+    name: { type: String },
+    url: { type: String }
+  }
+],
+data_Sent:{
+  type:Boolean,
+  default:false
+},
     auditLogs: [
       {
         editedBy: {

@@ -81,6 +81,7 @@ export const getStudentAnalytics = async (req, res) => {
         // Attempt to fetch ERP data, but continue even if it fails
         try {
             const response = await axios.post(`${process.env.ERP_SERVER}`, rollNumbers);
+            console.log("ERP Response:", response.data);
             const erpStudents = response.data.data || [];
             console.log("erpStudents:", erpStudents);
             erpStudents.forEach(erpStudent => {

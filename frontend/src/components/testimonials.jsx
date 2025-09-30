@@ -4,6 +4,14 @@ import { motion, AnimatePresence } from "framer-motion";
 
 const testimonials = [
   {
+  name: "Shivam Pandey",
+  course: "6 Month Intern + FTE at Oracle",
+  quote:
+    "My journey at NIT Jalandhar has been instrumental in building the foundation of my technical expertise and confidence. Securing a 6-month internship followed by a full-time role at Oracle has been a milestone, reflecting the constant support, guidance, and opportunities I received throughout my college life.",
+  rating: 5,
+  background: "bg-gradient-to-br from-blue-100 to-blue-200",
+},
+  {
     name: "Tanishka Pahuja",
     course: "Intern at Optum",
     quote:
