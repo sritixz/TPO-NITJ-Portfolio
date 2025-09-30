@@ -1,5 +1,7 @@
 import React from 'react';
-import {  FaGithub, FaEnvelope, FaPhone, FaGlobe, FaLinkedinIn, FaFileAlt,FaInstagram } from 'react-icons/fa';
+import {  FaGithub, FaEnvelope, FaPhone, FaGlobe, FaLinkedinIn, FaFileAlt, FaInstagram} from 'react-icons/fa';
+import { FaXTwitter } from "react-icons/fa6";
+
 
 const TeamMemberCard = ({ image, name, department,batch, linkedinUrl, githubUrl, email, mobile, website,resumeUrl,role,designation }) => (
     <div className="w-96 h-auto rounded-2xl shadow-lg bg-white p-6 flex flex-col items-center space-y-4 transform hover:scale-105 transition-all duration-300">
@@ -23,6 +25,16 @@ const TeamMemberCard = ({ image, name, department,batch, linkedinUrl, githubUrl,
                     className="p-3  rounded-full text-blue-700 hover:bg-blue-700 hover:text-white transition-all"
                 >
                     <FaLinkedinIn size={20} />
+                </a>
+            )}
+            {resumeUrl && (
+                <a 
+                    href={resumeUrl} 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="p-3  rounded-full text-gray-900 hover:bg-gray-900 hover:text-white transition-all"
+                >
+                    <FaXTwitter size={20} />
                 </a>
             )}
             {githubUrl && (

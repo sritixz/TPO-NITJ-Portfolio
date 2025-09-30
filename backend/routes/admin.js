@@ -28,6 +28,7 @@ import {
   addNewProfessor,
   getProfessorById,
 } from "../controller/admin.js";
+
 import {
   getAllDepartments,
   updateDepartmentProfile,
@@ -44,6 +45,34 @@ import{
 } from "../controller/Admin/Devteam.js";
 
 import { getLogs } from "../controller/Admin/Logs.js";
+
+import {
+  addLoginAttempt,
+  getLoginAttempts,
+  getLoginAttempt,
+  updateLoginAttempt,
+  deleteLoginAttempt,
+  deleteBulkLoginAttempts,
+} from "../controller/Admin/loginattempt.js";
+
+import {
+  addOfferTracker,
+  getOfferTrackers,
+  getOfferTracker,
+  updateOfferTracker,
+  deleteOfferTracker,
+  deleteBulkOfferTrackers,
+} from "../controller/Admin/offertracker.js";
+
+import {
+  addOffer,
+  getOffers,
+  getOffer,
+  updateOffer,
+  deleteOffer,
+  deleteBulkOffers,
+} from "../controller/Admin/offer.js";
+
 
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
@@ -100,6 +129,30 @@ router.post("/devteam",upload.single("imageFile"), addNewDeveloper);
 
 //logs routes
 router.get("/getlogs", getLogs);
+
+//login attempt
+router.post("/loginattempts/", addLoginAttempt);
+router.get("/loginattempts/", getLoginAttempts);
+router.get("/loginattempts/:id", getLoginAttempt);
+router.put("/loginattempts/:id", updateLoginAttempt);
+router.delete("/loginattempts/:id", deleteLoginAttempt);
+router.post("/loginattempts/bulk-delete", deleteBulkLoginAttempts);
+
+//offer tracker
+router.post("/offertracker/", addOfferTracker);
+router.get("/offertracker/", getOfferTrackers);
+router.get("/offertracker/:id", getOfferTracker);
+router.put("/offertracker/:id", updateOfferTracker);
+router.delete("/offertracker/:id", deleteOfferTracker);
+router.post("/offertracker/bulk-delete", deleteBulkOfferTrackers);
+
+//offer
+router.post("/offers/", addOffer);
+router.get("/offers/", getOffers);
+router.get("/offers/:id", getOffer);
+router.put("/offers/:id", updateOffer);
+router.delete("/offers/:id", deleteOffer);
+router.post("/offers/bulk-delete", deleteBulkOffers);
 
 
 export default router;

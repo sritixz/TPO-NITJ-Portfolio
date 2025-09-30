@@ -779,6 +779,7 @@ const StudentManager = () => {
                       )}
                     />
                   </th>
+                  <th className="border p-2">ID</th>
                   <th className="border p-2">Name</th>
                   <th className="border p-2">Roll No</th>
                   <th className="border p-2">Email</th>
@@ -807,6 +808,7 @@ const StudentManager = () => {
                         onChange={() => handleSelectStudent(student._id)}
                       />
                     </td>
+                    <td className="border p-2">{student._id}</td>
                     <td className="border p-2">{student.name}</td>
                     <td className="border p-2">{student.rollno}</td>
                     <td className="border p-2">{student.email}</td>

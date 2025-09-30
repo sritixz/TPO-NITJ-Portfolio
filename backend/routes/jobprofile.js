@@ -1,9 +1,29 @@
 import express from "express";
 const router=express.Router();
 
+import multer from "multer";
+import path from "path";
+import { existsSync, mkdirSync } from 'fs';
+
 import { restrictTo } from "../utils/restrict.js";
 
-import {addfinalshortlistStudent,finalshortlisteligible,toggleEditingAllowed,getEditingAllowedStatus,incompletedJobProfile,updateInterviewLink,updategdLink,updateOthersLink, updateoaLink , checkEligibility, getJobProfiletostudent,getJobProfiledetails, getJobsByRecruiter,createJobProfilecopy,updateJob,deleteJob,getJobProfilesForProfessors,approveJobProfile,rejectJobProfile,addshortlistStudents,eligibleinthis,viewshortlisting,getspecificJobProfilesForProfessors, completedJobProfile, getAllCompanies } from "../controller/jobprofile.js";
+import {addfinalshortlistStudent,finalshortlisteligible,toggleEditingAllowed,getEditingAllowedStatus,incompletedJobProfile,updateInterviewLink,updategdLink,updateOthersLink, updateoaLink , checkEligibility, getJobProfiletostudent,getJobProfiledetails, getJobsByRecruiter,createJobProfilecopy, uploadAttachment,deleteAttachment,updateJob,deleteJob,getJobProfilesForProfessors,approveJobProfile,rejectJobProfile,addshortlistStudents,eligibleinthis,viewshortlisting,getspecificJobProfilesForProfessors, completedJobProfile, getAllCompanies } from "../controller/jobprofile.js";
+
+
+const uploadDir = path.join(process.cwd(), 'uploads', 'job_attachments');
+if (!existsSync(uploadDir)) {
+  mkdirSync(uploadDir, { recursive: true });
+}
+
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, uploadDir); // Assuming uploads folder exists
+  },
+  filename: (req, file, cb) => {
+    cb(null, Date.now() + '-' + file.originalname);
+  }
+});
+const upload = multer({ storage });
 
 router.get("/", getAllCompanies);
 router.get("/eligibility/:_id/", restrictTo('Student'), checkEligibility);
@@ -11,6 +31,8 @@ router.get("/getjobs", restrictTo('Student'), getJobProfiletostudent);
 
 
 router.post("/createjobcopy", restrictTo('Professor','Recuiter'), createJobProfilecopy);
+router.post("/upload-attachment/:jobId", restrictTo('Professor','Recuiter'), upload.single('attachment') , uploadAttachment);
+router.delete("/delete-attachment/:jobId/:attachmentId", restrictTo('Professor','Recuiter'), deleteAttachment);
 router.put("/updatejob/:_id", restrictTo('Professor','Recuiter'), updateJob);
 router.delete("/deletejob/:_id", restrictTo('Professor','Recuiter'), deleteJob);
 router.get("/recruiter/getjobs/:company", restrictTo('Recuiter'), getJobsByRecruiter);

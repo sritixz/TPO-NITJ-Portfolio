@@ -599,7 +599,7 @@ const response = await method(url, formData, {
               }
             />
             <TextField
-              label="Resume URL"
+              label="X URL"
               fullWidth
               margin="normal"
               value={editProfile?.resumeUrl || ""}
@@ -608,7 +608,7 @@ const response = await method(url, formData, {
               }
             />
             <TextField
-              label="Website URL"
+              label="Instagram URL"
               fullWidth
               margin="normal"
               value={editProfile?.website || ""}

@@ -245,7 +245,7 @@ const phddepartmentOptions = [];
 const PPlacementReport = () => {
   const [reportData, setReportData] = useState([]);
   const [filterOptions, setFilterOptions] = useState({
-    batches: ["2022", "2023", "2024", "2025", "2026", "2027", "2028", "2029", "2030"],
+    batches: [ "2025", "2026", "2027", "2028", "2029", "2030"],
     degrees: ["B.Tech", "M.Tech", "MBA", "M.Sc", "PHD"],
     departments: []
   });
@@ -338,6 +338,26 @@ const PPlacementReport = () => {
       isDoublePlaced: rollNoMap[student.roll_no].count > 1
     }));
   };
+
+  const calculateStats = () => {
+    const uniqueStudents = new Set(reportData.map(item => item.roll_no)).size;
+    const doubleOffers = reportData.filter(item => item.isDoublePlaced).length/2;
+    const totalOffers = reportData.length;
+    const packages = reportData.map(item => parseFloat(item.package)).filter(p => !isNaN(p));
+    const avgPackage = packages.length > 0 ? (packages.reduce((sum, p) => sum + p, 0) / packages.length).toFixed(2) : 'N/A';
+    const highestPackage = packages.length > 0 ? Math.max(...packages).toFixed(2) : 'N/A';
+    const lowestPackage = packages.length > 0 ? Math.min(...packages).toFixed(2) : 'N/A';
+
+    return {
+      uniqueStudents,
+      doubleOffers,
+      totalOffers,
+      avgPackage,
+      highestPackage,
+      lowestPackage
+    };
+  };
+
 
   const handleFilterChange = (e) => {
     const { name, value } = e.target;
@@ -686,6 +706,38 @@ const exportToExcel = async () => {
           </div>
         </div>
 
+        {reportData.length > 0 && (
+          <div className="mb-8">
+            <h3 className="text-xl font-semibold text-custom-blue mb-4">Placement Statistics</h3>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              <div className="bg-blue-50 p-4 rounded-lg shadow-sm border border-blue-200">
+                <h4 className="text-gray-700 font-medium">Total Offers</h4>
+                <p className="text-2xl font-bold text-custom-blue">{calculateStats().totalOffers}</p>
+              </div>
+              <div className="bg-blue-50 p-4 rounded-lg shadow-sm border border-blue-200">
+                <h4 className="text-gray-700 font-medium">Double Offers</h4>
+                <p className="text-2xl font-bold text-custom-blue">{calculateStats().doubleOffers}</p>
+              </div>
+              <div className="bg-blue-50 p-4 rounded-lg shadow-sm border border-blue-200">
+                <h4 className="text-gray-700 font-medium">Student Placed</h4>
+                <p className="text-2xl font-bold text-custom-blue">{calculateStats().uniqueStudents}</p>
+              </div>
+              <div className="bg-blue-50 p-4 rounded-lg shadow-sm border border-blue-200">
+                <h4 className="text-gray-700 font-medium">Average Package (LPA)</h4>
+                <p className="text-2xl font-bold text-custom-blue">{calculateStats().avgPackage}</p>
+              </div>
+              <div className="bg-blue-50 p-4 rounded-lg shadow-sm border border-blue-200">
+                <h4 className="text-gray-700 font-medium">Highest Package (LPA)</h4>
+                <p className="text-2xl font-bold text-custom-blue">{calculateStats().highestPackage}</p>
+              </div>
+              <div className="bg-blue-50 p-4 rounded-lg shadow-sm border border-blue-200">
+                <h4 className="text-gray-700 font-medium">Lowest Package (LPA)</h4>
+                <p className="text-2xl font-bold text-custom-blue">{calculateStats().lowestPackage}</p>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Double-placed students */}
         {reportData.length > 0 && (
           <div className="flex items-center bg-gradient-to-r from-blue-50 to-blue-100 rounded-lg p-3 mb-4 shadow-sm">
@@ -773,7 +825,7 @@ const exportToExcel = async () => {
           <button
             onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
             disabled={currentPage === totalPages}
-            className="flex items-center justify-center min-w-[40px] px-3 py-2 bg-[#204080] text-white rounded-lg hover:bg-blue-700 transition-all disabled:bg-gray-400 transform hover:-translate-y-0.5 disabled:hover:transform-none"
+            className="flex items-center justify-center min-w-[40px] px-3 py-2 bg-custom-blue text-white rounded-lg hover:bg-blue-700 transition-all disabled:bg-gray-400 transform hover:-translate-y-0.5 disabled:hover:transform-none"
             aria-label="Next page"
           >
             <MdKeyboardArrowRight size={20} />

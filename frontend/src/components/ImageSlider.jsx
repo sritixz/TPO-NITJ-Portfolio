@@ -10,11 +10,22 @@ import {
 
 const companies = [
   {
+  name: "Oracle",
+  logo: "https://www.oracle.com/favicon.ico",
+  description:
+    "A global leader in cloud technology, database software, and enterprise solutions, empowering businesses worldwide with cutting-edge innovations.",
+  placementHistory: "...",
+  insights:
+    "Known for strong roles in software engineering, database management, and cloud solutions. Provides opportunities to work on scalable systems, enterprise-grade products, and next-gen technologies.",
+  rating: 4.8,
+  location: "Bangalore, Hyderabad",
+},
+  {
     name: "Google",
     logo: "https://www.google.com/favicon.ico",
     description:
       "Pioneering in AI and cloud computing with a focus on innovation.",
-    placementHistory: "500+ Placements in 2023, 150+ Internships.",
+    placementHistory: "",
     insights:
       "Highly selective in hiring, offers excellent growth and tech opportunities.",
     rating: 4.7,
@@ -52,17 +63,6 @@ const companies = [
       "Offers roles in travel tech, data analytics, and customer experience.",
     rating: 4.0,
     location: "Seattle, WA, USA",
-  },
-  {
-    name: "CVent",
-    logo: "https://www.cvent.com/favicon.ico",
-    description:
-      "Event management software company, specializing in event planning and management.",
-    placementHistory: "...",
-    insights:
-      "Focuses on event tech, offers roles in software development and event management.",
-    rating: 4.1,
-    location: "Tysons Corner, VA, USA",
   },
   {
     name: "Amazon",

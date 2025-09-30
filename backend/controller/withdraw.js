@@ -44,12 +44,51 @@ export const sendWithdrawOtp = async (req, res) => {
       from: process.env.EMAIL_USER,
       to: email,
       subject: "Withdraw Job Application Request",
-      html: `<div style="font-family: Arial, sans-serif; color: #333;">
-    <p>Dear User,</p>
-    <p><strong>Your OTP to withdraw your application is:</strong> <span style="font-size: 1.5em; color: #007bff;">${otp}</span></p>
-    <p>If you didn’t request this, you can safely ignore this email.</p>
-    <p>Best regards,<br/>TPO Dev Team</p>
-  </div>`,
+      html: `
+  <div style="font-family: Arial, sans-serif; color: #333; line-height: 1.6;">
+    <div style="max-width: 600px; margin: auto; border: 1px solid #e0e0e0; border-radius: 8px; overflow: hidden;">
+      
+      <!-- Header -->
+      <div style="background: linear-gradient(90deg, #0369A0, #04A6CF); padding: 16px; text-align: center; color: #ffffff;">
+        <h2 style="margin: 0; font-size: 20px;">Withdraw Application Verification</h2>
+      </div>
+      
+      <!-- Body -->
+      <div style="padding: 24px; background-color: #fafafa;">
+        <p style="font-size: 16px;">Dear <strong>User</strong>,</p>
+        
+        <p style="font-size: 15px; margin-top: 12px;">
+          You have requested to <strong>withdraw your job application</strong>. To confirm this action, please use the One-Time Password (OTP) below:
+        </p>
+
+        <!-- OTP Box -->
+        <div style="margin: 20px 0; text-align: center;">
+          <span style="display: inline-block; padding: 12px 24px; font-size: 22px; font-weight: bold; color: #ffffff; background-color: #0369A0; border-radius: 6px; letter-spacing: 2px;">
+            ${otp}
+          </span>
+        </div>
+        
+        <p style="font-size: 15px; margin-top: 12px; color: #555;">
+          This OTP is valid for <strong>5 minutes</strong>. Please do not share it with anyone for your security.
+        </p>
+        
+        <p style="font-size: 15px; margin-top: 12px; color: #555;">
+          If you did not make this request, you can safely ignore this email and your application will remain active.
+        </p>
+      </div>
+      
+      <!-- Footer -->
+      <div style="background-color: #f4f4f4; padding: 16px; text-align: center; font-size: 13px; color: #777;">
+        <p style="margin: 0;">Best regards,</p>
+        <p style="margin: 0; font-weight: bold; color: #0369A0;">TPO Dev Team</p>
+        <p style="margin-top: 8px; font-size: 12px; color: #999;">
+          This is an automated security message. Please do not reply to this email.
+        </p>
+      </div>
+      
+    </div>
+  </div>
+`,
     };
     const transporter = nodemailer.createTransport({
         service: "gmail",

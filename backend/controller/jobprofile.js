@@ -20,10 +20,8 @@ import SummerIntern from "../models/summer_internship.js";
 import Recruiter from "../models/user_model/recuiter.js";
 import GuestHouseBooking from "../models/travel_planner/room.js";
 import VehicleRequisition from "../models/travel_planner/vehicle.js";
-
-// const emailList=[
-//   { branch: "COMPUTER SCIENCE AND ENGINEERING", code: "cs"}
-// ]
+import fs from 'fs';
+import path from 'path';
 
 export const getAllCompanies = async (req, res) => {
   try {
@@ -59,30 +57,104 @@ const sendEmailToStudent = async (student, jobProfile) => {
 // Determine salary details based on job_type
   let salaryDetails = "";
   if (jobProfile.job_type === "Intern") {
-    salaryDetails = `<p><strong>Stipend:</strong> ${jobProfile.job_salary.stipend}</p>`;
+    salaryDetails = `<tr>
+            <td style="padding: 8px; font-weight: bold;">💸 Stipend:</td>
+            <td style="padding: 8px;">${jobProfile.job_salary.stipend}</td>
+          </tr>`;
   } else if (["Intern+PPO", "Intern+FTE"].includes(jobProfile.job_type)) {
     salaryDetails = `
-      <p><strong>Stipend:</strong> ${jobProfile.job_salary.stipend}</p>
-      <p><strong>CTC:</strong> ${jobProfile.job_salary.ctc} LPA</p>
+      <tr>
+            <td style="padding: 8px; font-weight: bold;">💸 Stipend:</td>
+            <td style="padding: 8px;">${jobProfile.job_salary.stipend}</td>
+          </tr>
+          <tr>
+            <td style="padding: 8px; font-weight: bold;">💰 CTC:</td>
+            <td style="padding: 8px;"> ${jobProfile.job_salary.ctc} LPA</td>
+          </tr>
     `;
   } else if (jobProfile.job_type === "FTE") {
-    salaryDetails = `<p><strong>CTC:</strong> ${jobProfile.job_salary.ctc} LPA</p>`;
+    salaryDetails = `<tr>
+            <td style="padding: 8px; font-weight: bold;">💰 CTC:</td>
+            <td style="padding: 8px;"> ${jobProfile.job_salary.ctc} LPA</td>
+          </tr>`;
   }
   const mailOptions = {
     from: process.env.EMAIL_USER,
+    // to: student.email,
+    // subject: `New Job Opportunity: ${jobProfile.job_role} at ${jobProfile.company_name}`,
+    // html: `
+    //   <h3>Dear Student,</h3>
+    //   <p>We are excited to inform you about a new job opportunity!</p>
+    //   <p><strong>Company:</strong> ${jobProfile.company_name}</p>
+    //   <p><strong>Job Role:</strong> ${jobProfile.job_role}</p>
+    //   <p><strong>Location:</strong> ${jobProfile.joblocation}</p>
+    //   ${salaryDetails}
+    //   <p><strong>Deadline to Apply:</strong> ${deadlineDateTime}</p>
+    //   <p>Please login to <a href="https://ctp.nitj.ac.in/sdashboard/job-application/${jobProfile._id}">TPO NITJ Portal</a> to apply and view more details.</p>
+    //   <p>Best regards,<br>TPO-NITJ</p>
+    // `,
     to: student.email,
     subject: `New Job Opportunity: ${jobProfile.job_role} at ${jobProfile.company_name}`,
-    html: `
-      <h3>Dear Student,</h3>
-      <p>We are excited to inform you about a new job opportunity!</p>
-      <p><strong>Company:</strong> ${jobProfile.company_name}</p>
-      <p><strong>Job Role:</strong> ${jobProfile.job_role}</p>
-      <p><strong>Location:</strong> ${jobProfile.joblocation}</p>
-      ${salaryDetails}
-      <p><strong>Deadline to Apply:</strong> ${deadlineDateTime}</p>
-      <p>Please login to <a href="https://ctp.nitj.ac.in/sdashboard/job-application/${jobProfile._id}">TPO NITJ Portal</a> to apply and view more details.</p>
-      <p>Best regards,<br>TPO-NITJ</p>
-    `,
+html: `
+  <div style="font-family: Arial, sans-serif; color: #333; line-height: 1.6;">
+    <div style="max-width: 650px; margin: auto; border: 1px solid #e0e0e0; border-radius: 10px; overflow: hidden; box-shadow: 0 4px 10px rgba(0,0,0,0.05);">
+      
+      <!-- Header -->
+      <div style="background: linear-gradient(90deg, #0369A0, #04A6CF); padding: 24px; text-align: center; color: #ffffff;">
+        <h2 style="margin: 0; font-size: 22px;">New Job Opportunity</h2>
+        <p style="margin: 4px 0 0; font-size: 16px;">${jobProfile.job_role} at ${jobProfile.company_name}</p>
+      </div>
+      
+      <!-- Body -->
+      <div style="padding: 24px; background-color: #fafafa;">
+        <p style="font-size: 16px;">Dear <strong>Student</strong>,</p>
+        
+        <p style="font-size: 15px; margin-top: 10px;">
+          We are excited to share a new job opening with you. Here are the details:
+        </p>
+
+        <table style="width: 100%; margin-top: 16px; border-collapse: collapse; font-size: 15px;">
+          <tr>
+            <td style="padding: 8px; font-weight: bold;">🏢 Company:</td>
+            <td style="padding: 8px;">${jobProfile.company_name}</td>
+          </tr>
+          <tr style="background-color: #f9f9f9;">
+            <td style="padding: 8px; font-weight: bold;">💼 Job Role:</td>
+            <td style="padding: 8px;">${jobProfile.job_role}</td>
+          </tr>
+          <tr>
+            <td style="padding: 8px; font-weight: bold;">📍 Location:</td>
+            <td style="padding: 8px;">${jobProfile.joblocation}</td>
+          </tr>
+          ${salaryDetails ? `${salaryDetails}` : ""}
+           <tr>
+            <td style="padding: 8px; font-weight: bold;">⏳ Deadline:</td>
+            <td style="padding: 8px; color: #d9534f; font-weight: bold;">${deadlineDateTime}</td>
+          </tr>
+        </table>
+
+        <!-- CTA Button -->
+        <div style="text-align: center; margin: 24px 0;">
+          <a href="https://ctp.nitj.ac.in/sdashboard/job-application/${jobProfile._id}" 
+            style="background: linear-gradient(90deg, #0369A0, #04A6CF); color: #ffffff; padding: 12px 24px; border-radius: 6px; text-decoration: none; font-size: 15px; font-weight: bold; display: inline-block; box-shadow: 0 2px 6px rgba(0,0,0,0.1);">
+            🔗 Apply Now on TPO NITJ Portal
+          </a>
+        </div>
+      </div>
+      
+      <!-- Footer -->
+      <div style="background-color: #f4f4f4; padding: 16px; text-align: center; font-size: 13px; color: #777;">
+        <p style="margin: 0;">Best regards,</p>
+        <p style="margin: 0; font-weight: bold; color: #0369A0;">TPO-NITJ</p>
+        <p style="margin-top: 8px; font-size: 12px; color: #999;">
+          This is an automated message. Please do not reply to this email.
+        </p>
+      </div>
+      
+    </div>
+  </div>
+`
+
   };
 
   try {
@@ -287,6 +359,85 @@ await Promise.all(
       message: "Failed to create job profile.",
       error: error.message,
     });
+  }
+};
+
+
+// Controller for uploading attachment
+export const uploadAttachment = async (req, res) => {
+  console.log("hello from upload attachment");
+  const { jobId } = req.params;
+  const file = req.file;
+
+  console.log(file);
+
+  if (!file) {
+    return res.status(400).json({ success: false, message: 'No file uploaded' });
+  }
+
+  const attachmentUrl = `/uploads/job_attachments/${file.filename}`;
+  const attachmentName = file.originalname;
+
+  try {
+    console.log(jobId);
+    const job = await JobProfile.findById(jobId);
+    if (!job) {
+      return res.status(404).json({ success: false, message: 'Job not found' });
+    }
+
+    console.log(job.attachments);
+
+    const newAttachment = { name: attachmentName, url: attachmentUrl };
+    job.attachments.push(newAttachment);
+    await job.save();
+
+    // Get the _id of the newly added attachment
+    const addedAttachment = job.attachments[job.attachments.length - 1];
+
+    res.json({ success: true, attachment: { _id: addedAttachment._id, name: attachmentName, url: attachmentUrl } });
+  } catch (error) {
+    console.error('Error uploading attachment:', error);
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+};
+
+// Controller for deleting attachment
+export const deleteAttachment = async (req, res) => {
+  const { jobId, attachmentId } = req.params;
+console.log(jobId,attachmentId);
+  try {
+    const job = await JobProfile.findById(jobId);
+    if (!job) {
+      return res.status(404).json({ success: false, message: 'Job not found' });
+    }
+
+    const attachmentIndex = job.attachments.findIndex(
+      (att) => att._id.toString() === attachmentId
+    );
+
+    if (attachmentIndex === -1) {
+      return res.status(404).json({ success: false, message: 'Attachment not found' });
+    }
+
+    const attachment = job.attachments[attachmentIndex];
+
+    console.log(attachment);
+
+      const filePath = path.join(process.cwd(), attachment.url);
+    fs.unlink(filePath, (err) => {
+      if (err) {
+        console.error('Error deleting file:', err);
+      }
+    });
+
+    // Remove from array
+    job.attachments.splice(attachmentIndex, 1);
+    await job.save();
+
+    res.json({ success: true, message: 'Attachment deleted successfully' });
+  } catch (error) {
+    console.error('Error deleting attachment:', error);
+    res.status(500).json({ success: false, message: 'Server error' });
   }
 };
 
@@ -810,454 +961,6 @@ export const rejectJobProfile = async (req, res) => {
   }
 };
 
-
-// export const checkEligibility = async (req, res) => {
-//   try {
-//     const studentId = req.user.userId;
-//     const { _id } = req.params;
-//     const student = await Student.findById({_id:studentId});
-//     const job = await JobProfile.findById(_id);
-//     if (!student || !job) {
-//       return res.status(404).json({ message: "Student or Job Application not found" });
-//     }
-
-//     let updatedStudent;
-//     try {
-//       const rollNumbers = [student.rollno];
-//       const course = student.course;
-//       const response = await axios.post(`${process.env.ERP_SERVER}`, rollNumbers);
-//       const erpStudents = response.data.data;
-//       const erpData = erpStudents[0];
-//       const erpBatch = erpData.batch;
-//       const courseDurations = {
-//         "B.Tech": 4,
-//         "M.Tech": 2,
-//         "B.Sc.-B.Ed.": 4,
-//         "MBA": 2,
-//         "M.Sc.": 2
-//         };
-//        const adjustment = courseDurations[course] || 0; // Default to 0 if course not found
-//        const adjustedBatch = String(Number(erpBatch) + adjustment);
-//       updatedStudent = {
-//         ...student.toObject(),
-//         cgpa: erpData.cgpa,
-//         batch: adjustedBatch,
-//         active_backlogs: erpData.active_backlogs === 'true',  // Convert string to boolean
-//         backlogs_history: erpData.backlogs_history === 'true' // Convert string to boolean
-//       };
-//     } catch (erpError) {
-//       console.error("ERP server error, falling back to database data:", erpError);
-//       updatedStudent = student.toObject();
-//     }
-
-//     const {
-//       department_allowed,
-//       course_allowed,
-//       gender_allowed,
-//       eligible_batch,
-//       minimum_cgpa,
-//       active_backlogs,
-//       history_backlogs,
-//     } = job.eligibility_criteria;
-
-//     if (!department_allowed.includes(updatedStudent.department)) {
-//       return res.json({ eligible: false, reason: "Department not eligible" });
-//     }
-
-//     if (gender_allowed !== "Any" && gender_allowed !== updatedStudent.gender) {
-//       return res.json({ eligible: false, reason: "Gender not eligible" });
-//     }
-
-//     if (course_allowed && course_allowed !== updatedStudent.course) {
-//       return res.json({ eligible: false, reason: "Course not eligible" });
-//     }
-//     if (eligible_batch && eligible_batch !== updatedStudent.batch) {
-//       return res.json({ eligible: false, reason: "Batch not eligible" });
-//     }
-
-//     if (minimum_cgpa && updatedStudent.cgpa < minimum_cgpa) {
-//       return res.json({ eligible: false, reason: "CGPA below required minimum" });
-//     }
-
-//     if (active_backlogs !== undefined) {
-//       if (active_backlogs === false && updatedStudent.active_backlogs !== false) {
-//         return res.json({ eligible: false, reason: "Active backlogs do not meet criteria" });
-//       }
-//     }
-    
-//     if (history_backlogs !== undefined) {
-//       if (history_backlogs === false && updatedStudent.backlogs_history !== false) {
-//         return res.json({ eligible: false, reason: "Backlogs History do not meet criteria" });
-//       }
-//     }
-//    const jobType = job.job_type;
-//     const isInternship = ['2m Intern', '6m Intern', '11m Intern', 'Intern+PPO', 'Intern+FTE'].includes(jobType);
-//     const isPlacement = jobType === 'FTE' || jobType === 'Intern+FTE';
-
-//     if(isInternship){
-//       if(student.internshipstatus!=="No Intern"){
-//         return res.json({ eligible: false, reason: "Already You have Internship" });
-//       }
-//     }
-
-//    if(isPlacement){
-//     const jobClassOrder = ["notplaced", "Below Dream", "Dream", "Super Dream"];
-//     const studentClassIndex = jobClassOrder.indexOf(updatedStudent.placementstatus);
-//   /*   const jobClassIndex = jobClassOrder.indexOf(job.job_class); */
-//   let jobClassIndex;
-//      if(job.ctc>=20){
-//        jobClassIndex = 3;
-//      }
-//      else if(job.ctc<4.5){
-//        jobClassIndex = 0;
-//      }
-//      else if((student.course=="B.Tech"|| student.course=="M.Tech") && (student.department=="COMPUTER SCIENCE AND ENGINEERING"||student.department=="INFORMATION TECHNOLOGY")){
-//        if(job.ctc>=10 && job.ctc<20){
-//          jobClassIndex = 2;
-//        }
-//        else{
-//          jobClassIndex = 1;
-//        }
-//      }
-//      else if((student.course=="B.Tech"|| student.course=="M.Tech") && (student.department=="ELECTRONICS AND COMMUNICATION ENGINEERING"|| student.department=="INSTRUMENTATION AND CONTROL ENGINEERING"||student.department=="ELECTRONICS AND VLSI ENGINEERING"||student.department=="ELECTRICAL ENGINEERING")){
-//       if(job.ctc>=8 && job.ctc<20){
-//         jobClassIndex = 2;
-//       }
-//       else{
-//         jobClassIndex = 1;
-//       }
-//      }
-//      else if(student.course=="B.Tech"|| student.course=="M.Tech"){
-//       if(job.ctc>=6 && job.ctc<20){
-//         jobClassIndex = 2;
-//       }
-//       else{
-//         jobClassIndex = 1;
-//       }
-//      }
-//      else if(student.course=="MBA"){
-//       if(job.ctc>=5 && job.ctc<20){
-//         jobClassIndex = 2;
-//       }
-//       else{
-//         jobClassIndex = 1;
-//       }
-//      }
-//      else if(student.course=="M.Sc."){
-//       if(job.ctc>=6 && job.ctc<20){
-//         jobClassIndex = 2;
-//       }
-//       else{
-//         jobClassIndex = 1;
-//       }
-//      }
-     
-//     if (
-//       studentClassIndex !== -1 &&
-//       updatedStudent.placementstatus !== "notplaced" &&
-//       jobClassIndex <= studentClassIndex
-//     ) {
-//       return res.json({
-//         eligible: false,
-//         reason: "Student can only apply for higher job categories than their current placement status",
-//       });
-//     }
-//    }
-//     const currentDate = new Date();
-//     const isDeadlineOver = job.deadline && currentDate > job.deadline;
-//     const hasApplied = job.Applied_Students.includes(studentId);
-//     return res.json({ eligible: true, reason: "Eligible to apply", applied: hasApplied,isDeadlineOver });
-//   } catch (error) {
-//     console.error(error);
-//     return res.status(500).json({ message: "Server error" });
-//   }
-// };
-
-
-// function checkEligible(offerHistory, targetOfferType, targetCategory,jobSector) {
-//   const eligibilityMatrix = {
-//     'Below Dream': {
-//       'Intern':{
-//         'Below Dream': [],
-//         "Dream": ['Intern+FTE', 'FTE'],
-//         "Super Dream": ['Intern+FTE', 'FTE']
-//       },
-//       'Intern+PPO': {
-//         'Below Dream': [],
-//         "Dream": ['Intern+FTE', 'FTE'],
-//         "Super Dream": ['Intern+FTE', 'FTE']
-//       },
-//       'FTE': {
-//         'Below Dream': [],
-//         "Dream": ['Intern+FTE', 'FTE'],
-//         "Super Dream": ["Intern+FTE", 'FTE']
-//       },
-//       'Intern+FTE': {
-//         'Below Dream': [],
-//         "Dream": ['Intern+FTE', 'FTE'],
-//         "Super Dream": ['Intern+FTE', 'FTE']
-//       }
-//     },
-//     "Dream": {
-//       'Intern+PPO': {
-//         'Below Dream': [],
-//         "Dream": ["FTE"],
-//         "Super Dream": ['Intern+FTE', 'FTE', 'Intern+PPO']
-//       },
-//       'FTE': {
-//         'Below Dream': [],
-//         "Dream": [],
-//         "Super Dream": ['Intern+FTE', 'FTE', 'Intern+PPO']
-//       },
-//       'Intern+FTE': {
-//         'Below Dream': [],
-//         "Dream": [],
-//         "Super Dream": ['Intern+FTE', 'FTE', 'Intern+PPO']
-//       }
-//     },
-//     "Super Dream": {
-//       'Intern+PPO': {
-//         'Below Dream': [],
-//         "Dream": ['FTE'],
-//         "Super Dream": ['FTE']
-//       },
-//       'FTE': {
-//         'Below Dream': [],
-//         "Dream": [],
-//         "Super Dream": []
-//       },
-//       'Intern+FTE': {
-//         'Below Dream': [],
-//         "Dream": [],
-//         "Super Dream": []
-//       }
-//     }
-//   };
-//       // Check if student has Intern+FTE or FTE offer in Super Dream category
-//   const hasSuperDreamOffer = offerHistory.some(
-//     offer => 
-//       (offer.offer_type === 'Intern+FTE' || offer.offer_type === 'FTE') &&
-//       offer.offer_category === 'Super Dream'
-//   );
-
-//   // If student has Super Dream Intern+FTE or FTE offer, they are ineligible
-//   if (hasSuperDreamOffer && jobSector === 'PSU' && targetCategory === 'Dream') {
-//     return "Not eligible";
-//   }
-
-//   // Bypass eligibility matrix check for PSU Dream jobs if no Super Dream Intern+FTE or FTE offer
-//   if (jobSector === 'PSU' && targetCategory === 'Dream') {
-//     return "Eligible";
-//   }
-//   console.log("no problem upto here",offerHistory);
-//   console.log(targetOfferType, targetCategory);
-//    // Iterate through all previous offers, and if any makes the student ineligible, return false
-//    for (const offer of offerHistory) {
-//     const { offer_type, offer_category } = offer;
-//     console.log(offer_type, offer_category);
-//     const eligibleOffers = (
-//       eligibilityMatrix?.[offer_category]?.[offer_type]?.[targetCategory] || []
-//     );
-//     if (!eligibleOffers.includes(targetOfferType)) {
-//       return "Not eligible";
-//     }
-//   }
-
-//   return "Eligible";
-// }
-
-
-// export const checkEligibility = async (req, res) => {
-//   try {
-//     const studentId = req.user.userId;
-//     const { _id } = req.params;
-//     const student = await Student.findById(studentId);
-//     const job = await JobProfile.findById(_id);
-//     if (!student || !job) {
-//       return res.status(404).json({ message: "Student or Job Application not found" });
-//     }
-
-//     let updatedStudent;
-//     try {
-//       const rollNumbers = [student.rollno];
-//       const course = student.course;
-//       const response = await axios.post(`${process.env.ERP_SERVER}`, rollNumbers);
-//       const erpStudents = response.data.data;
-//       const erpData = erpStudents[0];
-//       const erpBatch = erpData.batch;
-//       const courseDurations = {
-//         "B.Tech": 4,
-//         "M.Tech": 2,
-//         "B.Sc.-B.Ed.": 4,
-//         "MBA": 2,
-//         "M.Sc.": 2
-//       };
-//       const adjustment = courseDurations[course] || 0;
-//       const adjustedBatch = String(Number(erpBatch) + adjustment);
-//       updatedStudent = {
-//         ...student.toObject(),
-//         cgpa: erpData.cgpa,
-//         batch: adjustedBatch,
-//         active_backlogs: erpData.active_backlogs === 'true',
-//         backlogs_history: erpData.backlogs_history === 'true'
-//       };
-//     } catch (erpError) {
-//       console.error("ERP server error, falling back to database data:", erpError);
-//       updatedStudent = student.toObject();
-//     }
-//     const eligibilityCriteria = job.eligibility_criteria;
-//     let isEligible = false;
-//     let maxFailureDepth = -1; // Tracks the deepest failure across all criteria
-//     let deepestIneligibilityReason = "No matching eligibility criteria found";
-
-//     // Define the order of checks and their corresponding reasons
-//     const checkOrder = [
-//       { key: 'batch', reason: 'Batch not eligible' },
-//       { key: 'course', reason: 'Course not eligible' },
-//       { key: 'department', reason: 'Department not eligible' },
-//       { key: 'gender', reason: 'Gender not eligible' },
-//       { key: 'cgpa', reason: 'CGPA below required minimum' },
-//       { key: 'active_backlogs', reason: 'Active backlogs do not meet criteria' },
-//       { key: 'history_backlogs', reason: 'Backlogs history do not meet criteria' }
-//     ];
-
-//     for (const criteria of eligibilityCriteria) {
-//       const {
-//         department_allowed,
-//         course_allowed,
-//         gender_allowed,
-//         eligible_batch,
-//         minimum_cgpa,
-//         active_backlogs,
-//         history_backlogs
-//       } = criteria;
-
-//       let currentFailureDepth = -1;
-//       let currentIneligibilityReason = '';
-
-//       // Check eligibility in the defined order
-//       if (eligible_batch && eligible_batch !== updatedStudent.batch) {
-//         currentFailureDepth = 0; // Batch check failed
-//         currentIneligibilityReason = checkOrder[0].reason;
-//       } else if (course_allowed && course_allowed !== updatedStudent.course) {
-//         currentFailureDepth = 1; // Course check failed
-//         currentIneligibilityReason = checkOrder[1].reason;
-//       } else if (!department_allowed.includes(updatedStudent.department)) {
-//         currentFailureDepth = 2; // Department check failed
-//         currentIneligibilityReason = checkOrder[2].reason;
-//       } else if (gender_allowed !== "Any" && gender_allowed !== updatedStudent.gender) {
-//         currentFailureDepth = 3; // Gender check failed
-//         currentIneligibilityReason = checkOrder[3].reason;
-//       } else if (minimum_cgpa && updatedStudent.cgpa < minimum_cgpa) {
-//         currentFailureDepth = 4; // CGPA check failed
-//         currentIneligibilityReason = checkOrder[4].reason;
-//       } else if (active_backlogs !== undefined && active_backlogs === false && updatedStudent.active_backlogs !== false) {
-//         currentFailureDepth = 5; // Active backlogs check failed
-//         currentIneligibilityReason = checkOrder[5].reason;
-//       } else if (history_backlogs !== undefined && history_backlogs === false && updatedStudent.backlogs_history !== false) {
-//         currentFailureDepth = 6; // History backlogs check failed
-//         currentIneligibilityReason = checkOrder[6].reason;
-//       } else {
-//         isEligible = true;
-//         break;
-//       }
-//       if (currentFailureDepth > maxFailureDepth) {
-//         maxFailureDepth = currentFailureDepth;
-//         deepestIneligibilityReason = currentIneligibilityReason;
-//       }
-//     }
-
-//     if (!isEligible) {
-//       return res.json({ eligible: false, reason: deepestIneligibilityReason });
-//     }
-
-//     const studentOfferHistory=await OfferTracker.findOne({studentId});
-
-//     if(studentOfferHistory?.offer.length==2){
-//       return res.json({ eligible: false, reason: "You have already Two Offers" });
-//     }
-
-//     const hasPSUDreamOffer = studentOfferHistory?.offer?.some(o =>(o.offer_category === 'Dream' || o.offer_category === 'Super Dream') && o.offer_sector === 'PSU');
-//     if (hasPSUDreamOffer) {
-//       return res.json({ eligible: false, reason: "You have already PSU Dream Offer" });
-//     }
-    
-//     const jobType = job.job_type;
-//     const jobSector = job.job_sector;
-//     let jobCategory=null;
-
-//     if(jobType === "Intern" || (jobType === "Intern+PPO" && job.job_salary.ctc==0 ) ){
-//       if(studentOfferHistory?.offer.length>0){
-//         return res.json({ eligible: false, reason: "You have already some Offer" });
-//       }
-//     }
-//     else{
-//       const jobClassOrder = ["Not Considered", "Below Dream", "Dream", "Super Dream"];
-//       let jobClassIndex;
-//       if (job.job_salary.ctc >= 20) {
-//         jobClassIndex = 3;
-//       } 
-//       else if (job.job_salary.ctc < 4.5) {
-//         jobClassIndex = 0;
-//       } 
-//       else if ((student.course === "B.Tech" || student.course === "M.Tech") && (student.department === "COMPUTER SCIENCE AND ENGINEERING" || student.department === "INFORMATION TECHNOLOGY"|| student.department ==="COMPUTER SCIENCE AND ENGINEERING (INFORMATION SECURITY)" || student.department ==="DATA SCIENCE AND ENGINEERING" || student.department ==="ARTIFICIAL INTELLIGENCE"|| student.department==="DATA ANALYTICS")) {
-//         if (job.job_salary.ctc >= 10 && job.job_salary.ctc < 20) {
-//           jobClassIndex = 2;
-//         } else {
-//           jobClassIndex = 1;
-//         }
-//       }
-//       else if ((student.course === "B.Tech" || student.course === "M.Tech") && 
-//                  (student.department === "ELECTRONICS AND COMMUNICATION ENGINEERING" || 
-//                   student.department === "INSTRUMENTATION AND CONTROL ENGINEERING" || 
-//                   student.department === "ELECTRONICS AND VLSI ENGINEERING" || 
-//                   student.department === "ELECTRICAL ENGINEERING"||
-//                   student.department === "CONTROL AND INSTRUMENTATION ENGINEERING")) {
-//         if (job.job_salary.ctc >= 8 && job.job_salary.ctc < 20) {
-//           jobClassIndex = 2;
-//         } else {
-//           jobClassIndex = 1;
-//         }
-//       } else if (student.course === "B.Tech" || student.course === "M.Tech") {
-//         if (job.job_salary.ctc >= 6 && job.job_salary.ctc < 20) {
-//           jobClassIndex = 2;
-//         } else {
-//           jobClassIndex = 1;
-//         }
-//       } else if (student.course === "MBA") {
-//         if (job.job_salary.ctc >= 5 && job.job_salary.ctc < 20) {
-//           jobClassIndex = 2;
-//         } else {
-//           jobClassIndex = 1;
-//         }
-//       } else if (student.course === "M.Sc.") {
-//         if (job.job_salary.ctc >= 6 && job.job_salary.ctc < 20) {
-//           jobClassIndex = 2;
-//         } else {
-//           jobClassIndex = 1;
-//         }
-//       }
-//       jobCategory=jobClassOrder[jobClassIndex];
-//       const offerHistory = studentOfferHistory?.offer || [];
-//       const offerEligibility = checkEligible(offerHistory, jobType, jobCategory,jobSector);
-//       if (offerEligibility !== "Eligible") {
-//         return res.json({
-//           eligible: false,
-//           reason: "You are not eligible according to our Placement Policy",
-//         });
-//       }    
-//     }
-     
-//     const currentDate = new Date();
-//     const isDeadlineOver = job.deadline && currentDate > job.deadline;
-//     const hasApplied = job.Applied_Students.includes(studentId);
-//     return res.json({ eligible: true, reason: "Eligible to apply", applied: hasApplied, isDeadlineOver });
-//   } catch (error) {
-//     console.error(error);
-//     return res.status(500).json({ message: "Server error" });
-//   }
-// };
-
 export const checkEligibility = async (req, res) => {
   try {
     const studentId = req.user.userId;
@@ -1444,41 +1147,65 @@ if (typeof student.isInterested !== 'undefined' && student.isInterested === fals
 
     // for B.Tech students we have two offers policy
       else if(updatedStudent.course==='B.Tech'){
-        console.log("B.Tech student offer history", studentOfferHistory?.offer);
-        console.log("B.Tech student job category", jobCategory);
-        console.log("B.Tech student job type", jobType);
-        console.log("B.Tech student job ctc", jobctc);
+        // console.log("B.Tech student offer history", studentOfferHistory?.offer);
+        // console.log("B.Tech student job category", jobCategory);
+        // console.log("B.Tech student job type", jobType);
+        // console.log("B.Tech student job ctc", jobctc);
+
       if(studentOfferHistory?.offer.length==1){
       const currentCTC = +studentOfferHistory?.offer[0].offer_ctc || 0;
       const jobCTC = +jobctc || 0;
          //if the offer is intern or (intern+ppo with ctc, not mentioned or 0) then he can apply a job_category A, B, C
-        if(jobCategory==='D' && (studentOfferHistory?.offer[0].offer_type === 'Intern' || (studentOfferHistory?.offer[0].offer_type === 'Intern+PPO' && studentOfferHistory?.offer[0].offer_ctc <= 0))){
-            return res.json({ eligible: false, reason: "You have already D category Offer" });  
-        }
+        // if(jobCategory==='D' && (studentOfferHistory?.offer[0].offer_type === 'Intern' || (studentOfferHistory?.offer[0].offer_type === 'Intern+PPO' && studentOfferHistory?.offer[0].offer_ctc <= 0))){
+        //     return res.json({ eligible: false, reason: "You have already D category Offer" });  
+        // }
         //now if he will have a offer with category A then he will be not eligible for any offer
-       else if(studentOfferHistory?.offer[0].offer_category === 'A'){
-         if(studentOfferHistory?.offer[0].offer_type==='Intern+FTE' || studentOfferHistory?.offer[0].offer_type==='FTE'){
-          return res.json({ eligible: false, reason: "You have already A category Offer" });
+      if(studentOfferHistory?.offer[0].offer_type === 'Intern' || studentOfferHistory?.offer[0].offer_type === 'Intern+PPO'){
+        if((studentOfferHistory?.offer[0].offer_type === 'Intern+PPO' && studentOfferHistory?.offer[0].offer_ctc <= 0) || studentOfferHistory?.offer[0].offer_type === 'Intern'){
+            if(jobCategory === 'D' && (jobType==='Intern' || jobType==='Intern+PPO' || jobType==='Intern+FTE')){
+             return res.json({ eligible: false, reason: "You have already D category Offer" });
+            }
         }
-          if(studentOfferHistory?.offer[0].offer_type==='Intern+PPO' || studentOfferHistory?.offer[0].offer_type==='Intern'){
-            if(jobCategory === 'D' || jobCategory ==='A'){
-             return res.json({ eligible: false, reason: "You have already A category Offer" });
-             }
-            if((jobCategory === 'C' || jobCategory === 'B') && (jobType==='Intern'|| jobType==='Intern+PPO' || jobType==='Intern+FTE')){
-              return res.json({ eligible: false, reason: "You have already A category Offer" });
-             }
-          }
+        else if(studentOfferHistory?.offer[0].offer_type === 'Intern+PPO' && studentOfferHistory?.offer[0].offer_ctc > 0 ){
+            if(jobCategory === 'D' && studentOfferHistory?.offer[0].offer_category==='D' && (jobType==='Intern' || jobType==='Intern+PPO' || jobType==='Intern+FTE')){
+             return res.json({ eligible: false, reason: "You have already D category Inter+PPO Offer" });
+            }
+            if((jobCategory === 'D' || jobCategory ==='C') && studentOfferHistory?.offer[0].offer_category==='C' && (jobType==='Intern' || jobType==='Intern+PPO' || jobType==='Intern+FTE')){
+             return res.json({ eligible: false, reason: "You have already C category Inter+PPO Offer" });
+            }
+            if((jobCategory === 'D' || jobCategory === 'C' || jobCategory ==='B') && studentOfferHistory?.offer[0].offer_category==='B' && (jobType==='Intern' || jobType==='Intern+PPO' || jobType==='Intern+FTE')){
+             return res.json({ eligible: false, reason: "You have already B category Inter+PPO Offer" });
+            }
+            if((jobCategory === 'D' || jobCategory === 'C' || jobCategory ==='B' || jobCategory ==='A') && studentOfferHistory?.offer[0].offer_category==='A' && (jobType==='Intern' || jobType==='Intern+PPO' || jobType==='Intern+FTE')){
+             return res.json({ eligible: false, reason: "You have already A category Inter+PPO Offer" });
+            }
+        }
+      }
+
+    else if(studentOfferHistory?.offer[0].offer_type === 'Intern+FTE' || studentOfferHistory?.offer[0].offer_type === 'FTE'){
+       if(studentOfferHistory?.offer[0].offer_category === 'A'){
+        //  if(studentOfferHistory?.offer[0].offer_type==='Intern+FTE' || studentOfferHistory?.offer[0].offer_type==='FTE'){
+        //   return res.json({ eligible: false, reason: "You have already A category Offer" });
+        //  }
+        //  if(studentOfferHistory?.offer[0].offer_type==='Intern+PPO' || studentOfferHistory?.offer[0].offer_type==='Intern'){
+        //     if(jobCategory === 'D' || jobCategory ==='A'){
+        //      return res.json({ eligible: false, reason: "You have already A category Offer" });
+        //      }
+        //     if((jobCategory === 'C' || jobCategory === 'B') && (jobType==='Intern'|| jobType==='Intern+PPO' || jobType==='Intern+FTE')){
+        //       return res.json({ eligible: false, reason: "You have already A category Offer" });
+        //      }
+          return res.json({ eligible: false, reason: "You have already A category Offer" });
         }
        else if(studentOfferHistory?.offer[0].offer_category === 'B' && (jobCategory==='D'|| jobCategory==='C' || jobCategory==='B' || (jobCategory==='A' && jobCTC<(currentCTC+5))) ){
           return res.json({ eligible: false, reason: "You have already B category Offer or job ctc has less diff. than expected w.r.t current offer ctc" });
         }
-       else if(studentOfferHistory?.offer[0].offer_category === 'C' && (jobCategory==='D' || jobCategory==='C'|| (jobCategory==='A' && jobCTC<(currentCTC+3))) ){
+       else if(studentOfferHistory?.offer[0].offer_category === 'C' && (jobCategory==='D' || jobCategory==='C'|| (jobCategory==='B' && jobCTC<(currentCTC+3)) || (jobCategory==='A' && jobCTC<(currentCTC+3))) ){
           return res.json({ eligible: false, reason: "You have already C category Offer or job ctc has less diff. than expected w.r.t current offer ctc" });
         }
-      else if(studentOfferHistory.offer[0].offer_category === 'D' && (jobCategory==='D' || (jobCategory==='C' && jobCTC<(currentCTC+2 )))){
+      else if(studentOfferHistory.offer[0].offer_category === 'D' && (jobCategory==='D' || (jobCategory==='C' && jobCTC<(currentCTC+2 )) || (jobCategory==='A' && jobCTC<(currentCTC+2)))){
           return res.json({ eligible: false, reason: "You have already D category Offer or job ctc has less diff. than expected w.r.t current offer ctc" });
         }
-      }
+      }}
     }}
     const currentDate = new Date();
     const isDeadlineOver = job.deadline && currentDate > job.deadline;

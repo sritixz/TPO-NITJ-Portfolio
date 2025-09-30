@@ -13,10 +13,6 @@ import ResetPasswordToken from "../models/resetpassword.js";
 import { v4 as uuidv4 } from "uuid";
 import axios from 'axios';
 
-// const generateOTP = () => {
-//     return Math.floor(100000 + Math.random() * 900000).toString();
-//   };
-
 const generateOTP = (length = 6) => {
   const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
   let otp = '';
@@ -55,12 +51,51 @@ const generateOTP = (length = 6) => {
       from: process.env.EMAIL_USER,
       to: email,
       subject: "Password Reset Request",
-      html: `<div style="font-family: Arial, sans-serif; color: #333;">
-    <p>Dear User,</p>
-    <p><strong>Your OTP to reset your password is:</strong> <span style="font-size: 1.5em; color: #007bff;">${otp}</span></p>
-    <p>If you didn’t request this, you can safely ignore this email.</p>
-    <p>Best regards,<br/>TPO Dev Team</p>
-  </div>`,
+     html: `
+  <div style="font-family: Arial, sans-serif; color: #333; line-height: 1.6;">
+    <div style="max-width: 600px; margin: auto; border: 1px solid #e0e0e0; border-radius: 8px; overflow: hidden;">
+      
+      <!-- Header -->
+      <div style="background-color: #0369A0; padding: 16px; text-align: center; color: #ffffff;">
+        <h2 style="margin: 0; font-size: 20px;">Password Reset Verification</h2>
+      </div>
+      
+      <!-- Body -->
+      <div style="padding: 24px; background-color: #fafafa;">
+        <p style="font-size: 16px;">Dear <strong>User</strong>,</p>
+        
+        <p style="font-size: 15px; margin-top: 12px;">
+          We received a request to reset your password. Please use the One-Time Password (OTP) below to proceed:
+        </p>
+
+        <!-- OTP Box -->
+        <div style="margin: 20px 0; text-align: center;">
+          <span style="display: inline-block; padding: 12px 24px; font-size: 22px; font-weight: bold; color: #ffffff; background-color: #0369A0; border-radius: 6px; letter-spacing: 2px;">
+            ${otp}
+          </span>
+        </div>
+        
+        <p style="font-size: 15px; margin-top: 12px; color: #555;">
+          This OTP is valid for <strong>5 minutes</strong>. Please do not share it with anyone for security reasons.
+        </p>
+        
+        <p style="font-size: 15px; margin-top: 12px; color: #555;">
+          If you did not request a password reset, you can safely ignore this email.
+        </p>
+      </div>
+      
+      <!-- Footer -->
+      <div style="background-color: #f4f4f4; padding: 16px; text-align: center; font-size: 13px; color: #777;">
+        <p style="margin: 0;">Best regards,</p>
+        <p style="margin: 0; font-weight: bold; color: #0369A0;">TPO Dev Team</p>
+        <p style="margin-top: 8px; font-size: 12px; color: #999;">
+          This is an automated message. Please do not reply to this email.
+        </p>
+      </div>
+      
+    </div>
+  </div>
+`,
     };
     const transporter = nodemailer.createTransport({
         service: "gmail",
@@ -158,11 +193,48 @@ export const LockedResendOTP = async (req, res) => {
           const mailOptions = {
               from: process.env.EMAIL_USER,
               to: email,
-              subject: 'Security OTP for Account Unlock',
-              html: `<p>Dear User,</p>
-  <p><strong>Your new OTP to unlock your account is:</strong> <span style="font-size: 1.2em;">${newOTP}</span></p>
-  <p>Please do not share this code with anyone.</p>
-  <p>Thank you,<br/>TPO Dev Team</p>`,
+            subject: 'Security OTP for Account Unlock',
+html: `
+  <div style="font-family: Arial, sans-serif; color: #333; line-height: 1.6;">
+    <div style="max-width: 600px; margin: auto; border: 1px solid #e0e0e0; border-radius: 8px; overflow: hidden;">
+      
+      <!-- Header -->
+      <div style="background-color: #0369A0; padding: 16px; text-align: center; color: #ffffff;">
+        <h2 style="margin: 0; font-size: 20px;">Account Unlock Verification</h2>
+      </div>
+      
+      <!-- Body -->
+      <div style="padding: 24px; background-color: #fafafa;">
+        <p style="font-size: 16px;">Dear <strong>User</strong>,</p>
+        
+        <p style="font-size: 15px; margin-top: 12px;">
+          To unlock your account, please use the One-Time Password (OTP) provided below:
+        </p>
+
+        <!-- OTP Box -->
+        <div style="margin: 20px 0; text-align: center;">
+          <span style="display: inline-block; padding: 12px 24px; font-size: 22px; font-weight: bold; color: #ffffff; background-color: #0369A0; border-radius: 6px; letter-spacing: 2px;">
+            ${newOTP}
+          </span>
+        </div>
+        
+        <p style="font-size: 15px; margin-top: 12px; color: #555;">
+          This OTP is valid for <strong>5 minutes</strong>. For your security, please do not share it with anyone.
+        </p>
+      </div>
+      
+      <!-- Footer -->
+      <div style="background-color: #f4f4f4; padding: 16px; text-align: center; font-size: 13px; color: #777;">
+        <p style="margin: 0;">Thank you,</p>
+        <p style="margin: 0; font-weight: bold; color: #0369A0;">TPO Dev Team</p>
+        <p style="margin-top: 8px; font-size: 12px; color: #999;">
+          This is an automated security message. Please do not reply to this email.
+        </p>
+      </div>
+      
+    </div>
+  </div>
+`
           };
           await transporter.sendMail(mailOptions);
 
@@ -288,11 +360,51 @@ export const LockedResendOTP = async (req, res) => {
                     const mailOptions = {
                       from: process.env.EMAIL_USER,
                       to: email,
-                      subject: 'Security OTP for Account Unlock',
-                      html: `<p>Dear User,</p>
-  <p><strong>Your OTP to unlock your account is:</strong> <span style="font-size: 1.2em;">${otp}</span></p>
-  <p>Please do not share this code with anyone.</p>
-  <p>Thank you,<br/>TPO Dev Team</p>`,
+                    subject: 'Security OTP for Account Unlock',
+html: `
+  <div style="font-family: Arial, sans-serif; color: #333; line-height: 1.6;">
+    <div style="max-width: 600px; margin: auto; border: 1px solid #e0e0e0; border-radius: 8px; overflow: hidden;">
+      
+      <!-- Header -->
+      <div style="background-color: #0369A0; padding: 16px; text-align: center; color: #ffffff;">
+        <h2 style="margin: 0; font-size: 20px;">Account Security Notice</h2>
+      </div>
+      
+      <!-- Body -->
+      <div style="padding: 24px; background-color: #fafafa;">
+        <p style="font-size: 16px;">Dear <strong>User</strong>,</p>
+        
+        <p style="font-size: 15px; margin-top: 12px;">
+          For your protection, we have <strong>temporarily locked your account for 24 hours</strong> due to multiple unauthorized access attempts.
+        </p>
+
+        <p style="font-size: 15px; margin-top: 12px;">
+          To unlock your account, please use the One-Time Password (OTP) below:
+        </p>
+
+        <!-- OTP Box -->
+        <div style="margin: 20px 0; text-align: center;">
+          <span style="display: inline-block; padding: 12px 24px; font-size: 22px; font-weight: bold; color: #ffffff; background-color: #0369A0; border-radius: 6px; letter-spacing: 2px;">
+            ${otp}
+          </span>
+        </div>
+        
+        <p style="font-size: 15px; margin-top: 12px; color: #555;">
+          This OTP is valid for <strong>5 minutes</strong>. Please do not share it with anyone for security reasons.
+        </p>
+      </div>
+      
+      <!-- Footer -->
+      <div style="background-color: #f4f4f4; padding: 16px; text-align: center; font-size: 13px; color: #777;">
+        <p style="margin: 0;">Thank you,</p>
+        <p style="margin: 0; font-weight: bold; color: #0369A0;">TPO Dev Team</p>
+        <p style="margin-top: 8px; font-size: 12px; color: #999;">
+          This is an automated message. Please do not reply to this email.
+        </p>
+      </div>
+      
+    </div>
+  </div>`
                   };
                   await transporter.sendMail(mailOptions);
               }
@@ -332,15 +444,48 @@ export const LockedResendOTP = async (req, res) => {
                    const mailOptions = {
                       from: process.env.EMAIL_USER,
                       to: email,
-                      subject: 'Alert: Suspicious Login Attempts Detected',
-                       html: `
-  <div style="font-family: Arial, sans-serif; color: #333;">
-    <h2 style="color: #d9534f;">🔒 Alert: Suspicious Login Attempts Detected</h2>
-    <p>We noticed <strong>3 unsuccessful login attempts</strong> on your account.</p>
-    <p><strong>IP Address:</strong> ${ip}</p>
-    <p>If this wasn't you, we strongly recommend you <strong>change your password</strong> immediately.</p>
-    <p>Stay safe,<br/>TPO Dev Team</p>
-  </div>`,
+              subject: 'Security Alert: Suspicious Login Attempts Detected',
+html: `
+  <div style="font-family: Arial, sans-serif; color: #333; line-height: 1.6;">
+    <div style="max-width: 600px; margin: auto; border: 1px solid #e0e0e0; border-radius: 8px; overflow: hidden;">
+      
+      <!-- Header -->
+      <div style="background-color: #ca0700ff; padding: 16px; text-align: center; color: #ffffff;">
+        <h2 style="margin: 0; font-size: 20px;">Suspicious Login Attempts Detected</h2>
+      </div>
+      
+      <!-- Body -->
+      <div style="padding: 24px; background-color: #fafafa;">
+        <p style="font-size: 16px;">Dear <strong>User</strong>,</p>
+        
+        <p style="font-size: 15px; margin-top: 12px;">
+          We noticed <strong>3 unsuccessful login attempts</strong> on your account.
+        </p>
+        
+        <p style="font-size: 15px; margin-top: 12px;">
+          If this was not you, we strongly recommend that you 
+          <a href="https://ctp.nitj.ac.in/sdashboard/change-pass" style="color: #ca0700ff; font-weight: bold; text-decoration: none;">
+            change your password immediately
+          </a> 
+          and review your recent account activity.
+        </p>
+        
+        <p style="font-size: 15px; margin-top: 12px; color: #555;">
+          To ensure your account remains secure, avoid sharing your credentials with anyone.
+        </p>
+      </div>
+      
+      <!-- Footer -->
+      <div style="background-color: #f4f4f4; padding: 16px; text-align: center; font-size: 13px; color: #777;">
+        <p style="margin: 0;">Stay safe,</p>
+        <p style="margin: 0; font-weight: bold; color: #ca0700ff;">TPO Dev Team</p>
+        <p style="margin-top: 8px; font-size: 12px; color: #999;">
+          This is an automated security alert. Please do not reply to this email.
+        </p>
+      </div>
+      
+    </div>
+  </div>`
                   };
                   await transporter.sendMail(mailOptions);
               }
@@ -355,12 +500,51 @@ export const LockedResendOTP = async (req, res) => {
                   const mailOptions = {
                       from: process.env.EMAIL_USER,
                       to: email,
-                      subject: 'Security OTP for Account Unlock',
-                      html: `<p>Dear User,</p>
-  <p>For security reasons, we have temporarily locked your account for 24 hours due to multiple unauthorized access attempts.</p>
-  <p><strong>Your OTP to unlock your account is:</strong> <span style="font-size: 1.2em;">${otp}</span></p>
-  <p>Please do not share this code with anyone.</p>
-  <p>Thank you,<br/>TPO Dev Team</p>`,
+                     subject: 'Security OTP for Account Unlock',
+html: `
+  <div style="font-family: Arial, sans-serif; color: #333; line-height: 1.6;">
+    <div style="max-width: 600px; margin: auto; border: 1px solid #e0e0e0; border-radius: 8px; overflow: hidden;">
+      
+      <!-- Header -->
+      <div style="background-color: #0369A0; padding: 16px; text-align: center; color: #ffffff;">
+        <h2 style="margin: 0; font-size: 20px;">Account Security Notice</h2>
+      </div>
+      
+      <!-- Body -->
+      <div style="padding: 24px; background-color: #fafafa;">
+        <p style="font-size: 16px;">Dear <strong>User</strong>,</p>
+        
+        <p style="font-size: 15px; margin-top: 12px;">
+          For your protection, we have <strong>temporarily locked your account for 24 hours</strong> due to multiple unauthorized access attempts.
+        </p>
+
+        <p style="font-size: 15px; margin-top: 12px;">
+          To unlock your account, please use the One-Time Password (OTP) below:
+        </p>
+
+        <!-- OTP Box -->
+        <div style="margin: 20px 0; text-align: center;">
+          <span style="display: inline-block; padding: 12px 24px; font-size: 22px; font-weight: bold; color: #ffffff; background-color: #0369A0; border-radius: 6px; letter-spacing: 2px;">
+            ${otp}
+          </span>
+        </div>
+        
+        <p style="font-size: 15px; margin-top: 12px; color: #555;">
+          This OTP is valid for <strong>5 minutes</strong>. Please do not share it with anyone for security reasons.
+        </p>
+      </div>
+      
+      <!-- Footer -->
+      <div style="background-color: #f4f4f4; padding: 16px; text-align: center; font-size: 13px; color: #777;">
+        <p style="margin: 0;">Thank you,</p>
+        <p style="margin: 0; font-weight: bold; color: #0369A0;">TPO Dev Team</p>
+        <p style="margin-top: 8px; font-size: 12px; color: #999;">
+          This is an automated message. Please do not reply to this email.
+        </p>
+      </div>
+      
+    </div>
+  </div>`
                   };
                   await transporter.sendMail(mailOptions);
               }

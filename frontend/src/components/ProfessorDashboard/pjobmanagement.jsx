@@ -749,12 +749,23 @@ const JobProfilesonp = () => {
             <div className="flex-1"></div>
             <h1 className="text-4xl font-bold text-center mb-8 sm:mb-0 text-custom-blue">Job Profiles Dashboard</h1>
             <div className="flex-1 flex justify-end">
-              <button
-                className="bg-custom-blue text-white p-3 rounded-full hover:bg-blue-600 transition-colors"
-                onClick={() => setShowCreateJob(true)}
-              >
-                <span>Create Job Profile</span>
-              </button>
+            <button
+  className="bg-gradient-to-r from-blue-600 to-blue-900 text-white px-6 py-3 rounded-full shadow-lg hover:from-blue-600 hover:to-blue-800 hover:scale-105 transition-all duration-300 ease-in-out flex items-center gap-2"
+  onClick={() => setShowCreateJob(true)}
+>
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    fill="none"
+    viewBox="0 0 24 24"
+    strokeWidth={2}
+    stroke="currentColor"
+    className="w-5 h-5"
+  >
+    <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
+  </svg>
+  <span className="font-semibold">Create Job Profile</span>
+</button>
+
             </div>
           </div>
           <div className="mb-6 bg-gray-50 p-4 rounded-lg shadow-sm">

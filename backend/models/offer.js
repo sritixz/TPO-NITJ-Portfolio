@@ -38,7 +38,6 @@ const OfferSchema = new mongoose.Schema(
         },
         gender:{
           type:String,
-          enum:['Male','Female','Other']
         },
         department: {
           type: String,
@@ -67,6 +66,10 @@ const OfferSchema = new mongoose.Schema(
       type: Boolean,
       default: true,
     },
+    added:{
+      type:String,
+      default:'Automatically'
+    }
   },
   { timestamps: true }
 );
