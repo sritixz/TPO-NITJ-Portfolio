@@ -46,6 +46,60 @@ export const createPlacementRegistration = async (req, res) => {
   }
 };
 
+
+export const editPlacementRegistration = async (req, res) => {
+  try {
+    // Check if placement registration is open
+    const deadline = await PlacementRegistrationDeadline.findOne().sort({ createdAt: -1 });
+    if (!deadline || !deadline.allowed) {
+      return res.status(403).json({
+        success: false,
+        message: 'Placement registration is currently closed',
+      });
+    }
+
+    const studentId = req.user.userId;
+    // Find existing registration
+    const existingRegistration = await PlacementRegistration.findOne({ studentId });
+    if (!existingRegistration) {
+      return res.status(404).json({
+        success: false,
+        message: 'No existing placement registration found',
+      });
+    }
+
+    // Update student interest
+    const { interested } = req.body;
+    await Student.findByIdAndUpdate(studentId, {
+      isInterested: interested,
+    });
+
+    // Update placement registration data
+    const updatedData = {
+      ...req.body,
+      studentId,
+    };
+
+    const updatedPlacement = await PlacementRegistration.findOneAndUpdate(
+      { studentId },
+      { $set: updatedData },
+      { new: true, runValidators: true }
+    );
+
+    res.status(200).json({
+      success: true,
+      message: 'Placement registration updated successfully',
+      data: updatedPlacement,
+    });
+  } catch (error) {
+    res.status(400).json({
+      success: false,
+      message: 'Error updating placement registration',
+      error: error.message,
+    });
+  }
+};
+
 export const checkStudentPlacementRegistration = async (req, res) => {
   try {
     const studentId = req.user.userId;
@@ -54,6 +108,7 @@ export const checkStudentPlacementRegistration = async (req, res) => {
 
     if (existing) {
       return res.status(200).json({
+        data: existing,
         success: true,
         registered: true,
         message: 'Student has already registered for placement',

@@ -395,13 +395,13 @@ const Navbar = () => {
                 />
               </Link>
               <Link
-                to="/placements"
+                to="#"
                 className="hover:text-blue-200 text-base lg:text-lg"
               >
                 PLACEMENTS
               </Link>
               <Link
-                to="/internships"
+                to="#"
                 className="hover:text-blue-200 text-base lg:text-lg"
               >
                 INTERNSHIPS
@@ -444,12 +444,18 @@ const Navbar = () => {
               >
                 PEOPLE
               </Link>
-              <button
+               <Link
+                to="/departmental-documents"
+                className="hover:text-blue-200 text-base lg:text-lg"
+              >
+               DOCUMENTS
+              </Link>
+              {/* <button
                 onClick={handleWhyRecruit}
                 className="hover:text-blue-200 text-base lg:text-lg"
               >
                 WHY RECRUIT
-              </button>
+              </button> */}
             </div>
 
             {/* Mobile Menu */}
@@ -463,14 +469,14 @@ const Navbar = () => {
                     />
                   </Link>
                   <Link
-                    to="/placements"
+                    to="#"
                     className="hover:text-blue-200 text-base lg:text-lg"
                     onClick={() => setIsMobileMenuOpen(false)}
                   >
                     PLACEMENTS
                   </Link>
                   <Link
-                    to="/internships"
+                    to="#"
                     className="hover:text-blue-200 text-base lg:text-lg"
                     onClick={() => setIsMobileMenuOpen(false)}
                   >
@@ -497,12 +503,20 @@ const Navbar = () => {
                   >
                     PEOPLE
                   </Link>
-                  <button
+                  <Link
+                    to="/departmental-documents"
+                    className="hover:text-blue-200 text-base lg:text-lg"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                  >
+                    DOCUMENTS
+                  </Link>
+
+                  {/* <button
                     onClick={handleWhyRecruit}
                     className="hover:text-blue-200 text-base lg:text-lg"
                   >
                     WHY RECRUIT
-                  </button>
+                  </button> */}
                 </div>
               </div>
             )}

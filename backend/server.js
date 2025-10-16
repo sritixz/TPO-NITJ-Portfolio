@@ -46,6 +46,9 @@ import withdrawRoutes from "./routes/withdraw.js";
 import placementRegistrationRoutes from "./routes/placement-registration.js";
 import offerAddRoutes from "./routes/offerAdd.js";
 import insightRoutes from "./routes/insight.js";
+import documentsRoutes from "./routes/documents.js";
+import studentDocumentsRoutes from "./routes/studentsdocuments.js";
+
 
 import { mkdir } from 'fs/promises';
 try {
@@ -107,6 +110,8 @@ app.use('/auth', logMiddleware, authroutes);
 app.use('/captcha', logMiddleware, captchaRoutes);
 app.use('/devteam', logMiddleware, devteamroutes);
 app.use('/brochure', logMiddleware, brochureRoutes);
+app.use('/documents', logMiddleware, documentsRoutes);
+app.use('/student-documents', logMiddleware, studentDocumentsRoutes);
 app.use("/placements", logMiddleware, placementroutes);
 app.use("/internships", logMiddleware, internshiptroutes);
 
@@ -126,7 +131,7 @@ app.use('/conversations',authenticate, restrictTo('Professor'),logMiddleware, co
 app.use('/nodemailer',authenticate, restrictTo('Professor'),logMiddleware, nodemailerRoutes);
 app.use('/add-recruiter', authenticate,restrictTo('Professor'),logMiddleware, addRecruiterRoutes);
 app.use('/cgpa-checker',authenticate, restrictTo('Professor'),logMiddleware, cgpaCheckerRoutes);
-app.use('/insight',authenticate, restrictTo('Professor'),logMiddleware, insightRoutes);
+app.use('/insight',authenticate, restrictTo('Professor','Student'),logMiddleware, insightRoutes);
 
 //Admin routes
 app.use('/admin',authenticate,restrictTo('Admin'),logMiddleware,adminRoutes);
@@ -142,6 +147,8 @@ app.use('/contactus',logMiddleware,contactusRoutes);
 app.use('/api',authenticate,logMiddleware, formTemplateroutes);
 app.use('/noc',authenticate, logMiddleware,nocRoutes);
 app.use('/admin/brochure',authenticate, logMiddleware,brochureRoutes);
+app.use('/admin/documents',authenticate, logMiddleware,documentsRoutes);
+app.use('/admin/student-documents',authenticate, logMiddleware,studentDocumentsRoutes);
 app.use("/job-events",authenticate, logMiddleware, jobEventroutes);
 app.use("/travel-planner",authenticate, logMiddleware,travelplannerRoutes);
 app.use("/placement-registration",authenticate, logMiddleware, placementRegistrationRoutes);
@@ -152,13 +159,6 @@ app.use('/events',authenticate,restrictTo('Professor','Department','Admin'),logM
 
 // offer-add
 app.use('/offer-add',authenticate,restrictTo('Professor'),logMiddleware,offerAddRoutes);
-
-
-// app.use('/api/pdfs', authenticate, pdfroutes);
-// app.use('/resume',authenticate, resumeroutes);
-
-// app.use('/mock-assessment',authenticate,mockassessmentRoutes);
-// app.use('/attempt/:assessment',authenticate,mockassessmentRoutes);
 
 const port = process.env.PORT || 7000;
 app.listen(port,'0.0.0.0', () => {

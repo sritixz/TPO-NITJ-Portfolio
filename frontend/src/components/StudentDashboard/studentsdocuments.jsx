@@ -1,44 +1,38 @@
 import { useState, useEffect } from 'react';
-import { Download, ExternalLink } from 'lucide-react';
+import { Download, ExternalLink,ArrowLeft } from 'lucide-react';
 import axios from 'axios';
-import Header from '../components/header';
-import Footer from '../components/footer';
-import buildFingerprintHeaders from '../utils/fingerprintHeaders';
 import { useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 
-export default function DepartmentCards() {
+export default function StudentDocument() {
   const [hoveredCard, setHoveredCard] = useState(null);
-  const [departments, setDepartments] = useState([]);
+  const [documents, setDocuments] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const hasFetched = useRef(false);
+  const navigate = useNavigate();
 
-  // Fetch brochures from backend
   useEffect(() => {
-    if (hasFetched.current) return; // Prevent multiple fetches
+    if (hasFetched.current) return;
     hasFetched.current = true;
     
     const fetchBrochures = async () => {
       try {
-        const response = await axios.get(`${import.meta.env.REACT_APP_BASE_URL}/brochure/get`, {
-          headers: {
-          ...buildFingerprintHeaders(),
-         },
-          withCredentials: true, // Include cookies for authentication
+        const response = await axios.get(`${import.meta.env.REACT_APP_BASE_URL}/student-documents/get`, {
+          withCredentials: true,
         });
-        // Map backend data to component's expected structure
-        const fetchedDepartments = response.data.data.map((brochure) => ({
-          id: brochure._id,
-          name: brochure.department_name,
-          website: brochure.department_link,
-          pdfUrl: brochure.brochure_link, // e.g., /Uploads/brochures/<filename>.pdf
-          pdfName: `${brochure.department_name.replace(/\s+/g, '_').toLowerCase()}_Brochure.pdf`, // Format as <department_name>_Brochure.pdf
+
+        const fetchedDocuments = response.data.data.map((document) => ({
+          id: document._id,
+          name: document.document_name,
+          pdfUrl: document.document_link,
+          pdfName: `${document.document_name.replace(/\s+/g, '_').toLowerCase()}.pdf`,
         }));
-        setDepartments(fetchedDepartments);
+        setDocuments(fetchedDocuments);
         setLoading(false);
       } catch (err) {
-        console.error('Error fetching brochures:', err);
-        setError('Failed to load brochures. Please try again later.');
+        console.error('Error fetching documents:', err);
+        setError('Failed to load documents. Please try again later.');
         setLoading(false);
       }
     };
@@ -70,30 +64,41 @@ export default function DepartmentCards() {
 
   return (
     <>
-      <Header />
-      <div className="min-h-screen bg-gray-50 py-12 px-4">
-        <h1 className="text-4xl font-bold text-center mb-16 text-gray-800">
-         Institute & Departmental <span className="text-custom-blue">Brochures</span>
+      <div className="min-h-screen bg-gray-50 py-6 px-4">
+          <div className="max-w-7xl mx-auto flex items-center justify-between mb-16">
+        <button
+          onClick={() => navigate(-1)}
+          className="flex items-center text-custom-blue hover:text-blue-700 transition-all duration-300 font-medium"
+        >
+          <ArrowLeft className="mr-2" size={20} />
+        </button>
+
+        <h1 className="text-3xl font-bold text-gray-800 text-center flex-1">
+          Relevant <span className="text-custom-blue">Documents</span>
         </h1>
 
-        {loading && departments.length === 0 ? (
+        {/* Spacer to keep title centered */}
+        <div className="w-[80px]" />
+      </div>
+
+        {loading && documents.length === 0 ? (
  <div className="flex justify-center items-center min-h-[200px]">
     <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-custom-blue"></div>
   </div>
         ) : error ? (
           <div className="text-center text-red-600">{error}</div>
-        ) : departments.length === 0 ? (
-          <div className="text-center text-gray-600">No brochures available.</div>
+        ) : documents.length === 0 ? (
+          <div className="text-center text-gray-600">No Documents available.</div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-12 max-w-7xl mx-auto">
-            {departments.map((dept) => (
+            {documents.map((docs) => (
               <div
-                key={dept.id}
+                key={docs.id}
                 className="bg-white rounded-xl overflow-hidden transition-all duration-300 flex flex-col h-full shadow-md hover:shadow-xl min-w-[250px]"
                 style={{
-                  transform: hoveredCard === dept.id ? 'translateY(-4px)' : 'none',
+                  transform: hoveredCard === docs.id ? 'translateY(-4px)' : 'none',
                 }}
-                onMouseEnter={() => setHoveredCard(dept.id)}
+                onMouseEnter={() => setHoveredCard(docs.id)}
                 onMouseLeave={() => setHoveredCard(null)}
               >
                 {/* Top accent bar */}
@@ -103,7 +108,7 @@ export default function DepartmentCards() {
                   {/* Department name with proper wrapping */}
                  <h2 className="text-md font-bold  mb-4 whitespace-nowrap overflow-hidden text-ellipsis">
 
-                    {dept.name}
+                    {docs.name}
                   </h2>
                   
                   {/* Spacer to push buttons to bottom */}
@@ -112,23 +117,13 @@ export default function DepartmentCards() {
                   {/* Action buttons with improved spacing */}
                   <div className="flex gap-3 mt-4">
                     <button
-                      onClick={() => downloadPDF(dept.pdfUrl, dept.pdfName)}
+                      onClick={() => downloadPDF(docs.pdfUrl, docs.pdfName)}
                       className="flex-1 flex items-center justify-center py-2 px-3 rounded-lg bg-custom-blue hover:bg-blue-700 transition-all duration-300 text-white font-medium text-sm"
-                      title={`Download ${dept.pdfName}`}
+                      title={`Download ${docs.pdfName}`}
                     >
                       <Download size={16} className="mr-2" />
                       <span>Download</span>
                     </button>
-                    <a
-                      href={dept.website}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex-1 flex items-center justify-center py-2 px-3 rounded-lg bg-white border border-custom-blue text-custom-blue hover:bg-blue-50 transition-all duration-300 font-medium text-sm"
-                      title="Visit Department Website"
-                    >
-                      <ExternalLink size={16} className="mr-2" />
-                      <span>Visit</span>
-                    </a>
                   </div>
                 </div>
               </div>
@@ -136,7 +131,6 @@ export default function DepartmentCards() {
           </div>
         )}
       </div>
-      <Footer />
     </>
   );
 }

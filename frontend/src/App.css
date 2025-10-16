@@ -303,3 +303,32 @@ body{
   .ck-hover-text:hover{
 	color: #fff;
   }
+
+
+  /* Make editor area taller */
+.ck-editor__editable_inline {
+  min-height: 300px !important;
+  font-size: 16px !important;
+  line-height: 1.7 !important;
+  padding: 20px !important;
+}
+
+/* Make title (h1) inside editor large and distinct */
+.ck-content h1 {
+  font-size: 2rem !important;
+  font-weight: 700 !important;
+  color: #080707 !important; /* Indigo tone */
+  margin-bottom: 1rem !important;
+  border-bottom: 2px solid #e5e7eb !important;
+  padding-bottom: 4px !important;
+}
+
+/* Optional: Improve word count area style */
+.editor-container__word-count {
+  font-size: 0.80rem;
+  color: #4b5563;
+  background: #f9fafb;
+  padding: 4px 10px;
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+}

@@ -131,7 +131,7 @@ export const updateOffer = async (req, res) => {
     const updatedOffer = await Offer.findByIdAndUpdate(
       id,
       { $set: payload },
-      { new: true } // return updated document
+      { new: true }
     );
 
     if (!updatedOffer) {

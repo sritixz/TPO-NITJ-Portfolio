@@ -36,6 +36,8 @@ import LogsTable from "./logs";
 import OfferTracker from "./offertracker";
 import Offer from "./offer";
 import LoginAttempts from "./loginattempt";
+import DocumentManager from "./documents";
+import StudentDocumentManager from "./studentsdocuments";
 
 const Admindashboard = () => {
   const [isMobile, setIsMobile] = useState(false);
@@ -87,6 +89,8 @@ const Admindashboard = () => {
     { label: "Department Management", icon: faBuilding, path: "/admindashboard/department" },
     { label: "Brochure Management", icon: faBriefcase, path: "/admindashboard/brochure" },
     { label: "Devteam Management", icon: faCode, path: "/admindashboard/devteam" },
+    { label: "Documents Management", icon: faBriefcase, path: "/admindashboard/documents" },
+    { label: "Student Documents", icon: faBriefcase, path: "/admindashboard/student-documents" },
     {label: "Logs", icon: faCode, path:"/admindashboard/logs"},
     {label: "Login Attempts", icon: faRightToBracket, path:"/admindashboard/login-attempt"},
     {label: "Offer", icon: faGift, path:"/admindashboard/offer"},
@@ -273,6 +277,8 @@ const Admindashboard = () => {
             <Route path="/department" element={<DepartmentManager/>} />
             <Route path="/brochure" element={<BrochureManager />} />
             <Route path="/devteam" element={<DevteamManager />} />
+            <Route path="/documents" element={<DocumentManager />} />
+            <Route path="/student-documents" element={<StudentDocumentManager />} />
             <Route path="/logs" element={<LogsTable />} />
             <Route path="/login-attempt" element={<LoginAttempts />} />
             <Route path="/offer" element={<Offer />} />

@@ -56,20 +56,7 @@ export const addQuestion = async (req, res) => {
 export const getQuestions = async (req, res) => {
     try {
       const questionBank = await QuestionBank.find().populate('contributions.studentId', 'name');
-      let eligible = false;
-      const studentId=req.user.userId;
-      const jobs = await JobProfile.find({
-          'Hiring_Workflow': {
-              $elemMatch: {
-                  step_type: 'Interview',
-                  eligible_students: { $in: [studentId] },
-              },
-          },
-      });
-      if (jobs.length > 0) {
-        eligible = true;
-    }
-      res.status(200).json({eligible,questionBank});
+      res.status(200).json({questionBank});
     } catch (error) {
       res.status(500).json({ error: 'Failed to fetch questions', message: error.message });
     }

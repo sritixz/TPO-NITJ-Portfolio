@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useMemo } from 'react'
-import { FaArrowLeft } from "react-icons/fa";;
+import { FaArrowLeft, FaSave, FaEdit, FaCheckCircle } from "react-icons/fa";
 import { CKEditor, useCKEditorCloud } from '@ckeditor/ckeditor5-react';
 import axios from 'axios';
 import toast from 'react-hot-toast';
@@ -8,13 +8,14 @@ import '../../App.css';
 
 const LICENSE_KEY = 'eyJhbGciOiJFUzI1NiJ9.eyJleHAiOjE3Njc5MTY3OTksImp0aSI6IjEyZDJkOWY2LTQ2ZWYtNDNlZC1hYWI4LTc0M2U3YzQ1NmI3MyIsImxpY2Vuc2VkSG9zdHMiOlsiMTI3LjAuMC4xIiwibG9jYWxob3N0IiwiMTkyLjE2OC4qLioiLCIxMC4qLiouKiIsIjE3Mi4qLiouKiIsIioudGVzdCIsIioubG9jYWxob3N0IiwiKi5sb2NhbCJdLCJ1c2FnZUVuZHBvaW50IjoiaHR0cHM6Ly9wcm94eS1ldmVudC5ja2VkaXRvci5jb20iLCJkaXN0cmlidXRpb25DaGFubmVsIjpbImNsb3VkIiwiZHJ1cGFsIl0sImxpY2Vuc2VUeXBlIjoiZGV2ZWxvcG1lbnQiLCJmZWF0dXJlcyI6WyJEUlVQIl0sInZjIjoiYzk3MWViZjUifQ.6RiV5ly5Jc1bdyk119u1ItFNWwddASCASBj43gbfiBKoT0OVY9E6GsH4Fiz0pN2YGZ5MvTx0ZX_b00cEH-e44A';
 
-export default function Editor({experience,onClose}) {
+export default function Editor({experience, onClose}) {
     const editorContainerRef = useRef(null);
     const editorRef = useRef(null);
     const editorWordCountRef = useRef(null);
     const editorMenuBarRef = useRef(null);
     const [editorInstance, setEditorInstance] = useState(null);
     const [isLayoutReady, setIsLayoutReady] = useState(false);
+    const [isSaving, setIsSaving] = useState(false);
     const cloud = useCKEditorCloud({ version: '44.1.0' });
     const [editorData, setEditorData] = useState(experience);
 
@@ -351,6 +352,7 @@ export default function Editor({experience,onClose}) {
     }, [cloud, isLayoutReady]);
 
     const submitExperience = async (tempcontent) => {
+        setIsSaving(true);
         try {
             const tempDiv = document.createElement('div');
             tempDiv.innerHTML = tempcontent;
@@ -370,11 +372,13 @@ export default function Editor({experience,onClose}) {
                 { title, content },
                 { withCredentials: true }
             );
-            onClose();
             toast.success(editorData ? 'Experience updated successfully!' : 'Experience submitted successfully!');
+            setTimeout(() => onClose(), 500);
         } catch (error) {
             console.error('Error:', error);
             toast.error('Something went wrong!');
+        } finally {
+            setIsSaving(false);
         }
     };
 
@@ -388,44 +392,119 @@ export default function Editor({experience,onClose}) {
     };
 
     return (
-        <div className="main-container">
-             <button
-          onClick={onClose}
-          className="flex items-center space-x-2 text-custom-blue hover:text-blue-700 mb-4"
-        >
-          <FaArrowLeft />
-        </button>
-            <div
-                className="editor-container editor-container_classic-editor editor-container_include-style editor-container_include-word-count"
-                ref={editorContainerRef}
-            >
-                <div className="editor-container__editor">
-                    <div ref={editorRef}>
-                        {ClassicEditor && editorConfig && (
-                            <CKEditor
-                                onReady={editor => {
-                                    setEditorInstance(editor);
-                                    const wordCount = editor.plugins.get('WordCount');
-                                    editorWordCountRef.current.appendChild(wordCount.wordCountContainer);
-                                    editorMenuBarRef.current.appendChild(editor.ui.view.menuBarView.element);
-                                }}
-                                onAfterDestroy={() => {
-                                    setEditorInstance(null);
-                                    Array.from(editorWordCountRef.current?.children || []).forEach(child => child.remove());
-                                    Array.from(editorMenuBarRef.current?.children || []).forEach(child => child.remove());
-                                }}
-                                editor={ClassicEditor}
-                                config={editorConfig}
-                            />
-                        )}
+        <div className="min-h-screen bg-gray-50 py-2 px-4 sm:px-6 lg:px-8">
+            <div className="max-w-7xl mx-auto">
+                {/* Header Section */}
+                <div className="mb-8 ">
+                    
+                    {/* <div className="bg-white rounded-2xl shadow-md p-4 border border-gray-100">
+                        <div className="flex items-center space-x-4 mb-4">
+                                <FaEdit className="text-custom-blue text-3xl" />
+                            <div>
+                                <h1 className="text-xl font-bold text-gray-800">
+                                    {editorData ? 'Edit Your Experience' : 'Share Your Placement Journey'}
+                                </h1>
+                                <p className="text-gray-600 text-xs mt-1">
+                                    Help future students by sharing your insights and experiences
+                                </p>
+                            </div>
+                        </div>
+                    </div> */}
+                                    {/* Tips Section */}
+                <div className="mt-1 bg-white rounded-2xl shadow-md p-6 border border-gray-100 animate-fadeIn">
+                    <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center">
+                        <span className="bg-indigo-100 text-indigo-600 p-2 rounded-lg mr-3">💡</span>
+                        Tips for Writing a Great Experience
+                    </h3>
+                    <div className="grid md:grid-cols-3 gap-4">
+                        <div className="bg-gradient-to-br from-blue-50 to-indigo-50 p-4 rounded-xl border border-blue-100">
+                            <h4 className="font-semibold text-gray-800 mb-2">Be Detailed</h4>
+                            <p className="text-sm text-gray-600">Share specific details about the interview process, questions asked, and preparation strategies.</p>
+                        </div>
+                        <div className="bg-gradient-to-br from-purple-50 to-pink-50 p-4 rounded-xl border border-purple-100">
+                            <h4 className="font-semibold text-gray-800 mb-2">Be Honest</h4>
+                            <p className="text-sm text-gray-600">Include both challenges you faced and how you overcame them to help others learn.</p>
+                        </div>
+                        <div className="bg-gradient-to-br from-green-50 to-teal-50 p-4 rounded-xl border border-green-100">
+                            <h4 className="font-semibold text-gray-800 mb-2">Be Helpful</h4>
+                            <p className="text-sm text-gray-600">Provide actionable advice and resources that helped you succeed in your journey.</p>
+                        </div>
                     </div>
                 </div>
-                <div className="editor-container__word-count" ref={editorWordCountRef}></div>
-                <div className="editor-container__menu-bar" ref={editorMenuBarRef}></div>
+                </div>
+
+                {/* Editor Container */}
+                <div className="bg-white rounded-2xl shadow-md overflow-hidden border border-gray-200">
+                    <div 
+                        className="editor-container editor-container_classic-editor editor-container_include-style editor-container_include-word-count p-6"
+                        ref={editorContainerRef}
+                    >
+                        <div className="editor-container__editor">
+                            <div ref={editorRef}>
+                                {ClassicEditor && editorConfig && (
+                                    <CKEditor
+                                        onReady={editor => {
+                                            setEditorInstance(editor);
+                                            const wordCount = editor.plugins.get('WordCount');
+                                            editorWordCountRef.current.appendChild(wordCount.wordCountContainer);
+                                            editorMenuBarRef.current.appendChild(editor.ui.view.menuBarView.element);
+                                        }}
+                                        onAfterDestroy={() => {
+                                            setEditorInstance(null);
+                                            Array.from(editorWordCountRef.current?.children || []).forEach(child => child.remove());
+                                            Array.from(editorMenuBarRef.current?.children || []).forEach(child => child.remove());
+                                        }}
+                                        editor={ClassicEditor}
+                                        config={editorConfig}
+                                    />
+                                )}
+                            </div>
+                        </div>
+                        
+                        {/* Word Count with enhanced styling */}
+                        <div className="editor-container__word-count mt-4 px-4 py-2 bg-gradient-to-r from-gray-50 to-blue-50 rounded-lg border border-gray-200" ref={editorWordCountRef}></div>
+                        <div className="editor-container__menu-bar" ref={editorMenuBarRef}></div>
+                    </div>
+
+                    {/* Action Bar */}
+                    <div className="bg-gradient-to-r from-gray-50 to-blue-50 px-8 py-6 border-t border-gray-200">
+                        <div className="flex items-center justify-end">
+                            
+                            <div className="flex items-center space-x-4">
+                                <button
+                                    onClick={onClose}
+                                    className="px-6 py-3 text-gray-700 font-medium rounded-xl hover:bg-white hover:shadow-md transition-all duration-300 border border-gray-300"
+                                >
+                                    Cancel
+                                </button>
+                                <button
+                                    onClick={handleSave}
+                                    disabled={isSaving}
+                                    className="group relative px-8 py-3 bg-custom-blue text-white font-semibold rounded-xl shadow-md hover:shadow-lg hover:scale-105 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 overflow-hidden"
+                                >
+                                    <span className="relative z-10 flex items-center space-x-2">
+                                        {isSaving ? (
+                                            <>
+                                                <svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                                </svg>
+                                                <span>Saving...</span>
+                                            </>
+                                        ) : (
+                                            <>
+                                                <FaSave className="group-hover:rotate-12 transition-transform duration-300" />
+                                                <span>{editorData ? 'Update Experience' : 'Publish Experience'}</span>
+                                            </>
+                                        )}
+                                    </span>
+                                    <div className="absolute inset-0 bg-blue-700 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
-            <button onClick={handleSave} className="bg-custom-blue text-white px-4 py-2 rounded">
-                {editorData ? 'Update' : 'Save'}
-            </button>
         </div>
     );
 }
