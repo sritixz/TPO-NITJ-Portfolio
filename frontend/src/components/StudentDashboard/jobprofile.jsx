@@ -56,7 +56,8 @@ const JobApplications = () => {
           <div className="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             {liveNotAppliedJobs.map((job) => (
               <JobCard
-                key={job.job_id}
+                // key={job.job_id}
+                key={`${activeTab}-${job._id}`}
                 job_id={job.job_id}
                 jobtype={job.job_type}
                 company={job.company_name}
@@ -76,7 +77,8 @@ const JobApplications = () => {
           <div className="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             {appliedJobs.map((job) => (
               <JobCard
-                key={job.job_id}
+                // key={job.job_id}
+                key={`${activeTab}-${job._id}`}
                 job_id={job.job_id}
                 jobtype={job.job_type}
                 company={job.company_name}
@@ -96,7 +98,8 @@ const JobApplications = () => {
           <div className="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             {notAppliedJobs.map((job) => (
               <JobCard
-                key={job.job_id}
+                // key={job.job_id}
+                key={`${activeTab}-${job._id}`}
                 job_id={job.job_id}
                 jobtype={job.job_type}
                 company={job.company_name}

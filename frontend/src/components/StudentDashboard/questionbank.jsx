@@ -16,7 +16,6 @@ const QuestionBank = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [expandedAnswers, setExpandedAnswers] = useState({});
-  const [eligible, setEligible] = useState(false);
 
   useEffect(() => {
     const fetchAllQuestions = async () => {
@@ -24,7 +23,6 @@ const QuestionBank = () => {
       try {
         const response = await axios.get(`${import.meta.env.REACT_APP_BASE_URL}/question-bank/get-question`, { withCredentials: true });
         setAllQuestionBanks(response.data.questionBank || []);
-        setEligible(response.data.eligible);
       } catch (err) {
         setError('Failed to fetch question banks');
         setAllQuestionBanks([]);
@@ -57,36 +55,40 @@ const QuestionBank = () => {
     }
   }, [selectedCompany, allQuestionBanks]);
 
-  const handleAddQuestion = async (e) => {
-    e.preventDefault();
-    setLoading(true);
-    setError('');
-    try {
-      const payload = {
-        companyName: newCompanyName || selectedCompany,
-        contributions: questionsData.map(q => ({
-          question: q.question,
-          sourceLinks: q.sourceLinks.filter(link => link.trim() !== ''),
-          answer: q.answer,
-          which_role: newRole, // Apply the common role to all questions
-        })),
-      };
-      console.log('Payload being sent:', payload);
-      await axios.post(`${import.meta.env.REACT_APP_BASE_URL}/question-bank/add-question`, payload, { withCredentials: true });
-      console.log("added");
-      setQuestionsData([{ question: '', sourceLinks: [''], answer: '' }]);
-      setNewCompanyName('');
-      setNewRole(''); // Reset role after submission
-      setError('Questions added successfully!');
-      setShowAddForm(false);
-      const response = await axios.get(`${import.meta.env.REACT_APP_BASE_URL}/question-bank/get-question`, { withCredentials: true });
-      setAllQuestionBanks(response.data || []);
-    } catch (err) {
-      setError('Failed to add questions');
-    } finally {
-      setLoading(false);
-    }
-  };
+const handleAddQuestion = async (e) => {
+  e.preventDefault();
+  setLoading(true);
+  setError('');
+  try {
+    const payload = {
+      companyName: newCompanyName || selectedCompany,
+      contributions: questionsData.map(q => ({
+        question: q.question,
+        sourceLinks: q.sourceLinks.filter(link => link.trim() !== ''),
+        answer: q.answer,
+        which_role: newRole,
+      })),
+    };
+
+    await axios.post(`${import.meta.env.REACT_APP_BASE_URL}/question-bank/add-question`, payload, { withCredentials: true });
+    
+    // ✅ Refetch properly
+    const response = await axios.get(`${import.meta.env.REACT_APP_BASE_URL}/question-bank/get-question`, { withCredentials: true });
+    setAllQuestionBanks(response.data.questionBank || []);  // ✅ FIX HERE
+
+    setQuestionsData([{ question: '', sourceLinks: [''], answer: '' }]);
+    setNewCompanyName('');
+    setNewRole('');
+    setError('Questions added successfully!');
+    setShowAddForm(false);
+  } catch (err) {
+    console.error(err);
+    setError('Failed to add questions');
+  } finally {
+    setLoading(false);
+  }
+};
+
 
   const handleAddNewQuestion = () => setQuestionsData([...questionsData, { question: '', sourceLinks: [''], answer: '' }]);
   const handleRemoveQuestion = (index) => setQuestionsData(questionsData.filter((_, i) => i !== index));
@@ -164,13 +166,13 @@ const QuestionBank = () => {
               </div>
             )}
           </div>
-          {eligible && (<button
+       <button
             onClick={() => setShowAddForm(true)}
             className="flex items-center space-x-2 px-4 py-2 bg-custom-blue text-white rounded-lg shadow-md hover:from-blue-600 hover:to-indigo-600 transition duration-300"
           >
             <FaPlus className="w-5 h-5" />
             <span>Add Question</span>
-          </button>)}
+          </button>
         </div>
       </div>
       {loading ? (

@@ -52,7 +52,7 @@ const AppliedStudentp = ({ jobId, onClose, company_name }) => {
         acc[field.fieldName] = field.value;
         return acc;
       }, {});
-      return { College_Mail_ID: submission.studentId?submission.studentId.email:"NA",Category: submission.studentId?submission.studentId.category:"NA", ...formattedFields, Resume: submission.resumeUrl };
+      return {  ...formattedFields, Resume: submission.resumeUrl };
     });
     exportToExcel(data, company_name);
   };

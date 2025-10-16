@@ -6,6 +6,7 @@ import {
   createDeadline,
   editDeadline,
   checkopen,
+  editPlacementRegistration,
 } from '../controller/placement-registration.js';
 
 import { restrictTo } from "../utils/restrict.js";
@@ -28,6 +29,7 @@ router.get('/check', restrictTo('Student'), checkStudentPlacementRegistration);
 router.get('/export', restrictTo('Professor'), getPlacementRegistrationExportData);
 
 router.post('/', restrictTo('Student'), createPlacementRegistration);
+router.put('/edit', restrictTo('Student'), editPlacementRegistration);
 
 
 

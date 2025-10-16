@@ -42,7 +42,7 @@ import ExperienceSharing from "./pexperiencesharing";
 import PPlacementReport from "./pplacementinsights";
 import RequestHelpManager from "./Request";
 import Profile from "./pProfile.jsx";
-import Home from "./home";
+// import Home from "./home";
 import Upload from "./pUpload.jsx";
 import JAF from "./jaf.jsx";
 import TeamSection from "../Developers/TeamSection.jsx";
@@ -105,7 +105,7 @@ const Pdashboard = () => {
   const menuItems = [
     // { label: "Dashboard", icon: faHome, path: "/pdashboard/home" },
     { label: "Home", icon: faHome, path: "/pdashboard/home" },
-    { label: "JAF",  icon: faFileWaveform, path: "/pdashboard/jaf" },
+    // { label: "JAF",  icon: faFileWaveform, path: "/pdashboard/jaf" },
     { label: "Job Management", icon: faBriefcaseClock, path: "/pdashboard/job-profile-management" },
     {label:"Student",icon:faUser, path:"/pdashboard/student-analysis"},
     {label:"NOC",icon:faUser, path:"/pdashboard/noc-management"},

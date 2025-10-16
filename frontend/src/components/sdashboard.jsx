@@ -11,6 +11,8 @@ import {
   faHandsHelping,
   faShareSquare,
   faCalendarDays,
+  faChartLine,
+  faLayerGroup,
   faKey,
   faDatabase,
    faCertificate,
@@ -27,6 +29,8 @@ import { Menu, X, LogOut } from "lucide-react";
 
 import { Route, Routes, useNavigate, useLocation } from "react-router-dom";
 import Home from "./StudentDashboard/home";
+import NavigationCards from "./StudentDashboard/Navigation.jsx";
+import PlacementInsights from "./StudentDashboard/placementInsight.jsx";
 import JobApplications from "./StudentDashboard/jobprofile";
 import Jobdetail from "./StudentDashboard/Jobdetail";
 import Interviews from "./StudentDashboard/interviews"; 
@@ -46,10 +50,9 @@ import NOC from "./StudentDashboard/noc.jsx";
 import ChangePasswordForm from "./changepass.jsx";
 import Others from "./StudentDashboard/others.jsx";
 import QuestionBank from "./StudentDashboard/questionbank.jsx";
-import MockAssessmentStudentDashboard from "./StudentDashboard/mockassessment.jsx";
-import AssessmentAttempt from "./StudentDashboard/assessmentattempt.jsx";
 import JobdetailFromCalender from "./StudentDashboard/JobDetailsFromCalender.jsx";
 import PlacementRegistrationForm from "./StudentDashboard/registration-form.jsx";
+import StudentDocument from "./StudentDashboard/studentsdocuments.jsx";
 
 
 const StudentDashboard = () => {
@@ -105,46 +108,13 @@ const StudentDashboard = () => {
     { path: "/sdashboard/interviews", label: "Interview", icon: faUserTie },
     { path: "/sdashboard/gd", label: "Group Discussion", icon: faUsers },
     { path: "/sdashboard/others", label: "Other Assessments", icon: faClipboardCheck  },
-    // { path: "/sdashboard/calendar", label: "Calendar", icon: faCalendarDays },
-   /* { path: "/sdashboard/mailbox", label: "Mailbox", icon: faEnvelope }, */
-    {
-      path: "/sdashboard/request-help",
-      label: "Request Help",
-      icon: faHandsHelping,
-    },
-    {
-      path: "/sdashboard/shared-experience",
-      label: "Shared Experience",
-      icon: faShareSquare,
-    },
-    {
-      path: "/sdashboard/question-bank",
-      label: "Question Bank",
-      icon: faDatabase,
-    },
-    {
-      path: "/sdashboard/noc",
-      label: "NOC",
-      icon:   faCertificate ,
-    },
-    // {
-    //   path: "/sdashboard/noc",
-    //   label: "Courses",
-    //   icon:   faGraduationCap ,
-    // },
-    // {
-    //   path: "/sdashboard/noc",
-    //   label: "Events & Workshops",
-    //   icon:   faChalkboardTeacher,
-    // },
-    // {
-    //   path: "/sdashboard/mock-assessment",
-    //   label: "Mock Assessment",
-    //   icon: faCheckSquare,
-    // },
-/*     { path: "/sdashboard/policy-guidlines", label: "Policy & Guidlines", icon: faNoteSticky },
-/*     { path: "/sdashboard/resume", label: "Resume", icon: faNoteSticky }, */
+    { path: "/sdashboard/placement-insights", label: "Placement Insights", icon: faChartLine },
+    { path: "/sdashboard/navigator", label: "Navigator", icon: faLayerGroup, },
     { path: "/sdashboard/change-pass", label: "Change Password", icon: faKey },
+    // { path: "/sdashboard/request-help", label: "Request Help", icon: faHandsHelping,},
+    // { path: "/sdashboard/shared-experience", label: "Shared Experience", icon: faShareSquare,},
+    // { path: "/sdashboard/question-bank", label: "Question Bank", icon: faDatabase, },
+    // {path: "/sdashboard/noc", label: "NOC", icon:   faCertificate},
   ];
 
   const MenuItem = ({ item, onClick, isSidebarExpanded }) => {
@@ -325,29 +295,27 @@ const StudentDashboard = () => {
 
           {/* Placeholder for route content */}
           <Routes>
-
             <Route path="/" element={<Home />} />
             <Route path="home" element={<Home />} />
+            <Route path="placement-insights" element={<PlacementInsights />} />
             <Route path="job-application" element={<JobApplications />} />
             <Route path="job-application/:job_id" element={<Jobdetail/>} />
             <Route path="oa" element={<OnlineAssessment />} />
             <Route path="interviews" element={<Interviews />} />
             <Route path="gd" element={<GD />} />
             <Route path="others" element={<Others />} />
-            {/* <Route path="calendar" element={<CalendarComponent />} /> */}
             <Route path="shared-experience" element={<SharedExperience />} />
             <Route path="question-bank" element={<QuestionBank />} />
+            <Route path="navigator" element={<NavigationCards />} />
             <Route path="noc" element={<NOC />} />
-            {/* <Route path="mock-assessment" element={<MockAssessmentStudentDashboard/>} /> */}
-            {/*<Route path="assessment-attempt/:attemptId" element={<AssessmentAttempt/>} /> */}
             <Route path="profile" element={<Profile />} />
             <Route path="jobs/:job_id" element={<JobdetailFromCalender />} />
             <Route path="request-help" element={<Request />} />
             <Route path="policy-guidlines" element={<PDFDownloadCards />} />
             <Route path="team" element={<TeamSection />} />
-            <Route path="resume" element={<ResumeBuilder />} />
             <Route path="change-pass" element={<ChangePasswordForm />} />
             <Route path="placement-registration" element={<PlacementRegistrationForm />} />
+            <Route path="student-documents" element={<StudentDocument />} />
             </Routes>
         </div>
 

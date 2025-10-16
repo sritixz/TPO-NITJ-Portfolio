@@ -15,7 +15,8 @@ import Rdashboard from "./Pages/Rdashboard";
 import Pdashboard from "./Pages/Pdashboard";
 import AdminDashboard from "./Pages/Admindashboard";
 import Ddashboard from "./Pages/Ddashboard";
-import Downloads from "./Pages/Downloads";
+import Brochure from "./Pages/Brochure";
+import Document from "./Pages/Documents";
 import TeamPage from "./Pages/TeamPage";
 import FAQ from "./Pages/Faqs";
 import ErrorPage from "./Pages/ErrorPage";
@@ -67,7 +68,8 @@ const AppContent = () => {
         <Route path="/faq" element={<FAQ />} />
         <Route path="/team" element={<TeamPage />} />
         <Route path="/dev-team" element={<TeamPage />} />
-        <Route path="/departmental-brochure" element={<Downloads />} />
+        <Route path="/departmental-brochure" element={<Brochure />} />
+        <Route path="/departmental-documents" element={<Document />} />
         <Route path="/whyrecruit" element={< WhyRecruitPage/>} />
 
         <Route

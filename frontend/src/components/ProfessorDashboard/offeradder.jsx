@@ -489,12 +489,12 @@
 
 // export default OfferAdder;
 
-
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 
 const OfferEditor = ({ onClose }) => {
   const [offers, setOffers] = useState([]);
+  const [searchTerm, setSearchTerm] = useState('');
   const [selectedId, setSelectedId] = useState(null);
   const [loading, setLoading] = useState(true);
   const [msg, setMsg] = useState(null);
@@ -514,6 +514,8 @@ const OfferEditor = ({ onClose }) => {
     }
     setLoading(false);
   }
+
+  const filteredOffers = offers.filter(o => o.company_name && o.company_name.toLowerCase().includes(searchTerm.toLowerCase()));
 
   const selected = offers.find(o => o._id === selectedId);
 
@@ -541,8 +543,18 @@ const OfferEditor = ({ onClose }) => {
           
           {msg && <div className="mb-4 px-4 py-2 bg-red-100 text-red-800 border border-red-200 rounded-md">{msg}</div>}
 
-          {offers.length === 0 ? (
-            <p className="text-gray-500">No offers found.</p>
+          <div className="mb-4">
+            <input
+              type="text"
+              placeholder="Search offers by company name"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              value={searchTerm}
+              onChange={e => setSearchTerm(e.target.value)}
+            />
+          </div>
+
+          {filteredOffers.length === 0 ? (
+            <p className="text-gray-500">{searchTerm ? 'No offers match the search.' : 'No offers found.'}</p>
           ) : (
             <div className="overflow-x-auto">
               <table className="min-w-full divide-y divide-gray-200">
@@ -560,7 +572,7 @@ const OfferEditor = ({ onClose }) => {
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
-                  {offers.map(o => (
+                  {filteredOffers.map(o => (
                     <tr key={o._id}>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{o.batch}</td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{o.course}</td>
@@ -592,9 +604,10 @@ const OfferEditor = ({ onClose }) => {
 
 const EditForm = ({ offer, onSave, onCancel }) => {
   const [company, setCompany] = useState(offer.company_name || "");
+  console.log("in edit form section",offer)
   const [batch, setBatch] = useState(offer.batch || "2026");
   const [course, setCourse] = useState(offer.course || "B.Tech");
-  const [resultDate, setResultDate] = useState(offer.result_date || "");
+  const [resultDate, setResultDate] = useState(offer.result_date ? offer.result_date.split("T")[0] : "");
   const [offerMode, setOfferMode] = useState(offer.offer_mode || "PPO");
   const [offerSector, setOfferSector] = useState(offer.offer_sector || "Private");
   const [offerCategory, setOfferCategory] = useState(offer.offer_category || "A");
@@ -691,19 +704,22 @@ const EditForm = ({ offer, onSave, onCancel }) => {
       offer_mode: offerMode,
       offer_category: offerCategory,
       offer_sector: offerSector,
-      shortlisted_students: sList.map(x => ({
-        studentId: x.student?._id || null,
-        roll: x.roll,
-        name: x.student?.name || "",
-        gender: x.student?.gender || "",
-        department: x.student?.department || "",
-        category: x.student?.category || "",
-        job_type: x.override.job_type || g.job_type,
-        job_role: x.override.job_role || g.job_role,
-        ctc: x.override.ctc || g.ctc,
-        stipend: x.override.stipend || g.stipend,
-        intern_duration: g.job_type === 'FTE' ? undefined : (x.override.intern_duration || g.intern_duration)
-      }))
+      shortlisted_students: sList.map(x => {
+        const studentJobType = x.override.job_type || g.job_type;
+        return {
+          studentId: x.student?._id || null,
+          roll: x.roll,
+          name: x.student?.name || "",
+          gender: x.student?.gender || "",
+          department: x.student?.department || "",
+          category: x.student?.category || "",
+          job_type: studentJobType,
+          job_role: x.override.job_role || g.job_role,
+          ctc: x.override.ctc || g.ctc,
+          stipend: x.override.stipend || g.stipend,
+          intern_duration: studentJobType === 'FTE' ? undefined : (x.override.intern_duration || g.intern_duration)
+        };
+      })
     };
     setLoading(true);
     try {
@@ -938,111 +954,116 @@ const EditForm = ({ offer, onSave, onCancel }) => {
             </h2>
             
             <div className="space-y-4">
-              {sList.map((s, i) => (
-                <div key={i} className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
-                  <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 items-center">
-                    {/* Roll Number */}
-                    <div className="lg:col-span-2">
-                      <label className="block text-xs font-medium text-gray-600 mb-1">Roll Number</label>
-                      <input 
-                        value={s.roll} 
-                        onChange={e => setSList(arr => { 
-                          const t=[...arr]; 
-                          t[i].roll=e.target.value; 
-                          t[i].found=false; 
-                          t[i].student=null; 
-                          return t; 
-                        })} 
-                        className="w-full px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-500"
-                        placeholder="Roll no."
-                      />
-                    </div>
+              {sList.map((s, i) => {
+                const currentJobType = s.override.job_type || (applyAll ? g.job_type : '');
+                return (
+                  <div key={i} className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
+                    <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 items-center">
+                      {/* Roll Number */}
+                      <div className="lg:col-span-2">
+                        <label className="block text-xs font-medium text-gray-600 mb-1">Roll Number</label>
+                        <input 
+                          value={s.roll} 
+                          onChange={e => setSList(arr => { 
+                            const t=[...arr]; 
+                            t[i].roll=e.target.value; 
+                            t[i].found=false; 
+                            t[i].student=null; 
+                            return t; 
+                          })} 
+                          className="w-full px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-500"
+                          placeholder="Roll no."
+                        />
+                      </div>
 
-                    {/* Student Info */}
-                    <div className="lg:col-span-2">
-                      <label className="block text-xs font-medium text-gray-600 mb-1">Student Info</label>
-                      <div className="text-sm">
-                        {s.loading ? (
-                          <div className="flex items-center text-blue-600">
-                            <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-blue-600 mr-1"></div>
-                            Loading...
-                          </div>
-                        ) : s.found ? (
-                          <div>
-                            <div className="font-medium text-gray-900">{s.student?.name || '-'}</div>
-                            <div className="text-gray-500 text-xs">{s.student?.department || '-'}</div>
-                          </div>
-                        ) : (
-                          <div className="text-red-600 text-xs">Student not found</div>
+                      {/* Student Info */}
+                      <div className="lg:col-span-2">
+                        <label className="block text-xs font-medium text-gray-600 mb-1">Student Info</label>
+                        <div className="text-sm">
+                          {s.loading ? (
+                            <div className="flex items-center text-blue-600">
+                              <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-blue-600 mr-1"></div>
+                              Loading...
+                            </div>
+                          ) : s.found ? (
+                            <div>
+                              <div className="font-medium text-gray-900">{s.student?.name || '-'}</div>
+                              <div className="text-gray-500 text-xs">{s.student?.department || '-'}</div>
+                            </div>
+                          ) : (
+                            <div className="text-red-600 text-xs">Student not found</div>
+                          )}
+                        </div>
+                      </div>
+
+                      {/* Job Details */}
+                      <div className="lg:col-span-6 grid grid-cols-2 lg:grid-cols-4 gap-2">
+                        <select 
+                          value={s.override.job_type || (applyAll ? g.job_type : '')} 
+                          onChange={e => setStudentField(i, 'job_type', e.target.value)} 
+                          className="px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-500"
+                        >
+                          <option value="">Select job type</option>
+                          <option value="Intern">Intern</option>
+                          <option value="Intern+FTE">Intern+FTE</option>
+                          <option value="FTE">FTE</option>
+                          <option value="Intern+PPO">Intern+PPO</option>
+                        </select>
+                        <input 
+                          placeholder="Job role" 
+                          value={s.override.job_role || (applyAll ? g.job_role : '')} 
+                          onChange={e => setStudentField(i, 'job_role', e.target.value)} 
+                          className="px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-500"
+                        />
+                        <input 
+                          placeholder="CTC" 
+                          value={s.override.ctc || (applyAll ? g.ctc : '')} 
+                          onChange={e => setStudentField(i, 'ctc', e.target.value)} 
+                          className="px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-500"
+                        />
+                        {currentJobType !== 'FTE' && (
+                          <input 
+                            placeholder="Stipend" 
+                            value={s.override.stipend || (applyAll ? g.stipend : '')} 
+                            onChange={e => setStudentField(i, 'stipend', e.target.value)} 
+                            className="px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-500"
+                          />
                         )}
                       </div>
-                    </div>
 
-                    {/* Job Details */}
-                    <div className="lg:col-span-6 grid grid-cols-2 lg:grid-cols-4 gap-2">
-                      <select 
-                        value={s.override.job_type || (applyAll ? g.job_type : '')} 
-                        onChange={e => setStudentField(i, 'job_type', e.target.value)} 
-                        className="px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-500"
-                      >
-                        <option value="">Select job type</option>
-                        <option value="Intern">Intern</option>
-                        <option value="Intern+FTE">Intern+FTE</option>
-                        <option value="FTE">FTE</option>
-                        <option value="Intern+PPO">Intern+PPO</option>
-                      </select>
-                      <input 
-                        placeholder="Job role" 
-                        value={s.override.job_role || (applyAll ? g.job_role : '')} 
-                        onChange={e => setStudentField(i, 'job_role', e.target.value)} 
-                        className="px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-500"
-                      />
-                      <input 
-                        placeholder="CTC" 
-                        value={s.override.ctc || (applyAll ? g.ctc : '')} 
-                        onChange={e => setStudentField(i, 'ctc', e.target.value)} 
-                        className="px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-500"
-                      />
-                      <input 
-                        placeholder="Stipend" 
-                        value={s.override.stipend || (applyAll ? g.stipend : '')} 
-                        onChange={e => setStudentField(i, 'stipend', e.target.value)} 
-                        className="px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-500"
-                      />
-                    </div>
-
-                    {/* Intern Duration & Actions */}
-                    <div className="lg:col-span-2 flex gap-2">
-                      {((s.override.job_type || (applyAll ? g.job_type : '')) !== 'FTE') && (
-                        <input 
-                          placeholder="Duration" 
-                          value={s.override.intern_duration || (applyAll ? g.intern_duration : '')} 
-                          onChange={e => setStudentField(i, 'intern_duration', e.target.value)} 
-                          className="flex-1 px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-500"
-                        />
-                      )}
-                      <button 
-                        onClick={async () => {
-                          setSList(a => { const t=[...a]; t[i].loading=true; return t; });
-                          const r = await fetchOne(s.roll);
-                          setSList(a => { const t=[...a]; t[i] = { ...t[i], loading:false, found: !!r.found, student: r.student || null }; return t; });
-                        }} 
-                        className="px-2 py-1 text-xs bg-gray-100 hover:bg-gray-200 text-gray-700 rounded border"
-                        title="Refetch student data"
-                      >
-                        ↻
-                      </button>
-                      <button 
-                        onClick={() => removeRow(i)} 
-                        className="px-2 py-1 text-xs bg-red-100 hover:bg-red-200 text-red-700 rounded border border-red-200"
-                        title="Remove student"
-                      >
-                        ×
-                      </button>
+                      {/* Intern Duration & Actions */}
+                      <div className="lg:col-span-2 flex gap-2">
+                        {currentJobType !== 'FTE' && (
+                          <input 
+                            placeholder="Duration" 
+                            value={s.override.intern_duration || (applyAll ? g.intern_duration : '')} 
+                            onChange={e => setStudentField(i, 'intern_duration', e.target.value)} 
+                            className="flex-1 px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-500"
+                          />
+                        )}
+                        <button 
+                          onClick={async () => {
+                            setSList(a => { const t=[...a]; t[i].loading=true; return t; });
+                            const r = await fetchOne(s.roll);
+                            setSList(a => { const t=[...a]; t[i] = { ...t[i], loading:false, found: !!r.found, student: r.student || null }; return t; });
+                          }} 
+                          className="px-2 py-1 text-xs bg-gray-100 hover:bg-gray-200 text-gray-700 rounded border"
+                          title="Refetch student data"
+                        >
+                          ↻
+                        </button>
+                        <button 
+                          onClick={() => removeRow(i)} 
+                          className="px-2 py-1 text-xs bg-red-100 hover:bg-red-200 text-red-700 rounded border border-red-200"
+                          title="Remove student"
+                        >
+                          ×
+                        </button>
+                      </div>
                     </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </div>
         )}
@@ -1173,19 +1194,22 @@ const OfferAdder = ({ onDone }) => {
       offer_mode: offerMode,
       offer_category: offerCategory,
       offer_sector: offerSector,
-      shortlisted_students: sList.map(x => ({
-        studentId: x.student?._id || null,
-        roll: x.roll,
-        name: x.student?.name || "",
-        gender: x.student?.gender || "",
-        department: x.student?.department || "",
-        category: x.student?.category || "",
-        job_type: x.override.job_type || g.job_type,
-        job_role: x.override.job_role || g.job_role,
-        ctc: x.override.ctc || g.ctc,
-        stipend: x.override.stipend || g.stipend,
-        intern_duration: g.job_type === 'FTE' ? undefined : (x.override.intern_duration || g.intern_duration)
-      }))
+      shortlisted_students: sList.map(x => {
+        const studentJobType = x.override.job_type || g.job_type;
+        return {
+          studentId: x.student?._id || null,
+          roll: x.roll,
+          name: x.student?.name || "",
+          gender: x.student?.gender || "",
+          department: x.student?.department || "",
+          category: x.student?.category || "",
+          job_type: studentJobType,
+          job_role: x.override.job_role || g.job_role,
+          ctc: x.override.ctc || g.ctc,
+          stipend: x.override.stipend || g.stipend,
+          intern_duration: studentJobType === 'FTE' ? undefined : (x.override.intern_duration || g.intern_duration)
+        };
+      })
     };
     setLoading(true);
     try {
@@ -1203,6 +1227,18 @@ const OfferAdder = ({ onDone }) => {
     <>
       <div className="min-h-screen bg-gray-50 py-8">
         <div className="max-w-6xl mx-auto px-4">
+
+          <div className="mb-6">
+            <div className="flex justify-between items-center">
+              <h1 className="text-2xl font-bold text-gray-900">Add New Offer</h1>
+              <button 
+                onClick={() => setShowEditor(true)} 
+                className="px-6 py-3 bg-custom-blue hover:bg-blue-700 text-white font-semibold rounded-md transition-colors"
+              >
+                Edit Existing Offers
+              </button>
+            </div>
+          </div>
 
           {/* Offer Details */}
           <div className="bg-white rounded-lg shadow-sm border p-6 mb-6">
@@ -1426,115 +1462,119 @@ const OfferAdder = ({ onDone }) => {
               </h2>
               
               <div className="space-y-4">
-                {sList.map((s, i) => (
-                  <div key={i} className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
-                    <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 items-center">
-                      {/* Roll Number */}
-                      <div className="lg:col-span-2">
-                        <label className="block text-xs font-medium text-gray-600 mb-1">Roll Number</label>
-                        <input 
-                          value={s.roll} 
-                          onChange={e => setSList(arr => { 
-                            const t=[...arr]; 
-                            t[i].roll=e.target.value; 
-                            t[i].found=false; 
-                            t[i].student=null; 
-                            return t; 
-                          })} 
-                          className="w-full px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-500"
-                          placeholder="Roll no."
-                        />
-                      </div>
+                {sList.map((s, i) => {
+                  const currentJobType = s.override.job_type || (applyAll ? g.job_type : '');
+                  return (
+                    <div key={i} className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
+                      <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 items-center">
+                        {/* Roll Number */}
+                        <div className="lg:col-span-2">
+                          <label className="block text-xs font-medium text-gray-600 mb-1">Roll Number</label>
+                          <input 
+                            value={s.roll} 
+                            onChange={e => setSList(arr => { 
+                              const t=[...arr]; 
+                              t[i].roll=e.target.value; 
+                              t[i].found=false; 
+                              t[i].student=null; 
+                              return t; 
+                            })} 
+                            className="w-full px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-500"
+                            placeholder="Roll no."
+                          />
+                        </div>
 
-                      {/* Student Info */}
-                      <div className="lg:col-span-2">
-                        <label className="block text-xs font-medium text-gray-600 mb-1">Student Info</label>
-                        <div className="text-sm">
-                          {s.loading ? (
-                            <div className="flex items-center text-blue-600">
-                              <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-blue-600 mr-1"></div>
-                              Loading...
-                            </div>
-                          ) : s.found ? (
-                            <div>
-                              <div className="font-medium text-gray-900">{s.student?.name || '-'}</div>
-                              <div className="text-gray-500 text-xs">{s.student?.department || '-'}</div>
-                            </div>
-                          ) : (
-                            <div className="text-red-600 text-xs">Student not found</div>
+                        {/* Student Info */}
+                        <div className="lg:col-span-2">
+                          <label className="block text-xs font-medium text-gray-600 mb-1">Student Info</label>
+                          <div className="text-sm">
+                            {s.loading ? (
+                              <div className="flex items-center text-blue-600">
+                                <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-blue-600 mr-1"></div>
+                                Loading...
+                              </div>
+                            ) : s.found ? (
+                              <div>
+                                <div className="font-medium text-gray-900">{s.student?.name || '-'}</div>
+                                <div className="text-gray-500 text-xs">{s.student?.department || '-'}</div>
+                              </div>
+                            ) : (
+                              <div className="text-red-600 text-xs">Student not found</div>
+                            )}
+                          </div>
+                        </div>
+
+                        {/* Job Details */}
+                        <div className="lg:col-span-6 grid grid-cols-2 lg:grid-cols-4 gap-2">
+                          <select 
+                            value={s.override.job_type || (applyAll ? g.job_type : '')} 
+                            onChange={e => setStudentField(i, 'job_type', e.target.value)} 
+                            className="px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-500"
+                          >
+                            <option value="">Select job type</option>
+                            <option value="Intern">Intern</option>
+                            <option value="Intern+FTE">Intern+FTE</option>
+                            <option value="FTE">FTE</option>
+                            <option value="Intern+PPO">Intern+PPO</option>
+                          </select>
+                          <input 
+                            placeholder="Job role" 
+                            value={s.override.job_role || (applyAll ? g.job_role : '')} 
+                            onChange={e => setStudentField(i, 'job_role', e.target.value)} 
+                            className="px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-500"
+                          />
+                          <input 
+                            placeholder="CTC" 
+                            value={s.override.ctc || (applyAll ? g.ctc : '')} 
+                            onChange={e => setStudentField(i, 'ctc', e.target.value)} 
+                            className="px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-500"
+                          />
+                          {currentJobType !== 'FTE' && (
+                            <input 
+                              placeholder="Stipend" 
+                              value={s.override.stipend || (applyAll ? g.stipend : '')} 
+                              onChange={e => setStudentField(i, 'stipend', e.target.value)} 
+                              className="px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-500"
+                            />
                           )}
                         </div>
-                      </div>
 
-                      {/* Job Details */}
-                      <div className="lg:col-span-6 grid grid-cols-2 lg:grid-cols-4 gap-2">
-                        <select 
-                          value={s.override.job_type || (applyAll ? g.job_type : '')} 
-                          onChange={e => setStudentField(i, 'job_type', e.target.value)} 
-                          className="px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-500"
-                        >
-                          <option value="">Select job type</option>
-                          <option value="Intern">Intern</option>
-                          <option value="Intern+FTE">Intern+FTE</option>
-                          <option value="FTE">FTE</option>
-                          <option value="Intern+PPO">Intern+PPO</option>
-                        </select>
-                        <input 
-                          placeholder="Job role" 
-                          value={s.override.job_role || (applyAll ? g.job_role : '')} 
-                          onChange={e => setStudentField(i, 'job_role', e.target.value)} 
-                          className="px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-500"
-                        />
-                        <input 
-                          placeholder="CTC" 
-                          value={s.override.ctc || (applyAll ? g.ctc : '')} 
-                          onChange={e => setStudentField(i, 'ctc', e.target.value)} 
-                          className="px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-500"
-                        />
-                        <input 
-                          placeholder="Stipend" 
-                          value={s.override.stipend || (applyAll ? g.stipend : '')} 
-                          onChange={e => setStudentField(i, 'stipend', e.target.value)} 
-                          className="px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-500"
-                        />
-                      </div>
-
-                      {/* Intern Duration & Actions */}
-                      <div className="lg:col-span-2 flex gap-2">
-                        {((s.override.job_type || (applyAll ? g.job_type : '')) !== 'FTE') && (
-                          <input 
-                            placeholder="Duration" 
-                            value={s.override.intern_duration || (applyAll ? g.intern_duration : '')} 
-                            onChange={e => setStudentField(i, 'intern_duration', e.target.value)} 
-                            className="flex-1 px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-500"
-                          />
-                        )}
-                        <button 
-                          onClick={async () => {
-                            setSList(a => { const t=[...a]; t[i].loading=true; return t; });
-                            const r = await fetchOne(s.roll);
-                            setSList(a => { const t=[...a]; t[i] = { ...t[i], loading:false, found: !!r.found, student: r.student || null }; return t; });
-                          }} 
-                          className="px-2 py-1 text-xs bg-gray-100 hover:bg-gray-200 text-gray-700 rounded border"
-                          title="Refetch student data"
-                        >
-                          ↻
-                        </button>
-                        <button 
-                          onClick={() => removeRow(i)} 
-                          className="px-2 py-1 text-xs bg-red-100 hover:bg-red-200 text-red-700 rounded border border-red-200"
-                          title="Remove student"
-                        >
-                          ×
-                        </button>
+                        {/* Intern Duration & Actions */}
+                        <div className="lg:col-span-2 flex gap-2">
+                          {currentJobType !== 'FTE' && (
+                            <input 
+                              placeholder="Duration" 
+                              value={s.override.intern_duration || (applyAll ? g.intern_duration : '')} 
+                              onChange={e => setStudentField(i, 'intern_duration', e.target.value)} 
+                              className="flex-1 px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-500"
+                            />
+                          )}
+                          <button 
+                            onClick={async () => {
+                              setSList(a => { const t=[...a]; t[i].loading=true; return t; });
+                              const r = await fetchOne(s.roll);
+                              setSList(a => { const t=[...a]; t[i] = { ...t[i], loading:false, found: !!r.found, student: r.student || null }; return t; });
+                            }} 
+                            className="px-2 py-1 text-xs bg-gray-100 hover:bg-gray-200 text-gray-700 rounded border"
+                            title="Refetch student data"
+                          >
+                            ↻
+                          </button>
+                          <button 
+                            onClick={() => removeRow(i)} 
+                            className="px-2 py-1 text-xs bg-red-100 hover:bg-red-200 text-red-700 rounded border border-red-200"
+                            title="Remove student"
+                          >
+                            ×
+                          </button>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                
-              ))}
+                  );
+                })}
+              </div>
             </div>
-          </div>
-        )}
+          )}
 
         {/* Actions */}
         <div className="bg-white rounded-lg shadow-sm border p-6">
@@ -1560,12 +1600,6 @@ const OfferAdder = ({ onDone }) => {
               >
                 Reset Students
               </button>
-              <button 
-                onClick={() => setShowEditor(true)} 
-                className="px-6 py-3 bg-custom-blue hover:bg-blue-700 text-white font-semibold rounded-md transition-colors"
-              >
-                Edit Existing Offers
-              </button>
             </div>
             
             {msg && (
@@ -1579,17 +1613,17 @@ const OfferAdder = ({ onDone }) => {
             )}
           </div>
         </div>
-      </div>
-    </div>
-
-    {showEditor && (
-      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 overflow-auto">
-        <div className="bg-white rounded-lg max-w-6xl w-full m-4 max-h-[90vh] overflow-auto">
-          <OfferEditor onClose={() => setShowEditor(false)} />
         </div>
       </div>
-    )}
-  </>
+
+      {showEditor && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 overflow-auto">
+          <div className="bg-white rounded-lg max-w-6xl w-full m-4 max-h-[90vh] overflow-auto">
+            <OfferEditor onClose={() => setShowEditor(false)} />
+          </div>
+        </div>
+      )}
+    </>
   );
 };
 

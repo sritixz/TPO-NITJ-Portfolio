@@ -273,7 +273,6 @@ const SharedExperience = () => {
             </div>
           </section>
         )}
-        <Notification/>
       </div>
     </>
   );
