@@ -58,10 +58,12 @@ import {
 import {
   addOfferTracker,
   getOfferTrackers,
-  getOfferTracker,
+  getOfferTrackerbyId,
   updateOfferTracker,
   deleteOfferTracker,
   deleteBulkOfferTrackers,
+  deleteSpecificOffer,
+  updateSpecificOffer,
 } from "../controller/Admin/offertracker.js";
 
 import {
@@ -141,8 +143,10 @@ router.post("/loginattempts/bulk-delete", deleteBulkLoginAttempts);
 //offer tracker
 router.post("/offertracker/", addOfferTracker);
 router.get("/offertracker/", getOfferTrackers);
-router.get("/offertracker/:id", getOfferTracker);
+router.get("/offertracker/:id", getOfferTrackerbyId);
+router.put("/offertracker/:id/offer/:index", updateSpecificOffer);
 router.put("/offertracker/:id", updateOfferTracker);
+router.delete("/offertracker/:id/offer/:index", deleteSpecificOffer);
 router.delete("/offertracker/:id", deleteOfferTracker);
 router.post("/offertracker/bulk-delete", deleteBulkOfferTrackers);
 

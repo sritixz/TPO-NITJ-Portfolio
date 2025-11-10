@@ -66,6 +66,7 @@ const StudentAnalyticsDashboard = () => {
         `${import.meta.env.REACT_APP_BASE_URL}/student-analysis/get?${queryParams.toString()}`,
         { withCredentials: true }
       );
+      console.log(response.data.data);
       setData(response.data.data || []);
     } catch (err) {
       setError(err.response?.data?.error || "Failed to fetch students.");
@@ -199,7 +200,9 @@ const StudentAnalyticsDashboard = () => {
       CGPA: student.cgpa,
       "Active Backlog": student.active_backlogs ? "Yes" : "No",
       "Backlog History": student.backlogs_history ? "Yes" : "No",
-      Offer: student.offers?.length || 0
+      Offer: student.offers?.length || 0,
+      Applied: student?.applications?.total || 0,
+      Interested: student?.isInterested ? "Yes" : "No",
     }));
 
     const ws = XLSX.utils.json_to_sheet(exportData);
@@ -218,6 +221,8 @@ const StudentAnalyticsDashboard = () => {
       { wch: 10 }, // Active Backlog
       { wch: 10 }, // Backlog History
       { wch: 5 }, // Offer
+      { wch: 5 }, // Applied
+      { wch: 5 }, // Interested
     ];
     ws["!cols"] = colWidths;
 
@@ -855,16 +860,6 @@ const StudentAnalyticsDashboard = () => {
                 placeholder="Select CGPA"
               />
             </div>
-            {/* <div className="space-y-2">
-              <label className="text-sm font-medium text-gray-700">Placement Status</label>
-              <Select
-                options={placementStatusOptions}
-                value={placementStatusOptions.find(opt => opt.value === filters.placementstatus) || null}
-                onChange={(option) => setFilters({ ...filters, placementstatus: option ? option.value : "" })}
-                className="w-full"
-                placeholder="Select Placement Status"
-              />
-            </div> */}
             <div className="space-y-2">
               <label className="text-sm font-medium text-gray-700">Debarred</label>
               <Select
@@ -1043,19 +1038,6 @@ const StudentAnalyticsDashboard = () => {
                       <span className="text-sm text-gray-700">CGPA: {student.cgpa}</span>
                     </div>
                   </div>
-                  {/* <div
-                    className={`mt-4 inline-block px-3 py-1 rounded-full text-sm font-medium ${
-                      student.placementstatus === "Super Dream"
-                        ? "bg-green-100 text-green-800"
-                        : student.placementstatus === "Dream"
-                        ? "bg-blue-100 text-blue-800"
-                        : student.placementstatus === "Below Dream"
-                        ? "bg-yellow-100 text-yellow-800"
-                        : "bg-gray-600 text-gray-100"
-                    }`}
-                  >
-                    {student.placementstatus}
-                  </div> */}
                   <div className="mt-2">
                     <span className="text-sm font-medium text-gray-800">
                       Offers: {student.offers?.length || 0}
@@ -1094,7 +1076,7 @@ const StudentAnalyticsDashboard = () => {
                   </div>
                 </DialogHeader>
                 <div className="mt-6">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-y-8 overflow-x-hidden">
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-y-8 overflow-x-hidden">
                     <div className="space-y-6">
                       <Card className="border-0 shadow-sm">
                         <CardHeader>
@@ -1149,28 +1131,6 @@ const StudentAnalyticsDashboard = () => {
                         <CardContent className="space-y-4">
                           <div>
                             <label className="text-sm font-medium text-gray-700">Placement Status</label>
-                            {/* {editMode ? (
-                              <Select
-                                options={placementStatusOptions}
-                                value={placementStatusOptions.find(opt => opt.value === editedStudent.placementstatus) || null}
-                                onChange={(option) => handleChange("placementstatus", option ? option.value : "")}
-                                className="mt-1"
-                              />
-                            ) : (
-                              <div
-                                className={`mt-2 inline-block px-3 py-1 rounded-full text-sm font-medium ${
-                                  student.placementstatus === "Super Dream"
-                                    ? "bg-green-100 text-green-800"
-                                    : student.placementstatus === "Dream"
-                                    ? "bg-blue-100 text-blue-800"
-                                    : student.placementstatus === "Below Dream"
-                                    ? "bg-yellow-100 text-yellow-800"
-                                    : "bg-gray-100 text-gray-800"
-                                }`}
-                              >
-                                {student.placementstatus}
-                              </div>
-                            )} */}
                             <p className={`mt-1 ${student.offers?.length > 0 ? "text-green-600" : "text-red-600"}`}>{student.offers?.length > 0 ? "Placed" : "Not Placed"}</p>
                           </div>
                           <div>
@@ -1190,6 +1150,29 @@ const StudentAnalyticsDashboard = () => {
                               <p className="mt-1 text-gray-900">{student.debarred? "Yes" : "No"}</p>
                             )}
                           </div>
+                        </CardContent>
+                      </Card>
+                    </div>
+                    <div className="space-y-6">
+                      <Card className="border-0 shadow-sm mt-6">
+                        <CardContent className="space-y-4">
+<div className="top-10 right-20 w-40 h-40 border-2 border-white shadow-md overflow-hidden">
+  {student.image ? (
+    <img
+      src={`${import.meta.env.REACT_APP_BASE_URL}${student.image}`}
+      alt={student.name}
+      className="w-full h-full object-cover"
+    />
+  ) : (
+    <div className="flex h-full w-full items-center justify-center bg-gray-200 text-gray-600 text-4xl font-semibold">
+      {student.name
+        .split(' ')
+        .map((n) => n[0]?.toUpperCase())
+        .slice(0, 2)
+        .join('') || '?'}
+    </div>
+  )}
+</div>
                         </CardContent>
                       </Card>
                     </div>

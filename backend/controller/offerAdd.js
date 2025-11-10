@@ -143,3 +143,126 @@ export const updateOffer = async (req, res) => {
     res.status(500).json({ message: err.message });
   }
 };
+
+
+// export const updateOffer = async (req, res) => {
+//   try {
+//     const { id } = req.params; // Offer ID from route
+//     const {
+//       company_name,
+//       batch,
+//       course,
+//       result_date,
+//       offer_mode,
+//       offer_sector,
+//       offer_category,
+//       shortlisted_students
+//     } = req.body; // Payload from frontend
+
+//     // Basic validation
+//     if (!company_name || !batch || !course || !offer_mode) {
+//       return res.status(400).json({ error: 'Missing required fields: company_name, batch, course, offer_mode' });
+//     }
+
+//     if (!Array.isArray(shortlisted_students) || shortlisted_students.length === 0) {
+//       return res.status(400).json({ error: 'shortlisted_students array is required and must not be empty' });
+//     }
+
+//     // Validate each shortlisted student has required fields
+//     const validStudents = shortlisted_students.filter(student => 
+//       student.name && (student.job_type || student.job_role)
+//     );
+//     if (validStudents.length !== shortlisted_students.length) {
+//       return res.status(400).json({ error: 'Each shortlisted student must have name and at least job_type or job_role' });
+//     }
+
+//     // Verify studentIds exist in Student model (if studentId is provided)
+//     const studentIds = shortlisted_students
+//       .filter(s => s.studentId)
+//       .map(s => s.studentId);
+//     if (studentIds.length > 0) {
+//       const existingStudents = await Student.find({ _id: { $in: studentIds } });
+//       const existingIds = existingStudents.map(s => s._id.toString());
+//       const invalidIds = studentIds.filter(id => !existingIds.includes(id.toString()));
+//       if (invalidIds.length > 0) {
+//         return res.status(400).json({ 
+//           error: `Invalid studentId(s): ${invalidIds.join(', ')}` 
+//         });
+//       }
+//     }
+
+//     // Update the Offer
+//     const updatedOffer = await Offer.findByIdAndUpdate(
+//       id,
+//       {
+//         $set: {
+//           company_name,
+//           batch,
+//           course,
+//           result_date,
+//           offer_mode,
+//           offer_sector,
+//           offer_category,
+//           shortlisted_students,
+//           updatedAt: Date.now()
+//         }
+//       },
+//       { new: true }
+//     );
+
+//     if (!updatedOffer) {
+//       return res.status(404).json({ message: "Offer not found" });
+//     }
+
+//     // Update OfferTracker for each student
+//     for (const student of shortlisted_students) {
+//       if (student.studentId) {
+//         await OfferTracker.findOneAndUpdate(
+//           { studentId: student.studentId },
+//           {
+//             $push: {
+//               offer: {
+//                 offer_type: student.job_type || "",
+//                 offer_category: offer_category || "",
+//                 offer_sector: offer_sector || "Private",
+//                 offer_ctc: student.ctc || "0",
+//                 offer_intern_duration: student.intern_duration || ""
+//               }
+//             }
+//           },
+//           { upsert: true, new: true } // Create new tracker if not exists
+//         );
+//       }
+//     }
+
+//     // Optional: Remove OfferTracker entries for students no longer in shortlisted_students
+//     const existingStudentIds = updatedOffer.shortlisted_students
+//       .filter(s => s.studentId)
+//       .map(s => s.studentId.toString());
+//     const newStudentIds = shortlisted_students
+//       .filter(s => s.studentId)
+//       .map(s => s.studentId.toString());
+    
+//     const removedStudentIds = existingStudentIds.filter(id => !newStudentIds.includes(id));
+    
+//     if (removedStudentIds.length > 0) {
+//       await OfferTracker.updateMany(
+//         { studentId: { $in: removedStudentIds } },
+//         {
+//           $pull: {
+//             offer: {
+//               offer_type: { $in: shortlisted_students.map(s => s.job_type).filter(Boolean) },
+//               offer_category: offer_category || "",
+//               offer_sector: offer_sector || "Private"
+//             }
+//           }
+//         }
+//       );
+//     }
+
+//     res.status(200).json(updatedOffer);
+//   } catch (err) {
+//     console.error('Error updating offer:', err);
+//     res.status(500).json({ message: err.message });
+//   }
+// };

@@ -80,19 +80,6 @@ const sendEmailToStudent = async (student, jobProfile) => {
   }
   const mailOptions = {
     from: process.env.EMAIL_USER,
-    // to: student.email,
-    // subject: `New Job Opportunity: ${jobProfile.job_role} at ${jobProfile.company_name}`,
-    // html: `
-    //   <h3>Dear Student,</h3>
-    //   <p>We are excited to inform you about a new job opportunity!</p>
-    //   <p><strong>Company:</strong> ${jobProfile.company_name}</p>
-    //   <p><strong>Job Role:</strong> ${jobProfile.job_role}</p>
-    //   <p><strong>Location:</strong> ${jobProfile.joblocation}</p>
-    //   ${salaryDetails}
-    //   <p><strong>Deadline to Apply:</strong> ${deadlineDateTime}</p>
-    //   <p>Please login to <a href="https://ctp.nitj.ac.in/sdashboard/job-application/${jobProfile._id}">TPO NITJ Portal</a> to apply and view more details.</p>
-    //   <p>Best regards,<br>TPO-NITJ</p>
-    // `,
     to: student.email,
     subject: `New Job Opportunity: ${jobProfile.job_role} at ${jobProfile.company_name}`,
 html: `
@@ -972,12 +959,12 @@ export const checkEligibility = async (req, res) => {
     }
 
     // Check for isInterested only if the field exists
-if (typeof student.isInterested !== 'undefined' && student.isInterested === false) {
+  if (typeof student.isInterested !== 'undefined' && student.isInterested === false) {
   return res.json({
     eligible: false,
     reason: "You were not interested during placement registration"
   });
-}
+   }
 
     let updatedStudent;
     try {
@@ -1160,29 +1147,30 @@ if (typeof student.isInterested !== 'undefined' && student.isInterested === fals
         //     return res.json({ eligible: false, reason: "You have already D category Offer" });  
         // }
         //now if he will have a offer with category A then he will be not eligible for any offer
-      if(studentOfferHistory?.offer[0].offer_type === 'Intern' || studentOfferHistory?.offer[0].offer_type === 'Intern+PPO'){
-        if((studentOfferHistory?.offer[0].offer_type === 'Intern+PPO' && studentOfferHistory?.offer[0].offer_ctc <= 0) || studentOfferHistory?.offer[0].offer_type === 'Intern'){
-            if(jobCategory === 'D' && (jobType==='Intern' || jobType==='Intern+PPO' || jobType==='Intern+FTE')){
-             return res.json({ eligible: false, reason: "You have already D category Offer" });
-            }
-        }
-        else if(studentOfferHistory?.offer[0].offer_type === 'Intern+PPO' && studentOfferHistory?.offer[0].offer_ctc > 0 ){
-            if(jobCategory === 'D' && studentOfferHistory?.offer[0].offer_category==='D' && (jobType==='Intern' || jobType==='Intern+PPO' || jobType==='Intern+FTE')){
-             return res.json({ eligible: false, reason: "You have already D category Inter+PPO Offer" });
-            }
-            if((jobCategory === 'D' || jobCategory ==='C') && studentOfferHistory?.offer[0].offer_category==='C' && (jobType==='Intern' || jobType==='Intern+PPO' || jobType==='Intern+FTE')){
-             return res.json({ eligible: false, reason: "You have already C category Inter+PPO Offer" });
-            }
-            if((jobCategory === 'D' || jobCategory === 'C' || jobCategory ==='B') && studentOfferHistory?.offer[0].offer_category==='B' && (jobType==='Intern' || jobType==='Intern+PPO' || jobType==='Intern+FTE')){
-             return res.json({ eligible: false, reason: "You have already B category Inter+PPO Offer" });
-            }
-            if((jobCategory === 'D' || jobCategory === 'C' || jobCategory ==='B' || jobCategory ==='A') && studentOfferHistory?.offer[0].offer_category==='A' && (jobType==='Intern' || jobType==='Intern+PPO' || jobType==='Intern+FTE')){
-             return res.json({ eligible: false, reason: "You have already A category Inter+PPO Offer" });
-            }
-        }
-      }
+      // if(studentOfferHistory?.offer[0].offer_type === 'Intern' || studentOfferHistory?.offer[0].offer_type === 'Intern+PPO'){
+      //   if((studentOfferHistory?.offer[0].offer_type === 'Intern+PPO' && studentOfferHistory?.offer[0].offer_ctc <= 0) || studentOfferHistory?.offer[0].offer_type === 'Intern'){
+      //       if(jobCategory === 'D' && (jobType==='Intern' || jobType==='Intern+PPO' || jobType==='Intern+FTE')){
+      //        return res.json({ eligible: false, reason: "You have already D category Offer" });
+      //       }
+      //   }
+      //   else if(studentOfferHistory?.offer[0].offer_type === 'Intern+PPO' && studentOfferHistory?.offer[0].offer_ctc > 0 ){
+      //       if(jobCategory === 'D' && studentOfferHistory?.offer[0].offer_category==='D' && (jobType==='Intern' || jobType==='Intern+PPO' || jobType==='Intern+FTE')){
+      //        return res.json({ eligible: false, reason: "You have already D category Inter+PPO Offer" });
+      //       }
+      //       if((jobCategory === 'D' || jobCategory ==='C') && studentOfferHistory?.offer[0].offer_category==='C' && (jobType==='Intern' || jobType==='Intern+PPO' || jobType==='Intern+FTE')){
+      //        return res.json({ eligible: false, reason: "You have already C category Inter+PPO Offer" });
+      //       }
+      //       if((jobCategory === 'D' || jobCategory === 'C' || jobCategory ==='B') && studentOfferHistory?.offer[0].offer_category==='B' && (jobType==='Intern' || jobType==='Intern+PPO' || jobType==='Intern+FTE')){
+      //        return res.json({ eligible: false, reason: "You have already B category Inter+PPO Offer" });
+      //       }
+      //       if((jobCategory === 'D' || jobCategory === 'C' || jobCategory ==='B' || jobCategory ==='A') && studentOfferHistory?.offer[0].offer_category==='A' && (jobType==='Intern' || jobType==='Intern+PPO' || jobType==='Intern+FTE')){
+      //        return res.json({ eligible: false, reason: "You have already A category Inter+PPO Offer" });
+      //       }
+      //   }
+      // }
 
-    else if(studentOfferHistory?.offer[0].offer_type === 'Intern+FTE' || studentOfferHistory?.offer[0].offer_type === 'FTE'){
+      console.log(studentOfferHistory.offer[0].offer_category , jobCategory, jobCTC, currentCTC);
+    // if(studentOfferHistory?.offer[0].offer_type === 'Intern+FTE' || studentOfferHistory?.offer[0].offer_type === 'FTE'){
        if(studentOfferHistory?.offer[0].offer_category === 'A'){
         //  if(studentOfferHistory?.offer[0].offer_type==='Intern+FTE' || studentOfferHistory?.offer[0].offer_type==='FTE'){
         //   return res.json({ eligible: false, reason: "You have already A category Offer" });
@@ -1202,10 +1190,11 @@ if (typeof student.isInterested !== 'undefined' && student.isInterested === fals
        else if(studentOfferHistory?.offer[0].offer_category === 'C' && (jobCategory==='D' || jobCategory==='C'|| (jobCategory==='B' && jobCTC<(currentCTC+3)) || (jobCategory==='A' && jobCTC<(currentCTC+3))) ){
           return res.json({ eligible: false, reason: "You have already C category Offer or job ctc has less diff. than expected w.r.t current offer ctc" });
         }
-      else if(studentOfferHistory.offer[0].offer_category === 'D' && (jobCategory==='D' || (jobCategory==='C' && jobCTC<(currentCTC+2 )) || (jobCategory==='A' && jobCTC<(currentCTC+2)))){
+      else if((studentOfferHistory.offer[0].offer_category === 'D' || studentOfferHistory?.offer[0].offer_type === 'Intern' || (studentOfferHistory?.offer[0].offer_type === 'Intern+PPO' && studentOfferHistory?.offer[0].offer_ctc <= 0)) && (jobCategory==='D' || (jobCategory==='C' && jobCTC<(currentCTC+2 )) || (jobCategory==='A' && jobCTC<(currentCTC+2)) || (jobCategory==='B' && jobCTC<(currentCTC+2)) )){
           return res.json({ eligible: false, reason: "You have already D category Offer or job ctc has less diff. than expected w.r.t current offer ctc" });
         }
-      }}
+      }
+    // }
     }}
     const currentDate = new Date();
     const isDeadlineOver = job.deadline && currentDate > job.deadline;

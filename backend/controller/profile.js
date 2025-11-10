@@ -47,44 +47,63 @@ export const pprofile = async (req, res) => {
 
 
 //update profile
+// export const updatesProfile = async (req, res) => {
+//     try {
+//         const userId = req.user.userId;
+//         const { phone,address } = req.body;
+//         const student = await Student.findById(userId);
+//         if (!student) {
+//             return res.status(404).json({ message: 'Student not found' });
+//         }
+//         student.phone = phone;
+//         student.address = address;
+//         await student.save();
+//         res.status(200).json({ message: 'Profile updated successfully', user:student });
+//     } catch (error) {
+//         console.error('Error updating user profile:', error);
+//         res.status(500).json({ message: 'Server error' });
+//     }
+// };
+
+
 export const updatesProfile = async (req, res) => {
-    try {
-        const userId = req.user.userId;
-        const { phone,address } = req.body;
-        const student = await Student.findById(userId);
-        if (!student) {
-            return res.status(404).json({ message: 'Student not found' });
-        }
-        student.phone = phone;
-        student.address = address;
-        await student.save();
-        res.status(200).json({ message: 'Profile updated successfully', user:student });
-    } catch (error) {
-        console.error('Error updating user profile:', error);
-        res.status(500).json({ message: 'Server error' });
+  try {
+    const userId = req.user.userId;               // from auth middleware
+    const updates = req.body;                     // <-- ALL fields the UI can send
+
+    const student = await Student.findById(userId);
+    if (!student) {
+      return res.status(404).json({ message: "Student not found" });
     }
-};
 
+    // ---- Whitelist the fields you allow to be updated ----
+    const allowed = [
+      "phone",
+      "address",
+      "dob",
+      "personalEmail",
+      "Xth",
+      "XIIth",
+      "linkedin",
+      // add any other field you want editable later
+    ];
 
-//handle student profile photo
-/* export const handlesProfilePhoto = async (req, res) => {
-    const image = req.file.path;
-    try{
-      const x = await cloudinary.uploader.upload(image);
- 
-      fs.unlinkSync(image);
-      const student = await Student.findOne({_id:req.user.userId});
-      if (student) {
-        student.image= x.secure_url;
-        await student.save();
+    allowed.forEach((field) => {
+      if (updates[field] !== undefined) {
+        student[field] = updates[field];
       }
-      res.json({ success: true, image: x.secure_url, student });
-    } catch (error) {
-      console.error("Error updating profile photo:", error);
-      res.status(500).json({ success: false, error: "Profile Updation failed" });
-    }
-  }; */
+    });
 
+    await student.save();
+
+    res
+      .status(200)
+      .json({ message: "Profile updated successfully", user: student });
+  } catch (error) {
+    console.error("Error updating profile:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+};
 
   export const handlesProfilePhoto = async (req, res) => {
     try {

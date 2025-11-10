@@ -48,6 +48,7 @@ import offerAddRoutes from "./routes/offerAdd.js";
 import insightRoutes from "./routes/insight.js";
 import documentsRoutes from "./routes/documents.js";
 import studentDocumentsRoutes from "./routes/studentsdocuments.js";
+import placementCalendarRoutes from "./routes/placement-calendar.js";
 
 
 import { mkdir } from 'fs/promises';
@@ -132,6 +133,7 @@ app.use('/nodemailer',authenticate, restrictTo('Professor'),logMiddleware, nodem
 app.use('/add-recruiter', authenticate,restrictTo('Professor'),logMiddleware, addRecruiterRoutes);
 app.use('/cgpa-checker',authenticate, restrictTo('Professor'),logMiddleware, cgpaCheckerRoutes);
 app.use('/insight',authenticate, restrictTo('Professor','Student'),logMiddleware, insightRoutes);
+app.use('/placement-calendar',authenticate,logMiddleware, placementCalendarRoutes);
 
 //Admin routes
 app.use('/admin',authenticate,restrictTo('Admin'),logMiddleware,adminRoutes);

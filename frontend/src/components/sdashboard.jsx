@@ -41,7 +41,7 @@ import PDFDownloadCards from "./StudentDashboard/policy";
 import CalendarComponent from "./StudentDashboard/calender";
 import SharedExperience from "./StudentDashboard/shared-experience";
 import Profile from "./StudentDashboard/profile";
-import ProfileImage from "../assets/chillguy.png";
+import ProfileImage from "../assets/user-icon.png";
 import NITJlogo from "../assets/nitj-logo.png";
 import Request from "./StudentDashboard/Request";
 import TeamSection from "./Developers/TeamSection.jsx";
@@ -53,6 +53,7 @@ import QuestionBank from "./StudentDashboard/questionbank.jsx";
 import JobdetailFromCalender from "./StudentDashboard/JobDetailsFromCalender.jsx";
 import PlacementRegistrationForm from "./StudentDashboard/registration-form.jsx";
 import StudentDocument from "./StudentDashboard/studentsdocuments.jsx";
+import PlacementCalendar from "./StudentDashboard/placement-calendar.jsx";
 
 
 const StudentDashboard = () => {
@@ -111,10 +112,6 @@ const StudentDashboard = () => {
     { path: "/sdashboard/placement-insights", label: "Placement Insights", icon: faChartLine },
     { path: "/sdashboard/navigator", label: "Navigator", icon: faLayerGroup, },
     { path: "/sdashboard/change-pass", label: "Change Password", icon: faKey },
-    // { path: "/sdashboard/request-help", label: "Request Help", icon: faHandsHelping,},
-    // { path: "/sdashboard/shared-experience", label: "Shared Experience", icon: faShareSquare,},
-    // { path: "/sdashboard/question-bank", label: "Question Bank", icon: faDatabase, },
-    // {path: "/sdashboard/noc", label: "NOC", icon:   faCertificate},
   ];
 
   const MenuItem = ({ item, onClick, isSidebarExpanded }) => {
@@ -185,12 +182,17 @@ const StudentDashboard = () => {
           ) : (
             <div className="flex items-center gap-4">
               <span className="font-inter text-gray-600 font-bold tracking-wide">👋 Hi, <span className="text-custom-blue">{userData.name}</span> </span>
-              <img
-                onClick={() => navigate("/sdashboard/profile")}
-                src={`${import.meta.env.REACT_APP_BASE_URL}${userData?.image}`|| ProfileImage}
-                alt="Profile"
-                className="w-8 h-8 rounded-full object-cover cursor-pointer border border-gray-400 hover:ring-2 hover:ring-custom-blue"
-              />
+             <img
+  onClick={() => navigate("/sdashboard/profile")}
+  src={
+    userData?.image
+      ? `${import.meta.env.REACT_APP_BASE_URL}${userData.image}`
+      : ProfileImage
+  }
+  alt="Profile"
+  className="w-8 h-8 rounded-full object-cover cursor-pointer border border-gray-400 hover:ring-2 hover:ring-custom-blue"
+/>
+
             </div>
           )}
         </div>
@@ -316,6 +318,7 @@ const StudentDashboard = () => {
             <Route path="change-pass" element={<ChangePasswordForm />} />
             <Route path="placement-registration" element={<PlacementRegistrationForm />} />
             <Route path="student-documents" element={<StudentDocument />} />
+            <Route path="placement-calendar" element={<PlacementCalendar />} />
             </Routes>
         </div>
 
@@ -342,7 +345,6 @@ const StudentDashboard = () => {
     </div>
   </div>
 </footer>
-
       </main>
     </div>
   );

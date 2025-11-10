@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { FaCheckCircle, FaExclamationCircle } from "react-icons/fa";
-import Notification from "../ProfessorDashboard/Notification";
 
 const Request = () => {
   const [activeTab, setActiveTab] = useState("request"); // "request", "resolved", "unresolved"
@@ -12,6 +11,8 @@ const Request = () => {
   const [alertMessage, setAlertMessage] = useState("");
   // For toggling resolved issue comments; key format: `${issue._id}-${index}`
   const [expandedComments, setExpandedComments] = useState({});
+  const [raising, setRaising] = useState(false);
+
 
   const availableIssues = [
     "Eligibility Issue",
@@ -38,31 +39,37 @@ const Request = () => {
     }
   };
 
-  const raiseIssue = async () => {
-    if (!selectedIssuetitle || !issueDescription) {
-      alert("Please select an issue and provide a description before raising it.");
-      return;
-    }
+const raiseIssue = async () => {
+  if (raising) return; // Prevent double click
+  if (!selectedIssuetitle || !issueDescription) {
+    alert("Please select an issue and provide a description before raising it.");
+    return;
+  }
 
-    try {
-      const response = await axios.post(
-        `${import.meta.env.REACT_APP_BASE_URL}/reqhelp/create`,
-        {
-          title: selectedIssuetitle,
-          description: issueDescription,
-        },
-        { withCredentials: true }
-      );
-      // Append the new issue to the unresolved list
-      setUnresolvedIssues([...unresolvedIssues, response.data.data]);
-      setAlertMessage("Your issue has been raised and sent to the team.");
-      setIssueDescription("");
-      setSelectedIssuetitle("");
-      setTimeout(() => setAlertMessage(""), 3000);
-    } catch (error) {
-      console.error("Error raising issue:", error);
-    }
-  };
+  setRaising(true);
+
+  try {
+    const response = await axios.post(
+      `${import.meta.env.REACT_APP_BASE_URL}/reqhelp/create`,
+      {
+        title: selectedIssuetitle,
+        description: issueDescription,
+      },
+      { withCredentials: true }
+    );
+
+    setUnresolvedIssues([...unresolvedIssues, response.data.data]);
+    setAlertMessage("Your issue has been raised and sent to the team.");
+    setIssueDescription("");
+    setSelectedIssuetitle("");
+    setTimeout(() => setAlertMessage(""), 3000);
+  } catch (error) {
+    console.error("Error raising issue:", error);
+  } finally {
+    setRaising(false);
+  }
+};
+
 
   // Toggle the display of the professor's comment
   const toggleComment = (key) => {
@@ -247,12 +254,18 @@ const Request = () => {
               placeholder="Describe your issue here..."
             />
 
-            <button
-              onClick={raiseIssue}
-              className="w-full bg-custom-blue text-white py-2 rounded-md hover:bg-blue-700 transition-shadow shadow-md"
-            >
-              Raise Issue
-            </button>
+         <button
+  onClick={raiseIssue}
+  disabled={raising}
+  className={`w-full py-2 rounded-md transition-all shadow-md text-white ${
+    raising
+      ? "bg-blue-300 cursor-not-allowed"
+      : "bg-custom-blue hover:bg-blue-700"
+  }`}
+>
+  {raising ? "Raising Issue..." : "Raise Issue"}
+</button>
+
           </>
         ) : (
           <div className="mt-2">
@@ -265,7 +278,6 @@ const Request = () => {
           </div>
         )}
       </div>
-      <Notification />
     </div>
   );
 };

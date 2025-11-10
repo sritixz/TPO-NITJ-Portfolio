@@ -8,6 +8,9 @@ const studentSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+  personalEmail: {
+    type: String,
+  },
   phone: {
     type: String,
   },
@@ -18,6 +21,9 @@ const studentSchema = new mongoose.Schema({
   rollno: {
     type: String,
     required: true,
+  },
+  dob: {
+    type: String,
   },
   department: {
     type: String,
@@ -33,6 +39,12 @@ const studentSchema = new mongoose.Schema({
     type: String,
   },
   cgpa: {
+    type: String,
+   },
+   Xth:{
+    type: String,
+   },
+   XIIth:{
     type: String,
    },
   gender: {
@@ -75,7 +87,10 @@ const studentSchema = new mongoose.Schema({
   },
   isInterested:{
     type:Boolean,
-    default:true
+    default: false
+  },
+  linkedin: {
+    type: String
   },
   otp: {
     type: String

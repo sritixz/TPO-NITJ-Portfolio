@@ -132,9 +132,11 @@ export const getStudentAnalytics = async (req, res) => {
                         placementstatus: student.placementstatus || 'Not Placed',
                         internshipstatus: student.internshipstatus || 'No Intern',
                         debarred: student.debarred ?? false,
+                        image: student.image || '',
                         active_backlogs: erpData?.active_backlogs ?? student.active_backlogs ?? false,
                         backlogs_history: erpData?.backlogs_history ?? student.backlogs_history ?? false,
                         offers:  offers? offers?.offer : [],
+                        isInterested: student.isInterested || false,
                         applications: {
                             total: 0,
                             jobProfiles: []

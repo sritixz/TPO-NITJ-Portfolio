@@ -23,6 +23,7 @@ import {
   faUserCheck,
   faCheckCircle,
   faTags,
+  faCalendarAlt
 } from "@fortawesome/free-solid-svg-icons";
 
 import { Menu, X, LogOut} from "lucide-react";
@@ -34,16 +35,10 @@ import NITJlogo from "../../assets/nitj-logo.png";
 
 
 import JobManagement from "./pjobmanagement";
-import OAManagement from "./poamanagement";
-import InterviewManagement from "./pinterviewmanagement";
-import PNotifications from "./pnotifications";
-// import Mailbox from "./pmailbox";
 import ExperienceSharing from "./pexperiencesharing";
 import PPlacementReport from "./pplacementinsights";
 import RequestHelpManager from "./Request";
 import Profile from "./pProfile.jsx";
-// import Home from "./home";
-import Upload from "./pUpload.jsx";
 import JAF from "./jaf.jsx";
 import TeamSection from "../Developers/TeamSection.jsx";
 import StudentAnalyticsDashboard from "./studentanalysis.jsx";
@@ -58,6 +53,7 @@ import ExcelUploader from "./exceluploader.jsx";
 import OfferAdder from "./offeradder.jsx";
 import PlacementRegistrationExport from "./registration-form.jsx";
 import InsightDashboard from "./InsightDashboard.jsx";
+import PlacementCalendar from "./placement-calendar.jsx";
 
 
 const Pdashboard = () => {
@@ -103,23 +99,19 @@ const Pdashboard = () => {
   };
 
   const menuItems = [
-    // { label: "Dashboard", icon: faHome, path: "/pdashboard/home" },
     { label: "Home", icon: faHome, path: "/pdashboard/home" },
-    // { label: "JAF",  icon: faFileWaveform, path: "/pdashboard/jaf" },
     { label: "Job Management", icon: faBriefcaseClock, path: "/pdashboard/job-profile-management" },
     {label:"Student",icon:faUser, path:"/pdashboard/student-analysis"},
-    {label:"NOC",icon:faUser, path:"/pdashboard/noc-management"},
     { label: "Placement Reports", icon: faChartBar, path: "/pdashboard/placement-insights" },
-    { label: "Conversation Log", icon: faComment, path: "/pdashboard/conversation" },
-    { label: "Add Recruiter", icon: faUserCheck, path: "/pdashboard/add-recruiter" },
     { label: "OfferAdder", icon: faTags, path: "/pdashboard/offer-adder" },
+    { label: "Placement Registration", icon: faFileAlt, path: "/pdashboard/placement-registration" },
+    { label: "Placement Calendar", icon: faCalendarAlt, path: "/pdashboard/placement-calendar" },
+    { label: "CGPA Validator", icon: faCheckCircle, path: "/pdashboard/check-cgpa" },
+    {label:"NOC",icon:faUser, path:"/pdashboard/noc-management"},
+    { label: "Conversation Log", icon: faComment, path: "/pdashboard/conversation" },
     { label: "Help Requests", icon: faQuestionCircle, path: "/pdashboard/help-requests" },
     { label: "Shared Experiences", icon: faShareAlt, path: "/pdashboard/experience-sharing" },
     { label: "User Requests", icon: faContactCard, path: "/pdashboard/contact-request" },
-    { label: "CGPA Validator", icon: faCheckCircle, path: "/pdashboard/check-cgpa" },
-    { label: "Placement Registration", icon: faFileAlt, path: "/pdashboard/placement-registration" },
-    // {label:"Companies",icon:faBuilding, path:"/pdashboard/company-analysis"},
- /*    { label: "Upload Doc", icon: faUpload, path: "/pdashboard/uploads" }, */
     
   ];
 
@@ -305,7 +297,6 @@ const Pdashboard = () => {
             <Route path="jaf" element={<JAF/>} />
             <Route path="job-profile-management" element={<JobManagement />} />
             <Route path="offer-adder" element={<OfferAdder />} />
-            <Route path="notifications" element={<PNotifications />} />
             <Route path="help-requests" element={<RequestHelpManager />} />
             <Route path="student-analysis" element={<StudentAnalyticsDashboard />} />
             <Route path="noc-management" element={<NOCManagement />} />
@@ -314,9 +305,10 @@ const Pdashboard = () => {
             <Route path="contact-request" element={<ContactRequests />} />
             <Route path="conversation" element={<ConversationLog />} />
             <Route path="placement-insights" element={<PPlacementReport />} />
-            <Route path="add-recruiter" element={<RecruiterForm/>} />
+            {/* <Route path="add-recruiter" element={<RecruiterForm/>} /> */}
             <Route path="check-cgpa" element={<ExcelUploader/>} />
             <Route path="placement-registration" element={<PlacementRegistrationExport/>} />
+            <Route path="placement-calendar" element={<PlacementCalendar/>} />
             {/* <Route path="placement-policy" element={<PlacementPolicy />} /> */}
             <Route path="profile" element={<Profile />} />
             <Route path="team" element={<TeamSection />} />

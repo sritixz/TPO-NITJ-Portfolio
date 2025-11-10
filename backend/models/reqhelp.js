@@ -11,12 +11,12 @@ const IssueSchema = new mongoose.Schema(
         userId: {
           type: mongoose.Schema.Types.ObjectId,
           required: true,
-          refPath: 'details.onModel', // Dynamically determine the model
+          refPath: 'details.onModel',
         },
         onModel: {
           type: String,
           required: true,
-          enum: ['Student', 'Recruiter'], // Allowed models
+          enum: ['Student', 'Recruiter'],
         },
         description: {
           type: String,
