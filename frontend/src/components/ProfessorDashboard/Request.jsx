@@ -2,7 +2,6 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import toast from "react-hot-toast";
 import { FaCheckCircle, FaTimes } from "react-icons/fa";
-import Notification from "./Notification";
 
 const RequestHelpManager = () => {
   const [issues, setIssues] = useState([]);
@@ -43,33 +42,44 @@ const RequestHelpManager = () => {
     setComment("");
   };
 
-  const resolveIssueDetail = async () => {
-    if (!selectedIssue || !selectedDetail) return;
+const [resolving, setResolving] = useState(false);
 
-    try {
-      await axios.put(
-        `${import.meta.env.REACT_APP_BASE_URL}/reqhelp/resolve/${selectedIssue._id}/${selectedDetail._id}`,
-        { comment },
-        { withCredentials: true }
-      );
+const resolveIssueDetail = async () => {
+  if (!selectedIssue || !selectedDetail || resolving) return;
 
-      toast.success("Issue Resolved Successfully");
-      setIssues((prevIssues) =>
-        prevIssues.map((issue) =>
-          issue._id === selectedIssue._id
-            ? {
-                ...issue,
-                details: issue.details.filter((detail) => detail._id !== selectedDetail._id),
-              }
-            : issue
-        )
-      );
-      closeModal();
-    } catch (error) {
-      console.error("Error resolving issue detail:", error);
-      toast.error("Failed to Resolve Issue");
-    }
-  };
+  setResolving(true);
+
+  try {
+    await axios.put(
+      `${import.meta.env.REACT_APP_BASE_URL}/reqhelp/resolve/${selectedIssue._id}/${selectedDetail._id}`,
+      { comment },
+      { withCredentials: true }
+    );
+
+    toast.success("Issue Resolved Successfully");
+
+    setIssues((prevIssues) =>
+      prevIssues.map((issue) =>
+        issue._id === selectedIssue._id
+          ? {
+              ...issue,
+              details: issue.details.filter(
+                (detail) => detail._id !== selectedDetail._id
+              ),
+            }
+          : issue
+      )
+    );
+
+    closeModal();
+  } catch (error) {
+    console.error("Error resolving issue detail:", error);
+    toast.error("Failed to Resolve Issue");
+  } finally {
+    setResolving(false);
+  }
+};
+
 
   if (loading) {
     return (
@@ -153,18 +163,23 @@ const RequestHelpManager = () => {
               >
                 Cancel
               </button>
-              <button
-                onClick={resolveIssueDetail}
-                className="px-5 py-2 bg-custom-blue text-white rounded-lg hover:bg-blue-700 transition-colors duration-300"
-              >
-                Resolve
-              </button>
+            <button
+  onClick={resolveIssueDetail}
+  disabled={resolving}
+  className={`px-5 py-2 rounded-lg text-white transition-colors duration-300 ${
+    resolving
+      ? "bg-blue-300 cursor-not-allowed"
+      : "bg-custom-blue hover:bg-blue-700"
+  }`}
+>
+  {resolving ? "Resolving..." : "Resolve"}
+</button>
+
             </div>
           </div>
         </div>
       )}
 
-      <Notification />
     </div>
   );
 };

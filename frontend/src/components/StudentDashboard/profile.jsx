@@ -5,6 +5,8 @@ import { useDispatch, useSelector } from "react-redux";
 import { setAuthUser } from "../../Redux/authSlice";
 import toast from "react-hot-toast";
 import BouncingLoader from "../BouncingLoader";
+import { Linkedin } from "lucide-react";
+import userIcon from "../../assets/user-icon.png";
 
 function Profile() {
   const [user, setUser] = useState(null);
@@ -12,11 +14,15 @@ function Profile() {
   const [sendImage, setSendImage] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  
   const [isUpdatingPic, setIsUpdatingPic] = useState(false);
+
   const getImageUrl = () => {
     if (!user?.image) {
-      return "https://images.unsplash.com/photo-1522075469751-3a6694fb2f61?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=500&q=80";
+      return userIcon;
+    }
+    // If it's a blob URL (for preview) or full URL, return as is; otherwise, prepend base URL for relative paths
+    if (user.image.startsWith("http") || user.image.startsWith("blob:")) {
+      return user.image;
     }
     return `${import.meta.env.REACT_APP_BASE_URL}${user.image}`;
   };
@@ -34,10 +40,16 @@ function Profile() {
     course: "",
     active_backlogs: "",
     backlogs_history: "",
-    placementstatus:"",
-    internshipstatus:"",
+    placementstatus: "",
+    internshipstatus: "",
     debarred: "",
     image: "",
+    // NEW FIELDS
+    dob: "",
+    personalEmail: "",
+    Xth: "",
+    XIIth: "",
+    linkedin: "",
   });
 
   const fileInputRef = useRef(null);
@@ -48,22 +60,27 @@ function Profile() {
     if (userData) {
       setUser(userData);
       setFormData({
-        name: userData.name,
-        email: userData.email,
-        phone: userData.phone,
-        rollno: userData.rollno,
-        department: userData.department,
-        batch: userData.batch,
-        address: userData.address,
-        cgpa: userData.cgpa,
-        gender: userData.gender,
-        course: userData.course,
-        debarred: userData.debarred,
-        placementstatus:userData.placementstatus,
-        internshipstatus:userData.internshipstatus,
-        active_backlogs: userData.active_backlogs,
-        backlogs_history: userData.backlogs_history,
-        image: userData.image,
+        name: userData.name ?? "",
+        email: userData.email ?? "",
+        phone: userData.phone ?? "",
+        rollno: userData.rollno ?? "",
+        department: userData.department ?? "",
+        batch: userData.batch ?? "",
+        address: userData.address ?? "",
+        cgpa: userData.cgpa ?? "",
+        gender: userData.gender ?? "",
+        course: userData.course ?? "",
+        debarred: userData.debarred ?? false,
+        placementstatus: userData.placementstatus ?? "",
+        internshipstatus: userData.internshipstatus ?? "",
+        active_backlogs: userData.active_backlogs ?? false,
+        backlogs_history: userData.backlogs_history ?? false,
+        image: userData.image ?? "",
+        dob: userData.dob ?? "",
+        personalEmail: userData.personalEmail ?? "",
+        Xth: userData.Xth ?? "",
+        XIIth: userData.XIIth ?? "",
+        linkedin: userData.linkedin ?? "",
       });
     }
   }, [userData]);
@@ -92,7 +109,6 @@ function Profile() {
     if (e.target.files && e.target.files[0]) {
       const selectedImage = e.target.files[0];
       setSendImage(selectedImage);
-
       const imageURL = URL.createObjectURL(selectedImage);
       setUser((prevUser) => ({
         ...prevUser,
@@ -106,43 +122,43 @@ function Profile() {
     setIsSubmitting(true);
     e.preventDefault();
     if (!sendImage) return;
-
     try {
       const form = new FormData();
       form.append("file", sendImage);
-      await toast
-        .promise(
-          axios.put(
-            `${import.meta.env.REACT_APP_BASE_URL}/profile/update-picture`,
-            form,
-            {  headers: {
-              'Content-Type': 'multipart/form-data',
-            },
-            withCredentials: true 
-          }),
+      const response = await toast.promise(
+        axios.put(
+          `${import.meta.env.REACT_APP_BASE_URL}/profile/update-picture`,
+          form,
           {
-            loading: "Updating profile picture...",
-            success: "Profile picture updated successfully!",
-            error: "Failed to update profile picture",
+            headers: {
+              "Content-Type": "multipart/form-data",
+            },
+            withCredentials: true,
           }
-        )
-        .then((response) => {
-          setUser((prevUser) => ({
-            ...prevUser,
-            image: response.data.student.image,
-          }));
-          setIsUpdatingPic(false);
-          setSendImage(null);
-          dispatch(
-            setAuthUser({ authUser: true, userData: response.data.student, userType: "Student" })
-          );
-        });
+        ),
+        {
+          loading: "Updating profile picture...",
+          success: "Profile picture updated successfully!",
+          error: "Failed to update profile picture",
+        }
+      );
+      setUser((prevUser) => ({
+        ...prevUser,
+        image: response.data.student.image,
+      }));
+      setIsUpdatingPic(false);
+      setSendImage(null);
+      dispatch(
+        setAuthUser({
+          authUser: true,
+          userData: response.data.student,
+          userType: "Student",
+        })
+      );
     } catch (err) {
       console.error(err);
-      setIsSubmitting(false);
       setError("Failed to update profile picture");
-    }
-    finally {
+    } finally {
       setIsSubmitting(false);
     }
   };
@@ -152,32 +168,31 @@ function Profile() {
     setIsSubmitting(true);
     e.preventDefault();
     try {
-      await toast
-        .promise(
-          axios.put(
-            `${import.meta.env.REACT_APP_BASE_URL}/profile/update`,
-            formData,
-            { withCredentials: true }
-          ),
-          {
-            loading: "Updating profile...",
-            success: "Profile updated successfully!",
-            error: "Failed to update profile",
-          }
-        )
-        .then((response) => {
-          setUser({ ...user, ...formData });
-          setIsEditing(false);
-          dispatch(
-            setAuthUser({ authUser: true, userData: response.data.user, userType: "Student" })
-          );
-        });
+      const response = await toast.promise(
+        axios.put(
+          `${import.meta.env.REACT_APP_BASE_URL}/profile/update`,
+          formData,
+          { withCredentials: true }
+        ),
+        {
+          loading: "Updating profile...",
+          success: "Profile updated successfully!",
+          error: "Failed to update profile",
+        }
+      );
+      setUser({ ...user, ...formData });
+      setIsEditing(false);
+      dispatch(
+        setAuthUser({
+          authUser: true,
+          userData: response.data.user,
+          userType: "Student",
+        })
+      );
     } catch (err) {
       console.error(err);
-      setIsSubmitting(false);
       setError("Failed to update profile");
-    }
-    finally {
+    } finally {
       setIsSubmitting(false);
     }
   };
@@ -188,221 +203,205 @@ function Profile() {
   };
 
   if (error) {
-    return <div>{error}</div>;
+    return <div className="text-red-500 text-center">{error}</div>;
   }
-
   if (!user) {
     return <BouncingLoader size="medium" text="Loading..." />;
   }
 
   return (
     <div className="min-h-screen flex items-center justify-center p-4 mt-1">
-      <div className="shadow rounded-3xl overflow-hidden w-full max-w-xxl border-2 border-custom-blue">
+      <div className="shadow rounded-3xl overflow-hidden w-full max-w-6xl border-2 border-custom-blue">
         {/* Cover Section */}
         <div className="relative bg-gradient-to-r from-custom-blue to-custom-blue bg-cover bg-no-repeat h-40">
           <div className="absolute inset-0 opacity-50"></div>
         </div>
-
         {/* Profile Section */}
         <div className="relative -mt-24 text-center">
           <button onClick={triggerFileInput}>
-          <img
-  src={getImageUrl()}
-  alt="Profile"
-  className="w-40 h-40 rounded-full mx-auto border-4 border-custom-blue"
-  onError={(e) => {
-    e.target.src = "https://images.unsplash.com/photo-1522075469751-3a6694fb2f61?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=500&q=80";
-  }}
-/>
+            <img
+              src={getImageUrl()}
+              alt="Profile"
+              className="w-40 h-40 rounded-full mx-auto border-4 border-custom-blue object-cover"
+            />
           </button>
           <input
             ref={fileInputRef}
             type="file"
+            accept="image/*"
             onChange={handleFileChange}
             style={{ display: "none" }}
           />
-
           {sendImage && (
-            <div className="mt-4">
+            <div className="mt-4 flex justify-center gap-2">
               <button
                 onClick={handleProfilePicSubmit}
                 disabled={isSubmitting}
-                className="bg-green-500 text-white px-4 py-1 border border-green-400 rounded"
+                className="bg-green-500 text-white px-4 py-1 border border-green-400 rounded hover:bg-green-600 transition"
               >
                 {isSubmitting ? "Uploading..." : "Upload"}
-                
               </button>
               <button
                 onClick={handleProfilePicUpdateToggle}
-                className="ml-2 bg-red-500 text-white px-4 py-1 border border-red-400 rounded"
+                className="bg-red-500 text-white px-4 py-1 border border-red-400 rounded hover:bg-red-600 transition"
               >
                 Cancel
               </button>
             </div>
           )}
-
           {isEditing ? (
-            <div>
-              <input
-                type="string"
-                name="phone"
-                value={formData.phone}
-                onChange={handleChange}
-                placeholder="Phone"
-                className="mt-2 mx-2 p-2 border border-custom-blue rounded"
-              />
-              <input
-                type="text"
-                name="address"
-                value={formData.address}
-                onChange={handleChange}
-                placeholder="Address"
-                className="mt-2 p-2 mx-2 border border-custom-blue rounded"
-              />
-              <button
-                onClick={handleSubmit}
-                disabled={isSubmitting}
-                className="mt-4 mx-2 bg-custom-blue text-white px-4 py-1 border border-custom-blue-400 rounded"
-              >
-                {isSubmitting ? "Saving..." : "Save"}
-              </button>
-              <button
-                onClick={handleEditToggle}
-                className="mt-4 ml-2 bg-red-500 text-white px-4 py-1 border border-red-400 rounded"
-              >
-                Cancel
-              </button>
+            <div className="mt-6 px-4">
+              <h4 className="text-2xl font-semibold text-custom-blue mb-4">
+                {" "}
+                Edit Profile{" "}
+              </h4>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {/* Row 1 */}
+                <input
+                  type="text"
+                  name="phone"
+                  value={formData.phone}
+                  onChange={handleChange}
+                  placeholder="Phone"
+                  className="p-2 border border-custom-blue rounded focus:outline-none focus:border-custom-blue-dark"
+                />
+                <input
+                  type="text"
+                  name="address"
+                  value={formData.address}
+                  onChange={handleChange}
+                  placeholder="Address"
+                  className="p-2 border border-custom-blue rounded focus:outline-none focus:border-custom-blue-dark"
+                />
+                {/* Row 2 */}
+                <input
+                  type="date"
+                  name="dob"
+                  value={formData.dob}
+                  onChange={handleChange}
+                  className="p-2 border border-custom-blue rounded focus:outline-none focus:border-custom-blue-dark"
+                />
+                <input
+                  type="email"
+                  name="personalEmail"
+                  value={formData.personalEmail}
+                  onChange={handleChange}
+                  placeholder="Personal Email"
+                  className="p-2 border border-custom-blue rounded focus:outline-none focus:border-custom-blue-dark"
+                />
+                {/* Row 3 */}
+                <input
+                  type="text"
+                  name="Xth"
+                  value={formData.Xth}
+                  onChange={handleChange}
+                  placeholder="10th Percentage (e.g. 92.4)"
+                  className="p-2 border border-custom-blue rounded focus:outline-none focus:border-custom-blue-dark"
+                />
+                <input
+                  type="text"
+                  name="XIIth"
+                  value={formData.XIIth}
+                  onChange={handleChange}
+                  placeholder="12th Percentage (e.g. 88.6)"
+                  className="p-2 border border-custom-blue rounded focus:outline-none focus:border-custom-blue-dark"
+                />
+                {/* Row 4 */}
+                <input
+                  type="url"
+                  name="linkedin"
+                  value={formData.linkedin}
+                  onChange={handleChange}
+                  placeholder="LinkedIn URL"
+                  className="p-2 border border-custom-blue rounded focus:outline-none focus:border-custom-blue-dark col-span-1 md:col-span-2"
+                />
+                {/* Buttons */}
+                <div className="col-span-1 md:col-span-2 flex gap-2 justify-center mt-4">
+                  <button
+                    onClick={handleSubmit}
+                    disabled={isSubmitting}
+                    className="bg-custom-blue text-white px-6 py-2 rounded hover:bg-custom-blue-dark transition"
+                  >
+                    {isSubmitting ? "Saving..." : "Save"}
+                  </button>
+                  <button
+                    onClick={handleEditToggle}
+                    className="bg-red-500 text-white px-6 py-2 rounded hover:bg-red-600 transition"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </div>
             </div>
           ) : (
-            <div>
-              <h4 className="mt-4 text-3xl font-semibold text-custom-blue">
-                {user.name}
+            <div className="mt-4">
+              <h4 className="text-3xl font-semibold text-custom-blue">
+                {" "}
+                {user.name}{" "}
               </h4>
               <button
                 onClick={handleEditToggle}
-                className="bg-custom-blue text-white mt-5 px-4 py-1 border rounded"
+                className="bg-custom-blue text-white mt-5 px-6 py-2 border rounded hover:bg-custom-blue-dark transition"
               >
-                Edit Profile
+                {" "}
+                Edit Profile{" "}
               </button>
             </div>
           )}
         </div>
-
         {/* About Section */}
-        <div className="mt-6 px-6 py-4">
-          <h5 className="mb-3 ml-4 font-bold text-custom-blue">About</h5>
-          <div className="p-4 bg-white border border-neutral-400 rounded-3xl">
-            <div className="flex flex-wrap">
+        <div className="mt-8 px-6 py-4">
+          <h5 className="mb-3 ml-4 font-bold text-custom-blue text-xl">About</h5>
+          <div className="p-6 bg-white border border-neutral-400 rounded-3xl">
+            <div className="flex flex-wrap gap-8">
               {/* Left Column */}
-              <div className="w-full md:w-1/2 space-y-6">
-                <div className="flex items-center">
-                  <div className="text-white mx-4 bg-custom-blue h-10 w-10 p-2 justify-center items-center rounded-full">
-                    <CheckCircle2 />
-                  </div>
-                  <p className="font-italic tracking-tight">Name: {formData.name}</p>
-                </div>
-                <div className="flex items-center">
-                  <div className="text-white mx-4 bg-custom-blue h-10 w-10 p-2 justify-center items-center rounded-full">
-                    <CheckCircle2 />
-                  </div>
-                  <p className="font-italic tracking-tight">Gender: {formData.gender}</p>
-                </div>
-                <div className="flex items-center">
-                  <div className="text-white mx-4 bg-custom-blue h-10 w-10 p-2 justify-center items-center rounded-full">
-                    <CheckCircle2 />
-                  </div>
-                  <p className="font-italic tracking-tight">Email: {formData.email}</p>
-                </div>
-                <div className="flex items-center">
-                  <div className="text-white mx-4 bg-custom-blue h-10 w-10 p-2 justify-center items-center rounded-full">
-                    <CheckCircle2 />
-                  </div>
-                  <p className="font-italic tracking-tight">Mobile: {formData.phone}</p>
-                </div>
-                <div className="flex items-center">
-                  <div className="text-white mx-4 bg-custom-blue h-10 w-10 p-2 justify-center items-center rounded-full">
-                    <CheckCircle2 />
-                  </div>
-                  <p className="font-italic tracking-tight">Batch: {formData.batch}</p>
-                </div>
-                <div className="flex items-center">
-                  <div className="text-white mx-4 bg-custom-blue h-10 w-10 p-2 justify-center items-center rounded-full">
-                    <CheckCircle2 />
-                  </div>
-                  <p className="font-italic tracking-tight">
-                    Course: {formData.course}
-                  </p>
-                </div>
-                <div className="flex items-center">
-                  <div className="text-white mx-4 bg-custom-blue h-10 w-10 p-2 justify-center items-center rounded-full">
-                    <CheckCircle2 />
-                  </div>
-                  <p className="font-italic tracking-tight">
-                    Branch: {formData.department}
-                  </p>
-                </div>
+              <div className="flex-1 min-w-[280px] space-y-5">
+                <AboutItem label="Name" value={formData.name} />
+                <AboutItem label="Gender" value={formData.gender} />
+                <AboutItem label="Email" value={formData.email} />
+                <AboutItem label="Personal Email" value={formData.personalEmail} />
+                <AboutItem label="Mobile" value={formData.phone} />
+                <AboutItem label="Batch" value={formData.batch} />
+                <AboutItem label="Course" value={formData.course} />
+                <AboutItem label="Branch" value={formData.department} />
+                <AboutItem label="DOB" value={formData.dob || "—"} />
               </div>
-
               {/* Right Column */}
-              <div className="w-full md:w-1/2 space-y-6">
-              <div className="flex items-center">
-                  <div className="text-white mx-4 bg-custom-blue h-10 w-10 p-2 justify-center items-center rounded-full">
-                    <CheckCircle2 />
-                  </div>
-                  <p className="font-italic tracking-tight">CGPA: {formData.cgpa}</p>
-                </div>
-                <div className="flex items-center">
-                  <div className="text-white mx-4 bg-custom-blue h-10 w-10 p-2 justify-center items-center rounded-full">
-                    <CheckCircle2 />
-                  </div>
-                  <p className="font-italic tracking-tight">Active Backlogs: {formData.active_backlogs ? "Yes" : "No"}</p>
-                </div>
-                <div className="flex items-center">
-                  <div className="text-white mx-4 bg-custom-blue h-10 w-10 p-2 justify-center items-center rounded-full">
-                    <CheckCircle2 />
-                  </div>
-                  <p className="font-italic tracking-tight">Backlogs History: {formData.backlogs_history ? "Yes" : "No"}</p>
-                </div>
-                <div className="flex items-center">
-                  <div className="text-white mx-4 bg-custom-blue h-10 w-10 p-2 justify-center items-center rounded-full">
-                    <CheckCircle2 />
-                  </div>
-                  <p className="font-italic tracking-tight">Debarred: {formData.debarred ? "Yes" : "No"}</p>
-                </div>
-                <div className="flex items-center">
-                  <div className="text-white mx-4 bg-custom-blue h-10 w-10 p-2 justify-center items-center rounded-full">
-                    <CheckCircle2 />
-                  </div>
-                  <p className="font-italic tracking-tight">10th Percentage:</p>
-                </div>
-                <div className="flex items-center">
-                  <div className="text-white mx-4 bg-custom-blue h-10 w-10 p-2 justify-center items-center rounded-full">
-                    <CheckCircle2 />
-                  </div>
-                  <p className="font-italic tracking-tight">
-                    12th Percentage: 
-                  </p>
-                </div>
-                {/* <div className="flex items-center">
-                  <div className="text-white mx-4 bg-custom-blue h-10 w-10 p-2 justify-center items-center rounded-full">
-                    <CheckCircle2 />
-                  </div>
-                  <p className="font-italic tracking-tight">Placement Status: {formData.placementstatus}</p>
-                </div>
-                <div className="flex items-center">
-                  <div className="text-white mx-4 bg-custom-blue h-10 w-10 p-2 justify-center items-center rounded-full">
-                    <CheckCircle2 />
-                  </div>
-                  <p className="font-italic tracking-tight">
-                    Internship Status: {formData.internshipstatus}
-                  </p>
-                </div> */}
-                <div className="flex items-center">
-                  <div className="text-white mx-4 bg-custom-blue h-10 w-10 p-2 justify-center items-center rounded-full">
-                    <CheckCircle2 />
-                  </div>
-                  <p className="font-italic tracking-tight">Address: {formData.address}</p>
-                </div>
+              <div className="flex-1 min-w-[280px] space-y-5">
+                <AboutItem label="CGPA" value={formData.cgpa} />
+                <AboutItem
+                  label="Active Backlogs"
+                  value={formData.active_backlogs ? "Yes" : "No"}
+                />
+                <AboutItem
+                  label="Backlogs History"
+                  value={formData.backlogs_history ? "Yes" : "No"}
+                />
+                <AboutItem
+                  label="Debarred"
+                  value={formData.debarred ? "Yes" : "No"}
+                />
+                <AboutItem label="10th %" value={formData.Xth} />
+                <AboutItem label="12th %" value={formData.XIIth} />
+                <AboutItem
+                  label="LinkedIn"
+                  value={
+                    formData.linkedin ? (
+                      <a
+                        href={formData.linkedin}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center justify-center text-custom-blue hover:text-custom-blue-dark"
+                        title="View LinkedIn Profile"
+                      >
+                        <Linkedin size={20} />
+                      </a>
+                    ) : (
+                      "Not provided"
+                    )
+                  }
+                />
+                <AboutItem label="Address" value={formData.address} />
               </div>
             </div>
           </div>
@@ -411,5 +410,24 @@ function Profile() {
     </div>
   );
 }
+
+// Reusable component for clean About section
+const AboutItem = ({ label, value }) => (
+  <div className="flex items-center">
+    {/* Icon */}
+    <div className="text-white mx-4 bg-custom-blue h-10 w-10 p-2 flex justify-center items-center rounded-full flex-shrink-0">
+      <CheckCircle2 size={20} />
+    </div>
+    {/* Label + Value */}
+    <div className="flex items-center flex-wrap gap-1">
+      <span className="font-semibold text-custom-blue">{label}:</span>
+      {typeof value === "string" || typeof value === "number" ? (
+        <span className="font-medium text-gray-700 break-all">{value}</span>
+      ) : (
+        <div className="font-medium text-gray-700 flex items-center">{value}</div>
+      )}
+    </div>
+  </div>
+);
 
 export default Profile;

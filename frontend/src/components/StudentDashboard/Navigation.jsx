@@ -4,9 +4,8 @@ import {
   Share2, 
   HelpCircle, 
   FolderOpen, 
-  BookOpen, 
-  FileQuestion, 
-  FileCheck 
+  FileQuestion,
+  Calendar1, 
 } from 'lucide-react';
 
 const NavigationCards = () => {
@@ -57,15 +56,15 @@ const NavigationCards = () => {
       color: 'bg-indigo-50',
       iconColor: 'text-indigo-600'
     },
-    // {
-    //   id: 6,
-    //   title: 'Preparation Resources',
-    //   description: 'Explore learning materials, aptitude notes, and recommended courses.',
-    //   icon: BookOpen,
-    //   path: '/sdashboard/resources',
-    //   color: 'bg-pink-50',
-    //   iconColor: 'text-pink-600'
-    // },
+    {
+      id: 6,
+      title: 'Placement Calendar',
+      description: 'Stay updated on college placements schedules.',
+      icon: Calendar1,
+      path: '/sdashboard/placement-calendar',
+      color: 'bg-pink-50',
+      iconColor: 'text-pink-600'
+    },
   ];
 
   const handleCardClick = (path) => {
