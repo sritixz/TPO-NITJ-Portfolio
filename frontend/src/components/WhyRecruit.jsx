@@ -39,7 +39,7 @@ const WhyRecruit = () => {
     {
       title: "National Ranking",
       icon: <BarChart2 className="w-8 h-8 text-custom-blue" />,
-      description: "Ranked 52nd in Engineering, NIRF 2022; 2nd in Punjab among Govt. Engineering Institutes.",
+      description: "Ranked 55th in Engineering, NIRF 2025; 2nd in Punjab among Govt. Engineering Institutes.",
       expanded:
         "Our consistent rankings improvement highlights academic excellence, research output, and industry collaboration, earning multiple awards for innovation.",
     },
@@ -53,7 +53,7 @@ const WhyRecruit = () => {
     {
       title: "Holistic Development",
       icon: <Grid className="w-8 h-8 text-custom-blue" />,
-      description: "15 departments and 10 student clubs for technical and soft skills development.",
+      description: "16 departments and 25 student clubs for technical and soft skills development.",
       expanded:
         "Workshops, leadership programs, and competitions develop skills. State-of-the-art labs foster hands-on learning.",
     },
