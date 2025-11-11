@@ -5,7 +5,8 @@ import {
   HelpCircle, 
   FolderOpen, 
   FileQuestion,
-  Calendar1, 
+  Calendar1,
+  Network
 } from 'lucide-react';
 
 const NavigationCards = () => {
@@ -62,6 +63,15 @@ const NavigationCards = () => {
       description: 'Stay updated on college placements schedules.',
       icon: Calendar1,
       path: '/sdashboard/placement-calendar',
+      color: 'bg-pink-50',
+      iconColor: 'text-pink-600'
+    },
+    {
+      id: 7,
+      title: 'Student Connect',
+      description: 'Connect with placed students and peers for insights and guidance.',
+      icon: Network,
+      path: '/sdashboard/student-connect',
       color: 'bg-pink-50',
       iconColor: 'text-pink-600'
     },

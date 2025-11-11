@@ -54,7 +54,8 @@ import JobdetailFromCalender from "./StudentDashboard/JobDetailsFromCalender.jsx
 import PlacementRegistrationForm from "./StudentDashboard/registration-form.jsx";
 import StudentDocument from "./StudentDashboard/studentsdocuments.jsx";
 import PlacementCalendar from "./StudentDashboard/placement-calendar.jsx";
-
+import StudentConnect from "./StudentDashboard/studentconnect.jsx";
+import AlertModal from "./StudentDashboard/alert.jsx";
 
 const StudentDashboard = () => {
   const [isMobile, setIsMobile] = useState(false);
@@ -100,11 +101,7 @@ const StudentDashboard = () => {
 
   const menuItems = [
     { path: "/sdashboard/home", label: "Home", icon: faHome },
-    {
-      path: "/sdashboard/job-application",
-      label: "Job Profiles",
-      icon: faBriefcase,
-    },
+    { path: "/sdashboard/job-application", label: "Job Profiles", icon: faBriefcase,},
     { path: "/sdashboard/oa", label: "Online Assessment", icon: faLaptopCode },
     { path: "/sdashboard/interviews", label: "Interview", icon: faUserTie },
     { path: "/sdashboard/gd", label: "Group Discussion", icon: faUsers },
@@ -148,6 +145,7 @@ const StudentDashboard = () => {
 
   return (
     <div className="flex flex-col min-h-screen bg-gray-50">
+        <AlertModal />   {/* 🔔 Global Alert Modal */}
       {/* Header */}
       <header className="fixed top-0 left-0 right-0 bg-white shadow-sm z-50">
         <div className="flex items-center justify-between px-4 h-16">
@@ -319,6 +317,8 @@ const StudentDashboard = () => {
             <Route path="placement-registration" element={<PlacementRegistrationForm />} />
             <Route path="student-documents" element={<StudentDocument />} />
             <Route path="placement-calendar" element={<PlacementCalendar />} />
+            <Route path="student-connect" element={<StudentConnect />} />
+
             </Routes>
         </div>
 

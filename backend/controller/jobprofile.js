@@ -803,7 +803,7 @@ export const getJobProfiletostudent = async (req, res) => {
           course_allowed: course,
         },
       },
-    });
+    }).sort({ createdAt: -1 });;
 
     const applied = [];
     const notApplied = [];
