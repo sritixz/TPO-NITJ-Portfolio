@@ -38,7 +38,6 @@ const upload = multer({
 
 // Get all brochures
 export const getBrochures = async (req, res) => {
-  console.log("request coming");
   try {
     const brochures = await Brochure.find();
     res.status(200).json({

@@ -75,6 +75,14 @@ import {
   deleteBulkOffers,
 } from "../controller/Admin/offer.js";
 
+import {
+  createAlert,
+  getAllAlerts,
+  getActiveAlerts,
+  updateAlert,
+  deleteAlert,
+} from "../controller/Admin/alert.js";
+
 
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
@@ -158,5 +166,11 @@ router.put("/offers/:id", updateOffer);
 router.delete("/offers/:id", deleteOffer);
 router.post("/offers/bulk-delete", deleteBulkOffers);
 
+
+router.post("/alert/", createAlert);
+router.get("/alert/", getAllAlerts);
+router.get("/alert/active", getActiveAlerts);
+router.put("/alert/:id", updateAlert);
+router.delete("/alert/:id", deleteAlert);
 
 export default router;

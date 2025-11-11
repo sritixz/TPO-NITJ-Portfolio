@@ -49,6 +49,7 @@ import insightRoutes from "./routes/insight.js";
 import documentsRoutes from "./routes/documents.js";
 import studentDocumentsRoutes from "./routes/studentsdocuments.js";
 import placementCalendarRoutes from "./routes/placement-calendar.js";
+import alertRoutes from "./routes/alert.js";
 
 
 import { mkdir } from 'fs/promises';
@@ -123,9 +124,9 @@ app.use('/gd',authenticate, restrictTo('Student'), logMiddleware, gdroutes);
 app.use('/others',authenticate, restrictTo('Student'),logMiddleware, otherRoutes);
 app.use('/question-bank', authenticate,restrictTo('Student'),logMiddleware, questionbankRoutes);
 app.use('/withdraw',authenticate, restrictTo('Student'),logMiddleware, withdrawRoutes);
+app.use('/alert',authenticate, restrictTo('Student'),logMiddleware, alertRoutes);
 
 //Professor routes
-app.use('/pplacementReport',authenticate, restrictTo('Professor'),logMiddleware, pplacementReportroutes);
 app.use("/student-analysis",authenticate, restrictTo('Professor'),logMiddleware, studentanalysisRoutes);
 app.use("/companies-analysis",authenticate,restrictTo('Professor'),logMiddleware, companiesanalysisRoutes);
 app.use('/conversations',authenticate, restrictTo('Professor'),logMiddleware, conversationRoutes);
@@ -139,6 +140,7 @@ app.use('/placement-calendar',authenticate,logMiddleware, placementCalendarRoute
 app.use('/admin',authenticate,restrictTo('Admin'),logMiddleware,adminRoutes);
 
 //Protected inside routes
+app.use('/pplacementReport',authenticate, logMiddleware, pplacementReportroutes);
 app.use('/jobprofile',authenticate,logMiddleware,jobprofileroutes);
 app.use("/feedback",authenticate,logMiddleware,feedbackRoutes);
 app.use('/sharedexperience',authenticate,logMiddleware,sharedexperienceroutes);
