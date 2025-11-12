@@ -614,7 +614,7 @@ export default function TinyMCEEditor({ experience, onClose }) {
                   "bullist numlist outdent indent | link image media | removeformat",
                 image_caption: true,
                 image_advtab: true,
-                automatic_uploads: false,
+                automatic_uploads: true,
                 media_live_embeds: true,
                 table_default_attributes: { border: "1" },
                 table_default_styles: {
@@ -622,7 +622,7 @@ export default function TinyMCEEditor({ experience, onClose }) {
                   borderCollapse: "collapse",
                 },
                 content_style:
-                  "body { font-family:Helvetica,Arial,sans-serif; font-size:14px; line-height:1.6 } " +
+                  "body { font-family:Helvetica,Arial,sans-serif; font-size:18px; line-height:1.6 } " +
                   "h1 { font-size: 24px; font-weight: 700; margin-top: 1em; }",
                 paste_data_images: true,
                 branding: false,

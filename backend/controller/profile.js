@@ -2,10 +2,7 @@ import Recuiter from "../models/user_model/recuiter.js";
 import Professor from "../models/user_model/professor.js";
 import Student from "../models/user_model/student.js";
 import bcrypt from "bcrypt";
-import axios from "axios";
 
-import cloudinary from "../utils/cloudinary.js";
-import fs from 'fs';
 
 
 export const sprofile = async (req, res) => {

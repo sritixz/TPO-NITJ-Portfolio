@@ -121,7 +121,7 @@ const SharedExperience = () => {
       <div className="p-6 bg-white min-h-screen">
         <button
           onClick={handleBack}
-          className="flex items-center space-x-2 text-blue-500 hover:text-blue-700 mb-4"
+          className="flex items-center space-x-2 text-gray-500 hover:text-blue-700 mb-4"
         >
           <FaArrowLeft />
         </button>
@@ -141,8 +141,8 @@ const SharedExperience = () => {
             }
           )}
         </p>
-        <div className="prose max-w-none">
-          {parse(selectedExperience.content)}
+       <div className="prose max-w-none text-black text-[18px] leading-relaxed list-disc marker:text-black">
+        {parse(selectedExperience.content)}
         </div>
       </div>
     );

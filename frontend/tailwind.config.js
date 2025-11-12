@@ -56,6 +56,7 @@ export default {
   },
   plugins: [
     require('tailwind-scrollbar'),
+    require('@tailwindcss/typography'),
   ],
   safelist: [
     'from-indigo-50',
@@ -70,5 +71,10 @@ export default {
     'from-red-50',
     'to-red-100/10',
     'bg-red-100/20',
+    'prose', // Prevents purging
+    'prose-sm',
+    'prose-lg',
+    'prose-xl',
+    'prose-2xl',
   ],
 };

@@ -579,6 +579,7 @@ html: `
           if (userType === "Student" && student) {
             try {
                 const rollNumbers = [student.rollno];
+                console.log(rollNumbers);
                 const course = student.course;
                 const response = await axios.post(`${process.env.ERP_SERVER}`, rollNumbers, {
                     });
