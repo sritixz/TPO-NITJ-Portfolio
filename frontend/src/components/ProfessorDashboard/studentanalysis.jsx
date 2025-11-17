@@ -10,6 +10,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { toast } from 'react-hot-toast';
 import Notification from "./Notification";
 import * as XLSX from 'xlsx';
+import { Linkedin } from "lucide-react";
 
 const StudentAnalyticsDashboard = () => {
   const [filters, setFilters] = useState({
@@ -200,6 +201,7 @@ const StudentAnalyticsDashboard = () => {
       CGPA: student.cgpa,
       "Active Backlog": student.active_backlogs ? "Yes" : "No",
       "Backlog History": student.backlogs_history ? "Yes" : "No",
+      "Active Backlog Count": student.activeBacklogCount,
       Offer: student.offers?.length || 0,
       Applied: student?.applications?.total || 0,
       Interested: student?.isInterested ? "Yes" : "No",
@@ -220,6 +222,7 @@ const StudentAnalyticsDashboard = () => {
       { wch: 10 }, // CGPA
       { wch: 10 }, // Active Backlog
       { wch: 10 }, // Backlog History
+      { wch: 5 }, // Active Backlog Count
       { wch: 5 }, // Offer
       { wch: 5 }, // Applied
       { wch: 5 }, // Interested
@@ -910,16 +913,6 @@ const StudentAnalyticsDashboard = () => {
                 placeholder="Select Category"
               />
             </div>
-            {/* <div className="space-y-2">
-              <label className="text-sm font-medium text-gray-700">Internship Status</label>
-              <Select
-                options={internshipStatusOptions}
-                value={internshipStatusOptions.find(opt => opt.value === filters.internshipstatus) || null}
-                onChange={(option) => setFilters({ ...filters, internshipstatus: option ? option.value : "" })}
-                className="w-full"
-                placeholder="Select Internship Status"
-              />
-            </div> */}
             <div className="space-y-2">
               <label className="text-sm font-medium text-gray-700">Search Name</label>
               <div className="relative">
@@ -1013,46 +1006,88 @@ const StudentAnalyticsDashboard = () => {
               }
             }}
           >
-            <DialogTrigger asChild>
-              <Card className="cursor-pointer hover:shadow-lg transition-all duration-300 border-2 hover:border-custom-blue hover:scale-105 hover:bg-white">
-                <CardContent className="p-6">
-                  <div className="flex items-start justify-between">
-                    <div>
-                      <div className="flex items-center gap-2">
-                        <UserCog className="h-5 w-5 text-gray-400" />
-                        <h3 className="font-bold text-lg text-gray-900">{student.name}</h3>
-                      </div>
-                      <p className="text-sm text-gray-700 mt-1">{student.rollno}</p>
-                      <span className="text-sm text-gray-700">{student.course}</span>
-                    </div>
-                    <GraduationCap className="h-6 w-6 text-custom-blue" />
-                  </div>
-                  <div className="mt-2 space-y-2">
-                    <div className="flex items-center gap-2">
-                      <span className="text-sm text-gray-700">{student.department}</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <span className="text-sm text-gray-700">Batch: {student.batch}</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <span className="text-sm text-gray-700">CGPA: {student.cgpa}</span>
-                    </div>
-                  </div>
-                  <div className="mt-2">
-                    <span className="text-sm font-medium text-gray-800">
-                      Offers: {student.offers?.length || 0}
-                    </span>
-                  </div>
-                </CardContent>
-              </Card>
-            </DialogTrigger>
+           <DialogTrigger asChild>
+  <Card className="cursor-pointer hover:shadow-lg transition-all duration-300 border-2 hover:border-custom-blue hover:scale-105 hover:bg-white">
+    <CardContent className="p-6 relative">
+      <div className="flex items-start justify-between">
+        <div>
+          <div className="flex items-center gap-2">
+            <UserCog className="h-5 w-5 text-gray-400" />
+            <h3 className="font-bold text-lg text-gray-900">{student.name}</h3>
+          </div>
+          <p className="text-sm text-gray-700 mt-1">{student.rollno}</p>
+          <span className="text-sm text-gray-700">{student.course}</span>
+        </div>
+        {student.linkedin ? (
+          <a
+            href={student.linkedin}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center justify-center text-custom-blue hover:text-custom-blue-dark"
+            title="View LinkedIn Profile"
+          >
+            <Linkedin size={20} />
+          </a>
+        ) : (
+          <GraduationCap className="h-6 w-6 text-custom-blue" />
+        )}
+      </div>
+      <div className="mt-2 space-y-2">
+        <div className="flex items-center gap-2">
+          <span className="text-sm text-gray-700">{student.department}</span>
+        </div>
+        <div className="flex items-center gap-2">
+          <span className="text-sm text-gray-700">Batch: {student.batch}</span>
+        </div>
+        <div className="flex items-center gap-2">
+          <span className="text-sm text-gray-700">CGPA: {student.cgpa}</span>
+        </div>
+        {/* SMALL IMAGE AT BOTTOM-RIGHT */}
+        <div className="absolute bottom-3 right-3">
+          {student.image ? (
+            <img
+              src={`${import.meta.env.REACT_APP_BASE_URL}${student.image}`}
+              alt={student.name}
+              className="w-12 h-12 rounded-full object-cover border border-gray-300 shadow-sm"
+            />
+          ) : (
+            <div className="w-12 h-12 rounded-full flex items-center justify-center bg-gray-200 text-gray-600 text-lg font-semibold border border-gray-300">
+              {(student.name || '?')
+                .split(' ')
+                .map((n) => n[0]?.toUpperCase())
+                .slice(0, 2)
+                .join('')}
+            </div>
+          )}
+        </div>
+      </div>
+      <div className="mt-2">
+        <span className="text-sm font-medium text-gray-800">
+          Offers: {student.offers?.length || 0}
+        </span>
+      </div>
+    </CardContent>
+  </Card>
+</DialogTrigger>
             <DialogContent className="max-w-6xl max-h-[90vh] p-0">
               <div className="overflow-y-auto max-h-[90vh] px-6">
                 <DialogHeader className="sticky top-0 bg-white py-4 z-10">
                   <div className="flex flex-col gap-4 sm:flex-row sm:justify-between">
                     <DialogTitle className="text-2xl font-bold flex items-center gap-2 justify-center lg:items-center lg:justify-center">
-                      <User className="h-6 w-6 text-blue-500" />
-                      {student.name}
+                      {student.linkedin ? (
+                      <a
+                        href={student.linkedin}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center justify-center text-custom-blue hover:text-custom-blue-dark"
+                        title="View LinkedIn Profile"
+                      >
+                        <Linkedin size={20} />
+                      </a>
+                    ) : (
+                      <User className="h-6 w-6 text-custom-blue" />
+                    )
+                  }{student.name} 
                     </DialogTitle>
                     <div className="flex gap-2 justify-center">
                       <Button
@@ -1096,29 +1131,12 @@ const StudentAnalyticsDashboard = () => {
                               <p className="mt-1 text-gray-900">{student.rollno}</p>
                           </div>
                           <div>
-                            <label className="text-sm font-medium text-gray-700">Phone</label>
-                            {editMode ? (
-                              <Input
-                                value={editedStudent.phone}
-                                onChange={(e) => handleChange("phone", e.target.value)}
-                                className="mt-1"
-                              />
-                            ) : (
-                              <p className="mt-1 text-gray-900">{student.phone}</p>
-                            )}
+                            <label className="text-sm font-medium text-gray-700">Category</label>
+                              <p className="mt-1 text-gray-900">{student.category}</p>
                           </div>
                           <div>
-                            <label className="text-sm font-medium text-gray-700">Category</label>
-                            {editMode ? (
-                              <Select
-                                options={categoryOptions}
-                                value={categoryOptions.find(opt => opt.value === editedStudent.category) || null}
-                                onChange={(option) => handleChange("category", option ? option.value : "")}
-                                className="mt-1"
-                              />
-                            ) : (
-                              <p className="mt-1 text-gray-900">{student.category}</p>
-                            )}
+                            <label className="text-sm font-medium text-gray-700">Disability</label>
+                              <p className="mt-1 text-gray-900">{student.disability?"Yes":"No"}</p>
                           </div>
                         </CardContent>
                       </Card>
@@ -1179,6 +1197,38 @@ const StudentAnalyticsDashboard = () => {
                   </div>
                   <Card className="mt-6 border-0 shadow-sm">
                     <CardHeader>
+                      <CardTitle className="text-lg">Additional Details</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                          <label className="text-sm font-medium text-gray-700">DOB</label>
+                         <p className="mt-1 text-gray-900">
+  {student.dob && new Date(student.dob).toLocaleDateString("en-GB", {
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+  })}
+</p>
+
+                        </div>
+                        <div>
+                          <label className="text-sm font-medium text-gray-700">Personal Email</label>
+                          <p className="mt-1 text-gray-900">{student.personalEmail}</p>
+                        </div>
+                        <div>
+                          <label className="text-sm font-medium text-gray-700">Mobile No.</label>
+                          <p className="mt-1 text-gray-900">{student.phone}</p>
+                        </div>
+                        <div>
+                          <label className="text-sm font-medium text-gray-700">Address</label>
+                          <p className="mt-1 text-gray-900">{student.address}</p>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                  <Card className="mt-6 border-0 shadow-sm">
+                    <CardHeader>
                       <CardTitle className="text-lg">Academic Details</CardTitle>
                     </CardHeader>
                     <CardContent>
@@ -1207,6 +1257,19 @@ const StudentAnalyticsDashboard = () => {
                           <label className="text-sm font-medium text-gray-700">Backlogs History</label>
                           <p className="mt-1 text-gray-900">{student.backlogs_history ? "Yes" : "No"}</p>
                         </div>
+                        <div>
+                          <label className="text-sm font-medium text-gray-700">Active Backlog Count</label>
+                          <p className="mt-1 text-gray-900">{student.activeBacklogCount}</p>
+                        </div>
+                        <div>
+                          <label className="text-sm font-medium text-gray-700">10th Percentage</label>
+                          <p className="mt-1 text-gray-900">{student.Xth}</p>
+                        </div>
+                        <div>
+                          <label className="text-sm font-medium text-gray-700">12th Percentage</label>
+                          <p className="mt-1 text-gray-900">{student.XIIth}</p>
+                        </div>
+
                       </div>
                     </CardContent>
                   </Card>
@@ -1485,6 +1548,26 @@ const StudentAnalyticsDashboard = () => {
                   </Card>
                   <Card className="mt-6 border-0 shadow-sm">
                     <CardHeader>
+                      <CardTitle className="text-lg">Applied Jobs ({student.applications.total})</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        {student.applications.jobProfiles.map((job, index) => (
+                          <Card key={index} className="p-4 border border-gray-100">
+                            <h4 className="font-semibold text-gray-900">{job.company_name}</h4>
+                            <p className="text-gray-600 mt-1">{job.job_role}</p>
+                            <div className="flex gap-2 mt-2">
+                              <span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full">{job.job_type}</span>
+                              <span className="text-xs bg-purple-100 text-purple-800 px-2 py-1 rounded-full">{job.job_class}</span>
+                            </div>
+                          </Card>
+                        ))}
+                      </div>
+                    </CardContent>
+                  </Card>
+
+                  {/* <Card className="mt-6 border-0 shadow-sm">
+                    <CardHeader>
                       <CardTitle className="text-lg">Assessment Performance</CardTitle>
                     </CardHeader>
                     <CardContent className="space-y-6">
@@ -1561,26 +1644,7 @@ const StudentAnalyticsDashboard = () => {
                         ))}
                       </div>
                     </CardContent>
-                  </Card>
-                  <Card className="mt-6 border-0 shadow-sm">
-                    <CardHeader>
-                      <CardTitle className="text-lg">Applied Jobs</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        {student.applications.jobProfiles.map((job, index) => (
-                          <Card key={index} className="p-4 border border-gray-100">
-                            <h4 className="font-semibold text-gray-900">{job.company_name}</h4>
-                            <p className="text-gray-600 mt-1">{job.job_role}</p>
-                            <div className="flex gap-2 mt-2">
-                              <span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full">{job.job_type}</span>
-                              <span className="text-xs bg-purple-100 text-purple-800 px-2 py-1 rounded-full">{job.job_class}</span>
-                            </div>
-                          </Card>
-                        ))}
-                      </div>
-                    </CardContent>
-                  </Card>
+                  </Card> */}
                 </div>
               </div>
             </DialogContent>

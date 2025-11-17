@@ -1559,6 +1559,7 @@ const StudentManager = () => {
       XIIth: '',
       gender: '',
       category: '',
+      activeBacklogCount: '',
       active_backlogs: false,
       backlogs_history: false,
       debarred: false,
@@ -2211,6 +2212,14 @@ const StudentManager = () => {
                   onChange={(e) => setEditProfile({ ...editProfile, cgpa: e.target.value })}
                   inputProps={{ step: "0.01", min: "0", max: "10" }}
                 />
+                  <TextField
+                  label="Active Backlogs Count"
+                  fullWidth
+                  margin="normal"
+                  value={editProfile?.activeBacklogCount || ''}
+                  onChange={(e) => setEditProfile({ ...editProfile, activeBacklogCount: e.target.value })}
+                />
+    
                 <TextField
                   label="10th Percentage"
                   fullWidth
@@ -2225,18 +2234,6 @@ const StudentManager = () => {
                   value={editProfile?.XIIth || ''}
                   onChange={(e) => setEditProfile({ ...editProfile, XIIth: e.target.value })}
                 />
-                
-                {/* Address */}
-                <TextField
-                  label="Address"
-                  fullWidth
-                  margin="normal"
-                  multiline
-                  rows={2}
-                  value={editProfile?.address || ''}
-                  onChange={(e) => setEditProfile({ ...editProfile, address: e.target.value })}
-                />
-    
                 {/* Status Information */}
                 <FormControl fullWidth margin="normal">
                   <InputLabel>Internship Status</InputLabel>
@@ -2260,6 +2257,17 @@ const StudentManager = () => {
                     ))}
                   </Select>
                 </FormControl>
+
+                 {/* Address */}
+                <TextField
+                  label="Address"
+                  fullWidth
+                  margin="normal"
+                  multiline
+                  rows={2}
+                  value={editProfile?.address || ''}
+                  onChange={(e) => setEditProfile({ ...editProfile, address: e.target.value })}
+                />
     
                 {/* Toggle Switches */}
                 <div className="col-span-1 md:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-4">

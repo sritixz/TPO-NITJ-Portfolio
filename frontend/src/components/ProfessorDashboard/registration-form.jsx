@@ -243,8 +243,8 @@ const phddepartmentOptions = [];
 
 const PlacementRegistrationExport = () => {
   const [filterOptions, setFilterOptions] = useState({
-    batches: ["2022", "2023", "2024", "2025", "2026", "2027", "2028", "2029", "2030"],
-    courses: ["B.Tech", "M.Tech", "MBA", "M.Sc", "PHD"],
+    batches: ["2026", "2027", "2028", "2029", "2030"],
+    courses: ["B.Tech", "M.Tech", "MBA", "M.Sc"],
     departments: []
   });
   const [filters, setFilters] = useState({
@@ -412,67 +412,192 @@ const saveDeadline = async () => {
     }
   };
 
+  // const exportToExcel = async (data) => {
+  //   if (data.length === 0) return;
+
+  //   const workbook = new ExcelJS.Workbook();
+
+  //   const createSheetWithData = (sheetName, sheetData) => {
+  //     const sheet = workbook.addWorksheet(sheetName.substring(0, 31));
+
+  //     sheet.columns = [
+  //       { header: 'Roll No.', key: 'rollno', width: 15 },
+  //       { header: 'Name', key: 'name', width: 20 },
+  //       { header: 'Course', key: 'course', width: 15 },
+  //       { header: 'Department', key: 'department', width: 30 },
+  //       { header: 'Batch', key: 'batch', width: 10 },
+  //       { header: 'Father Name', key: 'fatherName', width: 20 },
+  //       { header: 'Mother Name', key: 'motherName', width: 20 },
+  //       { header: 'Category', key: 'category', width: 15 },
+  //       { header: 'Gender', key: 'gender', width: 10 },
+  //       { header: 'Date of Birth', key: 'dateOfBirth', width: 15 },
+  //       { header: 'Physically Disabled', key: 'physicallyDisabled', width: 15 },
+  //       { header: 'Disability Type', key: 'disabilityType', width: 15 },
+  //       { header: 'Permanent Address', key: 'permanentAddress', width: 30 },
+  //       { header: 'Mobile No.', key: 'mobileNo', width: 15 },
+  //       { header: 'NITJ Email', key: 'emailNitj', width: 20 },
+  //       { header: 'Personal Email', key: 'emailPersonal', width: 20 },
+  //       { header: 'Aadhar No.', key: 'aadharCardNo', width: 15 },
+  //       { header: 'Interested', key: 'interested', width: 10 },
+  //       { header: 'Description', key: 'description', width: 30 }
+  //     ];
+
+  //     sheetData.forEach((item, idx) => {
+  //       sheet.addRow({
+  //         rollno: item.rollno,
+  //         name: item.name,
+  //         course: item.course,
+  //         department: item.department,
+  //         batch: item.batch,
+  //         fatherName: item.fatherName,
+  //         motherName: item.motherName,
+  //         category: item.category,
+  //         gender: item.gender,
+  //         dateOfBirth: item.dateOfBirth ? new Date(item.dateOfBirth).toLocaleDateString() : '',
+  //         physicallyDisabled: item.physicallyDisabled ? 'Yes' : 'No',
+  //         disabilityType: item.disabilityType || '',
+  //         permanentAddress: item.permanentAddress,
+  //         mobileNo: item.mobileNo,
+  //         emailNitj: item.emailNitj,
+  //         emailPersonal: item.emailPersonal,
+  //         aadharCardNo: item.aadharCardNo,
+  //         interested: item.interested ? 'Yes' : 'No',
+  //         description: item.description
+  //       });
+  //     });
+
+  //     const headerRow = sheet.getRow(1);
+  //     headerRow.eachCell((cell) => {
+  //       cell.fill = {
+  //         type: 'pattern',
+  //         pattern: 'solid',
+  //         fgColor: { argb: 'FFD3D3D3' }
+  //       };
+  //       cell.border = {
+  //         top: { style: 'thin', color: { argb: 'FF000000' } },
+  //         left: { style: 'thin', color: { argb: 'FF000000' } },
+  //         bottom: { style: 'thin', color: { argb: 'FF000000' } },
+  //         right: { style: 'thin', color: { argb: 'FF000000' } }
+  //       };
+  //     });
+
+  //     sheet.eachRow((row) => {
+  //       row.eachCell((cell) => {
+  //         cell.border = {
+  //           top: { style: 'thin', color: { argb: 'FF000000' } },
+  //           left: { style: 'thin', color: { argb: 'FF000000' } },
+  //           bottom: { style: 'thin', color: { argb: 'FF000000' } },
+  //           right: { style: 'thin', color: { argb: 'FF000000' } }
+  //         };
+  //       });
+  //     });
+
+  //     sheet.autoFilter = {
+  //       from: { row: 1, column: 1 },
+  //       to: { row: 1, column: sheet.columns.length }
+  //     };
+  //   };
+
+  //   if (filters.department) {
+  //     createSheetWithData(filters.department, data);
+  //   } else {
+  //     const grouped = data.reduce((acc, item) => {
+  //       const dept = item.department || "Unknown";
+  //       if (!acc[dept]) acc[dept] = [];
+  //       acc[dept].push(item);
+  //       return acc;
+  //     }, {});
+  //     Object.entries(grouped).forEach(([dept, data]) => {
+  //       createSheetWithData(dept, data);
+  //     });
+  //   }
+
+  //   const buffer = await workbook.xlsx.writeBuffer();
+  //   const blob = new Blob([buffer], {
+  //     type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+  //   });
+  //   const { batch, course, department } = filters;
+  //   const fileNameParts = [
+  //     batch || 'AllBatches',
+  //     course || 'AllCourses',
+  //     department || 'AllDepartments'
+  //   ];
+  //   const fileName = fileNameParts.join('_').replace(/\s+/g, '_');
+  //   saveAs(blob, `${fileName}.xlsx`);
+  // };
+
+
   const exportToExcel = async (data) => {
-    if (data.length === 0) return;
+  if (data.length === 0) return;
 
-    const workbook = new ExcelJS.Workbook();
+  const workbook = new ExcelJS.Workbook();
 
-    const createSheetWithData = (sheetName, sheetData) => {
-      const sheet = workbook.addWorksheet(sheetName.substring(0, 31));
+  const createSheetWithData = (sheetName, sheetData) => {
+    const sheet = workbook.addWorksheet(sheetName.substring(0, 31));
 
-      sheet.columns = [
-        { header: 'Roll No.', key: 'rollno', width: 15 },
-        { header: 'Name', key: 'name', width: 20 },
-        { header: 'Course', key: 'course', width: 15 },
-        { header: 'Department', key: 'department', width: 30 },
-        { header: 'Batch', key: 'batch', width: 10 },
-        { header: 'Father Name', key: 'fatherName', width: 20 },
-        { header: 'Mother Name', key: 'motherName', width: 20 },
-        { header: 'Category', key: 'category', width: 15 },
-        { header: 'Gender', key: 'gender', width: 10 },
-        { header: 'Date of Birth', key: 'dateOfBirth', width: 15 },
-        { header: 'Physically Disabled', key: 'physicallyDisabled', width: 15 },
-        { header: 'Disability Type', key: 'disabilityType', width: 15 },
-        { header: 'Permanent Address', key: 'permanentAddress', width: 30 },
-        { header: 'Mobile No.', key: 'mobileNo', width: 15 },
-        { header: 'NITJ Email', key: 'emailNitj', width: 20 },
-        { header: 'Personal Email', key: 'emailPersonal', width: 20 },
-        { header: 'Aadhar No.', key: 'aadharCardNo', width: 15 },
-        { header: 'Interested', key: 'interested', width: 10 },
-        { header: 'Description', key: 'description', width: 30 }
-      ];
+    sheet.columns = [
+      { header: 'Roll No.', key: 'rollno', width: 15 },
+      { header: 'Name', key: 'name', width: 20 },
+      { header: 'Course', key: 'course', width: 15 },
+      { header: 'Department', key: 'department', width: 30 },
+      { header: 'Batch', key: 'batch', width: 10 },
+      { header: 'Father Name', key: 'fatherName', width: 20 },
+      { header: 'Mother Name', key: 'motherName', width: 20 },
+      { header: 'Category', key: 'category', width: 15 },
+      { header: 'Gender', key: 'gender', width: 10 },
+      { header: 'Date of Birth', key: 'dateOfBirth', width: 15 },
+      { header: 'Physically Disabled', key: 'physicallyDisabled', width: 15 },
+      { header: 'Disability Type', key: 'disabilityType', width: 15 },
+      { header: 'Permanent Address', key: 'permanentAddress', width: 30 },
+      { header: 'Mobile No.', key: 'mobileNo', width: 15 },
+      { header: 'NITJ Email', key: 'emailNitj', width: 20 },
+      { header: 'Personal Email', key: 'emailPersonal', width: 20 },
+      { header: 'Aadhar No.', key: 'aadharCardNo', width: 15 },
+      { header: 'Interested', key: 'interested', width: 10 },
+      { header: 'Description', key: 'description', width: 30 }
+    ];
 
-      sheetData.forEach((item, idx) => {
-        sheet.addRow({
-          rollno: item.rollno,
-          name: item.name,
-          course: item.course,
-          department: item.department,
-          batch: item.batch,
-          fatherName: item.fatherName,
-          motherName: item.motherName,
-          category: item.category,
-          gender: item.gender,
-          dateOfBirth: item.dateOfBirth ? new Date(item.dateOfBirth).toLocaleDateString() : '',
-          physicallyDisabled: item.physicallyDisabled ? 'Yes' : 'No',
-          disabilityType: item.disabilityType || '',
-          permanentAddress: item.permanentAddress,
-          mobileNo: item.mobileNo,
-          emailNitj: item.emailNitj,
-          emailPersonal: item.emailPersonal,
-          aadharCardNo: item.aadharCardNo,
-          interested: item.interested ? 'Yes' : 'No',
-          description: item.description
-        });
+    sheetData.forEach((item, idx) => {
+      sheet.addRow({
+        rollno: item.rollno,
+        name: item.name,
+        course: item.course,
+        department: item.department,
+        batch: item.batch,
+        fatherName: item.fatherName,
+        motherName: item.motherName,
+        category: item.category,
+        gender: item.gender,
+        dateOfBirth: item.dateOfBirth ? new Date(item.dateOfBirth).toLocaleDateString() : '',
+        physicallyDisabled: item.physicallyDisabled ? 'Yes' : 'No',
+        disabilityType: item.disabilityType || '',
+        permanentAddress: item.permanentAddress,
+        mobileNo: item.mobileNo,
+        emailNitj: item.emailNitj,
+        emailPersonal: item.emailPersonal,
+        aadharCardNo: item.aadharCardNo,
+        interested: item.interested ? 'Yes' : 'No',
+        description: item.description
       });
+    });
 
-      const headerRow = sheet.getRow(1);
-      headerRow.eachCell((cell) => {
-        cell.fill = {
-          type: 'pattern',
-          pattern: 'solid',
-          fgColor: { argb: 'FFD3D3D3' }
-        };
+    const headerRow = sheet.getRow(1);
+    headerRow.eachCell((cell) => {
+      cell.fill = {
+        type: 'pattern',
+        pattern: 'solid',
+        fgColor: { argb: 'FFD3D3D3' }
+      };
+      cell.border = {
+        top: { style: 'thin', color: { argb: 'FF000000' } },
+        left: { style: 'thin', color: { argb: 'FF000000' } },
+        bottom: { style: 'thin', color: { argb: 'FF000000' } },
+        right: { style: 'thin', color: { argb: 'FF000000' } }
+      };
+    });
+
+    sheet.eachRow((row) => {
+      row.eachCell((cell) => {
         cell.border = {
           top: { style: 'thin', color: { argb: 'FF000000' } },
           left: { style: 'thin', color: { argb: 'FF000000' } },
@@ -480,51 +605,45 @@ const saveDeadline = async () => {
           right: { style: 'thin', color: { argb: 'FF000000' } }
         };
       });
-
-      sheet.eachRow((row) => {
-        row.eachCell((cell) => {
-          cell.border = {
-            top: { style: 'thin', color: { argb: 'FF000000' } },
-            left: { style: 'thin', color: { argb: 'FF000000' } },
-            bottom: { style: 'thin', color: { argb: 'FF000000' } },
-            right: { style: 'thin', color: { argb: 'FF000000' } }
-          };
-        });
-      });
-
-      sheet.autoFilter = {
-        from: { row: 1, column: 1 },
-        to: { row: 1, column: sheet.columns.length }
-      };
-    };
-
-    if (filters.department) {
-      createSheetWithData(filters.department, data);
-    } else {
-      const grouped = data.reduce((acc, item) => {
-        const dept = item.department || "Unknown";
-        if (!acc[dept]) acc[dept] = [];
-        acc[dept].push(item);
-        return acc;
-      }, {});
-      Object.entries(grouped).forEach(([dept, data]) => {
-        createSheetWithData(dept, data);
-      });
-    }
-
-    const buffer = await workbook.xlsx.writeBuffer();
-    const blob = new Blob([buffer], {
-      type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
     });
-    const { batch, course, department } = filters;
-    const fileNameParts = [
-      batch || 'AllBatches',
-      course || 'AllCourses',
-      department || 'AllDepartments'
-    ];
-    const fileName = fileNameParts.join('_').replace(/\s+/g, '_');
-    saveAs(blob, `${fileName}.xlsx`);
+
+    sheet.autoFilter = {
+      from: { row: 1, column: 1 },
+      to: { row: 1, column: sheet.columns.length }
+    };
   };
+
+  if (filters.department) {
+    // If the user filtered by a specific department, keep existing behavior:
+    createSheetWithData(filters.department, data);
+  } else {
+    // NEW: create an "All" sheet with every record
+    createSheetWithData('All', data);
+
+    const grouped = data.reduce((acc, item) => {
+      const dept = item.department || "Unknown";
+      if (!acc[dept]) acc[dept] = [];
+      acc[dept].push(item);
+      return acc;
+    }, {});
+    Object.entries(grouped).forEach(([dept, deptData]) => {
+      createSheetWithData(dept, deptData);
+    });
+  }
+
+  const buffer = await workbook.xlsx.writeBuffer();
+  const blob = new Blob([buffer], {
+    type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+  });
+  const { batch, course, department } = filters;
+  const fileNameParts = [
+    batch || 'AllBatches',
+    course || 'AllCourses',
+    department || 'AllDepartments'
+  ];
+  const fileName = fileNameParts.join('_').replace(/\s+/g, '_');
+  saveAs(blob, `${fileName}.xlsx`);
+};
 
   return (
     <div className="font-sans p-4 min-h-screen bg-gray-50">

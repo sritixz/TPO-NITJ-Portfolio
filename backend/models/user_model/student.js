@@ -58,6 +58,10 @@ const studentSchema = new mongoose.Schema({
     type: Boolean,
     default: false,
   },
+  activeBacklogCount: {
+    type: String,
+    default: 0,
+  },
   backlogs_history: {
     type: Boolean,
     default: false,

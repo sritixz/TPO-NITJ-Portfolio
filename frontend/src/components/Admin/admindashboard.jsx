@@ -39,6 +39,7 @@ import LoginAttempts from "./loginattempt";
 import DocumentManager from "./documents";
 import StudentDocumentManager from "./studentsdocuments";
 import AlertManager from "./alert";
+import PlacementCalendarManager from "./placement-calendar";
 
 const Admindashboard = () => {
   const [isMobile, setIsMobile] = useState(false);
@@ -97,6 +98,7 @@ const Admindashboard = () => {
     {label: "Login Attempts", icon: faRightToBracket, path:"/admindashboard/login-attempt"},
     {label: "Offer", icon: faGift, path:"/admindashboard/offer"},
     {label: "Offer Tracker", icon: faClipboardList, path:"/admindashboard/offer-tracker"},
+    // {label: "Placement Calendar", icon: faClipboardList, path:"/admindashboard/placement-calendar"},
   ];
 
 
@@ -286,6 +288,7 @@ const Admindashboard = () => {
             <Route path="/login-attempt" element={<LoginAttempts />} />
             <Route path="/offer" element={<Offer />} />
             <Route path="/offer-tracker" element={<OfferTracker />} />
+            <Route path="/placement-calendar" element={<PlacementCalendarManager />} />
             </Routes>
         </div>
 
