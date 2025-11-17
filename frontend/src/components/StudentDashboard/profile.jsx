@@ -20,7 +20,6 @@ function Profile() {
     if (!user?.image) {
       return userIcon;
     }
-    // If it's a blob URL (for preview) or full URL, return as is; otherwise, prepend base URL for relative paths
     if (user.image.startsWith("http") || user.image.startsWith("blob:")) {
       return user.image;
     }
@@ -40,11 +39,11 @@ function Profile() {
     course: "",
     active_backlogs: "",
     backlogs_history: "",
+    activeBacklogCount: "",
     placementstatus: "",
     internshipstatus: "",
     debarred: "",
     image: "",
-    // NEW FIELDS
     dob: "",
     personalEmail: "",
     Xth: "",
@@ -75,6 +74,7 @@ function Profile() {
         internshipstatus: userData.internshipstatus ?? "",
         active_backlogs: userData.active_backlogs ?? false,
         backlogs_history: userData.backlogs_history ?? false,
+        activeBacklogCount: userData.activeBacklogCount ?? "",
         image: userData.image ?? "",
         dob: userData.dob ?? "",
         personalEmail: userData.personalEmail ?? "",
@@ -358,17 +358,19 @@ function Profile() {
               <div className="flex-1 min-w-[280px] space-y-5">
                 <AboutItem label="Name" value={formData.name} />
                 <AboutItem label="Gender" value={formData.gender} />
+                <AboutItem label="DOB" value={formData.dob || "—"} />
                 <AboutItem label="Email" value={formData.email} />
                 <AboutItem label="Personal Email" value={formData.personalEmail} />
                 <AboutItem label="Mobile" value={formData.phone} />
                 <AboutItem label="Batch" value={formData.batch} />
                 <AboutItem label="Course" value={formData.course} />
                 <AboutItem label="Branch" value={formData.department} />
-                <AboutItem label="DOB" value={formData.dob || "—"} />
               </div>
               {/* Right Column */}
               <div className="flex-1 min-w-[280px] space-y-5">
                 <AboutItem label="CGPA" value={formData.cgpa} />
+                <AboutItem label="10th %" value={formData.Xth} />
+                <AboutItem label="12th %" value={formData.XIIth} />
                 <AboutItem
                   label="Active Backlogs"
                   value={formData.active_backlogs ? "Yes" : "No"}
@@ -378,11 +380,13 @@ function Profile() {
                   value={formData.backlogs_history ? "Yes" : "No"}
                 />
                 <AboutItem
+                  label="Active Backlog Count"
+                  value={formData.activeBacklogCount}
+                />
+                <AboutItem
                   label="Debarred"
                   value={formData.debarred ? "Yes" : "No"}
                 />
-                <AboutItem label="10th %" value={formData.Xth} />
-                <AboutItem label="12th %" value={formData.XIIth} />
                 <AboutItem
                   label="LinkedIn"
                   value={

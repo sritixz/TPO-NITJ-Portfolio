@@ -4,6 +4,7 @@ import OfferTracker from '../models/offertracker.js';
 import SummerInternTracker from '../models/summer_intern_tracker.js';
 import mongoose from 'mongoose';
 import axios from 'axios';
+import { encryptValue, decryptValue } from "../utils/security.js";
 
 export const getStudentAnalytics = async (req, res) => {
     try {
@@ -24,7 +25,7 @@ export const getStudentAnalytics = async (req, res) => {
             internshipstatus
         } = req.query;
 
-        console.log('Query parameters:', req.query);
+        // console.log('Query parameters:', req.query);
 
         // Build the filter object for MongoDB query
         const filter = {};
@@ -44,9 +45,6 @@ export const getStudentAnalytics = async (req, res) => {
         if (gender && gender !== 'All') {
             filter.gender = gender;
         }
-        if (rollno) {
-            filter.rollno = { $regex: rollno, $options: 'i' }; // Case-insensitive partial match
-        }
         if (debarred && debarred !== 'All') {
             filter.debarred = debarred === 'true';
         }
@@ -55,6 +53,9 @@ export const getStudentAnalytics = async (req, res) => {
         }
         if (backlogs_history && backlogs_history !== 'All') {
             filter.backlogs_history = backlogs_history === 'true';
+        }
+        if (rollno) {
+            filter.rollno = { $regex: rollno, $options: 'i' }; // Case-insensitive partial match
         }
         if (name) {
             filter.name = { $regex: name, $options: 'i' }; // Case-insensitive partial match
@@ -76,20 +77,19 @@ export const getStudentAnalytics = async (req, res) => {
 
         const rollNumbers = students.map(student => student.rollno);
         let erpDataMap = new Map();
-
-         console.log(rollNumbers);
+         const payload = {rollNumbers, portalKey: process.env.ERP_IDENTITY_SECRET};
+         const encryptedData = encryptValue(JSON.stringify(payload));
         // Attempt to fetch ERP data, but continue even if it fails
         try {
-            const response = await axios.post(`${process.env.ERP_SERVER}`, rollNumbers);
-            console.log("ERP Response:", response.data);
-            const erpStudents = response.data.data || [];
-            console.log("erpStudents:", erpStudents);
+            const response = await axios.post(`${process.env.ERP_SERVER}`, encryptedData);
+            const erpStudents = JSON.parse(decryptValue(response.data.data))|| [];
             erpStudents.forEach(erpStudent => {
                 erpDataMap.set(erpStudent.rollno, {
                     ...erpStudent,
                     batch: erpStudent.batch,
                     active_backlogs: erpStudent.active_backlogs === 'true',
-                    backlogs_history: erpStudent.backlogs_history === 'true'
+                    backlogs_history: erpStudent.backlogs_history === 'true',
+                    activeBacklogCount: erpStudent.activeBacklogCount
                 });
             });
         } catch (error) {
@@ -129,12 +129,20 @@ export const getStudentAnalytics = async (req, res) => {
                         gender: student.gender || '',
                         category: student.category || '',
                         cgpa: erpData?.cgpa ?? student.cgpa ?? 0,
+                        disability: student.disability || false,
                         placementstatus: student.placementstatus || 'Not Placed',
                         internshipstatus: student.internshipstatus || 'No Intern',
                         debarred: student.debarred ?? false,
                         image: student.image || '',
                         active_backlogs: erpData?.active_backlogs ?? student.active_backlogs ?? false,
                         backlogs_history: erpData?.backlogs_history ?? student.backlogs_history ?? false,
+                        activeBacklogCount: erpData?.activeBacklogCount ?? student.activeBacklogCount ?? 0,
+                        Xth:student.Xth || '',
+                        XIIth:student.XIIth || '',
+                        dob: student.dob || '',
+                        personalEmail: student.personalEmail || '',
+                        linkedin: student.linkedin || '',
+                        address: student.address || '',
                         offers:  offers? offers?.offer : [],
                         isInterested: student.isInterested || false,
                         applications: {

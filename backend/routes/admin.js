@@ -84,6 +84,20 @@ import {
 } from "../controller/Admin/alert.js";
 
 
+import {
+  createPlacementCalendar,
+  getAllPlacementCalendars,
+  getPlacementCalendarById,
+  updatePlacementCalendar,
+  deletePlacementCalendar,
+  deleteManyPlacementCalendars,
+  addCompanyToCalendar,
+  removeCompanyFromCalendar,
+  getUpcomingOrPastCalendars
+} from "../controller/Admin/placement-calendar.js";
+
+
+
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
     const uploadPath = "uploads/developers";
@@ -167,10 +181,23 @@ router.delete("/offers/:id", deleteOffer);
 router.post("/offers/bulk-delete", deleteBulkOffers);
 
 
+//alert
 router.post("/alert/", createAlert);
 router.get("/alert/", getAllAlerts);
 router.get("/alert/active", getActiveAlerts);
 router.put("/alert/:id", updateAlert);
 router.delete("/alert/:id", deleteAlert);
+
+
+//placement calendar
+router.post("/placement-calendar/", createPlacementCalendar);
+router.get("/placement-calendar/", getAllPlacementCalendars);
+router.get("/placement-calendar/filter", getUpcomingOrPastCalendars);
+router.get("/placement-calendar/:id", getPlacementCalendarById);
+router.put("/placement-calendar/:id", updatePlacementCalendar);
+router.delete("/placement-calendar/:id", deletePlacementCalendar);
+router.post("/placement-calendar/delete-many", deleteManyPlacementCalendars);
+router.post("/placement-calendar/add-company/:date", addCompanyToCalendar);
+router.delete("/placement-calendar/remove-company/:date/:companyId", removeCompanyFromCalendar);
 
 export default router;

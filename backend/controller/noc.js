@@ -2,6 +2,8 @@
 import NOC from '../models/noc.js';
 // import NOCIdTracker from '../models/nocidtracker.js';
 import Department from "../models/user_model/department.js";
+import axios from 'axios';
+import { encryptValue, decryptValue } from "../utils/security.js";
 
 function getTodayDateString() {
   const today = new Date();
@@ -76,6 +78,74 @@ export const uploadOfferLetter = async (req, res) => {
   }
 };
 
+// New controller functions to add to noc.js controller file
+
+export const uploadTurnoverReport = async (req, res) => {
+  try {
+    const nocId = req.params.id;
+    const noc = await NOC.findById(nocId);
+    
+    if (!noc) {
+      return res.status(404).json({ message: 'NOC not found' });
+    }
+
+    if (!req.file) {
+      return res.status(400).json({ message: 'No file uploaded' });
+    }
+
+    if (req.file.mimetype !== 'application/pdf') {
+      return res.status(400).json({ message: 'Only PDF files are allowed' });
+    }
+
+    // Assuming the file is stored on the server, update the turnoverReport field with the file path
+    const filePath = `/uploads/turnover-reports/${req.file.filename}`;
+    
+    noc.turnoverReport = filePath;
+    await noc.save();
+    console.log("filePath", filePath);
+    res.status(200).json({ 
+      message: 'Turnover report uploaded successfully',
+      turnoverReport: filePath 
+    });
+  } catch (error) {
+    console.error('Error uploading turnover report:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+};
+
+export const uploadMailScreenshot = async (req, res) => {
+  try {
+    const nocId = req.params.id;
+    const noc = await NOC.findById(nocId);
+    
+    if (!noc) {
+      return res.status(404).json({ message: 'NOC not found' });
+    }
+
+    if (!req.file) {
+      return res.status(400).json({ message: 'No file uploaded' });
+    }
+
+    if (req.file.mimetype !== 'application/pdf') {
+      return res.status(400).json({ message: 'Only PDF files are allowed' });
+    }
+
+    // Assuming the file is stored on the server, update the mailScreenshot field with the file path
+    const filePath = `/uploads/mail-screenshots/${req.file.filename}`;
+    
+    noc.mailScreenshot = filePath;
+    await noc.save();
+    console.log("filePath", filePath);
+    res.status(200).json({ 
+      message: 'Mail PDF uploaded successfully',
+      mailScreenshot: filePath 
+    });
+  } catch (error) {
+    console.error('Error uploading mail screenshot:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+};
+
 export const getAllNOCs = async (req, res) => {
   try {
     const studentId= req.user.userId;
@@ -108,6 +178,7 @@ export const getAllNOCstoprofessors = async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 };
+
 export const getAllNOCstodepartments = async (req, res) => {
   try {
     const page = parseInt(req.query.page) || 1;

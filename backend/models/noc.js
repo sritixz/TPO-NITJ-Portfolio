@@ -17,11 +17,16 @@ const NOCSchema = new mongoose.Schema({
   internshipFrom: { type: Date},
   internshipTo: { type: Date },
   internshipDuration: {type: String,},
+  internshipMode: {type: String,},
   contactPersonName: { type: String},
   contactPersonDesignation: { type: String },
   contactPersonPhone: { type: String },
   contactPersonEmail: { type: String },
   offerLetter: { type: String },
+  turnoverReport: { type: String },
+  mailScreenshot: { type: String },
+  nocStatus: { type: String, default: 'Pending' },
+  nocLetter: { type: String },
 }, { timestamps: true });
 
 const NOC = mongoose.model('NOC', NOCSchema);

@@ -12,6 +12,7 @@ import OtpVerification from "../models/OtpVerification.js";
 import ResetPasswordToken from "../models/resetpassword.js";
 import { v4 as uuidv4 } from "uuid";
 import axios from 'axios';
+import { encryptValue, decryptValue } from "../utils/security.js";
 
 const generateOTP = (length = 6) => {
   const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
@@ -579,12 +580,14 @@ html: `
           if (userType === "Student" && student) {
             try {
                 const rollNumbers = [student.rollno];
-                console.log(rollNumbers);
+                const payload = {rollNumbers, portalKey: process.env.ERP_IDENTITY_SECRET};
+                const encryptedData = encryptValue(JSON.stringify(payload));
                 const course = student.course;
-                const response = await axios.post(`${process.env.ERP_SERVER}`, rollNumbers, {
-                    });
+                const response = await axios.post(`${process.env.ERP_SERVER}`, encryptedData);
                 const erpStudents = response.data.data;
-                const erpData = erpStudents[0];
+                const decryptedData = decryptValue(erpStudents);
+                const erpData = JSON.parse(decryptedData)[0];
+                console.log("ERP Data:", erpData,"decryptedData",decryptedData);
                 const erpBatch = erpData.batch;
                 const courseDurations = {
                 "B.Tech": 4,
@@ -595,13 +598,15 @@ html: `
                 };
                const adjustment = courseDurations[course] || 0; // Default to 0 if course not found
                const adjustedBatch = String(Number(erpBatch) + adjustment);
+               console.log(erpData);
                 const updatedStudent = await Student.findByIdAndUpdate(
                     student._id,
                     {
                         cgpa: erpData.cgpa,
                         batch: adjustedBatch,
                         active_backlogs: erpData.active_backlogs === 'true',
-                        backlogs_history: erpData.backlogs_history === 'true'
+                        backlogs_history: erpData.backlogs_history === 'true',
+                        activeBacklogCount: erpData.activeBacklogCount,
                     },
                     { new: true }
                 );     

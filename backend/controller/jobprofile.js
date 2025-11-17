@@ -20,6 +20,7 @@ import SummerIntern from "../models/summer_internship.js";
 import Recruiter from "../models/user_model/recuiter.js";
 import GuestHouseBooking from "../models/travel_planner/room.js";
 import VehicleRequisition from "../models/travel_planner/vehicle.js";
+import { encryptValue, decryptValue } from "../utils/security.js";
 import fs from 'fs';
 import path from 'path';
 
@@ -772,10 +773,14 @@ export const getJobProfiletostudent = async (req, res) => {
 
     try {
       const rollNumbers = [student.rollno];
+      const payload = {rollNumbers, portalKey: process.env.ERP_IDENTITY_SECRET};
+      const encryptedData = encryptValue(JSON.stringify(payload));
       const course = student.course;
-      const response = await axios.post(`${process.env.ERP_SERVER}`, rollNumbers);
+      const response = await axios.post(`${process.env.ERP_SERVER}`, encryptedData);
       const erpStudents = response.data.data;
-      const erpData = erpStudents[0];
+      const decryptedData = decryptValue(erpStudents);
+      const erpData = JSON.parse(decryptedData)[0];
+      console.log(erpData);
       const erpBatch = erpData.batch;
 
       const courseDurations = {
@@ -969,10 +974,13 @@ export const checkEligibility = async (req, res) => {
     let updatedStudent;
     try {
       const rollNumbers = [student.rollno];
+      const payload = {rollNumbers, portalKey: process.env.ERP_IDENTITY_SECRET};
+      const encryptedData = encryptValue(JSON.stringify(payload));
       const course = student.course;
-      const response = await axios.post(`${process.env.ERP_SERVER}`, rollNumbers);
+      const response = await axios.post(`${process.env.ERP_SERVER}`, encryptedData);
       const erpStudents = response.data.data;
-      const erpData = erpStudents[0];
+      const decryptedData = decryptValue(erpStudents);
+      const erpData = JSON.parse(decryptedData)[0];
       const erpBatch = erpData.batch;
       const courseDurations = {
         "B.Tech": 4,
@@ -988,12 +996,18 @@ export const checkEligibility = async (req, res) => {
         cgpa: erpData.cgpa,
         batch: adjustedBatch,
         active_backlogs: erpData.active_backlogs === 'true',
-        backlogs_history: erpData.backlogs_history === 'true'
+        backlogs_history: erpData.backlogs_history === 'true',
+        activeBacklogCount: erpData.activeBacklogCount,
       };
     } catch (erpError) {
       console.error("ERP server error, falling back to database data:", erpError);
       updatedStudent = student.toObject();
     }
+
+    if(updatedStudent.activeBacklogCount>3){
+      return res.json({eligible: false, reason: "You have more than 3 active backlogs"});
+    }
+
     const eligibilityCriteria = job.eligibility_criteria;
     let isEligible = false;
     let maxFailureDepth = -1; // Tracks the deepest failure across all criteria
