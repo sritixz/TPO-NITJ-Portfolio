@@ -76,6 +76,7 @@ export const getStudentAnalytics = async (req, res) => {
         const jobProfiles = await JobProfile.find();
 
         const rollNumbers = students.map(student => student.rollno);
+        console.log(rollNumbers);
         let erpDataMap = new Map();
          const payload = {rollNumbers, portalKey: process.env.ERP_IDENTITY_SECRET};
          const encryptedData = encryptValue(JSON.stringify(payload));
@@ -83,6 +84,7 @@ export const getStudentAnalytics = async (req, res) => {
         try {
             const response = await axios.post(`${process.env.ERP_SERVER}`, encryptedData);
             const erpStudents = JSON.parse(decryptValue(response.data.data))|| [];
+            console.log(erpStudents);
             erpStudents.forEach(erpStudent => {
                 erpDataMap.set(erpStudent.rollno, {
                     ...erpStudent,

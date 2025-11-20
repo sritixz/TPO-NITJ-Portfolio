@@ -30,7 +30,7 @@ const Footer = () => {
             <div className="align-center flex flex-row pb-[14px]">
               <i className="fas fa-phone mt-1 pr-[8px]"></i>
               <h3 className="opacity-90">
-                +91-7579279839, 9501030373, 9888813400
+                9988005931, 9015407795
               </h3>
             </div>
             <div id="social-links" className="flex flex-col bg-slate-800">
