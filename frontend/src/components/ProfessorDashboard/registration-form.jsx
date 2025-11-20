@@ -244,7 +244,7 @@ const phddepartmentOptions = [];
 const PlacementRegistrationExport = () => {
   const [filterOptions, setFilterOptions] = useState({
     batches: ["2026", "2027", "2028", "2029", "2030"],
-    courses: ["B.Tech", "M.Tech", "MBA", "M.Sc"],
+    courses: ["B.Tech", "M.Tech", "MBA", "M.Sc."],
     departments: []
   });
   const [filters, setFilters] = useState({

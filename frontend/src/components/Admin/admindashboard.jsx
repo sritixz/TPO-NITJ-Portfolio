@@ -40,6 +40,7 @@ import DocumentManager from "./documents";
 import StudentDocumentManager from "./studentsdocuments";
 import AlertManager from "./alert";
 import PlacementCalendarManager from "./placement-calendar";
+import PlacementRegistrationAdmin from "./placement-registration";
 
 const Admindashboard = () => {
   const [isMobile, setIsMobile] = useState(false);
@@ -93,11 +94,13 @@ const Admindashboard = () => {
     { label: "Devteam Management", icon: faCode, path: "/admindashboard/devteam" },
     { label: "Documents Management", icon: faBriefcase, path: "/admindashboard/documents" },
     { label: "Student Documents", icon: faBriefcase, path: "/admindashboard/student-documents" },
+    { label: "Placement Registration", icon: faBriefcase, path: "/admindashboard/placement-registration" },
     { label: "Alerts", icon: faBriefcase, path: "/admindashboard/alerts" },
     {label: "Logs", icon: faCode, path:"/admindashboard/logs"},
     {label: "Login Attempts", icon: faRightToBracket, path:"/admindashboard/login-attempt"},
     {label: "Offer", icon: faGift, path:"/admindashboard/offer"},
     {label: "Offer Tracker", icon: faClipboardList, path:"/admindashboard/offer-tracker"},
+
     // {label: "Placement Calendar", icon: faClipboardList, path:"/admindashboard/placement-calendar"},
   ];
 
@@ -283,6 +286,7 @@ const Admindashboard = () => {
             <Route path="/devteam" element={<DevteamManager />} />
             <Route path="/documents" element={<DocumentManager />} />
             <Route path="/student-documents" element={<StudentDocumentManager />} />
+            <Route path="/placement-registration" element={<PlacementRegistrationAdmin/>} />
             <Route path="/alerts" element={<AlertManager />} />
             <Route path="/logs" element={<LogsTable />} />
             <Route path="/login-attempt" element={<LoginAttempts />} />

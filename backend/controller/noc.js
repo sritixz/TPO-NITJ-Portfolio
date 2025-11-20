@@ -1,183 +1,145 @@
 // import mongoose from 'mongoose';
 import NOC from '../models/noc.js';
-// import NOCIdTracker from '../models/nocidtracker.js';
 import Department from "../models/user_model/department.js";
+import fs from 'fs';
+import path from 'path';
 import axios from 'axios';
+import Student from "../models/user_model/student.js";
 import { encryptValue, decryptValue } from "../utils/security.js";
 
-function getTodayDateString() {
-  const today = new Date();
-  const dd = String(today.getDate()).padStart(2, '0');
-  const mm = String(today.getMonth() + 1).padStart(2, '0');
-  const yy = String(today.getFullYear()).slice(2);
-  return `${dd}${mm}${yy}`; // e.g. 310525
-}
 
-export const createNOC = async (req, res) => {
-  // const session = await mongoose.startSession();
-  // session.startTransaction();
-  try {
-    const dateStr = getTodayDateString();
-    // let tracker = await NOCIdTracker.findOne({ date: dateStr }).session(session);
-    // if (!tracker) {
-    //   tracker = await NOCIdTracker.create([{ date: dateStr, lastNumber: 1898 }], { session });
-    //   tracker = tracker[0];
-    // }
+// export const getAllNOCstoprofessors = async (req, res) => {
+//   try {
+//     const page = parseInt(req.query.page) || 1;
+//     const limit = parseInt(req.query.limit) || 10;
+//     const skip = (page - 1) * limit;
 
-    // tracker.lastNumber += 1;
-    // await tracker.save({ session });
-
-    // const nocId = `NITJ/NOC/${dateStr}/${tracker.lastNumber}`;
-    const nocId = `NITJ/NOC/${dateStr}/`;
-    const studentId = req.user.userId;
-
-    const newNOC = new NOC({ ...req.body, nocId, studentId });
-    // await newNOC.save({ session });
-    await newNOC.save();
-
-    // await session.commitTransaction();
-    res.status(201).json(newNOC);
-  } catch (err) {
-    // await session.abortTransaction();
-    res.status(500).json({ error: err.message }); 
-  }
-  // finally {
-  //   session.endSession();
-  // }
-};
-export const uploadOfferLetter = async (req, res) => {
-  try {
-    const nocId = req.params.id;
-    const noc = await NOC.findById(nocId);
+//     const nocs = await NOC.find()
+//       .skip(skip)
+//       .limit(limit);
     
-    if (!noc) {
-      return res.status(404).json({ message: 'NOC not found' });
-    }
+//     const total = await NOC.countDocuments();
 
-    if (!req.file) {
-      return res.status(400).json({ message: 'No file uploaded' });
-    }
+//     res.status(200).json({
+//       nocs,
+//       total,
+//       currentPage: page,
+//       totalPages: Math.ceil(total / limit)
+//     });
+//   } catch (err) {
+//     res.status(500).json({ error: err.message });
+//   }
+// };
 
-    if (req.file.mimetype !== 'application/pdf') {
-      return res.status(400).json({ message: 'Only PDF files are allowed' });
-    }
-
-    // Assuming the file is stored on the server, update the offerLetter field with the file path
-    const filePath = `/uploads/offer-letters/${req.file.filename}`;
-    
-    noc.offerLetter = filePath;
-    await noc.save();
-   console.log("filePath", filePath);
-    res.status(200).json({ 
-      message: 'Offer letter uploaded successfully',
-      offerLetter: filePath 
-    });
-  } catch (error) {
-    console.error('Error uploading offer letter:', error);
-    res.status(500).json({ message: 'Server error' });
-  }
-};
-
-// New controller functions to add to noc.js controller file
-
-export const uploadTurnoverReport = async (req, res) => {
+export const getLockedNOCsForProfessors = async (req, res) => {
   try {
-    const nocId = req.params.id;
-    const noc = await NOC.findById(nocId);
-    
-    if (!noc) {
-      return res.status(404).json({ message: 'NOC not found' });
-    }
-
-    if (!req.file) {
-      return res.status(400).json({ message: 'No file uploaded' });
-    }
-
-    if (req.file.mimetype !== 'application/pdf') {
-      return res.status(400).json({ message: 'Only PDF files are allowed' });
-    }
-
-    // Assuming the file is stored on the server, update the turnoverReport field with the file path
-    const filePath = `/uploads/turnover-reports/${req.file.filename}`;
-    
-    noc.turnoverReport = filePath;
-    await noc.save();
-    console.log("filePath", filePath);
-    res.status(200).json({ 
-      message: 'Turnover report uploaded successfully',
-      turnoverReport: filePath 
-    });
-  } catch (error) {
-    console.error('Error uploading turnover report:', error);
-    res.status(500).json({ message: 'Server error' });
-  }
-};
-
-export const uploadMailScreenshot = async (req, res) => {
-  try {
-    const nocId = req.params.id;
-    const noc = await NOC.findById(nocId);
-    
-    if (!noc) {
-      return res.status(404).json({ message: 'NOC not found' });
-    }
-
-    if (!req.file) {
-      return res.status(400).json({ message: 'No file uploaded' });
-    }
-
-    if (req.file.mimetype !== 'application/pdf') {
-      return res.status(400).json({ message: 'Only PDF files are allowed' });
-    }
-
-    // Assuming the file is stored on the server, update the mailScreenshot field with the file path
-    const filePath = `/uploads/mail-screenshots/${req.file.filename}`;
-    
-    noc.mailScreenshot = filePath;
-    await noc.save();
-    console.log("filePath", filePath);
-    res.status(200).json({ 
-      message: 'Mail PDF uploaded successfully',
-      mailScreenshot: filePath 
-    });
-  } catch (error) {
-    console.error('Error uploading mail screenshot:', error);
-    res.status(500).json({ message: 'Server error' });
-  }
-};
-
-export const getAllNOCs = async (req, res) => {
-  try {
-    const studentId= req.user.userId;
-    const nocs = await NOC.find({ studentId })
-    res.status(200).json(nocs);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-};
-
-export const getAllNOCstoprofessors = async (req, res) => {
-  try {
-    const page = parseInt(req.query.page) || 1;
-    const limit = parseInt(req.query.limit) || 10;
+    const page = Number(req.query.page) || 1;
+    const limit = Number(req.query.limit) || 10;
     const skip = (page - 1) * limit;
 
-    const nocs = await NOC.find()
-      .skip(skip)
-      .limit(limit);
-    
-    const total = await NOC.countDocuments();
+    // Fetch only locked NOCs
+    const [nocs, total] = await Promise.all([
+      NOC.find({ locked: true })
+        .skip(skip)
+        .limit(limit)
+        .sort({ createdAt: -1 }),
+
+      NOC.countDocuments({ locked: true })
+    ]);
 
     res.status(200).json({
       nocs,
       total,
       currentPage: page,
-      totalPages: Math.ceil(total / limit)
+      totalPages: Math.ceil(total / limit),
     });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 };
+
+
+export const updateNOCStatus = async (req, res) => {
+  console.log(req.params);
+  try {
+    const { nocStatus, id } = req.params;  // Pending, Issued, Rejected
+
+    // Allow only valid statuses
+    const allowedStatuses = ["Pending", "Issued", "Rejected"];
+    if (!allowedStatuses.includes(nocStatus)) {
+      return res.status(400).json({ error: "Invalid NOC status" });
+    }
+
+    if (!id) {
+      return res.status(400).json({ error: "nocId is required" });
+    }
+
+    const updatedNOC = await NOC.findOneAndUpdate(
+      { _id: id },
+      { nocStatus },
+      { new: true }
+    );
+
+    if (!updatedNOC) {
+      console.log("NOC not found");
+      return res.status(404).json({ error: "NOC not found" });
+    }
+
+    res.status(200).json({
+      message: `NOC status updated to ${nocStatus}`,
+      noc: updatedNOC
+    });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
+export const updateNOCByProfessor = async (req, res) => {
+  try {
+    const id = req.params.id;
+
+    const noc = await NOC.findOne({ _id: id});
+    if (!noc) return res.status(404).json({ message: 'NOC not found' });
+
+    const data = parseNestedFormData(req.body);
+    data.ownStartup = data.internshipMode === 'Own Startup';
+    data.companyminAgeis3 = data.companyminAgeis3 === 'Yes';
+
+    if (data.internshipFrom) data.internshipFrom = new Date(data.internshipFrom);
+    if (data.internshipTo) data.internshipTo = new Date(data.internshipTo);
+
+    const fields = [
+      'offerLetter',
+      'turnoverReport',
+      'mailScreenshot',
+      'startupIndiaRecognitionCertificate',
+      'signature'
+    ];
+
+    fields.forEach(field => {
+      if (req.files[field]) {
+        // delete old file
+        if (noc[field]) {
+          const oldFilePath = path.join(__dirname, '..', noc[field]);
+          if (fs.existsSync(oldFilePath)) fs.unlinkSync(oldFilePath);
+        }
+
+        // set new file path
+       data[field] = toRelativePath(req.files[field][0].path);
+      }
+    });
+
+    Object.assign(noc, data);
+    await noc.save();
+
+    res.json(noc);
+  } catch (error) {
+    console.error('Error updating NOC:', error);
+    res.status(400).json({ message: error.message });
+  }
+};
+
+
 
 export const getAllNOCstodepartments = async (req, res) => {
   try {
@@ -221,22 +183,254 @@ export const getNOCById = async (req, res) => {
   }
 };
 
-export const updateNOC = async (req, res) => {
+export const deleteNOC = async (req, res) => {
+try {
+const noc = await NOC.findById(req.params.id);
+if (!noc) return res.status(404).json({ message: 'NOC not found' });
+
+if(noc.locked) return res.status(403).json({ message: 'NOC is locked and cannot be deleted' });
+
+const fileFields = [
+'offerLetter',
+'turnoverReport',
+'mailScreenshot',
+'startupIndiaRecognitionCertificate',
+'signature'
+];
+
+for (const field of fileFields) {
+if (noc[field]) {
+const fullPath = path.join(process.cwd(), noc[field]);
+try {
+if (fs.existsSync(fullPath)) {
+fs.unlinkSync(fullPath);
+try {
+const dir = path.dirname(fullPath);
+const files = fs.readdirSync(dir);
+if (files.length === 0) fs.rmdirSync(dir);
+} catch (err) {
+}
+} else {
+console.warn(`File not found, skipping deletion: ${fullPath}`);
+}} catch (err) {
+console.error(`Error deleting file ${fullPath}:`, err);
+}}}
+
+await NOC.findByIdAndDelete(req.params.id);
+
+
+res.status(200).json({ message: 'NOC deleted and related files removed' });
+} catch (err) {
+console.error('Error deleting NOC:', err);
+res.status(500).json({ error: err.message });
+}
+};
+
+export const getNOCs = async (req, res) => {
   try {
-    const updatedNOC = await NOC.findByIdAndUpdate(req.params.id, req.body, { new: true });
-    if (!updatedNOC) return res.status(404).json({ message: 'NOC not found' });
-    res.status(200).json(updatedNOC);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
+    const nocs = await NOC.find({ studentId: req.user.userId }).sort({ createdAt: -1 });
+    res.json(nocs);
+  } catch (error) {
+    console.error('Error fetching NOCs:', error);
+    res.status(500).json({ message: 'Server error' });
   }
 };
 
-export const deleteNOC = async (req, res) => {
+export const lockNOC = async (req, res) => {
   try {
-    const deletedNOC = await NOC.findByIdAndDelete(req.params.id);
-    if (!deletedNOC) return res.status(404).json({ message: 'NOC not found' });
-    res.status(200).json({ message: 'NOC deleted' });
-  } catch (err) {
-    res.status(500).json({ error: err.message });
+    const { id } = req.params;
+    const noc = await NOC.findById(id);
+    if (!noc) {
+      return res.status(404).json({ message: "NOC not found" });
+    }
+    if (noc.locked) {return res.status(400).json({ message: "NOC is already locked" });}
+    noc.locked = true;
+    await noc.save();
+    return res.status(200).json({
+      message: "NOC locked successfully",
+      noc,
+    });
+
+  } catch (error) {
+    console.error("Error locking NOC:", error);
+    return res.status(500).json({ message: "Server error", error: error.message });
+  }
+};
+
+
+
+function getTodayDateString() {
+  const today = new Date();
+  const dd = String(today.getDate()).padStart(2, '0');
+  const mm = String(today.getMonth() + 1).padStart(2, '0');
+  const yy = String(today.getFullYear()).slice(2);
+  return `${dd}${mm}${yy}`; // e.g. 310525
+}
+
+
+const parseNestedFormData = (formData) => {
+  const data = {};
+  for (let [key, value] of Object.entries(formData)) {
+    if (key.includes('[') && key.includes(']')) {
+      const match = key.match(/^(.*)\[([^\]]+)\]$/);
+      if (match) {
+        const parent = match[1];
+        const child = match[2];
+        if (!data[parent]) data[parent] = {};
+        data[parent][child] = value;
+      } else {
+        data[key] = value;
+      }
+    } else {
+      data[key] = value;
+    }
+  }
+  return data;
+};
+
+const toRelativePath = (fullPath) => {
+  const index = fullPath.indexOf("uploads");
+  return fullPath.substring(index).replace(/\\/g, "/");
+};
+
+
+export const createNOC = async (req, res) => {
+  try {
+
+    //fetching student active backlog count
+    const studentId = req.user.userId;
+    const student = await Student.findById(studentId).select('rollno');
+    const rollNumbers = [student.rollno];
+    const payload = {rollNumbers, portalKey: process.env.ERP_IDENTITY_SECRET};
+    const encryptedData = encryptValue(JSON.stringify(payload));
+    const response = await axios.post(`${process.env.ERP_SERVER}`, encryptedData);
+    const erpStudents = response.data.data;
+    const decryptedData = decryptValue(erpStudents);
+    const erpData = JSON.parse(decryptedData)[0];
+
+    //starting creation process
+    const data = parseNestedFormData(req.body);
+
+    if(erpData.activeBacklogCount>3 && (data.internshipMode=='Own Startup' || data.internshipMode=='Off-Campus') && (data.course=='M.Tech' || (data.course=='B.Tech' && data.year=='4th'))) return res.status(400).json({eligible:false, message: "You have more than 3 active backlogs. You cannot go to Internship as per Internship policy." });
+
+    data.studentId = req.user.userId;
+    const dateStr = getTodayDateString();
+    // 🔥 NEW CONDITIONAL PREFIX HERE
+const isSpecialCase =
+  (data.course === 'B.Tech' && data.year === '4th') ||
+  data.course === 'M.Tech';
+
+data.nocId = isSpecialCase
+  ? `CTP/NOC/${dateStr}/`
+  : `NITJ/NOC/${dateStr}/`;
+
+    data.ownStartup = data.internshipMode === 'Own Startup';
+    data.companyminAgeis3 = data.companyminAgeis3 === 'Yes';
+
+    if (data.internshipFrom) data.internshipFrom = new Date(data.internshipFrom);
+    if (data.internshipTo) data.internshipTo = new Date(data.internshipTo);
+
+    // Attach file paths
+    const fields = [
+      'offerLetter',
+      'turnoverReport',
+      'mailScreenshot',
+      'startupIndiaRecognitionCertificate',
+      'signature'
+    ];
+
+    fields.forEach(field => {
+      if (req.files[field]) {
+        data[field] = toRelativePath(req.files[field][0].path);
+      }
+    });
+
+    const noc = new NOC(data);
+    await noc.save();
+
+    res.status(201).json(noc);
+  } catch (error) {
+    console.error('Error creating NOC:', error);
+    res.status(400).json({ message: error.message });
+  }
+};
+
+// ---------------------------
+// UPDATE NOC
+// ---------------------------
+export const updateNOC = async (req, res) => {
+  try {
+    const id = req.params.id;
+
+    const noc = await NOC.findOne({ _id: id, studentId: req.user.userId });
+    if (!noc) return res.status(404).json({ message: 'NOC not found' });
+
+    if (noc.locked)
+      return res.status(403).json({ message: 'NOC is locked and cannot be edited' });
+
+    const data = parseNestedFormData(req.body);
+    data.ownStartup = data.internshipMode === 'Own Startup';
+    data.companyminAgeis3 = data.companyminAgeis3 === 'Yes';
+
+    if (data.internshipFrom) data.internshipFrom = new Date(data.internshipFrom);
+    if (data.internshipTo) data.internshipTo = new Date(data.internshipTo);
+
+    const fields = [
+      'offerLetter',
+      'turnoverReport',
+      'mailScreenshot',
+      'startupIndiaRecognitionCertificate',
+      'signature'
+    ];
+
+    fields.forEach(field => {
+      if (req.files[field]) {
+        // delete old file
+        if (noc[field]) {
+          const oldFilePath = path.join(__dirname, '..', noc[field]);
+          if (fs.existsSync(oldFilePath)) fs.unlinkSync(oldFilePath);
+        }
+
+        // set new file path
+       data[field] = toRelativePath(req.files[field][0].path);
+      }
+    });
+
+    Object.assign(noc, data);
+    await noc.save();
+
+    res.json(noc);
+  } catch (error) {
+    console.error('Error updating NOC:', error);
+    res.status(400).json({ message: error.message });
+  }
+};
+
+// ---------------------------
+// UPLOAD DOCUMENT (Single Route)
+// ---------------------------
+export const uploadDocument = async (req, res) => {
+  try {
+    const id = req.params.id;
+
+    const noc = await NOC.findOne({ _id: id, studentId: req.user.userId });
+    if (!noc) return res.status(404).json({ message: 'NOC not found' });
+
+    const field = req.file.fieldname;
+
+    // Delete old file
+    if (noc[field]) {
+      const oldFilePath = path.join(__dirname, '..', noc[field]);
+      if (fs.existsSync(oldFilePath)) fs.unlinkSync(oldFilePath);
+    }
+
+    // Save new file
+    noc[field] = req.file.path.replace(/\\/g, '/');
+    await noc.save();
+
+    res.json(noc);
+  } catch (error) {
+    console.error('Upload error:', error);
+    res.status(400).json({ message: error.message });
   }
 };

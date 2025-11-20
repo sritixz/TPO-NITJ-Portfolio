@@ -119,8 +119,6 @@ import PlacementCalendar from "../models/placement-calendar.js";
 export const addOrUpdatePlacementEntry = async (req, res) => {
   try {
     const { date, companies } = req.body;
-    console.log("Companies:", companies);
-
     if (!date) {
       return res.status(400).json({ message: "Date is required." });
     }
@@ -258,7 +256,6 @@ export const deleteAllCompanyProcesses = async (req, res) => {
 export const getPlacementsByMonth = async (req, res) => {
   try {
     const { month, year } = req.params; // e.g. month = 9, year = 2025
-    console.log(month, year);
 
     if (!month || !year) {
       return res.status(400).json({ message: "Month and year are required." });
@@ -270,8 +267,6 @@ export const getPlacementsByMonth = async (req, res) => {
     const entries = await PlacementCalendar.find({
       date: { $gte: startDate, $lte: endDate }
     }).sort({ date: 1 });
-
-    console.log(entries);
 
     res.status(200).json(entries);
   } catch (error) {

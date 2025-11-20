@@ -97,6 +97,14 @@ import {
 } from "../controller/Admin/placement-calendar.js";
 
 
+import {
+  createPlacementRegistration,
+  getAllPlacementRegistrations,
+  getPlacementRegistrationById,
+  updatePlacementRegistration,
+  deletePlacementRegistration,
+  deleteManyPlacementRegistrations,
+} from '../controller/Admin/placement-registration.js'; 
 
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
@@ -199,5 +207,14 @@ router.delete("/placement-calendar/:id", deletePlacementCalendar);
 router.post("/placement-calendar/delete-many", deleteManyPlacementCalendars);
 router.post("/placement-calendar/add-company/:date", addCompanyToCalendar);
 router.delete("/placement-calendar/remove-company/:date/:companyId", removeCompanyFromCalendar);
+
+
+// placement registration
+router.post('/placement-registration/', createPlacementRegistration);
+router.get('/placement-registration/', getAllPlacementRegistrations);
+router.get('/placement-registration/:id', getPlacementRegistrationById);
+router.put('/placement-registration/:id', updatePlacementRegistration);
+router.delete('/placement-registration/:id', deletePlacementRegistration);
+router.delete('/placement-registration/delete-many/', deleteManyPlacementRegistrations);
 
 export default router;

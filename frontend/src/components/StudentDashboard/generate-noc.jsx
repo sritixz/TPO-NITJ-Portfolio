@@ -193,45 +193,78 @@ if (currentLineSegments.length > 0) {
     const logoHeight = 70;
     page.drawImage(logoImage, {
       x: margin,
-      y: height - margin - logoHeight + 7,
+      y: height - margin - logoHeight + 22,
       width: logoWidth,
       height: logoHeight,
     });
   
     const textMaxWidth = width - margin * 3 - logoWidth;
-    drawText('Dr. B.R. Ambedkar National Institute of Technology, Jalandhar', {
-      size: 13,
-      align: 'left',
-      font: englishFont,
-      boldFont: englishBoldFont,
-      highlightPhrases: ['Dr. B.R. Ambedkar', 'National Institute of Technology, Jalandhar'],
-     
-      x: margin + logoWidth + 30,
-      y: height - margin - 14,
-    });
-    drawText('(An Institute of National Importance under Ministry of Education, Govt. of India)', {
-      size: 10,
-      align: 'left',
-      maxWidth: textMaxWidth + 40,
-      x: margin + logoWidth + 30 + 10,
-      y: height - margin - 14 - 18,
-    });
-    drawText('G T Road, Bye Pass, Jalandhar: 144027 (Punjab) India', {
-      size: 10,
-      align: 'left',
-      maxWidth: textMaxWidth,
-      x: margin + logoWidth + 30 + 50,
-      y: height - margin - 14 - 18 - 18,
-    });
+   // Move header up by about 20px
+const headerY = height - margin - 5;
+
+drawText('Dr. B.R. Ambedkar National Institute of Technology, Jalandhar', {
+  size: 13,
+  align: 'left',
+  font: englishFont,
+  boldFont: englishBoldFont,
+  highlightPhrases: ['Dr. B.R. Ambedkar', 'National Institute of Technology, Jalandhar'],
+  x: margin + logoWidth + 30,
+  y: headerY,
+});
+
+drawText('(An Institute of National Importance under Ministry of Education, Govt. of India)', {
+  size: 10,
+  align: 'left',
+  maxWidth: textMaxWidth + 40,
+  x: margin + logoWidth + 30 + 10,
+  y: headerY - 18,   // previously -18
+});
+
+drawText('G T Road, Bye Pass, Jalandhar: 144027 (Punjab) India', {
+  size: 10,
+  align: 'left',
+  maxWidth: textMaxWidth,
+  x: margin + logoWidth + 30 + 50,
+  y: headerY - 36,   // previously -36
+});
+
+
+    // ---- Horizontal line under college header ----
+const lineY = height - margin - 14 - 18 - 18 - 12-5;
+
+// Top thin line
+page.drawLine({
+  start: { x: 10, y: lineY },
+  end: { x: width - 10, y: lineY },
+  thickness: 0.8,
+  color: rgb(0, 0, 0),
+});
+
+// Bottom bold line (3px below)
+page.drawLine({
+  start: { x: 10, y: lineY - 3 },
+  end: { x: width - 10, y: lineY - 3 },
+  thickness: 1.6,
+  color: rgb(0, 0, 0),
+});
+
+
+
+// y = lineY - 25; // reduce spacing so heading comes nicely under line
+
   
+    const isSpecialCase = (noc.course === 'B.Tech' && noc.year === '4th') || noc.course === 'M.Tech';
+
+    const departmentHeading = isSpecialCase ? `TRAINING & PLACEMENT OFFICE` : `DEPARTMENT OF ${noc.department}`;
+
     drawLine(10);
-    drawText(`DEPARTMENT OF ${noc.department}`, {
+    drawText(departmentHeading, {
       size: 12,
       align: 'center',
       font: englishFont,
       boldFont: englishBoldFont,
-      underlinePhrases: [`DEPARTMENT OF ${noc.department}`],
-      highlightPhrases: [`DEPARTMENT OF ${noc.department}`],
+      underlinePhrases: [departmentHeading],
+      highlightPhrases: [departmentHeading],
     });
     drawLine(2);
   
@@ -243,15 +276,12 @@ if (currentLineSegments.length > 0) {
       underlinePhrases: [],
       y: currentY,
     });
-    drawText(`Date: ${new Date(noc.dateSubmitted).toLocaleDateString('en-GB', {
-      day: '2-digit',
-      month: '2-digit',
-      year: 'numeric',
-    })}`, {
+    drawText("Date:" ,{
       font: englishFont,
       size: 12,
       highlightPhrases: ['Date:'],
-      align: 'right',
+      x: width - margin - 120, 
+      align: 'left',
       y: currentY,
     });
     y = currentY;
@@ -274,9 +304,14 @@ if (currentLineSegments.length > 0) {
       highlightPhrases: ['TO WHOMSOEVER, IT MAY CONCERN'],
     });
     drawLine();
+
+    const noObjectionText = isSpecialCase
+  ? `The Training & Placement Office & Department of ${noc.department}, NIT Jalandhar`
+  : `The Department of ${noc.department}, NIT Jalandhar`;
+
   
     drawText(
-      `It is to certify that ${noc.salutation} ${noc.studentName} , with Roll No. ${noc.rollNo}, is currently studying in ${noc.course}, ${noc.year} Year, ${noc.semester} Semester, in the Department of ${noc.department} at Dr. B.R. Ambedkar National Institute of Technology, Jalandhar. The Department of ${noc.department}, NIT Jalandhar has no objection if ${noc.studentName} is allowed to undergo an internship at your esteemed organization from ${new Date(noc.internshipFrom).toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' })} to ${new Date(noc.internshipTo).toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' })}, for a maximum duration of ${noc.internshipDuration}.`,
+      `It is to certify that ${noc.salutation} ${noc.studentName} , with Roll No. ${noc.rollNo}, is currently studying in ${noc.course}, ${noc.year} Year, ${noc.semester} Semester, in the Department of ${noc.department} at Dr. B.R. Ambedkar National Institute of Technology, Jalandhar. ${noObjectionText} has no objection if ${noc.studentName} is allowed to undergo an internship at your esteemed organization from ${new Date(noc.internshipFrom).toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' })} to ${new Date(noc.internshipTo).toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' })}, for a maximum duration of ${noc.internshipDuration}.`,
       {
         font: englishFont,
         align: 'justify',
@@ -287,29 +322,108 @@ if (currentLineSegments.length > 0) {
     );
     drawLine();
   
+    const joiningLetterPhrase = isSpecialCase ? 'the TPO' : 'their department';
+
     drawText(
-      `This NOC has been issued upon the student's request and is duly signed and stamped in its original form. It is valid only for the stated period and purpose. Furthermore, this NOC will be considered valid only if the student submits the joining letter to the their department, within one week of receiving an offer based on this NOC. Failure to submit the joining letter will result in non-evaluation of internship/training for credit purposes. The permission is granted on the condition that the student will not seek any relaxation in academic activities due to this internship.`,
+      `This NOC has been issued upon the student's request and is duly signed and stamped in its original form. It is valid only for the stated period and purpose. Furthermore, this NOC will be considered valid only if the student submits the joining letter to ${joiningLetterPhrase}, within one week of receiving an offer based on this NOC. Failure to submit the joining letter will result in non-evaluation of internship/training for credit purposes. The permission is granted on the condition that the student will not seek any relaxation in academic activities due to this internship.`,
       { font: englishFont, align: 'justify' }
     );
     drawLine(2);
   
     drawText('Best regards,');
     drawLine(6);
-    drawText('HEAD OF DEPARTMENT', {
-      font: englishFont,
-      boldFont: englishBoldFont,
-      highlightPhrases: ['HEAD OF DEPARTMENT'],
-    });
-    drawText(`${noc.department}`, {
-      font: englishFont,
-      boldFont: englishBoldFont,
-      highlightPhrases: [`${noc.department}`],
-    });
-     drawText('NIT JALANDHAR', {
-      font: englishFont,
-      boldFont: englishBoldFont,
-      highlightPhrases: ['NIT JALANDHAR'],
-    });
+
+    const colWidth = 165;
+    const leftX = margin;
+    const centerX = margin + colWidth;
+    const rightX = margin + 2 * colWidth;
+
+    if (isSpecialCase) {
+      const signatureY = y;
+
+      // IAC Coordinator block
+      drawText('IAC Coordinator', {
+        font: englishFont,
+        boldFont: englishBoldFont,
+        highlightPhrases: ['IAC Coordinator'],
+        x: leftX,
+        y: signatureY,
+      });
+      drawText(`${noc.department}`, {
+        font: englishFont,
+        boldFont: englishBoldFont,
+        highlightPhrases: [`${noc.department}`],
+        x: leftX,
+        y: signatureY - 18,
+      });
+      drawText('NIT JALANDHAR', {
+        font: englishFont,
+        boldFont: englishBoldFont,
+        highlightPhrases: ['NIT JALANDHAR'],
+        x: leftX,
+        y: signatureY - 36,
+      });
+
+      // Internship Coordinator block
+      drawText('Internship Coordinator', {
+        font: englishFont,
+        boldFont: englishBoldFont,
+        highlightPhrases: ['Internship Coordinator'],
+        x: rightX,
+        y: signatureY,
+      });
+      drawText('Training & Placement Cell', {
+        font: englishFont,
+        boldFont: englishBoldFont,
+        highlightPhrases: ['Training & Placement Cell'],
+        x: rightX,
+        y: signatureY - 18,
+      });
+      drawText('NIT JALANDHAR', {
+        font: englishFont,
+        boldFont: englishBoldFont,
+        highlightPhrases: ['NIT JALANDHAR'],
+        x: rightX,
+        y: signatureY - 36,
+      });
+
+
+      drawLine(12);
+
+      // Signature HEAD OF DEPARTMENT
+      drawText('HEAD OF DEPARTMENT', {
+        font: englishFont,
+        boldFont: englishBoldFont,
+        highlightPhrases: ['HEAD OF DEPARTMENT'],
+      });
+      drawText(`${noc.department}`, {
+        font: englishFont,
+        boldFont: englishBoldFont,
+        highlightPhrases: [`${noc.department}`],
+      });
+      drawText('NIT JALANDHAR', {
+        font: englishFont,
+        boldFont: englishBoldFont,
+        highlightPhrases: ['NIT JALANDHAR'],
+      });
+    } else {
+      // Original signature
+      drawText('HEAD OF DEPARTMENT', {
+        font: englishFont,
+        boldFont: englishBoldFont,
+        highlightPhrases: ['HEAD OF DEPARTMENT'],
+      });
+      drawText(`${noc.department}`, {
+        font: englishFont,
+        boldFont: englishBoldFont,
+        highlightPhrases: [`${noc.department}`],
+      });
+       drawText('NIT JALANDHAR', {
+        font: englishFont,
+        boldFont: englishBoldFont,
+        highlightPhrases: ['NIT JALANDHAR'],
+      });
+    }
     drawLine(6);
 
     const pdfBytes = await pdfDoc.save();
