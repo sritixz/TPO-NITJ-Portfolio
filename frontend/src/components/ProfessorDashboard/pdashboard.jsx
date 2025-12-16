@@ -54,6 +54,7 @@ import OfferAdder from "./offeradder.jsx";
 import PlacementRegistrationExport from "./registration-form.jsx";
 import InsightDashboard from "./InsightDashboard.jsx";
 import PlacementCalendar from "./placement-calendar.jsx";
+import RecruiterFeedbackList from "./companyFeedback.jsx";
 
 
 const Pdashboard = () => {
@@ -112,6 +113,7 @@ const Pdashboard = () => {
     { label: "Help Requests", icon: faQuestionCircle, path: "/pdashboard/help-requests" },
     { label: "Shared Experiences", icon: faShareAlt, path: "/pdashboard/experience-sharing" },
     { label: "User Requests", icon: faContactCard, path: "/pdashboard/contact-request" },
+    { label: "Company Feedback", icon: faContactCard, path: "/pdashboard/recruiterFeedback" },
     
   ];
 
@@ -312,6 +314,7 @@ const Pdashboard = () => {
             {/* <Route path="placement-policy" element={<PlacementPolicy />} /> */}
             <Route path="profile" element={<Profile />} />
             <Route path="team" element={<TeamSection />} />
+            <Route path="recruiterFeedback" element={<RecruiterFeedbackList/>} />
             {/* <Route path="uploads" element={<Upload />} /> */}
             </Routes>
         </div>
