@@ -354,8 +354,6 @@
 // };
 
 
-
-
 import Offer from '../models/offer.js';
 import PlacementRegistration from '../models/placement-registration.js';
 import Student from '../models/user_model/student.js';
@@ -375,6 +373,15 @@ const getCTCBucket = (ctc) => {
   if (ctc >= 20 && ctc < 30) return '20-30';
   if (ctc >= 30 && ctc < 40) return '30-40';
   return '40+';
+};
+
+// Helper function to chunk an array into smaller batches
+const chunkArray = (array, chunkSize) => {
+  const chunks = [];
+  for (let i = 0; i < array.length; i += chunkSize) {
+    chunks.push(array.slice(i, i + chunkSize));
+  }
+  return chunks;
 };
 
 export const getOfferInsights = async (req, res) => {
@@ -401,20 +408,35 @@ export const getOfferInsights = async (req, res) => {
       students = await Student.find({ _id: { $in: studentIds } });
       const rollNumbers = students.map(s => s.rollno).filter(Boolean);
       if (rollNumbers.length > 0) {
-        const payload = { rollNumbers, portalKey: process.env.ERP_IDENTITY_SECRET };
-        const encryptedData = encryptValue(JSON.stringify(payload));
-        // Attempt to fetch ERP data, but continue even if it fails
+        // Batch ERP requests to parallelize and reduce per-request load
+        const batchSize = 10; // Adjust based on ERP server limits/performance
+        const rollNumberChunks = chunkArray(rollNumbers, batchSize);
+        const erpPromises = rollNumberChunks.map(chunk => {
+          const payload = { rollNumbers: chunk, portalKey: process.env.ERP_IDENTITY_SECRET };
+          const encryptedData = encryptValue(JSON.stringify(payload));
+          return axios.post(`${process.env.ERP_SERVER}`, encryptedData)
+            .then(response => {
+              const erpChunk = JSON.parse(decryptValue(response.data.data)) || [];
+              return erpChunk;
+            })
+            .catch(error => {
+              console.error(`Error fetching ERP data for batch starting with ${chunk[0]}:`, error.message);
+              return []; // Return empty array to continue with other batches
+            });
+        });
+
+        // Execute all batches in parallel
         try {
-          const response = await axios.post(`${process.env.ERP_SERVER}`, encryptedData);
-          const erpStudents = JSON.parse(decryptValue(response.data.data)) || [];
-          erpStudents.forEach(erpStudent => {
+          const allErpResults = await Promise.all(erpPromises);
+          const allErpStudents = allErpResults.flat();
+          allErpStudents.forEach(erpStudent => {
             erpDataMap.set(erpStudent.rollno, {
               cgpa: parseFloat(erpStudent.cgpa || 0),
               active_backlogs: erpStudent.active_backlogs === 'true'
             });
           });
         } catch (error) {
-          console.error("Error fetching ERP data:", error.message);
+          console.error("Error in parallel ERP batch processing:", error.message);
           // Continue without ERP data, relying on database
         }
       }

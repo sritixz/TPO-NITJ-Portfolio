@@ -962,7 +962,9 @@ export const checkEligibility = async (req, res) => {
     if (!student || !job) {
       return res.status(404).json({ message: "Student or Job Application not found" });
     }
-
+       const currentDate = new Date();
+       const hasApplied = job.Applied_Students.includes(studentId);
+       const isDeadlineOver = job.deadline && currentDate > job.deadline;
     // Check for isInterested only if the field exists
   if (typeof student.isInterested !== 'undefined' && student.isInterested === false) {
   return res.json({
@@ -1127,10 +1129,10 @@ export const checkEligibility = async (req, res) => {
           }
         else if(studentOfferHistory?.offer[0].offer_category === 'A'){
             if(jobCategory === 'D' || jobCategory ==='A'){
-             return res.json({ eligible: false, reason: "You have already A category Offer" });
+             return res.json({ eligible: false, reason: "You have already A category Offer", applied: hasApplied, });
              }
             if((jobCategory === 'C' || jobCategory === 'B') && (jobType==='Intern'|| jobType==='Intern+PPO' || jobType==='Intern+FTE')){
-              return res.json({ eligible: false, reason: "You have already A category Offer" });
+              return res.json({ eligible: false, reason: "You have already A category Offer", applied: hasApplied });
              }
         }
        else if(studentOfferHistory?.offer[0].offer_category === 'B' && (jobCategory==='D'|| jobCategory==='C' || jobCategory==='B' || (jobCategory==='A' && jobCTC<(currentCTC+5))) ){
@@ -1196,23 +1198,23 @@ export const checkEligibility = async (req, res) => {
         //     if((jobCategory === 'C' || jobCategory === 'B') && (jobType==='Intern'|| jobType==='Intern+PPO' || jobType==='Intern+FTE')){
         //       return res.json({ eligible: false, reason: "You have already A category Offer" });
         //      }
-          return res.json({ eligible: false, reason: "You have already A category Offer" });
+          return res.json({ eligible: false, reason: "You have already A category Offer", applied: hasApplied });
         }
        else if(studentOfferHistory?.offer[0].offer_category === 'B' && (jobCategory==='D'|| jobCategory==='C' || jobCategory==='B' || (jobCategory==='A' && jobCTC<(currentCTC+5))) ){
-          return res.json({ eligible: false, reason: "You have already B category Offer or job ctc has less diff. than expected w.r.t current offer ctc" });
+          return res.json({ eligible: false, reason: "You have already B category Offer or job ctc has less diff. than expected w.r.t current offer ctc" , applied: hasApplied });
         }
        else if(studentOfferHistory?.offer[0].offer_category === 'C' && (jobCategory==='D' || jobCategory==='C'|| (jobCategory==='B' && jobCTC<(currentCTC+3)) || (jobCategory==='A' && jobCTC<(currentCTC+3))) ){
-          return res.json({ eligible: false, reason: "You have already C category Offer or job ctc has less diff. than expected w.r.t current offer ctc" });
+          return res.json({ eligible: false, reason: "You have already C category Offer or job ctc has less diff. than expected w.r.t current offer ctc", applied: hasApplied  });
         }
       else if((studentOfferHistory.offer[0].offer_category === 'D' || studentOfferHistory?.offer[0].offer_type === 'Intern' || (studentOfferHistory?.offer[0].offer_type === 'Intern+PPO' && studentOfferHistory?.offer[0].offer_ctc <= 0)) && (jobCategory==='D' || (jobCategory==='C' && jobCTC<(currentCTC+2 )) || (jobCategory==='A' && jobCTC<(currentCTC+2)) || (jobCategory==='B' && jobCTC<(currentCTC+2)) )){
-          return res.json({ eligible: false, reason: "You have already D category Offer or job ctc has less diff. than expected w.r.t current offer ctc" });
+          return res.json({ eligible: false, reason: "You have already D category Offer or job ctc has less diff. than expected w.r.t current offer ctc" , applied: hasApplied });
         }
       }
     // }
     }}
-    const currentDate = new Date();
-    const isDeadlineOver = job.deadline && currentDate > job.deadline;
-    const hasApplied = job.Applied_Students.includes(studentId);
+    // const currentDate = new Date();
+    // const isDeadlineOver = job.deadline && currentDate > job.deadline;
+    // const hasApplied = job.Applied_Students.includes(studentId);
 
     const jobEligibility=await JobEligibility.findOne({ studentId, jobId: _id });
     if (jobEligibility) {
