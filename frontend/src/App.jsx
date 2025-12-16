@@ -23,6 +23,8 @@ import ErrorPage from "./Pages/ErrorPage";
 import AssessmentAttemptPage from "./Pages/Mock-test";
 import WhyRecruitPage from "./Pages/WhyRecruitPage";
 import Placementstatistics from "./Pages/Placementstatistic";
+import FeedbackForm from "./Pages/companyFeedbackForm"
+
 
 
 import OutsourceInternshipPage from "./components/outsource-studentDashboard/home";
@@ -75,6 +77,7 @@ const AppContent = () => {
         <Route path="/departmental-brochure" element={<Brochure />} />
         <Route path="/departmental-documents" element={<Document />} />
         <Route path="/whyrecruit" element={< WhyRecruitPage/>} />
+        <Route path="/recruiterFeedback" element={<FeedbackForm/>} />
 
         <Route
           path="/sdashboard/*"
