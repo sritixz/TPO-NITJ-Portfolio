@@ -18,6 +18,7 @@ export default {
         'pulse-slow': 'pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite',
         'blob': 'blob 7s infinite',
         'fade-in': 'fadeIn 0.5s ease-out',
+        
       },
       keyframes: {
         verticalScroll: {
