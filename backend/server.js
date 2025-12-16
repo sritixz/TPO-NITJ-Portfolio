@@ -51,10 +51,9 @@ import studentDocumentsRoutes from "./routes/studentsdocuments.js";
 import placementCalendarRoutes from "./routes/placement-calendar.js";
 import alertRoutes from "./routes/alert.js";
 import outsourceInternshipRoutes from "./routes/outsource-internship.js"
-
+import companyFeedbackroutes from "./routes/companyFeedback.js"
 
 import { mkdir } from 'fs/promises';
-import lte2monthInternship from "./models/outsource-internship/lte2month.js";
 try {
   await mkdir('uploads/pdfs', { recursive: true });
 } catch (err) {
@@ -118,6 +117,8 @@ app.use('/documents', logMiddleware, documentsRoutes);
 app.use('/student-documents', logMiddleware, studentDocumentsRoutes);
 app.use("/placements", logMiddleware, placementroutes);
 app.use("/internships", logMiddleware, internshiptroutes);
+app.use("/recruiterFeedback", logMiddleware, companyFeedbackroutes)
+
 
 //Student routes
 app.use('/interview',authenticate, restrictTo('Student'),logMiddleware, interviewroutes);
@@ -137,6 +138,7 @@ app.use('/add-recruiter', authenticate,restrictTo('Professor'),logMiddleware, ad
 app.use('/cgpa-checker',authenticate, restrictTo('Professor'),logMiddleware, cgpaCheckerRoutes);
 app.use('/insight',authenticate, restrictTo('Professor','Student'),logMiddleware, insightRoutes);
 app.use('/placement-calendar',authenticate,logMiddleware, placementCalendarRoutes);
+
 
 //Admin routes
 app.use('/admin',authenticate,restrictTo('Admin'),logMiddleware,adminRoutes);
