@@ -401,7 +401,7 @@ const Navbar = () => {
                 PLACEMENTS
               </Link>
               <Link
-                to="#"
+                to="/internships"
                 className="hover:text-blue-200 text-base lg:text-lg"
               >
                 INTERNSHIPS
