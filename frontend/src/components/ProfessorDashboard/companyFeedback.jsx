@@ -73,7 +73,7 @@ const RecruiterFeedbackList = () => {
         `${import.meta.env.REACT_APP_BASE_URL}/recruiterFeedback/delete/${deleteTarget}`,
         {},
         {
-            withCredentials: true,
+          withCredentials: true,
         }
       );
 
@@ -194,7 +194,23 @@ const RecruiterFeedbackList = () => {
                 <div className="mt-8 border-t pt-6 space-y-8">
                   {/* Student Evaluation */}
                   <div>
-                    <h3 className="text-lg font-semibold mb-4">
+                    {fb.email && (
+                      <div>
+                        <span className="text-gray-500">
+                          Recruiter Email:
+                        </span>{" "}
+                        {fb.email}
+                      </div>
+                    )}
+                    {fb.contactNumber && (
+                      <div>
+                        <span className="text-gray-500">
+                          Recruiter Contact:
+                        </span>{" "}
+                        {fb.contactNumber}
+                      </div>
+                    )}
+                    <h3 className="mt-10 text-lg font-semibold mb-4">
                       Student Evaluation
                     </h3>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
