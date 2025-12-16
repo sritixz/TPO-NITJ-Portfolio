@@ -50,9 +50,11 @@ import documentsRoutes from "./routes/documents.js";
 import studentDocumentsRoutes from "./routes/studentsdocuments.js";
 import placementCalendarRoutes from "./routes/placement-calendar.js";
 import alertRoutes from "./routes/alert.js";
+import outsourceInternshipRoutes from "./routes/outsource-internship.js"
 
 
 import { mkdir } from 'fs/promises';
+import lte2monthInternship from "./models/outsource-internship/lte2month.js";
 try {
   await mkdir('uploads/pdfs', { recursive: true });
 } catch (err) {
@@ -163,6 +165,7 @@ app.use('/events',authenticate,restrictTo('Professor','Department','Admin'),logM
 
 // offer-add
 app.use('/offer-add',authenticate,restrictTo('Professor'),logMiddleware,offerAddRoutes);
+app.use('/outsource-internships',outsourceInternshipRoutes);
 
 const port = process.env.PORT || 7000;
 app.listen(port,'0.0.0.0', () => {

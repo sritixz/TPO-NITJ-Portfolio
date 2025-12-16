@@ -283,7 +283,8 @@ export const getFormSubmissions = async (req, res) => {
   
     try {
       const submissions = await FormSubmission.find({ jobId })
-        .populate('studentId', 'name email rollno department category');
+        .populate('studentId');
+        // .populate('studentId', 'name email rollno department category');
 
       res.status(200).json(submissions);
     } catch (error) {

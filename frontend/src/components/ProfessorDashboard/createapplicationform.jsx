@@ -130,7 +130,7 @@ const CreateApplicationForm = ({ jobId, onClose, onSubmit }) => {
 
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const studentProperties = ['name', 'email', 'gender', 'rollno', 'department', 'cgpa', 'course', 'batch', 'active_backlogs', 'backlogs_history', 'cgpa %', 'category'];
+  const studentProperties = ['name', 'email','personalEmail', 'phone', 'gender', 'rollno', 'department','dob', 'cgpa','Xth', 'XIIth', 'course', 'batch', 'active_backlogs', 'backlogs_history', 'activeBacklogCount', 'cgpa %', 'category', 'address' ];
 
   const addField = () => {
     setFields([...fields, { 

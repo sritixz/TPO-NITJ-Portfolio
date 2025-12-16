@@ -18,7 +18,7 @@ const EditApplicationForm = ({ jobId, onClose }) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  const studentProperties = ['gender', 'department', 'cgpa', 'name', 'email', 'course', 'batch', 'active_backlogs', 'backlogs_history', 'rollno', 'cgpa %', 'category'];
+  const studentProperties = ['name', 'email','personalEmail', 'phone', 'gender', 'rollno', 'department','dob', 'cgpa','Xth', 'XIIth', 'course', 'batch', 'active_backlogs', 'backlogs_history', 'activeBacklogCount', 'cgpa %', 'category', 'address' ];
 
   useEffect(() => {
     const fetchForm = async () => {

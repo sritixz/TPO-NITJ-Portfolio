@@ -6,7 +6,8 @@ import {
   FolderOpen, 
   FileQuestion,
   Calendar1,
-  Network
+  Network,
+  CreditCard
 } from 'lucide-react';
 
 const NavigationCards = () => {
@@ -74,6 +75,15 @@ const NavigationCards = () => {
       path: '/sdashboard/student-connect',
       color: 'bg-pink-50',
       iconColor: 'text-pink-600'
+    },
+    {
+    id: 8,
+    title: 'Fine Payment',
+    description: 'Pay your fine and track your payment status.',
+    icon: CreditCard,
+    path: '/sdashboard/fine-payment',
+    color: 'bg-red-50',
+    iconColor: 'text-red-600'
     },
   ];
 

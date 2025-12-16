@@ -7,58 +7,16 @@ import axios from "axios";
 import { RiMenuFold3Fill, RiMenuFold4Fill } from "react-icons/ri";
 import {
   faHome,
-  faBriefcase,
-  faHandsHelping,
-  faShareSquare,
-  faCalendarDays,
-  faChartLine,
-  faLayerGroup,
-  faKey,
-  faDatabase,
-   faCertificate,
-   faUserTie,
-   faUsers,
-   faClipboardCheck,
-   faLaptopCode,
-   faGraduationCap,
-   faChalkboardTeacher,
    faCode
 } from "@fortawesome/free-solid-svg-icons";
 
 import { Menu, X, LogOut } from "lucide-react";
 
 import { Route, Routes, useNavigate, useLocation } from "react-router-dom";
-import Home from "./StudentDashboard/home";
-import NavigationCards from "./StudentDashboard/Navigation.jsx";
-import PlacementInsights from "./StudentDashboard/placementInsight.jsx";
-import JobApplications from "./StudentDashboard/jobprofile";
-import Jobdetail from "./StudentDashboard/Jobdetail";
-import Interviews from "./StudentDashboard/interviews"; 
-import GD from "./StudentDashboard/gd";    
-// import MailboxComponent from "./StudentDashboard/mailbox";
-import OnlineAssessment from "./StudentDashboard/oa";
-import PDFDownloadCards from "./StudentDashboard/policy";
-import CalendarComponent from "./StudentDashboard/calender";
-import SharedExperience from "./StudentDashboard/shared-experience";
-import Profile from "./StudentDashboard/profile";
-import ProfileImage from "../assets/user-icon.png";
-import NITJlogo from "../assets/nitj-logo.png";
-import Request from "./StudentDashboard/Request";
-import TeamSection from "./Developers/TeamSection.jsx";
-import ResumeBuilder from "./StudentDashboard/resume.jsx";
-import NOC from "./StudentDashboard/noc.jsx";
-import ChangePasswordForm from "./changepass.jsx";
-import Others from "./StudentDashboard/others.jsx";
-import QuestionBank from "./StudentDashboard/questionbank.jsx";
-import JobdetailFromCalender from "./StudentDashboard/JobDetailsFromCalender.jsx";
-import PlacementRegistrationForm from "./StudentDashboard/registration-form.jsx";
-import StudentDocument from "./StudentDashboard/studentsdocuments.jsx";
-import PlacementCalendar from "./StudentDashboard/placement-calendar.jsx";
-import StudentConnect from "./StudentDashboard/studentconnect.jsx";
-import AlertModal from "./StudentDashboard/alert.jsx";
-import FinePayment from "./StudentDashboard/fine-payment.jsx";
+import Home from "./home";
 
-const StudentDashboard = () => {
+
+const OutsourceStudentDashboard = () => {
   const [isMobile, setIsMobile] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isSidebarExpanded, setIsSidebarExpanded] = useState(true);
@@ -101,15 +59,7 @@ const StudentDashboard = () => {
   };
 
   const menuItems = [
-    { path: "/sdashboard/home", label: "Home", icon: faHome },
-    { path: "/sdashboard/job-application", label: "Job Profiles", icon: faBriefcase,},
-    { path: "/sdashboard/oa", label: "Online Assessment", icon: faLaptopCode },
-    { path: "/sdashboard/interviews", label: "Interview", icon: faUserTie },
-    { path: "/sdashboard/gd", label: "Group Discussion", icon: faUsers },
-    { path: "/sdashboard/others", label: "Other Assessments", icon: faClipboardCheck  },
-    { path: "/sdashboard/placement-insights", label: "Placement Insights", icon: faChartLine },
-    { path: "/sdashboard/navigator", label: "Navigator", icon: faLayerGroup, },
-    { path: "/sdashboard/change-pass", label: "Change Password", icon: faKey },
+    { path: "/osdashboard/home", label: "Home", icon: faHome },
   ];
 
   const MenuItem = ({ item, onClick, isSidebarExpanded }) => {
@@ -298,28 +248,6 @@ const StudentDashboard = () => {
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="home" element={<Home />} />
-            <Route path="placement-insights" element={<PlacementInsights />} />
-            <Route path="job-application" element={<JobApplications />} />
-            <Route path="job-application/:job_id" element={<Jobdetail/>} />
-            <Route path="oa" element={<OnlineAssessment />} />
-            <Route path="interviews" element={<Interviews />} />
-            <Route path="gd" element={<GD />} />
-            <Route path="others" element={<Others />} />
-            <Route path="shared-experience" element={<SharedExperience />} />
-            <Route path="question-bank" element={<QuestionBank />} />
-            <Route path="navigator" element={<NavigationCards />} />
-            <Route path="noc" element={<NOC />} />
-            <Route path="profile" element={<Profile />} />
-            <Route path="jobs/:job_id" element={<JobdetailFromCalender />} />
-            <Route path="request-help" element={<Request />} />
-            <Route path="policy-guidlines" element={<PDFDownloadCards />} />
-            <Route path="team" element={<TeamSection />} />
-            <Route path="change-pass" element={<ChangePasswordForm />} />
-            <Route path="placement-registration" element={<PlacementRegistrationForm />} />
-            <Route path="student-documents" element={<StudentDocument />} />
-            <Route path="placement-calendar" element={<PlacementCalendar />} />
-            <Route path="student-connect" element={<StudentConnect />} />
-            <Route path="fine-payment" element={<FinePayment />} />
             </Routes>
         </div>
 
@@ -352,4 +280,4 @@ const StudentDashboard = () => {
 };
 
 
-export default StudentDashboard;
+export default OutsourceStudentDashboard;

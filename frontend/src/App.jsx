@@ -24,6 +24,10 @@ import AssessmentAttemptPage from "./Pages/Mock-test";
 import WhyRecruitPage from "./Pages/WhyRecruitPage";
 import Placementstatistics from "./Pages/Placementstatistic";
 
+
+import OutsourceInternshipPage from "./components/outsource-studentDashboard/home";
+import LTE2MonthForm from "./components/outsource-studentDashboard/lte2monthform";
+
 const AppContent = () => {
   const location = useLocation();
   const dispatch = useDispatch();
@@ -63,7 +67,7 @@ const AppContent = () => {
         <Route path="/forgot-password" element={<Forgotpassword />} />
         <Route path="/placement-statistics" element={<Placementstatistics/>}/>
         <Route path="/placements" element={<Placement />} />
-        <Route path="/internships" element={<Internship />} />
+        <Route path="/internships" element={<OutsourceInternshipPage/>} />
         <Route path="/recruiter" element={<Recruiter />} />
         <Route path="/faq" element={<FAQ />} />
         <Route path="/team" element={<TeamPage />} />
@@ -138,6 +142,8 @@ const AppContent = () => {
         <Route path="/error" element={<ErrorPage />} />
         <Route path="*" element={<ErrorPage />} />{" "}
 
+{/* //Outsource FORM */}
+        <Route path="/lte2month" element={<LTE2MonthForm />} />
       </Routes>
       <Toaster />
     </>

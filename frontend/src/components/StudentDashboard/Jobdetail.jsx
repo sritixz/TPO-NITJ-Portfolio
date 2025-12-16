@@ -1755,12 +1755,12 @@ const Jobdetail = () => {
             <>
               {status.applied ? (
                 <>
-                  <button
+                 {status.eligible && <button
                     className="w-full sm:w-auto px-4 sm:px-5 py-2 rounded-lg font-semibold text-white bg-blue-500 hover:bg-blue-600 transition-all duration-200"
                     onClick={() => setApplication(true)}
                   >
                     Edit Application
-                  </button>
+                  </button>}
                   <button
                     className="w-full sm:w-auto px-4 sm:px-5 py-2 rounded-lg font-semibold text-white bg-red-500 hover:bg-red-600 transition-all duration-200"
                     // onClick={withdrawApplication}
@@ -1768,12 +1768,11 @@ const Jobdetail = () => {
                   >
                     Withdraw Application
                   </button>
-                  <button
-        className="px-4 sm:px-5 py-2 rounded-lg font-semibold text-white bg-yellow-500 hover:bg-yellow-600 transition-all duration-200"
-        onClick={() => setPreview(true)}
-      >
-        Preview
-      </button>
+                  <button className="px-4 sm:px-5 py-2 rounded-lg font-semibold text-white bg-yellow-500 hover:bg-yellow-600 transition-all duration-200"
+                  onClick={() => setPreview(true)}
+                  >
+                  Preview
+                  </button>
                 </>
               ) : (
                 <button
