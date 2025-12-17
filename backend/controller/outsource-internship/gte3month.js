@@ -1,14 +1,15 @@
+// controllers/outsource-internship/ltemorethan3month.js
 import multer from 'multer';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import nodemailer from 'nodemailer';
 import fs from 'fs';
-import InternshipApplication from '../../models/outsource-internship/lte2month.js';
+import LongTermInternshipApplication from '../../models/outsource-internship/gte3month.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const UPLOADS_BASE = path.join(__dirname, '../uploads');
-const RELATIVE_BASE = 'uploads/outsource-internships/lte2month';
+const RELATIVE_BASE = 'uploads/outsource-internships/ltemorethan3month';
 const getFullPath = (relativePath) => path.join(__dirname, '..', relativePath);
 const getRelativePath = (fieldname, filename) => `${RELATIVE_BASE}/${fieldname}/${filename}`;
 
@@ -18,7 +19,7 @@ const getRelativePath = (fieldname, filename) => `${RELATIVE_BASE}/${fieldname}/
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
     const subdir = file.fieldname; // 'photo', 'signature', 'documents', or 'pdf'
-    const uploadDir = path.join(__dirname, '../uploads/outsource-internships/lte2month', subdir);
+    const uploadDir = path.join(__dirname, '../uploads/outsource-internships/ltemorethan3month', subdir);
     if (!fs.existsSync(uploadDir)) {
       fs.mkdirSync(uploadDir, { recursive: true });
     }
@@ -60,18 +61,18 @@ const upload = multer({
 /* =====================================================
    NODEMAILER CONFIG
 ===================================================== */
-    const transporter = nodemailer.createTransport({
-                    service: "gmail",
-                    auth: {
-                      user: process.env.EMAIL_USER,
-                      pass: process.env.EMAIL_PASS,
-                    },
-                  });
+const transporter = nodemailer.createTransport({
+  service: "gmail",
+  auth: {
+    user: process.env.EMAIL_USER,
+    pass: process.env.EMAIL_PASS,
+  },
+});
 
 /* =====================================================
    CREATE INTERNSHIP (LOCKED = FALSE)
 ===================================================== */
-export const createInternship = [
+export const createLongTermInternship = [
   upload.fields([
     { name: 'photo', maxCount: 1 },
     { name: 'signature', maxCount: 1 },
@@ -80,52 +81,85 @@ export const createInternship = [
   async (req, res) => {
     try {
       const {
-        departmentAppliedFor,
-        proposedFacultyMember,
-        proposedFacultyMemberEmail,
-        proposedFacultyMemberContact,
-        name,
-        institution,
-        presentSemester,
-        branch,
-        course,
-        postalAddress,
-        permanentAddress,
-        mobileNo,
-        email,
+        homeUniversityName,
+        homeUniversityAddress,
+        durationFrom,
+        durationTo,
+        nonDegreeActivities,
+        internshipType,
+        ApplicantName,
         fathersName,
-        gender,
+        mothersName,
         dateOfBirth,
+        birthCity,
+        birthCountry,
+        maritalStatus,
         nationality,
-        educationQualifications,
-        overallCGPA,
-        declarationAccepted
+        passportNo,
+        passportIssueDate,
+        passportIssuePlace,
+        passportValidUpTo,
+        correspondenceAddress,
+        phone,
+        altphone,
+        email,
+        hostelNeeded,
+        facultySupervisor,
+        facultySupervisorDepartment,
+        universityTel,
+        universityFax,
+        universityEmail,
+        department,
+        degree,
+        academicYear,
+        academicSemester,
+        declarationAccepted,
+        languagesKnown,
+        specialInterestsHobbies,
+        contactsInIndia
       } = req.body;
-      // FIXED: Type-safe parsing to avoid throw on non-string (e.g., if parsed as object)
-      const quals = (educationQualifications && typeof educationQualifications === 'string')
-        ? JSON.parse(educationQualifications)
-        : (Array.isArray(educationQualifications) ? educationQualifications : []);
-      const newApplication = new InternshipApplication({
-        departmentAppliedFor,
-        proposedFacultyMember,
-        proposedFacultyMemberEmail,
-        proposedFacultyMemberContact,
-        name: name?.toUpperCase(),
-        institution,
-        presentSemester,
-        branch: branch?.toUpperCase(),
-        course: course?.toUpperCase(),
-        postalAddress,
-        permanentAddress,
-        mobileNo,
-        email: email?.toLowerCase(),
+
+      const langs = (languagesKnown && typeof languagesKnown === 'string')
+        ? JSON.parse(languagesKnown)
+        : (Array.isArray(languagesKnown) ? languagesKnown : []);
+
+      const newApplication = new LongTermInternshipApplication({
+        homeUniversityName,
+        homeUniversityAddress,
+        durationFrom: new Date(durationFrom),
+        durationTo: new Date(durationTo),
+        nonDegreeActivities,
+        internshipType,
+        ApplicantName: ApplicantName?.toUpperCase(),
         fathersName: fathersName?.toUpperCase(),
-        gender,
+        mothersName: mothersName?.toUpperCase(),
         dateOfBirth: new Date(dateOfBirth),
+        birthCity,
+        birthCountry,
+        maritalStatus,
         nationality: nationality?.toUpperCase(),
-        educationQualifications: quals,
-        overallCGPA,
-        declarationAccepted: declarationAccepted === 'true',
+        passportNo,
+        passportIssueDate: new Date(passportIssueDate),
+        passportIssuePlace,
+        passportValidUpTo: new Date(passportValidUpTo),
+        correspondenceAddress,
+        phone,
+        altphone,
+        email: email?.toLowerCase(),
+        hostelNeeded: hostelNeeded === 'true',
+        facultySupervisor,
+        facultySupervisorDepartment,
+        universityTel,
+        universityFax,
+        universityEmail: universityEmail?.toLowerCase(),
+        department,
+        degree,
+        academicYear,
+        academicSemester,
+        declarationAccepted,
+        languagesKnown: langs,
+        specialInterestsHobbies,
+        contactsInIndia,
         photo: req.files?.photo?.[0] ? getRelativePath('photo', req.files.photo[0].filename) : null,
         signature: req.files?.signature?.[0] ? getRelativePath('signature', req.files.signature[0].filename) : null,
         documents: req.files?.documents?.[0] ? getRelativePath('documents', req.files.documents[0].filename) : null,
@@ -142,7 +176,7 @@ export const createInternship = [
 /* =====================================================
    UPDATE INTERNSHIP (IF NOT LOCKED)
 ===================================================== */
-export const updateInternship = [
+export const updateLongTermInternship = [
   upload.fields([
     { name: 'photo', maxCount: 1 },
     { name: 'signature', maxCount: 1 },
@@ -151,7 +185,7 @@ export const updateInternship = [
   async (req, res) => {
     try {
       const { id } = req.params;
-      const application = await InternshipApplication.findById(id);
+      const application = await LongTermInternshipApplication.findById(id);
       if (!application) {
         return res.status(404).json({ message: 'Application not found' });
       }
@@ -159,53 +193,88 @@ export const updateInternship = [
         return res.status(403).json({ message: 'Application is locked' });
       }
       const {
-        departmentAppliedFor,
-        proposedFacultyMember,
-        proposedFacultyMemberEmail,
-        proposedFacultyMemberContact,
-        name,
-        institution,
-        presentSemester,
-        branch,
-        course,
-        postalAddress,
-        permanentAddress,
-        mobileNo,
-        email,
+        homeUniversityName,
+        homeUniversityAddress,
+        durationFrom,
+        durationTo,
+        nonDegreeActivities,
+        internshipType,
+        ApplicantName,
         fathersName,
-        gender,
+        mothersName,
         dateOfBirth,
+        birthCity,
+        birthCountry,
+        maritalStatus,
         nationality,
-        educationQualifications,
-        overallCGPA,
-        declarationAccepted
+        passportNo,
+        passportIssueDate,
+        passportIssuePlace,
+        passportValidUpTo,
+        correspondenceAddress,
+        phone,
+        altphone,
+        email,
+        hostelNeeded,
+        facultySupervisor,
+        facultySupervisorDepartment,
+        universityTel,
+        universityFax,
+        universityEmail,
+        department,
+        degree,
+        academicYear,
+        academicSemester,
+        declarationAccepted,
+        languagesKnown,
+        specialInterestsHobbies,
+        contactsInIndia
       } = req.body;
-      const quals = (educationQualifications && typeof educationQualifications === 'string')
-        ? JSON.parse(educationQualifications)
-        : (Array.isArray(educationQualifications) ? educationQualifications : []);
+
+      const langs = (languagesKnown && typeof languagesKnown === 'string')
+        ? JSON.parse(languagesKnown)
+        : (Array.isArray(languagesKnown) ? languagesKnown : []);
+
       const updates = {
-        departmentAppliedFor,
-        proposedFacultyMember,
-        proposedFacultyMemberEmail,
-        proposedFacultyMemberContact,
-        name: name?.toUpperCase(),
-        institution,
-        presentSemester,
-        branch: branch?.toUpperCase(),
-        course: course?.toUpperCase(),
-        postalAddress,
-        permanentAddress,
-        mobileNo,
-        email: email?.toLowerCase(),
+        homeUniversityName,
+        homeUniversityAddress,
+        durationFrom: new Date(durationFrom),
+        durationTo: new Date(durationTo),
+        nonDegreeActivities,
+        internshipType,
+        ApplicantName: ApplicantName?.toUpperCase(),
         fathersName: fathersName?.toUpperCase(),
-        gender,
+        mothersName: mothersName?.toUpperCase(),
         dateOfBirth: new Date(dateOfBirth),
+        birthCity,
+        birthCountry,
+        maritalStatus,
         nationality: nationality?.toUpperCase(),
-        educationQualifications: quals,
-        overallCGPA,
-        declarationAccepted: declarationAccepted === 'true'
+        passportNo,
+        passportIssueDate: new Date(passportIssueDate),
+        passportIssuePlace,
+        passportValidUpTo: new Date(passportValidUpTo),
+        correspondenceAddress,
+        phone,
+        altphone,
+        email: email?.toLowerCase(),
+        hostelNeeded: hostelNeeded === 'true',
+        facultySupervisor,
+        facultySupervisorDepartment,
+        universityTel,
+        universityFax,
+        universityEmail: universityEmail?.toLowerCase(),
+        department,
+        degree,
+        academicYear,
+        academicSemester,
+        declarationAccepted,
+        languagesKnown: langs,
+        specialInterestsHobbies,
+        contactsInIndia
       };
-      // FIXED: Handle optional file updates with deletion of old files
+
+      // Handle optional file updates with deletion of old files
       if (req.files?.photo?.[0]) {
         if (application.photo) {
           try {
@@ -248,90 +317,12 @@ export const updateInternship = [
 /* =====================================================
    LOCK APPLICATION + SEND MAIL
 ===================================================== */
-// export const lockInternshipApplication = [
-//   upload.single('pdf'),
-//   async (req, res) => {
-//     try {
-//       const { id } = req.params;
-//       const application = await InternshipApplication.findById(id);
-//       if (!application) {
-//         return res.status(404).json({ message: 'Application not found' });
-//       }
-//       if (application.locked) {
-//         return res.status(400).json({ message: 'Application already locked' });
-//       }
-//       application.locked = true;
-//       await application.save();
-//       /* ---------------- EMAIL ---------------- */
-//       const attachments = [];
-//       if (application.documents) {
-//         attachments.push({
-//           filename: path.basename(application.documents),
-//           path: getFullPath(application.documents)
-//         });
-//       }
-//       if (req.file) {
-//         attachments.push({
-//           filename: req.file.originalname || `LTE2Month_Application_${application._id.slice(-6)}.pdf`,
-//           path: req.file.path
-//         });
-//       }
-//       const mailOptions = {
-//         from: `"CTP Portal" <${process.env.EMAIL_USER}>`,
-//         to: 'shivamp.cs.22@nitj.ac.in',
-//         subject: 'Summer / Winter Internship Application',
-//         html: `
-//           <div style="font-family: Arial, sans-serif;">
-//             <h2 style="text-align:center;">
-//               Summer / Winter Internship Application
-//             </h2>
-//             <hr />
-//             <h3>Student Details</h3>
-//             <p><b>Name:</b> ${application.name}</p>
-//             <p><b>Institution:</b> ${application.institution}</p>
-//             <p><b>Course:</b> ${application.course}</p>
-//             <p><b>Branch:</b> ${application.branch}</p>
-//             <p><b>Semester:</b> ${application.presentSemester}</p>
-//             <br />
-//             <h3>Proposed Faculty Details</h3>
-//             <p><b>Faculty Name:</b> ${application.proposedFacultyMember}</p>
-//             <p><b>Faculty Email:</b> ${application.proposedFacultyMemberEmail}</p>
-//             <p><b>Faculty Contact No:</b> ${application.proposedFacultyMemberContact}</p>
-//             <p><b>Department Applied For:</b> ${application.departmentAppliedFor}</p>
-//             <br />
-//             <p>This is an auto-generated mail from <b>CTP Portal</b>.</p>
-//           </div>
-//         `,
-//         attachments
-//       };
-//       await transporter.sendMail(mailOptions);
-//       // Delete the temporary PDF file after sending email
-//       if (req.file) {
-//         try {
-//           fs.unlinkSync(req.file.path);
-//         } catch (unlinkErr) {
-//           console.error('Error deleting temporary PDF:', unlinkErr);
-//         }
-//       }
-//       res.json({
-//         message: 'Application locked successfully and email sent',
-//         application
-//       });
-//     } catch (error) {
-//       res.status(500).json({ message: error.message });
-//     }
-//   }
-// ];
-
-/* =====================================================
-   LOCK APPLICATION + SEND MAIL
-===================================================== */
-export const lockInternshipApplication = [
+export const lockLongTermInternshipApplication = [
   upload.single('pdf'),
   async (req, res) => {
     try {
       const { id } = req.params;
-      const application = await InternshipApplication.findById(id);
+      const application = await LongTermInternshipApplication.findById(id);
       if (!application) {
         return res.status(404).json({ message: 'Application not found' });
       }
@@ -351,7 +342,7 @@ export const lockInternshipApplication = [
       }
       if (req.file) {
         attachments.push({
-          filename: req.file.originalname || `LTE2Month_Application_${application._id.slice(-6)}.pdf`,
+          filename: req.file.originalname || `LTEMoreThan3Month_Application_${application._id.slice(-6)}.pdf`,
           path: req.file.path
         });
       }
@@ -361,25 +352,27 @@ export const lockInternshipApplication = [
         const mailOptions = {
           from: `"CTP Portal" <${process.env.EMAIL_USER}>`,
           to: 'shivamp.cs.22@nitj.ac.in',
-          subject: 'Summer / Winter Internship Application',
+          subject: 'Long Term Internship Application (>3 Months)',
           html: `
             <div style="font-family: Arial, sans-serif;">
               <h2 style="text-align:center;">
-                Summer / Winter Internship Application
+                Long Term Internship Application (>3 Months)
               </h2>
               <hr />
               <h3>Student Details</h3>
-              <p><b>Name:</b> ${application.name}</p>
-              <p><b>Institution:</b> ${application.institution}</p>
-              <p><b>Course:</b> ${application.course}</p>
-              <p><b>Branch:</b> ${application.branch}</p>
-              <p><b>Semester:</b> ${application.presentSemester}</p>
+              <p><b>Applicant Name:</b> ${application.ApplicantName}</p>
+              <p><b>Home University:</b> ${application.homeUniversityName}</p>
+              <p><b>Home University Address:</b> ${application.homeUniversityAddress}</p>
+              <p><b>Department:</b> ${application.department}</p>
+              <p><b>Degree:</b> ${application.degree}</p>
+              <p><b>Academic Year:</b> ${application.academicYear}</p>
+              <p><b>Academic Semester:</b> ${application.academicSemester}</p>
+              <p><b>Duration:</b> From ${application.durationFrom.toDateString()} to ${application.durationTo.toDateString()}</p>
+              <p><b>Internship Type:</b> ${application.internshipType}</p>
               <br />
-              <h3>Proposed Faculty Details</h3>
-              <p><b>Faculty Name:</b> ${application.proposedFacultyMember}</p>
-              <p><b>Faculty Email:</b> ${application.proposedFacultyMemberEmail}</p>
-              <p><b>Faculty Contact No:</b> ${application.proposedFacultyMemberContact}</p>
-              <p><b>Department Applied For:</b> ${application.departmentAppliedFor}</p>
+              <h3>Faculty Supervisor Details</h3>
+              <p><b>Faculty Supervisor:</b> ${application.facultySupervisor}</p>
+              <p><b>Faculty Supervisor Department:</b> ${application.facultySupervisorDepartment}</p>
               <br />
               <p>This is an auto-generated mail from <b>CTP Portal</b>.</p>
             </div>
@@ -418,18 +411,18 @@ export const lockInternshipApplication = [
 /* =====================================================
    GET / UPDATE / DELETE
 ===================================================== */
-export const getAllInternships = async (req, res) => {
+export const getAllLongTermInternships = async (req, res) => {
   try {
-    const applications = await InternshipApplication.find();
+    const applications = await LongTermInternshipApplication.find();
     res.json(applications);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
 };
 
-export const getInternshipById = async (req, res) => {
+export const getLongTermInternshipById = async (req, res) => {
   try {
-    const application = await InternshipApplication.findById(req.params.id);
+    const application = await LongTermInternshipApplication.findById(req.params.id);
     if (!application) {
       return res.status(404).json({ message: 'Application not found' });
     }
@@ -439,9 +432,9 @@ export const getInternshipById = async (req, res) => {
   }
 };
 
-export const deleteInternship = async (req, res) => {
+export const deleteLongTermInternship = async (req, res) => {
   try {
-    const application = await InternshipApplication.findById(req.params.id);
+    const application = await LongTermInternshipApplication.findById(req.params.id);
     if (!application) {
       return res.status(404).json({ message: 'Application not found' });
     }

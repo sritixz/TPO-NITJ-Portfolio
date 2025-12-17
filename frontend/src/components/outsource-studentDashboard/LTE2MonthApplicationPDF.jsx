@@ -99,7 +99,9 @@ const styles = StyleSheet.create({
   },
 });
 
-const LTE2MonthApplicationPDF = ({ application, baseURL = '' }) => { // Added baseURL as optional prop; define it in your usage (e.g., from env or config)
+const LTE2MonthApplicationPDF = ({ application, baseURL = '' }) => { 
+    console.log('Component received - photo:', application.photo ? `${application.photo.format}, ${application.photo.data?.length} bytes` : 'null');
+  console.log('Component received - signature:', application.signature ? `${application.signature.format}, ${application.signature.data?.length} bytes` : 'null');
   const {
     departmentAppliedFor,
     proposedFacultyMember,
@@ -283,7 +285,7 @@ Ambedkar NIT Jalandhar is already taken by me.I understand that if any false inf
         <View style={styles.signature}>
           <Text>(Signature of the applicant)</Text>
           {signature && (
-            <Image style={styles.image} src={`${baseURL}/${signature}`} />
+            <Image style={styles.image} src={signature} />
           )}
         </View>
 

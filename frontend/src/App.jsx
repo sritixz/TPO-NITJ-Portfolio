@@ -29,6 +29,7 @@ import FeedbackForm from "./Pages/companyFeedbackForm"
 
 import OutsourceInternshipPage from "./components/outsource-studentDashboard/home";
 import LTE2MonthForm from "./components/outsource-studentDashboard/lte2monthform";
+import GTE3MonthForm from "./components/outsource-studentDashboard/gte3monthform";
 
 const AppContent = () => {
   const location = useLocation();
@@ -147,6 +148,7 @@ const AppContent = () => {
 
 {/* //Outsource FORM */}
         <Route path="/lte2month" element={<LTE2MonthForm />} />
+        <Route path="/gte3month" element={<GTE3MonthForm />} />
       </Routes>
       <Toaster />
     </>
