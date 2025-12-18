@@ -42,7 +42,7 @@ const SignupFlow = () => {
 
     try {
       const res = await axios.get(
-        `${import.meta.env.REACT_APP_BASE_URL}/outsource-internships/checkEmail`,
+        `${import.meta.env.REACT_APP_BASE_URL}/outsource-internships-auth/checkEmail`,
         {
           params: { email },
         }
@@ -54,7 +54,7 @@ const SignupFlow = () => {
       }
 
       await axios.post(
-        `${import.meta.env.REACT_APP_BASE_URL}/outsource-internships/emailVerification`,
+        `${import.meta.env.REACT_APP_BASE_URL}/outsource-internships-auth/emailVerification`,
         { email },
         { withCredentials: true }
       );
@@ -76,7 +76,7 @@ const SignupFlow = () => {
 
     try {
       await axios.post(
-        `${import.meta.env.REACT_APP_BASE_URL}/outsource-internships/verifyOtp`,
+        `${import.meta.env.REACT_APP_BASE_URL}/outsource-internships-auth/verifyOtp`,
         { email, otp },
         { withCredentials: true }
       );
@@ -95,7 +95,7 @@ const SignupFlow = () => {
 
     try {
       await axios.post(
-        `${import.meta.env.REACT_APP_BASE_URL}/outsource-internships/signup`,
+        `${import.meta.env.REACT_APP_BASE_URL}/outsource-internships-auth/signup`,
         { email, ...form },
         { withCredentials: true }
       );

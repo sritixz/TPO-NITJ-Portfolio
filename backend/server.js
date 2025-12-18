@@ -51,6 +51,7 @@ import studentDocumentsRoutes from "./routes/studentsdocuments.js";
 import placementCalendarRoutes from "./routes/placement-calendar.js";
 import alertRoutes from "./routes/alert.js";
 import outsourceInternshipRoutes from "./routes/outsource-internship.js"
+import outsourceInternshipAuthRoutes from "./routes/outsource-internship-auth.js"
 import companyFeedbackroutes from "./routes/companyFeedback.js"
 
 import { mkdir } from 'fs/promises';
@@ -170,7 +171,8 @@ app.use('/events',authenticate,restrictTo('Professor','Department','Admin'),logM
 app.use('/offer-add',authenticate,restrictTo('Professor'),logMiddleware,offerAddRoutes);
 
 //outsource-internship
-app.use('/outsource-internships',outsourceInternshipRoutes);
+app.use('/outsource-internships',authenticate, restrictTo('Outsider'),logMiddleware,outsourceInternshipRoutes);
+app.use('/outsource-internships-auth',logMiddleware, outsourceInternshipAuthRoutes);
 
 const port = process.env.PORT || 7000;
 app.listen(port,'0.0.0.0', () => {
