@@ -186,14 +186,10 @@ const GTE3MonthApplicationPDF = ({ application }) => {
     passportValidUpTo,
     correspondenceAddress,
     phone,
-    altphone,
     email,
     hostelNeeded,
     facultySupervisor,
-    universityDepartmentAddress,
-    universityTel,
-    universityFax,
-    universityEmail,
+    facultySupervisorDepartment,
     degree,
     academicYear,
     academicSemester,
@@ -239,29 +235,6 @@ const GTE3MonthApplicationPDF = ({ application }) => {
           </Svg>
         </View>
 
-        {/* Home University and Duration Section */}
-        <View style={styles.section}>
-          <Text style={styles.sectionHeader}>Home University and Intended Stay Details</Text>
-          <View style={styles.row}>
-            <Text style={styles.value} wrap>{homeUniversityAddress}</Text>
-          </View>
-          <View style={styles.row}>
-            <Text style={styles.label}>Duration:</Text>
-            <Text style={styles.value}>From {formatDate(durationFrom)} To {formatDate(durationTo)}</Text>
-          </View>
-          <View style={styles.row}>
-            <Text style={styles.label}>Intended activities during stay as non-degree student:</Text>
-          </View>
-          <View style={styles.row}>
-            <Text style={styles.value} wrap>{nonDegreeActivities}</Text>
-          </View>
-          <View style={styles.checkboxRow}>
-            <View style={[styles.checkbox, internshipType === 'Research Work' && styles.checked]} />
-            <Text>Research Work</Text>
-            <View style={[styles.checkbox, internshipType === 'Project/Dissertation Work' && styles.checked]} />
-            <Text style={{ marginLeft: 20 }}>OR Project/Dissertation Work</Text>
-          </View>
-        </View>
 
         {/* A. Personal Data */}
         <View style={styles.section}>
@@ -310,37 +283,26 @@ const GTE3MonthApplicationPDF = ({ application }) => {
             <Text style={styles.label}>11. Correspondance Address:</Text>
             <Text style={styles.value} wrap>{correspondenceAddress}</Text>
           </View>
-          {/* Passport Details in Box */}
-          <View style={styles.passportBox}>
-            <View style={styles.row}>
-              <Text style={styles.label}>9. Passport No.:</Text>
-              <Text style={styles.value}>{passportNo}</Text>
-              <Text style={[styles.label, { marginLeft: 20, width: 'auto' }]}>10. Date of Issue:</Text>
-              <Text style={styles.value}>{formatDate(passportIssueDate)}</Text>
-            </View>
-            <View style={styles.row}>
-              <Text style={styles.label}>11. Place of Issue:</Text>
-              <Text style={styles.value}>{passportIssuePlace}</Text>
-              <Text style={[styles.label, { marginLeft: 20, width: 'auto' }]}>12. Valid up to:</Text>
-              <Text style={styles.value}>{formatDate(passportValidUpTo)}</Text>
-            </View>
-          </View>
         </View>
 
         {/* B. Faculty Supervisor details */}
         <View style={styles.section}>
-          <Text style={styles.sectionHeader}>B.Faculty Supervisor details</Text>
+          <Text style={styles.sectionHeader}>B. Faculty Supervisor & Internship details</Text>
           <View style={styles.row}>
             <Text style={styles.label}>i. Faculty Supervisor at NIT Jalandhar:</Text>
-          </View>
-          <View style={styles.row}>
             <Text style={styles.value} wrap>{facultySupervisor}</Text>
           </View>
           <View style={styles.row}>
             <Text style={styles.label}>ii. Faculty Supervisor's Department:</Text>
+            <Text style={styles.value} wrap>{facultySupervisorDepartment}</Text>
           </View>
-          <View style={styles.row}>
-            <Text style={styles.value} wrap>{universityDepartmentAddress}</Text>
+            <View style={styles.row}>
+            <Text style={styles.label}>iii. Internship Type:</Text>
+            <Text style={styles.value} wrap>{internshipType}</Text>
+          </View>
+           <View style={styles.row}>
+            <Text style={styles.label}>iv. Internship Duration:</Text>
+            <Text style={styles.value}>From {formatDate(durationFrom)} To {formatDate(durationTo)}</Text>
           </View>
         </View>
 
@@ -360,21 +322,37 @@ const GTE3MonthApplicationPDF = ({ application }) => {
             <Text style={styles.value} wrap>{department}</Text>
           </View>
           <View style={styles.row}>
-            <Text style={styles.label}>iv. Department:</Text>
-            <Text style={styles.value} wrap>{department}</Text>
-          </View>
-          <View style={styles.row}>
-            <Text style={styles.label}>v. Course:</Text>
+            <Text style={styles.label}>iv. Course:</Text>
             <Text style={styles.value}>{degree}</Text>
           </View>
           <View style={styles.row}>
-            <Text style={styles.label}>vi. Academic Year:</Text>
+            <Text style={styles.label}>v. Academic Year:</Text>
             <Text style={styles.value}>{academicYear}</Text>
           </View>
           <View style={styles.row}>
-            <Text style={styles.label}>vii. Academic Semester:</Text>
+            <Text style={styles.label}>vi. Academic Semester:</Text>
             <Text style={styles.value}>{academicSemester}</Text>
           </View>
+        </View>
+
+                  {/* Passport Details in Box */}
+          <View style={styles.passportBox}>
+            <View style={styles.row}>
+              <Text style={styles.label}>9. Passport No.:</Text>
+              <Text style={styles.value}>{passportNo}</Text>
+              <Text style={[styles.label, { marginLeft: 20, width: 'auto' }]}>10. Date of Issue:</Text>
+              <Text style={styles.value}>{formatDate(passportIssueDate)}</Text>
+            </View>
+            <View style={styles.row}>
+              <Text style={styles.label}>11. Place of Issue:</Text>
+              <Text style={styles.value}>{passportIssuePlace}</Text>
+              <Text style={[styles.label, { marginLeft: 20, width: 'auto' }]}>12. Valid up to:</Text>
+              <Text style={styles.value}>{formatDate(passportValidUpTo)}</Text>
+            </View>
+          </View>
+        <View style={styles.row}>
+            <Text style={styles.label}>Intended activities during stay as non-degree student:</Text>
+            <Text style={styles.value} wrap>{nonDegreeActivities}</Text>
         </View>
 
         <View style={styles.checkboxRow}>

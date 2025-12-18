@@ -279,35 +279,6 @@ const GTE3MonthForm = () => {
       });
     }
   };
-  // Helper function to get image binary
-  const getImageBinary = async (url) => {
-    if (!url) return null;
-    try {
-      const response = await fetch(url);
-      if (!response.ok) {
-        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-      }
-      const blob = await response.blob();
-      const arrayBuffer = await blob.arrayBuffer();
-      const uint8Array = new Uint8Array(arrayBuffer);
-     
-      // Infer format from MIME (fallback to 'png')
-      let format = 'png';
-      const mimeType = blob.type.toLowerCase();
-      if (mimeType.includes('jpeg') || mimeType.includes('jpg')) {
-        format = 'jpg';
-      } else if (mimeType.includes('png')) {
-        format = 'png';
-      }
-     
-      console.log(`Image loaded: ${url}, format: ${format}, size: ${uint8Array.length} bytes`);
-     
-      return { data: uint8Array, format };
-    } catch (error) {
-      console.error(`getImageBinary failed for ${url}:`, error);
-      return null;
-    }
-  };
   // Handle lock
   const handleLock = async (id) => {
     if (!window.confirm('Are you sure you want to lock this application? This action cannot be undone.')) return;
@@ -318,21 +289,17 @@ const GTE3MonthForm = () => {
       if (!app) {
         throw new Error('Application not found');
       }
+
       const photoUrl = app.photo ? `${baseURL}/${app.photo}` : null;
       const signatureUrl = app.signature ? `${baseURL}/${app.signature}` : null;
-     
-      // Convert to binary objects (parallel fetches)
-      const [photoBinary, signatureBinary] = await Promise.all([
-        photoUrl ? getImageBinary(photoUrl) : null,
-        signatureUrl ? getImageBinary(signatureUrl) : null
-      ]);
-     
+
       const appWithImages = {
         ...app,
-        photo: photoBinary,
-        signature: signatureBinary
+        photo: photoUrl,
+        signature: signatureUrl
       };
-      const doc = <GTE3MonthApplicationPDF application={appWithImages} />;
+
+      const doc = <GTE3MonthApplicationPDF application={appWithImages} baseURL={baseURL} />;
       const blob = await pdf(doc).toBlob();
       const filename = `GTE3Month_Application_${app._id.slice(-6)}.pdf`;
       const pdfFile = new File([blob], filename, { type: 'application/pdf' });
@@ -369,22 +336,13 @@ const GTE3MonthForm = () => {
       console.log('photoUrl:', photoUrl);
       console.log('signatureUrl:', signatureUrl);
      
-      // Convert to binary objects (parallel fetches)
-      const [photoBinary, signatureBinary] = await Promise.all([
-        photoUrl ? getImageBinary(photoUrl) : null,
-        signatureUrl ? getImageBinary(signatureUrl) : null
-      ]);
-     
-      console.log('photoBinary:', photoBinary ? `Loaded (${photoBinary.format}, ${photoBinary.data.length} bytes)` : 'null');
-      console.log('signatureBinary:', signatureBinary ? `Loaded (${signatureBinary.format}, ${signatureBinary.data.length} bytes)` : 'null');
-     
       const appWithImages = {
         ...app,
-        photo: photoBinary,
-        signature: signatureBinary
+        photo: photoUrl,
+        signature: signatureUrl
       };
      
-      const doc = <GTE3MonthApplicationPDF application={appWithImages} />;
+      const doc = <GTE3MonthApplicationPDF application={appWithImages} baseURL={baseURL} />;
       const blob = await pdf(doc).toBlob();
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
