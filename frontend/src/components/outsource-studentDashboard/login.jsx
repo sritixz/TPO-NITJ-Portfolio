@@ -141,7 +141,7 @@ const LoginOutsider = () => {
   };
 
   return (
-    <div className="flex items-center justify-center">
+    <div className="flex items-center justify-center mt-40">
       {showOTPVerification ? (
         <OTPVerification
           email={email}
@@ -276,7 +276,7 @@ const LoginOutsider = () => {
               Don&apos;t have an account?{" "}
               <Link
                 to={`/outsourceInternship/signup${location.search}`}
-                className="text-blue-600 font-medium hover:underline"
+                className="text-custom-blue font-medium hover:underline"
               >
                 Sign up
               </Link>

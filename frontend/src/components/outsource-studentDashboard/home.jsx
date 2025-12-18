@@ -126,7 +126,7 @@ const OutsourceInternshipPage = () => {
           </div>
         </div>
 
-        <button  onClick={() => navigate("/lte2month")} className="mt-6 w-full bg-custom-blue hover:from-blue-700 hover:to-indigo-700 text-white font-semibold py-3 px-6 rounded-lg shadow-md hover:shadow-lg transition-all duration-200 flex items-center justify-center gap-2">
+        <button  onClick={() => navigate("/outsourceInternship/lte2month")} className="mt-6 w-full bg-custom-blue hover:from-blue-700 hover:to-indigo-700 text-white font-semibold py-3 px-6 rounded-lg shadow-md hover:shadow-lg transition-all duration-200 flex items-center justify-center gap-2">
           {/* <FileText size={20} /> */}
           Proceed
         </button>
@@ -195,7 +195,7 @@ const OutsourceInternshipPage = () => {
           </div>
         </div>
 
-        <button onClick={() => navigate("/gte3month")} className="mt-6 w-full bg-custom-blue to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white font-semibold py-3 px-6 rounded-lg shadow-md hover:shadow-lg transition-all duration-200 flex items-center justify-center gap-2">
+        <button onClick={() => navigate("/outsourceInternship/gte3month")} className="mt-6 w-full bg-custom-blue to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white font-semibold py-3 px-6 rounded-lg shadow-md hover:shadow-lg transition-all duration-200 flex items-center justify-center gap-2">
           <FileText size={20} />
           Apply for Internship
         </button>
