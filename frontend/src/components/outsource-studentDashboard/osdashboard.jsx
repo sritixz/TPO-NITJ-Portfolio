@@ -1,20 +1,18 @@
 import React, { useState, useEffect } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useSelector, useDispatch } from "react-redux";
-import { logout } from "../Redux/authSlice";
+import { logout } from "../../Redux/authSlice";
 import toast from "react-hot-toast";
 import axios from "axios";
 import { RiMenuFold3Fill, RiMenuFold4Fill } from "react-icons/ri";
-import {
-  faHome,
-   faCode
-} from "@fortawesome/free-solid-svg-icons";
+import { faHome, faCode, faUser } from "@fortawesome/free-solid-svg-icons";
 
 import { Menu, X, LogOut } from "lucide-react";
 
 import { Route, Routes, useNavigate, useLocation } from "react-router-dom";
 import Home from "./home";
-
+import LTE2MonthForm from "./lte2monthform";
+import GTE3MonthForm from "./gte3monthform";
 
 const OutsourceStudentDashboard = () => {
   const [isMobile, setIsMobile] = useState(false);
@@ -59,7 +57,9 @@ const OutsourceStudentDashboard = () => {
   };
 
   const menuItems = [
-    { path: "/osdashboard/home", label: "Home", icon: faHome },
+    { path: "home", label: "Home", icon: faHome },
+    { path: "/gte3month", label: "3-Month Internship", icon: faUser },
+    { path: "/lte2month", label: "Long Internship", icon: faUser },
   ];
 
   const MenuItem = ({ item, onClick, isSidebarExpanded }) => {
@@ -96,14 +96,14 @@ const OutsourceStudentDashboard = () => {
 
   return (
     <div className="flex flex-col min-h-screen bg-gray-50">
-        <AlertModal />   {/* 🔔 Global Alert Modal */}
+      {/* <AlertModal />   🔔 Global Alert Modal */}
       {/* Header */}
       <header className="fixed top-0 left-0 right-0 bg-white shadow-sm z-50">
         <div className="flex items-center justify-between px-4 h-16">
           <div className="flex items-center">
             <img
               onClick={() => navigate("/sdashboard/home")}
-              src={NITJlogo}
+              src=""
               alt="Logo"
               className="h-10 w-10 object-contain rounded"
             />
@@ -130,8 +130,11 @@ const OutsourceStudentDashboard = () => {
             </button>
           ) : (
             <div className="flex items-center gap-4">
-              <span className="font-inter text-gray-600 font-bold tracking-wide">👋 Hi, <span className="text-custom-blue">{userData.name}</span> </span>
-             <img
+              <span className="font-inter text-gray-600 font-bold tracking-wide">
+                👋 Hi,{" "}
+                <span className="text-custom-blue">{userData.name}</span>{" "}
+              </span>
+              {/* <img
   onClick={() => navigate("/sdashboard/profile")}
   src={
     userData?.image
@@ -140,8 +143,7 @@ const OutsourceStudentDashboard = () => {
   }
   alt="Profile"
   className="w-8 h-8 rounded-full object-cover cursor-pointer border border-gray-400 hover:ring-2 hover:ring-custom-blue"
-/>
-
+/> */}
             </div>
           )}
         </div>
@@ -152,7 +154,8 @@ const OutsourceStudentDashboard = () => {
             <div className="flex flex-col h-full">
               <div className="flex items-center p-4 border-b">
                 <img
-                  src={userData?.image || ProfileImage}
+                  // src={userData?.image || ProfileImage || ""}
+                  src=""
                   alt="Profile"
                   className="w-12 h-12 rounded-full object-cover"
                 />
@@ -192,33 +195,32 @@ const OutsourceStudentDashboard = () => {
       {/* Desktop Sidebar */}
       {!isMobile && (
         <>
-         <aside
-  className={`fixed left-0 top-12 h-[calc(100vh-2rem)] bg-white border-r border-gray-200 transition-all duration-300 ${
-    isSidebarExpanded ? "w-64" : "w-16"
-  }`}
->
-  <div className="h-full overflow-y-auto p-4 flex flex-col justify-between">
-    <div>
-      {menuItems.map((item) => (
-        <MenuItem
-          key={item.path}
-          item={item}
-          isSidebarExpanded={isSidebarExpanded}
-        />
-      ))}
-    </div>
-    <button
-      onClick={handleLogout}
-      className={`flex items-center w-full px-4 py-2 text-red-500 hover:bg-red-50 rounded-lg ${
-        !isSidebarExpanded ? "justify-center" : ""
-      }`}
-    >
-      <LogOut className="w-5 h-5" />
-      {isSidebarExpanded && <span className="ml-3">Logout</span>}
-    </button>
-  </div>
-</aside>
-
+          <aside
+            className={`fixed left-0 top-12 h-[calc(100vh-2rem)] bg-white border-r border-gray-200 transition-all duration-300 ${
+              isSidebarExpanded ? "w-64" : "w-16"
+            }`}
+          >
+            <div className="h-full overflow-y-auto p-4 flex flex-col justify-between">
+              <div>
+                {menuItems.map((item) => (
+                  <MenuItem
+                    key={item.path}
+                    item={item}
+                    isSidebarExpanded={isSidebarExpanded}
+                  />
+                ))}
+              </div>
+              <button
+                onClick={handleLogout}
+                className={`flex items-center w-full px-4 py-2 text-red-500 hover:bg-red-50 rounded-lg ${
+                  !isSidebarExpanded ? "justify-center" : ""
+                }`}
+              >
+                <LogOut className="w-5 h-5" />
+                {isSidebarExpanded && <span className="ml-3">Logout</span>}
+              </button>
+            </div>
+          </aside>
 
           {/* Toggle Button */}
           <button
@@ -237,47 +239,47 @@ const OutsourceStudentDashboard = () => {
       )}
 
       {/* Main Content */}
-<main
-  className={`flex-1 mt-16 flex flex-col transition-all duration-300 ${
-    !isMobile ? (isSidebarExpanded ? "ml-64" : "ml-16") : ""
-  }`}
->
-  <div className="container mx-auto p-4 flex-grow">
-
+      <main
+        className={`flex-1 mt-16 flex flex-col transition-all duration-300 ${
+          !isMobile ? (isSidebarExpanded ? "ml-64" : "ml-16") : ""
+        }`}
+      >
+        <div className="container mx-auto p-4 flex-grow">
           {/* Placeholder for route content */}
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="home" element={<Home />} />
-            </Routes>
+            <Route path="/gte3month" element={<GTE3MonthForm />} />
+            <Route path="/lte2month" element={<LTE2MonthForm />} />
+          </Routes>
         </div>
 
         {/* Footer */}
-       <footer className="bg-slate-800 text-white py-3">
-  <div className="container mx-auto text-center">
-    <div
-      onClick={() => {
-        navigate("/dev-team");
-        onClick?.();
-      }}
-      className="group cursor-pointer inline-flex items-center justify-center gap-2 transition-all duration-300"
-    >
-      <FontAwesomeIcon
-        icon={faCode}
-        className="text-yellow-300 text-sm md:text-base group-hover:text-yellow-400 transition-all duration-300"
-      />
-      <span className="font-grotesk text-sm md:text-base text-gray-300 group-hover:text-yellow-400 tracking-wide">
-        Developed by
-      </span>
-      <span className="font-grotesk text-yellow-300 group-hover:text-yellow-400 font-semibold text-sm md:text-base  transition-all duration-300">
-        Placement Portal Dev Team
-      </span>
-    </div>
-  </div>
-</footer>
+        <footer className="bg-slate-800 text-white py-3">
+          <div className="container mx-auto text-center">
+            <div
+              onClick={() => {
+                navigate("/dev-team");
+                onClick?.();
+              }}
+              className="group cursor-pointer inline-flex items-center justify-center gap-2 transition-all duration-300"
+            >
+              <FontAwesomeIcon
+                icon={faCode}
+                className="text-yellow-300 text-sm md:text-base group-hover:text-yellow-400 transition-all duration-300"
+              />
+              <span className="font-grotesk text-sm md:text-base text-gray-300 group-hover:text-yellow-400 tracking-wide">
+                Developed by
+              </span>
+              <span className="font-grotesk text-yellow-300 group-hover:text-yellow-400 font-semibold text-sm md:text-base  transition-all duration-300">
+                Placement Portal Dev Team
+              </span>
+            </div>
+          </div>
+        </footer>
       </main>
     </div>
   );
 };
-
 
 export default OutsourceStudentDashboard;
