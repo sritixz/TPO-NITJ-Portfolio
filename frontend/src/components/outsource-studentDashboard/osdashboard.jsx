@@ -5,7 +5,7 @@ import { logout } from "../../Redux/authSlice";
 import toast from "react-hot-toast";
 import axios from "axios";
 import { RiMenuFold3Fill, RiMenuFold4Fill } from "react-icons/ri";
-import { faHome, faCode, faFileLines, faBriefcase, faMicroscope } from "@fortawesome/free-solid-svg-icons";
+import { faHome, faCode, faFileLines, faBriefcase, faMicroscope, faFile } from "@fortawesome/free-solid-svg-icons";
 
 import { Menu, X, LogOut } from "lucide-react";
 
@@ -14,6 +14,7 @@ import Home from "./home";
 import LTE2MonthForm from "./lte2monthform";
 import GTE3MonthForm from "./gte3monthform";
 import NITJlogo from "../../assets/nitj-logo.png";
+import DocumentOutsider from "./document";
 
 const OutsourceStudentDashboard = () => {
   const [isMobile, setIsMobile] = useState(false);
@@ -61,6 +62,7 @@ const OutsourceStudentDashboard = () => {
     { path: "/outsourceInternship/home", label: "Home", icon: faHome },
     { path: "/outsourceInternship/gte3month", label: "Long Intern", icon:  faFileLines},
     { path: "/outsourceInternship/lte2month", label: "Winter/Summer Intern", icon: faBriefcase },
+    { path: "/outsourceInternship/document", label: "Documents", icon: faFile },
   ];
 
   const MenuItem = ({ item, onClick, isSidebarExpanded }) => {
@@ -252,6 +254,7 @@ const OutsourceStudentDashboard = () => {
             <Route path="home" element={<Home />} />
             <Route path="gte3month" element={<GTE3MonthForm />} />
             <Route path="lte2month" element={<LTE2MonthForm />} />
+            <Route path="document" element={<DocumentOutsider/>} />
           </Routes>
         </div>
 
