@@ -9,10 +9,7 @@ import {
   Svg,
   Line,
 } from '@react-pdf/renderer';
-
-import Logo from "../../assets/nitj-logo.png"; 
-
-
+import Logo from "../../assets/nitj-logo.png";
 const styles = StyleSheet.create({
   page: {
     flexDirection: 'column',
@@ -31,7 +28,7 @@ const styles = StyleSheet.create({
   headerTextContainer: {
     marginTop: 7,
     flex: 1,
-    marginLeft: 5,
+    marginLeft: 2,
   },
   subHeader: {
     fontSize: 12,
@@ -79,8 +76,8 @@ const styles = StyleSheet.create({
     width: '33%',
   },
   declaration: {
-    marginTop: 20,
-    marginBottom: 20,
+    marginTop: 15,
+    marginBottom: 8,
     fontSize: 11,
     lineHeight: 1.2,
   },
@@ -92,16 +89,30 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     marginTop: 10,
+    marginRight: 20,
   },
   image: {
-    width: 80,
-    height: 100,
+    width: 70,
+    height: 80,
   },
-});
+  signatureImage: {
+    width: 60,
+    height: 40,
+  },
+  photoContainer: {
+    alignItems: 'flex-end',
+    marginLeft: 10,
+  },
+  signatureContainer: {
+  flexDirection: 'row',
+  justifyContent: 'flex-end',
+  marginTop: 20,
+},
 
-const LTE2MonthApplicationPDF = ({ application, baseURL = '' }) => { 
-    console.log('Component received - photo:', application.photo ? `${application.photo.format}, ${application.photo.data?.length} bytes` : 'null');
-  console.log('Component received - signature:', application.signature ? `${application.signature.format}, ${application.signature.data?.length} bytes` : 'null');
+});
+const LTE2MonthApplicationPDF = ({ application, baseURL = '' }) => {
+  console.log('Component received - photo:', application.photo ? application.photo : 'null');
+  console.log('Component received - signature:', application.signature ? application.signature : 'null');
   const {
     departmentAppliedFor,
     proposedFacultyMember,
@@ -122,11 +133,9 @@ const LTE2MonthApplicationPDF = ({ application, baseURL = '' }) => {
     nationality,
     overallCGPA,
     educationQualifications,
-    photo, // base64 or null
-    signature, // filename/path; will be prefixed with baseURL
-    documents, // perhaps not embed, or if image
+    photo,
+    signature,
   } = application;
-
 const formatDate = (date) => {
   const d = new Date(date);
   return d.toLocaleDateString("en-GB", {
@@ -135,7 +144,6 @@ const formatDate = (date) => {
     year: "numeric",
   });
 };
-
   // Prepare table data
   const tableHeader = ['Examination Passed', 'Year of Passing', '% of Marks / SGPA'];
   const tableRows = educationQualifications.map((qual) => [
@@ -143,7 +151,6 @@ const formatDate = (date) => {
     qual.yearOfPassing,
     qual.percentageOrSGPA,
   ]);
-
   return (
     <Document>
       <Page size="A4" style={styles.page}>
@@ -159,7 +166,6 @@ const formatDate = (date) => {
             </View>
           </View>
         </View>
-
         {/* Double line after heading */}
         <View style={{ marginBottom: 20 }}>
   <Svg width={515} height={8}>
@@ -167,84 +173,88 @@ const formatDate = (date) => {
     <Line x1={0} y1={6} x2={520} y2={6} stroke="#000" strokeWidth={2} />
   </Svg>
 </View>
-
-
-        {/* Department and Faculty */}
+        {/* Combined Department, Faculty, and Personal Details with Photo on Right */}
         <View style={styles.section}>
-          <View style={styles.row}>
-            <Text style={styles.label}>Department Applied for:</Text>
-            <Text style={styles.value}>{departmentAppliedFor}</Text>
-          </View>
-          <View style={styles.row}>
-            <Text style={styles.label}>Name of the Proposed Faculty Member:</Text>
-            <Text style={styles.value}>{proposedFacultyMember}</Text>
-          </View>
-          <View style={styles.row}>
-            <Text style={styles.label}>Email of the Proposed Faculty Member:</Text>
-            <Text style={styles.value}>{proposedFacultyMemberEmail}</Text>
-          </View>
-          <View style={styles.row}>
-            <Text style={styles.label}>Contact of the Proposed Faculty Member:</Text>
-            <Text style={styles.value}>{proposedFacultyMemberContact}</Text>
+          <View style={{ flexDirection: 'row', alignItems: 'flex-start' }}>
+            <View style={{ flex: 1 }}>
+              {/* Department and Faculty Details */}
+              <View style={styles.row}>
+                <Text style={styles.label}>Department Applied for:</Text>
+                <Text style={styles.value}>{departmentAppliedFor}</Text>
+              </View>
+              <View style={styles.row}>
+                <Text style={styles.label}>Name of the Proposed Faculty Member:</Text>
+                <Text style={styles.value}>{proposedFacultyMember}</Text>
+              </View>
+              <View style={styles.row}>
+                <Text style={styles.label}>Email of the Proposed Faculty Member:</Text>
+                <Text style={styles.value}>{proposedFacultyMemberEmail}</Text>
+              </View>
+              <View style={styles.row}>
+                <Text style={styles.label}>Contact of the Proposed Faculty Member:</Text>
+                <Text style={styles.value}>{proposedFacultyMemberContact}</Text>
+              </View>
+              {/* Personal Details */}
+              <View style={[styles.row, { marginTop: 10 }]}>
+                <Text style={styles.label}>Name of the Applicant:</Text>
+                <Text style={styles.value}>{name}</Text>
+              </View>
+              <View style={styles.row}>
+                <Text style={styles.label}>Institution/University:</Text>
+                <Text style={styles.value}>{institution}</Text>
+              </View>
+              <View style={styles.row}>
+                <Text style={styles.label}>Branch:</Text>
+                <Text style={styles.value}>{branch}</Text>
+              </View>
+              <View style={styles.row}>
+                <Text style={styles.label}>Course:</Text>
+                <Text style={styles.value}>{course}</Text>
+              </View>
+              <View style={styles.row}>
+                <Text style={styles.label}>Present Semester:</Text>
+                <Text style={styles.value}>{presentSemester}</Text>
+              </View>
+              <View style={styles.row}>
+                <Text style={styles.label}>Mobile No.:</Text>
+                <Text style={styles.value}>{mobileNo}</Text>
+              </View>
+              <View style={styles.row}>
+                <Text style={styles.label}>Email:</Text>
+                <Text style={styles.value}>{email}</Text>
+              </View>
+              <View style={styles.row}>
+                <Text style={styles.label}>Gender:</Text>
+                <Text style={styles.value}>{gender}</Text>
+              </View>
+              <View style={styles.row}>
+                <Text style={styles.label}>Date of Birth:</Text>
+                <Text style={styles.value}>{formatDate(dateOfBirth)}</Text>
+              </View>
+              <View style={styles.row}>
+                <Text style={styles.label}>Father’s Name:</Text>
+                <Text style={styles.value}>{fathersName}</Text>
+              </View>
+              <View style={styles.row}>
+                <Text style={styles.label}>Nationality:</Text>
+                <Text style={styles.value}>{nationality}</Text>
+              </View>
+              <View style={styles.row}>
+                <Text style={styles.label}>Postal Address:</Text>
+                <Text style={styles.value}>{postalAddress}</Text>
+              </View>
+              <View style={styles.row}>
+                <Text style={styles.label}>Permanent Address:</Text>
+                <Text style={styles.value}>{permanentAddress}</Text>
+              </View>
+            </View>
+            {photo && (
+              <View style={styles.photoContainer}>
+                <Image style={styles.image} src={photo} />
+              </View>
+            )}
           </View>
         </View>
-
-        {/* Personal Details */}
-        <View style={styles.section}>
-          <View style={styles.row}>
-            <Text style={styles.label}>Name of the Applicant:</Text>
-            <Text style={styles.value}>{name}</Text>
-          </View>
-            <View style={styles.row}>
-            <Text style={styles.label}>Institution/University:</Text>
-            <Text style={styles.value}>{institution}</Text>
-          </View>
-          <View style={styles.row}>
-            <Text style={styles.label}>Branch:</Text>
-            <Text style={styles.value}>{branch}</Text>
-          </View>
-          <View style={styles.row}>
-            <Text style={styles.label}>Course:</Text>
-            <Text style={styles.value}>{course}</Text>
-          </View>
-          <View style={styles.row}>
-            <Text style={styles.label}>Present Semester:</Text>
-            <Text style={styles.value}>{presentSemester}</Text>
-          </View>
-           <View style={styles.row}>
-            <Text style={styles.label}>Mobile No.:</Text>
-            <Text style={styles.value}>{mobileNo}</Text>
-          </View>
-          <View style={styles.row}>
-            <Text style={styles.label}>Email:</Text>
-            <Text style={styles.value}>{email}</Text>
-          </View>
-          <View style={styles.row}>
-            <Text style={styles.label}>Gender:</Text>
-            <Text style={styles.value}>{gender}</Text>
-          </View>
-          <View style={styles.row}>
-            <Text style={styles.label}>Date of Birth:</Text>
-            <Text style={styles.value}>{formatDate(dateOfBirth)}</Text>
-          </View>
-          <View style={styles.row}>
-            <Text style={styles.label}>Father’s Name:</Text>
-            <Text style={styles.value}>{fathersName}</Text>
-          </View>
-          <View style={styles.row}>
-            <Text style={styles.label}>Nationality:</Text>
-            <Text style={styles.value}>{nationality}</Text>
-          </View>
-          <View style={styles.row}>
-            <Text style={styles.label}>Postal Address:</Text>
-            <Text style={styles.value}>{postalAddress}</Text>
-          </View>
-          <View style={styles.row}>
-            <Text style={styles.label}>Permanent Address:</Text>
-            <Text style={styles.value}>{permanentAddress}</Text>
-          </View>
-        </View>
-
         {/* Education Table */}
         <View style={styles.section}>
           <Text style={{ fontWeight: 'bold', marginBottom: 5 }}>Education Qualification Details</Text>
@@ -265,13 +275,11 @@ const formatDate = (date) => {
             ))}
           </View>
         </View>
-
         {/* Overall CGPA */}
         <View style={styles.row}>
           <Text style={styles.label}>Overall % or CGPA of the Candidate based on last result declared:</Text>
           <Text style={styles.value}>{overallCGPA}</Text>
         </View>
-
         {/* Declaration */}
         <View style={styles.declaration}>
           <Text>
@@ -280,25 +288,16 @@ the institute rules and regulations. Consent of my parents for pursuing the Inte
 Ambedkar NIT Jalandhar is already taken by me.I understand that if any false information is found or if any required document is not uploaded, my internship application can be canceled at any time.
           </Text>
         </View>
-
         {/* Signature */}
-        <View style={styles.signature}>
-          <Text>(Signature of the applicant)</Text>
-          {signature && (
-            <Image style={styles.image} src={signature} />
-          )}
-        </View>
+      {/* Signature */}
+<View style={styles.signatureContainer}>
+  {signature && (
+    <Image style={styles.signatureImage} src={signature} />
+  )}
+</View>
 
-        {/* Photo */}
-        {photo && (
-          <View style={styles.imagesRow}>
-            <Text style={styles.label}>Photograph:</Text>
-            <Image style={styles.image} src={photo} />
-          </View>
-        )}
       </Page>
     </Document>
   );
 };
-
 export default LTE2MonthApplicationPDF;
