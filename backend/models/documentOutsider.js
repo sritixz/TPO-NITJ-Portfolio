@@ -8,5 +8,5 @@ const documentOutsiderSchema = new mongoose.Schema({
     type: String,
   },
 });
-const DocumentOutsider = mongoose.model('Document', documentOutsiderSchema);
+const DocumentOutsider = mongoose.model('DocumentOutsider', documentOutsiderSchema);
 export default DocumentOutsider;

@@ -19,7 +19,7 @@ export default function DocumentOutsider() {
     const fetchBrochures = async () => {
       try {
         const response = await axios.get(
-          `${import.meta.env.REACT_APP_BASE_URL}/admin/outsider-documents/get`,
+          `${import.meta.env.REACT_APP_BASE_URL}/outsource-internships/outsiderDocument`,
           {
             withCredentials: true,
           }
