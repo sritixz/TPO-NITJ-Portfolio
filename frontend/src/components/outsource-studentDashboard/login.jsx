@@ -120,7 +120,7 @@ const LoginOutsider = () => {
         navigate(redirectUrl, { replace: true });
       } else {
         if (response.data.userType === "Outsider") {
-          navigate("/outsourceInternship/dashboard");
+          navigate("/outsourceInternship/home");
         }
       }
     } catch (error) {

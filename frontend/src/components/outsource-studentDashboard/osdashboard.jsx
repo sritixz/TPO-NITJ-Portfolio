@@ -5,7 +5,7 @@ import { logout } from "../../Redux/authSlice";
 import toast from "react-hot-toast";
 import axios from "axios";
 import { RiMenuFold3Fill, RiMenuFold4Fill } from "react-icons/ri";
-import { faHome, faCode, faUser } from "@fortawesome/free-solid-svg-icons";
+import { faHome, faCode, faFileLines, faBriefcase, faMicroscope } from "@fortawesome/free-solid-svg-icons";
 
 import { Menu, X, LogOut } from "lucide-react";
 
@@ -13,6 +13,7 @@ import { Route, Routes, useNavigate, useLocation } from "react-router-dom";
 import Home from "./home";
 import LTE2MonthForm from "./lte2monthform";
 import GTE3MonthForm from "./gte3monthform";
+import NITJlogo from "../../assets/nitj-logo.png";
 
 const OutsourceStudentDashboard = () => {
   const [isMobile, setIsMobile] = useState(false);
@@ -57,9 +58,9 @@ const OutsourceStudentDashboard = () => {
   };
 
   const menuItems = [
-    { path: "home", label: "Home", icon: faHome },
-    { path: "/gte3month", label: "3-Month Internship", icon: faUser },
-    { path: "/lte2month", label: "Long Internship", icon: faUser },
+    { path: "/outsourceInternship/home", label: "Home", icon: faHome },
+    { path: "/outsourceInternship/gte3month", label: "Long Intern", icon:  faFileLines},
+    { path: "/outsourceInternship/lte2month", label: "Winter/Summer Intern", icon: faBriefcase },
   ];
 
   const MenuItem = ({ item, onClick, isSidebarExpanded }) => {
@@ -102,11 +103,11 @@ const OutsourceStudentDashboard = () => {
         <div className="flex items-center justify-between px-4 h-16">
           <div className="flex items-center">
             <img
-              onClick={() => navigate("/sdashboard/home")}
-              src=""
-              alt="Logo"
-              className="h-10 w-10 object-contain rounded"
-            />
+                          onClick={() => navigate("/sdashboard/home")}
+                          src={ NITJlogo}
+                          alt="Logo"
+                          className="h-10 w-10 object-contain rounded"
+                        />
             {isSidebarExpanded && (
               <h1 className="absolute ml-14 left-4 top-1/2 transform -translate-y-1/2 font-bold text-2xl sm:text-1xl lg:text-2xl tracking-wide w-max">
                 TPO-
@@ -249,8 +250,8 @@ const OutsourceStudentDashboard = () => {
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="home" element={<Home />} />
-            <Route path="/gte3month" element={<GTE3MonthForm />} />
-            <Route path="/lte2month" element={<LTE2MonthForm />} />
+            <Route path="gte3month" element={<GTE3MonthForm />} />
+            <Route path="lte2month" element={<LTE2MonthForm />} />
           </Routes>
         </div>
 
