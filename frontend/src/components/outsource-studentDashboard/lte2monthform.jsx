@@ -306,36 +306,6 @@ const LTE2MonthForm = () => {
     }
   };
 
-// Helper function (place outside handleDownload, e.g., in utils)
-const getImageBinary = async (url) => {
-  if (!url) return null;
-  try {
-    const response = await fetch(url);
-    if (!response.ok) {
-      throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-    }
-    const blob = await response.blob();
-    const arrayBuffer = await blob.arrayBuffer();
-    const uint8Array = new Uint8Array(arrayBuffer);
-    
-    // Infer format from MIME (fallback to 'png')
-    let format = 'png';
-    const mimeType = blob.type.toLowerCase();
-    if (mimeType.includes('jpeg') || mimeType.includes('jpg')) {
-      format = 'jpg';
-    } else if (mimeType.includes('png')) {
-      format = 'png';
-    } // Add more if needed (e.g., gif → but react-pdf only supports png/jpg reliably)
-    
-    console.log(`Image loaded: ${url}, format: ${format}, size: ${uint8Array.length} bytes`);
-    
-    return { data: uint8Array, format };
-  } catch (error) {
-    console.error(`getImageBinary failed for ${url}:`, error);
-    return null;
-  }
-};
-
   // Handle lock
   const handleLock = async (id) => {
     if (!window.confirm('Are you sure you want to lock this application? This action cannot be undone.')) return;
@@ -349,14 +319,14 @@ const getImageBinary = async (url) => {
 
       const photoUrl = app.photo ? `${baseURL}/${app.photo}` : null;
       const signatureUrl = app.signature ? `${baseURL}/${app.signature}` : null;
-      const photoBase64 = photoUrl ? await getBase64Image(photoUrl) : null;
-      const signatureBase64 = signatureUrl ? await getBase64Image(signatureUrl) : null;
+
       const appWithImages = {
         ...app,
-        photo: photoBase64,
-        signature: signatureBase64
+        photo: photoUrl,
+        signature: signatureUrl
       };
-      const doc = <LTE2MonthApplicationPDF application={appWithImages} />;
+
+      const doc = <LTE2MonthApplicationPDF application={appWithImages} baseURL={baseURL} />;
       const blob = await pdf(doc).toBlob();
       const filename = `LTE2Month_Application_${app._id.slice(-6)}.pdf`;
       const pdfFile = new File([blob], filename, { type: 'application/pdf' });
@@ -382,43 +352,6 @@ const getImageBinary = async (url) => {
     }
   };
 
-//   // Handle download
-//   const handleDownload = async (app) => {
-//     const downloadKey = `download-${app._id}`;
-//     setLoadingActions(prev => new Set([...prev, downloadKey]));
-//     try {
-//       const photoUrl = app.photo ? `${baseURL}/${app.photo}` : null;
-//       const signatureUrl = app.signature ? `${baseURL}/${app.signature}` : null;
-//       const photoBase64 = photoUrl ? await getBase64Image(photoUrl) : null;
-//       const signatureBase64 = signatureUrl ? await getBase64Image(signatureUrl) : null;
-//       const appWithImages = {
-//         ...app,
-//         photo: photoBase64,
-//         signature: signatureBase64
-//       };
-//       const doc = <LTE2MonthApplicationPDF application={appWithImages} />;
-//       const blob = await pdf(doc).toBlob();
-//       const url = URL.createObjectURL(blob);
-//       const a = document.createElement('a');
-//       a.href = url;
-//       a.download = `LTE2Month_Application_${app._id.slice(-6)}.pdf`;
-//       document.body.appendChild(a);
-//       a.click();
-//       document.body.removeChild(a);
-//       URL.revokeObjectURL(url);
-//       showToast('PDF downloaded successfully!', 'success');
-//     } catch (error) {
-//       console.error('Error generating PDF:', error);
-//       showToast('Failed to download PDF. Try again!', 'error');
-//     } finally {
-//       setLoadingActions(prev => {
-//         const newSet = new Set(prev);
-//         newSet.delete(downloadKey);
-//         return newSet;
-//       });
-//     }
-//   };
-
 
 // Updated handleDownload function
 const handleDownload = async (app) => {
@@ -434,21 +367,12 @@ const handleDownload = async (app) => {
     console.log('photoUrl:', photoUrl);  // Debug
     console.log('signatureUrl:', signatureUrl);  // Debug
     
-    // Convert to binary objects (parallel fetches)
-    const [photoBinary, signatureBinary] = await Promise.all([
-      photoUrl ? getImageBinary(photoUrl) : null,
-      signatureUrl ? getImageBinary(signatureUrl) : null
-    ]);
-    
-    console.log('photoBinary:', photoBinary ? `Loaded (${photoBinary.format}, ${photoBinary.data.length} bytes)` : 'null');  // Debug
-    console.log('signatureBinary:', signatureBinary ? `Loaded (${signatureBinary.format}, ${signatureBinary.data.length} bytes)` : 'null');  // Debug
-    
     const appWithImages = {
       ...app,
-      photo: photoBinary,  // Now { data: Uint8Array, format: 'png' | 'jpg' }
-      signature: signatureBinary
+      photo: photoUrl,
+      signature: signatureUrl
     };
-    
+
     const doc = <LTE2MonthApplicationPDF application={appWithImages} baseURL={baseURL} />;
     const blob = await pdf(doc).toBlob();
     const url = URL.createObjectURL(blob);

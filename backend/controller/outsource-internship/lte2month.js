@@ -7,9 +7,11 @@ import InternshipApplication from '../../models/outsource-internship/lte2month.j
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-const UPLOADS_BASE = path.join(__dirname, '../uploads');
+
 const RELATIVE_BASE = 'uploads/outsource-internships/lte2month';
-const getFullPath = (relativePath) => path.join(__dirname, '..', relativePath);
+
+const getFullPath = (relativePath) => path.join(process.cwd(), relativePath);
+
 const getRelativePath = (fieldname, filename) => `${RELATIVE_BASE}/${fieldname}/${filename}`;
 
 /* =====================================================
@@ -18,7 +20,7 @@ const getRelativePath = (fieldname, filename) => `${RELATIVE_BASE}/${fieldname}/
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
     const subdir = file.fieldname; // 'photo', 'signature', 'documents', or 'pdf'
-    const uploadDir = path.join(__dirname, '../uploads/outsource-internships/lte2month', subdir);
+    const uploadDir = path.join(process.cwd(), 'uploads/outsource-internships/lte2month', subdir);
     if (!fs.existsSync(uploadDir)) {
       fs.mkdirSync(uploadDir, { recursive: true });
     }
@@ -60,13 +62,13 @@ const upload = multer({
 /* =====================================================
    NODEMAILER CONFIG
 ===================================================== */
-    const transporter = nodemailer.createTransport({
-                    service: "gmail",
-                    auth: {
-                      user: process.env.EMAIL_USER,
-                      pass: process.env.EMAIL_PASS,
-                    },
-                  });
+const transporter = nodemailer.createTransport({
+  service: "gmail",
+  auth: {
+    user: process.env.EMAIL_USER,
+    pass: process.env.EMAIL_PASS,
+  },
+});
 
 /* =====================================================
    CREATE INTERNSHIP (LOCKED = FALSE)
@@ -248,84 +250,6 @@ export const updateInternship = [
 /* =====================================================
    LOCK APPLICATION + SEND MAIL
 ===================================================== */
-// export const lockInternshipApplication = [
-//   upload.single('pdf'),
-//   async (req, res) => {
-//     try {
-//       const { id } = req.params;
-//       const application = await InternshipApplication.findById(id);
-//       if (!application) {
-//         return res.status(404).json({ message: 'Application not found' });
-//       }
-//       if (application.locked) {
-//         return res.status(400).json({ message: 'Application already locked' });
-//       }
-//       application.locked = true;
-//       await application.save();
-//       /* ---------------- EMAIL ---------------- */
-//       const attachments = [];
-//       if (application.documents) {
-//         attachments.push({
-//           filename: path.basename(application.documents),
-//           path: getFullPath(application.documents)
-//         });
-//       }
-//       if (req.file) {
-//         attachments.push({
-//           filename: req.file.originalname || `LTE2Month_Application_${application._id.slice(-6)}.pdf`,
-//           path: req.file.path
-//         });
-//       }
-//       const mailOptions = {
-//         from: `"CTP Portal" <${process.env.EMAIL_USER}>`,
-//         to: 'shivamp.cs.22@nitj.ac.in',
-//         subject: 'Summer / Winter Internship Application',
-//         html: `
-//           <div style="font-family: Arial, sans-serif;">
-//             <h2 style="text-align:center;">
-//               Summer / Winter Internship Application
-//             </h2>
-//             <hr />
-//             <h3>Student Details</h3>
-//             <p><b>Name:</b> ${application.name}</p>
-//             <p><b>Institution:</b> ${application.institution}</p>
-//             <p><b>Course:</b> ${application.course}</p>
-//             <p><b>Branch:</b> ${application.branch}</p>
-//             <p><b>Semester:</b> ${application.presentSemester}</p>
-//             <br />
-//             <h3>Proposed Faculty Details</h3>
-//             <p><b>Faculty Name:</b> ${application.proposedFacultyMember}</p>
-//             <p><b>Faculty Email:</b> ${application.proposedFacultyMemberEmail}</p>
-//             <p><b>Faculty Contact No:</b> ${application.proposedFacultyMemberContact}</p>
-//             <p><b>Department Applied For:</b> ${application.departmentAppliedFor}</p>
-//             <br />
-//             <p>This is an auto-generated mail from <b>CTP Portal</b>.</p>
-//           </div>
-//         `,
-//         attachments
-//       };
-//       await transporter.sendMail(mailOptions);
-//       // Delete the temporary PDF file after sending email
-//       if (req.file) {
-//         try {
-//           fs.unlinkSync(req.file.path);
-//         } catch (unlinkErr) {
-//           console.error('Error deleting temporary PDF:', unlinkErr);
-//         }
-//       }
-//       res.json({
-//         message: 'Application locked successfully and email sent',
-//         application
-//       });
-//     } catch (error) {
-//       res.status(500).json({ message: error.message });
-//     }
-//   }
-// ];
-
-/* =====================================================
-   LOCK APPLICATION + SEND MAIL
-===================================================== */
 export const lockInternshipApplication = [
   upload.single('pdf'),
   async (req, res) => {
@@ -340,7 +264,6 @@ export const lockInternshipApplication = [
       }
       application.locked = true;
       await application.save();
-
       let emailSent = false;
       const attachments = [];
       if (application.documents) {
@@ -355,7 +278,6 @@ export const lockInternshipApplication = [
           path: req.file.path
         });
       }
-
       // Email sending in isolated try-catch to not block lock
       try {
         const mailOptions = {
@@ -401,7 +323,6 @@ export const lockInternshipApplication = [
           }
         }
       }
-
       const message = `Application locked successfully${emailSent ? ' and email sent' : ', but email notification failed (check logs)'}`;
       res.json({
         message,
@@ -416,7 +337,7 @@ export const lockInternshipApplication = [
 ];
 
 /* =====================================================
-   GET / UPDATE / DELETE
+   GET / UPDATE / DELETE 
 ===================================================== */
 export const getAllInternships = async (req, res) => {
   try {
