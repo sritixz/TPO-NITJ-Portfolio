@@ -8,6 +8,8 @@ import {
   deleteInternship
 } from '../controller/outsource-internship/lte2month.js';
 
+import { checkOutsiderEmail, handleLoginOutsider, handleOTPGeneration, handleSignUp, verifyOutsiderOtp } from '../controller/outsource-internship/auth.js';
+
 import {
   createLongTermInternship,
   getAllLongTermInternships,
@@ -18,6 +20,15 @@ import {
 } from '../controller/outsource-internship/gte3month.js';
 
 const router = express.Router();
+
+
+//authentication
+router.post('/emailVerification', handleOTPGeneration)
+router.post('/verifyOtp', verifyOutsiderOtp)
+router.post('/signup', handleSignUp)
+router.post('/login', handleLoginOutsider)
+router.get('/checkEmail', checkOutsiderEmail)
+
 
 // summer/winter internship routes
 router.post('/lte2month/', createInternship);

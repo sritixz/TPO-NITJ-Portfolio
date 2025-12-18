@@ -167,6 +167,8 @@ app.use('/events',authenticate,restrictTo('Professor','Department','Admin'),logM
 
 // offer-add
 app.use('/offer-add',authenticate,restrictTo('Professor'),logMiddleware,offerAddRoutes);
+
+//outsource-internship
 app.use('/outsource-internships',outsourceInternshipRoutes);
 
 const port = process.env.PORT || 7000;
