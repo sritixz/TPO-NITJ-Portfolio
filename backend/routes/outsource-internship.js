@@ -17,7 +17,6 @@ import {
   lockLongTermInternshipApplication,
   deleteLongTermInternship
 } from '../controller/outsource-internship/gte3month.js';
-
 const router = express.Router();
 
 // summer/winter internship routes
