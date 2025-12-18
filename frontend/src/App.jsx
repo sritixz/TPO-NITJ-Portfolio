@@ -1,7 +1,12 @@
 import React, { useEffect } from "react";
 import { Toaster } from "react-hot-toast";
 import { useLocation } from "react-router-dom";
-import { BrowserRouter as Router, Routes, Route, Navigate, } from "react-router-dom";
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  Navigate,
+} from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { checkAuth } from "./Redux/authSlice";
 import Home from "./Pages/LandingPage";
@@ -23,25 +28,24 @@ import ErrorPage from "./Pages/ErrorPage";
 import AssessmentAttemptPage from "./Pages/Mock-test";
 import WhyRecruitPage from "./Pages/WhyRecruitPage";
 import Placementstatistics from "./Pages/Placementstatistic";
-import FeedbackForm from "./Pages/companyFeedbackForm"
-
-
+import FeedbackForm from "./Pages/companyFeedbackForm";
 
 import OutsourceInternshipPage from "./components/outsource-studentDashboard/home";
 import LTE2MonthForm from "./components/outsource-studentDashboard/lte2monthform";
 import GTE3MonthForm from "./components/outsource-studentDashboard/gte3monthform";
+import SignupFlow from "./components/outsource-studentDashboard/signup";
+import LoginOutsider from "./components/outsource-studentDashboard/login";
+import OutsourceStudentDashboard from "./components/outsource-studentDashboard/osdashboard";
 
 const AppContent = () => {
   const location = useLocation();
   const dispatch = useDispatch();
   const { authUser, userType } = useSelector((state) => state.auth);
 
-  
-  
   useEffect(() => {
     dispatch(checkAuth());
   }, [dispatch]);
-  
+
   const getDashboardPath = () => {
     if (authUser) {
       switch (userType) {
@@ -55,31 +59,52 @@ const AppContent = () => {
           return "/admindashboard/home";
         case "Department":
           return "/ddashboard/home";
+        case "Outsider":
+          return "/outsourceInternship/dashboard";
         default:
           return "/";
       }
     }
+
+    if (location.pathname.startsWith("/outsourceInternship")) {
+      return `/outsourceInternship/login?redirect=${encodeURIComponent(
+        location.pathname + location.search
+      )}`;
+    }
+
     return `/login?redirect=${encodeURIComponent(location.pathname + location.search)}`;
   };
 
   return (
     <>
       <Routes>
-        <Route path="/" element={authUser ? <Navigate to={getDashboardPath()} /> : <Home />}/>
-        <Route path="/login" element={authUser && !new URLSearchParams(location.search).get("redirect")? <Navigate to={getDashboardPath()}  replace={true}  /> : <Login />}/>
+        <Route
+          path="/"
+          element={authUser ? <Navigate to={getDashboardPath()} /> : <Home />}
+        />
+        <Route
+          path="/login"
+          element={
+            authUser &&
+            !new URLSearchParams(location.search).get("redirect") ? (
+              <Navigate to={getDashboardPath()} replace={true} />
+            ) : (
+              <Login />
+            )
+          }
+        />
         <Route path="/forgot-password" element={<Forgotpassword />} />
-        <Route path="/placement-statistics" element={<Placementstatistics/>}/>
+        <Route path="/placement-statistics" element={<Placementstatistics />} />
         <Route path="/placements" element={<Placement />} />
-        <Route path="/internships" element={<OutsourceInternshipPage/>} />
+        <Route path="/internships" element={<OutsourceInternshipPage />} />
         <Route path="/recruiter" element={<Recruiter />} />
         <Route path="/faq" element={<FAQ />} />
         <Route path="/team" element={<TeamPage />} />
         <Route path="/dev-team" element={<TeamPage />} />
         <Route path="/departmental-brochure" element={<Brochure />} />
         <Route path="/departmental-documents" element={<Document />} />
-        <Route path="/whyrecruit" element={< WhyRecruitPage/>} />
-        <Route path="/recruiterFeedback" element={<FeedbackForm/>} />
-
+        <Route path="/whyrecruit" element={<WhyRecruitPage />} />
+        <Route path="/recruiterFeedback" element={<FeedbackForm />} />
         <Route
           path="/sdashboard/*"
           element={
@@ -130,8 +155,6 @@ const AppContent = () => {
             )
           }
         />
-
-        
         <Route
           path="/sdashboard/assessment-attempt/:attemptId"
           element={
@@ -142,19 +165,27 @@ const AppContent = () => {
             )
           }
         />
-
         <Route path="/error" element={<ErrorPage />} />
-        <Route path="*" element={<ErrorPage />} />{" "}
-
-{/* //Outsource FORM */}
+        <Route path="*" element={<ErrorPage />} /> {/* //Outsource FORM */}
         <Route path="/lte2month" element={<LTE2MonthForm />} />
         <Route path="/gte3month" element={<GTE3MonthForm />} />
+        <Route path="/outsourceInternship/signup" element={<SignupFlow />} />
+        <Route path="/outsourceInternship/login" element={<LoginOutsider />} />
+        <Route
+          path="/outsourceInternship/dashboard"
+          element={
+            authUser && userType === "Outsider" ? (
+              <OutsourceStudentDashboard />
+            ) : (
+              <Navigate to={getDashboardPath()} />
+            )
+          }
+        />
       </Routes>
       <Toaster />
     </>
   );
 };
-
 
 // Main App component with Router
 const App = () => {
