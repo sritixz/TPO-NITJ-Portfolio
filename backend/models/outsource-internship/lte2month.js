@@ -3,7 +3,6 @@ import mongoose from "mongoose";
 const educationQualificationSchema = new mongoose.Schema({
   semester: {
     type: String,
-    enum: ['Sem 1', 'Sem 2', 'Sem 3', 'Sem 4', 'Sem 5', 'Sem 6']
   },
   yearOfPassing: {
     type: String,
@@ -14,6 +13,10 @@ const educationQualificationSchema = new mongoose.Schema({
 });
 
 const lte2monthInternshipSchema = new mongoose.Schema({
+  applicantId:{
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Outsider",
+  },
   departmentAppliedFor: {
     type: String,
   },

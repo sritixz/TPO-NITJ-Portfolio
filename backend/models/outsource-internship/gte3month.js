@@ -2,6 +2,10 @@
 import mongoose from "mongoose";
 
 const ltemorethan3monthInternshipSchema = new mongoose.Schema({
+  applicantId:{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Outsider",
+  },
   homeUniversityName: {
     type: String,
   },

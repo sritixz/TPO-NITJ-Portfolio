@@ -81,6 +81,7 @@ export const createInternship = [
   ]),
   async (req, res) => {
     try {
+      const applicantId = req.user.userId;
       const {
         departmentAppliedFor,
         proposedFacultyMember,
@@ -108,6 +109,7 @@ export const createInternship = [
         ? JSON.parse(educationQualifications)
         : (Array.isArray(educationQualifications) ? educationQualifications : []);
       const newApplication = new InternshipApplication({
+        applicantId,
         departmentAppliedFor,
         proposedFacultyMember,
         proposedFacultyMemberEmail,
@@ -152,10 +154,14 @@ export const updateInternship = [
   ]),
   async (req, res) => {
     try {
+      const applicantId = req.user.userId;
       const { id } = req.params;
       const application = await InternshipApplication.findById(id);
       if (!application) {
         return res.status(404).json({ message: 'Application not found' });
+      }
+      if(!application.applicantId.equals(applicantId)) {
+        return res.status(403).json({ message: 'Unauthorized' });
       }
       if (application.locked) {
         return res.status(403).json({ message: 'Application is locked' });
@@ -186,6 +192,7 @@ export const updateInternship = [
         ? JSON.parse(educationQualifications)
         : (Array.isArray(educationQualifications) ? educationQualifications : []);
       const updates = {
+        applicantId,
         departmentAppliedFor,
         proposedFacultyMember,
         proposedFacultyMemberEmail,
@@ -254,10 +261,14 @@ export const lockInternshipApplication = [
   upload.single('pdf'),
   async (req, res) => {
     try {
+      const applicantId = req.user.userId;
       const { id } = req.params;
       const application = await InternshipApplication.findById(id);
       if (!application) {
         return res.status(404).json({ message: 'Application not found' });
+      }
+      if(!application.applicantId.equals(applicantId)) {
+        return res.status(403).json({ message: 'Unauthorized' });
       }
       if (application.locked) {
         return res.status(400).json({ message: 'Application already locked' });
@@ -341,7 +352,8 @@ export const lockInternshipApplication = [
 ===================================================== */
 export const getAllInternships = async (req, res) => {
   try {
-    const applications = await InternshipApplication.find();
+    const applicantId = req.user.userId;
+    const applications = await InternshipApplication.find({ applicantId });
     res.json(applications);
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -350,9 +362,13 @@ export const getAllInternships = async (req, res) => {
 
 export const getInternshipById = async (req, res) => {
   try {
+    const applicantId = req.user.userId;
     const application = await InternshipApplication.findById(req.params.id);
     if (!application) {
       return res.status(404).json({ message: 'Application not found' });
+    }
+    if(!application.applicantId.equals(applicantId)) {
+        return res.status(403).json({ message: 'Unauthorized' });
     }
     res.json(application);
   } catch (error) {
@@ -362,9 +378,13 @@ export const getInternshipById = async (req, res) => {
 
 export const deleteInternship = async (req, res) => {
   try {
+    const applicantId = req.user.userId;
     const application = await InternshipApplication.findById(req.params.id);
     if (!application) {
       return res.status(404).json({ message: 'Application not found' });
+    }
+    if(!application.applicantId.equals(applicantId)) {
+        return res.status(403).json({ message: 'Unauthorized' });
     }
     if (application.locked) {
       return res.status(403).json({ message: 'Locked application cannot be deleted' });
