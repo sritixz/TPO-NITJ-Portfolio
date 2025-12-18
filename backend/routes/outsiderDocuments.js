@@ -7,8 +7,8 @@ const router = express.Router();
 
 //Documents
 router.get('/get', getDocumentsOutsider);
-router.post('/add', restrictTo('Admin'), addDocumentOutsider);
-router.put('/update/:id', restrictTo('Admin'), updateDocumentOutsider);
-router.delete('/delete', restrictTo('Admin'), deleteDocumentOutsider);
+router.post('/add', addDocumentOutsider);
+router.put('/update/:id', updateDocumentOutsider);
+router.delete('/delete', deleteDocumentOutsider);
 
 export default router;
