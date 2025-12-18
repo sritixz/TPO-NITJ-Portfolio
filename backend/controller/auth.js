@@ -421,7 +421,7 @@ html: `
           if (!student && !recuiter && !professor && !alumni && !admin && !department) {
               return res.status(401).json({ message: "Email is not Registered" });
           }
-  
+          
           const user = student || recuiter || professor || alumni || admin || department;
   
           let isPasswordValid;
