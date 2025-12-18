@@ -104,7 +104,14 @@ import {
   updatePlacementRegistration,
   deletePlacementRegistration,
   deleteManyPlacementRegistrations,
-} from '../controller/Admin/placement-registration.js'; 
+} from '../controller/Admin/placement-registration.js';
+
+import {
+  createDeadline,
+  getDeadlineById,
+  updateDeadline,
+  deleteDeadline,
+} from "../controller/Admin/lte2monthdeadline.js";
 
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
@@ -216,5 +223,12 @@ router.get('/placement-registration/:id', getPlacementRegistrationById);
 router.put('/placement-registration/:id', updatePlacementRegistration);
 router.delete('/placement-registration/:id', deletePlacementRegistration);
 router.delete('/placement-registration/delete-many/', deleteManyPlacementRegistrations);
+
+
+//lte2monthdeadline
+router.post("/lte2monthdeadline/", createDeadline);
+router.get("/lte2monthdeadline/:id", getDeadlineById);
+router.put("/lte2monthdeadline/:id", updateDeadline);
+router.delete("/lte2monthdeadline/:id", deleteDeadline);
 
 export default router;
