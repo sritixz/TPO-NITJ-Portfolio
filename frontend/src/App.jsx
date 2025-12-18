@@ -60,7 +60,7 @@ const AppContent = () => {
         case "Department":
           return "/ddashboard/home";
         case "Outsider":
-          return "/outsourceInternship/dashboard";
+          return "/outsourceInternship/home";
         default:
           return "/";
       }
@@ -155,24 +155,8 @@ const AppContent = () => {
             )
           }
         />
-        <Route
-          path="/sdashboard/assessment-attempt/:attemptId"
-          element={
-            authUser && userType === "Student" ? (
-              <AssessmentAttemptPage />
-            ) : (
-              <Navigate to={getDashboardPath()} />
-            )
-          }
-        />
-        <Route path="/error" element={<ErrorPage />} />
-        <Route path="*" element={<ErrorPage />} /> {/* //Outsource FORM */}
-        <Route path="/lte2month" element={<LTE2MonthForm />} />
-        <Route path="/gte3month" element={<GTE3MonthForm />} />
-        <Route path="/outsourceInternship/signup" element={<SignupFlow />} />
-        <Route path="/outsourceInternship/login" element={<LoginOutsider />} />
-        <Route
-          path="/outsourceInternship/dashboard"
+         <Route
+          path="/outsourceInternship/*"
           element={
             authUser && userType === "Outsider" ? (
               <OutsourceStudentDashboard />
@@ -181,6 +165,20 @@ const AppContent = () => {
             )
           }
         />
+        {/* <Route
+          path="/sdashboard/assessment-attempt/:attemptId"
+          element={
+            authUser && userType === "Student" ? (
+              <AssessmentAttemptPage />
+            ) : (
+              <Navigate to={getDashboardPath()} />
+            )
+          }
+        /> */}
+        <Route path="/error" element={<ErrorPage />} />
+        <Route path="*" element={<ErrorPage />} />
+        <Route path="/outsourceInternship/signup" element={<SignupFlow />} />
+        <Route path="/outsourceInternship/login" element={<LoginOutsider />} />
       </Routes>
       <Toaster />
     </>

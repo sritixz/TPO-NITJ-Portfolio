@@ -1,4 +1,3 @@
-// controllers/outsource-internship/ltemorethan3month.js
 import multer from 'multer';
 import path from 'path';
 import { fileURLToPath } from 'url';
@@ -8,9 +7,11 @@ import LongTermInternshipApplication from '../../models/outsource-internship/gte
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-const UPLOADS_BASE = path.join(__dirname, '../uploads');
-const RELATIVE_BASE = 'uploads/outsource-internships/ltemorethan3month';
-const getFullPath = (relativePath) => path.join(__dirname, '..', relativePath);
+
+const RELATIVE_BASE = 'uploads/outsource-internships/gte3month';
+
+const getFullPath = (relativePath) => path.join(process.cwd(), relativePath);
+
 const getRelativePath = (fieldname, filename) => `${RELATIVE_BASE}/${fieldname}/${filename}`;
 
 /* =====================================================
@@ -19,7 +20,7 @@ const getRelativePath = (fieldname, filename) => `${RELATIVE_BASE}/${fieldname}/
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
     const subdir = file.fieldname; // 'photo', 'signature', 'documents', or 'pdf'
-    const uploadDir = path.join(__dirname, '../uploads/outsource-internships/ltemorethan3month', subdir);
+    const uploadDir = path.join(process.cwd(), 'uploads/outsource-internships/gte3month', subdir);
     if (!fs.existsSync(uploadDir)) {
       fs.mkdirSync(uploadDir, { recursive: true });
     }
