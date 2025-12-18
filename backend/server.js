@@ -48,6 +48,7 @@ import offerAddRoutes from "./routes/offerAdd.js";
 import insightRoutes from "./routes/insight.js";
 import documentsRoutes from "./routes/documents.js";
 import studentDocumentsRoutes from "./routes/studentsdocuments.js";
+import outsiderDocumentsRoutes from "./routes/outsiderDocuments.js";
 import placementCalendarRoutes from "./routes/placement-calendar.js";
 import alertRoutes from "./routes/alert.js";
 import outsourceInternshipRoutes from "./routes/outsource-internship.js"
@@ -158,7 +159,7 @@ app.use('/noc',authenticate, logMiddleware,nocRoutes);
 app.use('/admin/brochure',authenticate, logMiddleware,brochureRoutes);
 app.use('/admin/documents',authenticate, logMiddleware,documentsRoutes);
 app.use('/admin/student-documents',authenticate, logMiddleware,studentDocumentsRoutes);
-app.use('/admin/outsider-documents',authenticate, logMiddleware,studentDocumentsRoutes);
+app.use('/admin/outsider-documents',authenticate, logMiddleware,outsiderDocumentsRoutes);
 app.use("/job-events",authenticate, logMiddleware, jobEventroutes);
 app.use("/travel-planner",authenticate, logMiddleware,travelplannerRoutes);
 app.use("/placement-registration",authenticate, logMiddleware, placementRegistrationRoutes);
