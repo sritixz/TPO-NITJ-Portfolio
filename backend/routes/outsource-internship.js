@@ -17,6 +17,9 @@ import {
   lockLongTermInternshipApplication,
   deleteLongTermInternship
 } from '../controller/outsource-internship/gte3month.js';
+
+import { getDocumentsOutsider } from '../controller/outsource-internship/documentOutsider.js';
+
 const router = express.Router();
 
 // summer/winter internship routes
@@ -34,5 +37,9 @@ router.get('/gte3month/:id', getLongTermInternshipById);
 router.put('/gte3month/:id', updateLongTermInternship);
 router.put('/gte3month/lock/:id', lockLongTermInternshipApplication);
 router.delete('/gte3month/:id', deleteLongTermInternship);
+
+
+//document fetch
+router.get('/outsiderDocument', getDocumentsOutsider);
 
 export default router;

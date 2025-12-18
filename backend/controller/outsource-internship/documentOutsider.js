@@ -1,4 +1,4 @@
-import DocumentOutsider from '../../models/documentOutsider';
+import DocumentOutsider from '../../models/documentOutsider.js';
 import multer from 'multer';
 import path from 'path';
 import fs from 'fs/promises'; // For async file operations
