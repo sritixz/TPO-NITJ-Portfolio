@@ -97,7 +97,7 @@ const LoginOutsider = () => {
     try {
       const response = await toast.promise(
         axios.post(
-          `${import.meta.env.REACT_APP_BASE_URL}/outsource-internships/login`,
+          `${import.meta.env.REACT_APP_BASE_URL}/outsource-internships-auth/login`,
           { email, password, captchaInput },
           { withCredentials: true }
         ),
