@@ -1,18 +1,19 @@
-import multer from 'multer';
-import path from 'path';
-import { fileURLToPath } from 'url';
-import nodemailer from 'nodemailer';
-import fs from 'fs';
-import InternshipApplication from '../../models/outsource-internship/lte2month.js';
+import multer from "multer";
+import path from "path";
+import { fileURLToPath } from "url";
+import nodemailer from "nodemailer";
+import fs from "fs";
+import InternshipApplication from "../../models/outsource-internship/lte2month.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-const RELATIVE_BASE = 'uploads/outsource-internships/lte2month';
+const RELATIVE_BASE = "uploads/outsource-internships/lte2month";
 
 const getFullPath = (relativePath) => path.join(process.cwd(), relativePath);
 
-const getRelativePath = (fieldname, filename) => `${RELATIVE_BASE}/${fieldname}/${filename}`;
+const getRelativePath = (fieldname, filename) =>
+  `${RELATIVE_BASE}/${fieldname}/${filename}`;
 
 /* =====================================================
    MULTER CONFIGURATION
@@ -20,43 +21,47 @@ const getRelativePath = (fieldname, filename) => `${RELATIVE_BASE}/${fieldname}/
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
     const subdir = file.fieldname; // 'photo', 'signature', 'documents', or 'pdf'
-    const uploadDir = path.join(process.cwd(), 'uploads/outsource-internships/lte2month', subdir);
+    const uploadDir = path.join(
+      process.cwd(),
+      "uploads/outsource-internships/lte2month",
+      subdir
+    );
     if (!fs.existsSync(uploadDir)) {
       fs.mkdirSync(uploadDir, { recursive: true });
     }
     cb(null, uploadDir);
   },
   filename: (req, file, cb) => {
-    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
+    const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
     cb(
       null,
-      file.fieldname + '-' + uniqueSuffix + path.extname(file.originalname)
+      file.fieldname + "-" + uniqueSuffix + path.extname(file.originalname)
     );
-  }
+  },
 });
 
 const fileFilter = (req, file, cb) => {
-  if (file.fieldname === 'photo' || file.fieldname === 'signature') {
-    if (file.mimetype.startsWith('image/')) {
+  if (file.fieldname === "photo" || file.fieldname === "signature") {
+    if (file.mimetype.startsWith("image/")) {
       cb(null, true);
     } else {
-      cb(new Error('Only image files allowed'), false);
+      cb(new Error("Only image files allowed"), false);
     }
-  } else if (file.fieldname === 'documents' || file.fieldname === 'pdf') {
-    if (file.mimetype === 'application/pdf') {
+  } else if (file.fieldname === "documents" || file.fieldname === "pdf") {
+    if (file.mimetype === "application/pdf") {
       cb(null, true);
     } else {
-      cb(new Error('Only PDF files allowed'), false);
+      cb(new Error("Only PDF files allowed"), false);
     }
   } else {
-    cb(new Error('Invalid file field'), false);
+    cb(new Error("Invalid file field"), false);
   }
 };
 
 const upload = multer({
   storage,
   fileFilter,
-  limits: { fileSize: 5 * 1024 * 1024 }
+  limits: { fileSize: 5 * 1024 * 1024 },
 });
 
 /* =====================================================
@@ -75,9 +80,9 @@ const transporter = nodemailer.createTransport({
 ===================================================== */
 export const createInternship = [
   upload.fields([
-    { name: 'photo', maxCount: 1 },
-    { name: 'signature', maxCount: 1 },
-    { name: 'documents', maxCount: 1 }
+    { name: "photo", maxCount: 1 },
+    { name: "signature", maxCount: 1 },
+    { name: "documents", maxCount: 1 },
   ]),
   async (req, res) => {
     try {
@@ -102,12 +107,15 @@ export const createInternship = [
         nationality,
         educationQualifications,
         overallCGPA,
-        declarationAccepted
+        declarationAccepted,
       } = req.body;
       // FIXED: Type-safe parsing to avoid throw on non-string (e.g., if parsed as object)
-      const quals = (educationQualifications && typeof educationQualifications === 'string')
-        ? JSON.parse(educationQualifications)
-        : (Array.isArray(educationQualifications) ? educationQualifications : []);
+      const quals =
+        educationQualifications && typeof educationQualifications === "string"
+          ? JSON.parse(educationQualifications)
+          : Array.isArray(educationQualifications)
+          ? educationQualifications
+          : [];
       const newApplication = new InternshipApplication({
         applicantId,
         departmentAppliedFor,
@@ -129,18 +137,24 @@ export const createInternship = [
         nationality: nationality?.toUpperCase(),
         educationQualifications: quals,
         overallCGPA,
-        declarationAccepted: declarationAccepted === 'true',
-        photo: req.files?.photo?.[0] ? getRelativePath('photo', req.files.photo[0].filename) : null,
-        signature: req.files?.signature?.[0] ? getRelativePath('signature', req.files.signature[0].filename) : null,
-        documents: req.files?.documents?.[0] ? getRelativePath('documents', req.files.documents[0].filename) : null,
-        locked: false
+        declarationAccepted: declarationAccepted === "true",
+        photo: req.files?.photo?.[0]
+          ? getRelativePath("photo", req.files.photo[0].filename)
+          : null,
+        signature: req.files?.signature?.[0]
+          ? getRelativePath("signature", req.files.signature[0].filename)
+          : null,
+        documents: req.files?.documents?.[0]
+          ? getRelativePath("documents", req.files.documents[0].filename)
+          : null,
+        locked: false,
       });
       const savedApplication = await newApplication.save();
       res.status(201).json(savedApplication);
     } catch (error) {
       res.status(400).json({ message: error.message });
     }
-  }
+  },
 ];
 
 /* =====================================================
@@ -148,9 +162,9 @@ export const createInternship = [
 ===================================================== */
 export const updateInternship = [
   upload.fields([
-    { name: 'photo', maxCount: 1 },
-    { name: 'signature', maxCount: 1 },
-    { name: 'documents', maxCount: 1 }
+    { name: "photo", maxCount: 1 },
+    { name: "signature", maxCount: 1 },
+    { name: "documents", maxCount: 1 },
   ]),
   async (req, res) => {
     try {
@@ -158,13 +172,13 @@ export const updateInternship = [
       const { id } = req.params;
       const application = await InternshipApplication.findById(id);
       if (!application) {
-        return res.status(404).json({ message: 'Application not found' });
+        return res.status(404).json({ message: "Application not found" });
       }
-      if(!application.applicantId.equals(applicantId)) {
-        return res.status(403).json({ message: 'Unauthorized' });
+      if (!application.applicantId.equals(applicantId)) {
+        return res.status(403).json({ message: "Unauthorized" });
       }
       if (application.locked) {
-        return res.status(403).json({ message: 'Application is locked' });
+        return res.status(403).json({ message: "Application is locked" });
       }
       const {
         departmentAppliedFor,
@@ -186,11 +200,14 @@ export const updateInternship = [
         nationality,
         educationQualifications,
         overallCGPA,
-        declarationAccepted
+        declarationAccepted,
       } = req.body;
-      const quals = (educationQualifications && typeof educationQualifications === 'string')
-        ? JSON.parse(educationQualifications)
-        : (Array.isArray(educationQualifications) ? educationQualifications : []);
+      const quals =
+        educationQualifications && typeof educationQualifications === "string"
+          ? JSON.parse(educationQualifications)
+          : Array.isArray(educationQualifications)
+          ? educationQualifications
+          : [];
       const updates = {
         applicantId,
         departmentAppliedFor,
@@ -212,7 +229,7 @@ export const updateInternship = [
         nationality: nationality?.toUpperCase(),
         educationQualifications: quals,
         overallCGPA,
-        declarationAccepted: declarationAccepted === 'true'
+        declarationAccepted: declarationAccepted === "true",
       };
       // FIXED: Handle optional file updates with deletion of old files
       if (req.files?.photo?.[0]) {
@@ -220,30 +237,36 @@ export const updateInternship = [
           try {
             fs.unlinkSync(getFullPath(application.photo));
           } catch (unlinkErr) {
-            console.error('Error deleting old photo:', unlinkErr);
+            console.error("Error deleting old photo:", unlinkErr);
           }
         }
-        updates.photo = getRelativePath('photo', req.files.photo[0].filename);
+        updates.photo = getRelativePath("photo", req.files.photo[0].filename);
       }
       if (req.files?.signature?.[0]) {
         if (application.signature) {
           try {
             fs.unlinkSync(getFullPath(application.signature));
           } catch (unlinkErr) {
-            console.error('Error deleting old signature:', unlinkErr);
+            console.error("Error deleting old signature:", unlinkErr);
           }
         }
-        updates.signature = getRelativePath('signature', req.files.signature[0].filename);
+        updates.signature = getRelativePath(
+          "signature",
+          req.files.signature[0].filename
+        );
       }
       if (req.files?.documents?.[0]) {
         if (application.documents) {
           try {
             fs.unlinkSync(getFullPath(application.documents));
           } catch (unlinkErr) {
-            console.error('Error deleting old document:', unlinkErr);
+            console.error("Error deleting old document:", unlinkErr);
           }
         }
-        updates.documents = getRelativePath('documents', req.files.documents[0].filename);
+        updates.documents = getRelativePath(
+          "documents",
+          req.files.documents[0].filename
+        );
       }
       Object.assign(application, updates);
       const updated = await application.save();
@@ -251,27 +274,27 @@ export const updateInternship = [
     } catch (error) {
       res.status(400).json({ message: error.message });
     }
-  }
+  },
 ];
 
 /* =====================================================
    LOCK APPLICATION + SEND MAIL
 ===================================================== */
 export const lockInternshipApplication = [
-  upload.single('pdf'),
+  upload.single("pdf"),
   async (req, res) => {
     try {
       const applicantId = req.user.userId;
       const { id } = req.params;
       const application = await InternshipApplication.findById(id);
       if (!application) {
-        return res.status(404).json({ message: 'Application not found' });
+        return res.status(404).json({ message: "Application not found" });
       }
-      if(!application.applicantId.equals(applicantId)) {
-        return res.status(403).json({ message: 'Unauthorized' });
+      if (!application.applicantId.equals(applicantId)) {
+        return res.status(403).json({ message: "Unauthorized" });
       }
       if (application.locked) {
-        return res.status(400).json({ message: 'Application already locked' });
+        return res.status(400).json({ message: "Application already locked" });
       }
       application.locked = true;
       await application.save();
@@ -280,21 +303,23 @@ export const lockInternshipApplication = [
       if (application.documents) {
         attachments.push({
           filename: path.basename(application.documents),
-          path: getFullPath(application.documents)
+          path: getFullPath(application.documents),
         });
       }
       if (req.file) {
         attachments.push({
-          filename: req.file.originalname || `LTE2Month_Application_${application._id.slice(-6)}.pdf`,
-          path: req.file.path
+          filename:
+            req.file.originalname ||
+            `LTE2Month_Application_${application._id.slice(-6)}.pdf`,
+          path: req.file.path,
         });
       }
       // Email sending in isolated try-catch to not block lock
       try {
         const mailOptions = {
           from: `"CTP Portal" <${process.env.EMAIL_USER}>`,
-          to: 'shivamp.cs.22@nitj.ac.in',
-          subject: 'Summer / Winter Internship Application',
+          to: "shivamp.cs.22@nitj.ac.in",
+          subject: "Summer / Winter Internship Application",
           html: `
             <div style="font-family: Arial, sans-serif;">
               <h2 style="text-align:center;">
@@ -317,12 +342,12 @@ export const lockInternshipApplication = [
               <p>This is an auto-generated mail from <b>CTP Portal</b>.</p>
             </div>
           `,
-          attachments
+          attachments,
         };
         await transporter.sendMail(mailOptions);
         emailSent = true;
       } catch (emailError) {
-        console.error('Failed to send lock notification email:', emailError);
+        console.error("Failed to send lock notification email:", emailError);
         // Optionally: Log to a service like Sentry, or queue for retry
       } finally {
         // Always clean up temp PDF (even on email failure)
@@ -330,21 +355,25 @@ export const lockInternshipApplication = [
           try {
             fs.unlinkSync(req.file.path);
           } catch (unlinkErr) {
-            console.error('Error deleting temporary PDF:', unlinkErr);
+            console.error("Error deleting temporary PDF:", unlinkErr);
           }
         }
       }
-      const message = `Application locked successfully${emailSent ? ' and email sent' : ', but email notification failed (check logs)'}`;
+      const message = `Application locked successfully${
+        emailSent
+          ? " and email sent"
+          : ", but email notification failed (check logs)"
+      }`;
       res.json({
         message,
-        application
+        application,
       });
     } catch (error) {
       // This catch is only for non-email errors (e.g., DB save)
-      console.error('Lock operation failed:', error);
+      console.error("Lock operation failed:", error);
       res.status(500).json({ message: error.message });
     }
-  }
+  },
 ];
 
 /* =====================================================
@@ -365,10 +394,10 @@ export const getInternshipById = async (req, res) => {
     const applicantId = req.user.userId;
     const application = await InternshipApplication.findById(req.params.id);
     if (!application) {
-      return res.status(404).json({ message: 'Application not found' });
+      return res.status(404).json({ message: "Application not found" });
     }
-    if(!application.applicantId.equals(applicantId)) {
-        return res.status(403).json({ message: 'Unauthorized' });
+    if (!application.applicantId.equals(applicantId)) {
+      return res.status(403).json({ message: "Unauthorized" });
     }
     res.json(application);
   } catch (error) {
@@ -381,39 +410,42 @@ export const deleteInternship = async (req, res) => {
     const applicantId = req.user.userId;
     const application = await InternshipApplication.findById(req.params.id);
     if (!application) {
-      return res.status(404).json({ message: 'Application not found' });
+      return res.status(404).json({ message: "Application not found" });
     }
-    if(!application.applicantId.equals(applicantId)) {
-        return res.status(403).json({ message: 'Unauthorized' });
+    if (!application.applicantId.equals(applicantId)) {
+      return res.status(403).json({ message: "Unauthorized" });
     }
     if (application.locked) {
-      return res.status(403).json({ message: 'Locked application cannot be deleted' });
+      return res
+        .status(403)
+        .json({ message: "Locked application cannot be deleted" });
     }
     // Delete associated files
     if (application.photo) {
       try {
         fs.unlinkSync(getFullPath(application.photo));
       } catch (unlinkErr) {
-        console.error('Error deleting photo:', unlinkErr);
+        console.error("Error deleting photo:", unlinkErr);
       }
     }
     if (application.signature) {
       try {
         fs.unlinkSync(getFullPath(application.signature));
       } catch (unlinkErr) {
-        console.error('Error deleting signature:', unlinkErr);
+        console.error("Error deleting signature:", unlinkErr);
       }
     }
     if (application.documents) {
       try {
         fs.unlinkSync(getFullPath(application.documents));
       } catch (unlinkErr) {
-        console.error('Error deleting document:', unlinkErr);
+        console.error("Error deleting document:", unlinkErr);
       }
     }
     await application.deleteOne();
-    res.json({ message: 'Application deleted successfully' });
+    res.json({ message: "Application deleted successfully" });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
 };
+
