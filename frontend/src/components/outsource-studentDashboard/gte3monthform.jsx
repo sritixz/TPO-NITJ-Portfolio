@@ -406,16 +406,17 @@ const GTE3MonthForm = () => {
               <div
                 key={app._id}
                 className="p-6 bg-white rounded-xl shadow-lg cursor-pointer hover:shadow-xl transform hover:-translate-y-1 transition-all duration-300 border border-gray-100"
-              >
+                >
                 <div className="flex justify-between items-center mb-2">
-                  <p className="text-lg font-semibold text-gray-900">{app.department}</p>
+                <p className="text-xs font-semibold text-gray-900">Faculty: <span className='text-gray-500'>{app.facultySupervisor}</span></p>
                   <span className={`text-sm font-medium px-2 py-1 rounded-full ${
                     isLocked ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'
                   }`}>
                     {isLocked ? 'Locked' : 'Pending'}
                   </span>
                 </div>
-                <p className="bg-custom-blue/10 rounded-lg p-1 text-custom-blue text-xs font-semibold inline-block"># {app._id.slice(-6)}</p>
+                    <p className="text-xs font-semibold text-gray-900">Department: <span className='text-gray-500'>{app.facultySupervisorDepartment}</span></p>
+                {/* <p className="bg-custom-blue/10 rounded-lg p-1 text-custom-blue text-xs font-semibold inline-block"># {app._id.slice(-6)}</p> */}
                 <div className="flex flex-wrap gap-2 mt-4">
                   {!isLocked && (
                     <button
@@ -861,7 +862,7 @@ const GTE3MonthForm = () => {
               </div>
               <div className="md:col-span-2 bg-gray-50 border border-gray-200 rounded-lg p-4">
                 <h4 className="text-sm font-semibold text-gray-700 mb-3 flex items-center space-x-2">
-                  Passport Details (if applicable)
+                  Passport Details
                   <div className="group relative cursor-pointer">
                     <div className="w-5 h-5 flex items-center justify-center rounded-full text-gray-600">
                       <Info size={14} />
@@ -871,14 +872,13 @@ const GTE3MonthForm = () => {
                         absolute
                         hidden group-hover:block
                         bg-gray-800 text-white text-sm px-3 py-2 rounded-md shadow-lg
-                        whitespace-normal w-64 sm:w-72 md:w-80 lg:w-96
+                        whitespace-normal w-64 sm:w-62 md:w-70 lg:w-86
                         z-50
                         left-1/2 -translate-x-1/2 top-full mt-2
                         sm:left-6 sm:top-1/2 sm:-translate-y-1/2 sm:translate-x-0 sm:mt-0
                       "
                     >
-                      Share your saving bank account details where you will receive the stipend during your internship period.
-                      To modify your bank details later, you can contact the TPO.
+                     Mandatory for foreign students only
                     </div>
                   </div>
                 </h4>
@@ -997,13 +997,16 @@ const GTE3MonthForm = () => {
                     />
                   </label>
                   {showDocumentsTooltip && (
-                    <ul className="absolute top-full left-0 mt-1 z-10 bg-white border border-gray-200 rounded-md shadow-lg p-3 w-64 text-xs text-gray-700 space-y-1 list-disc list-inside">
-                      <li>10th & 12th marksheets</li>
-                      <li>Current UG marksheets</li>
-                      <li>NOC signed by Head of Department/Principal/Dean</li>
-                      <li>Academic Record (Transcripts) for foreign students</li>
-                      <li>Payment slip</li>
-                    </ul>
+                 <ul className="absolute top-full left-0 mt-1 z-10 bg-white border border-gray-200 rounded-md shadow-lg p-3 w-100 text-xs text-gray-700 space-y-1 list-disc list-inside">
+  <li>Recommendation from Home University</li>
+  <li>Proof of registration at Home University</li>
+  <li>Academic Record till last semester</li>
+  <li>Academic Record (Transcripts) for foreign students</li>
+  <li>Statement of purpose</li>
+  <li>Acceptance letter / Recommendation of Supervisor from NIT Jalandhar</li>
+  <li>Copy of Passport (for foreign nationals, subject to MEA clearance)</li>
+</ul>
+
                   )}
                   <input
                     type="file"
