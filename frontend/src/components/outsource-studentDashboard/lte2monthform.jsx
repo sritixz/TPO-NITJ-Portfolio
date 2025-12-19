@@ -9,6 +9,7 @@ import LTE2MonthApplicationPDF from './LTE2MonthApplicationPDF';
 const LTE2MonthForm = () => {
   const { userData } = useSelector((state) => state.auth);
   const [applications, setApplications] = useState([]);
+  const [deadlineInfo, setDeadlineInfo] = useState(null);
   const [showForm, setShowForm] = useState(false);
   const [selectedApp, setSelectedApp] = useState(null);
   const [editingId, setEditingId] = useState(null);
@@ -19,6 +20,7 @@ const LTE2MonthForm = () => {
   const [existingFiles, setExistingFiles] = useState({});
   const [previewUrls, setPreviewUrls] = useState({});
   const [showDocumentsTooltip, setShowDocumentsTooltip] = useState(false);
+  const [timeLeft, setTimeLeft] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
   const [formData, setFormData] = useState({
     departmentAppliedFor: '',
     proposedFacultyMember: '',
@@ -77,7 +79,34 @@ const LTE2MonthForm = () => {
       Object.values(previewUrls).forEach(url => URL.revokeObjectURL(url));
     };
   }, [previewUrls]);
-  
+
+  // Fetch deadline status
+  useEffect(() => {
+    const fetchDeadline = async () => {
+      try {
+        const response = await axios.get(`${baseURL}/outsource-internships/lte2month/deadline/status`, { withCredentials: true });
+        setDeadlineInfo(response.data);
+      } catch (error) {
+        console.error('Error fetching deadline:', error);
+      }
+    };
+    fetchDeadline();
+  }, [baseURL]);
+
+  // Live countdown timer
+  useEffect(() => {
+    if (!deadlineInfo?.isOpen || !deadlineInfo?.deadline) {
+      setTimeLeft({ days: 0, hours: 0, minutes: 0, seconds: 0 });
+      return;
+    }
+
+    setTimeLeft(getTimeRemaining(deadlineInfo.deadline));
+    const timer = setInterval(() => {
+      setTimeLeft(getTimeRemaining(deadlineInfo.deadline));
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, [deadlineInfo?.deadline, deadlineInfo?.isOpen]);
 
   // Reset form data
   const resetFormData = () => {
@@ -116,7 +145,7 @@ const LTE2MonthForm = () => {
   // Fetch all applications
   useEffect(() => {
     setLoading(true);
-    axios.get(`${import.meta.env.REACT_APP_BASE_URL}/outsource-internships/lte2month`, { withCredentials: true })
+    axios.get(`${baseURL}/outsource-internships/lte2month`, { withCredentials: true })
       .then(response => {
         setApplications(response.data);
         setLoading(false);
@@ -125,7 +154,25 @@ const LTE2MonthForm = () => {
         console.error('Error fetching applications:', error);
         setLoading(false);
       });
-  }, []);
+  }, [baseURL]);
+
+  // Updated getTimeRemaining function
+  const getTimeRemaining = (deadline) => {
+    const now = new Date();
+    const end = new Date(deadline);
+    const diff = end - now;
+
+    if (diff <= 0) {
+      return { days: 0, hours: 0, minutes: 0, seconds: 0, closed: true };
+    }
+
+    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+    const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+    const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+    const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+
+    return { days, hours, minutes, seconds, closed: false };
+  };
 
   // Handle form input changes
   const handleInputChange = (e) => {
@@ -240,7 +287,7 @@ const LTE2MonthForm = () => {
     const url = editingId ? `/outsource-internships/lte2month/${editingId}` : `/outsource-internships/lte2month`;
     const method = editingId ? axios.put : axios.post;
     try {
-      const response = await method(`${import.meta.env.REACT_APP_BASE_URL}${url}`, submitData, {
+      const response = await method(`${baseURL}${url}`, submitData, {
         headers: { 'Content-Type': 'multipart/form-data' },
         withCredentials: true
       });
@@ -291,7 +338,7 @@ const LTE2MonthForm = () => {
     if (!window.confirm('Are you sure you want to delete this application? This action cannot be undone.')) return;
     setLoadingActions(prev => new Set([...prev, `delete-${id}`]));
     try {
-      await axios.delete(`${import.meta.env.REACT_APP_BASE_URL}/outsource-internships/lte2month/${id}`, { withCredentials: true });
+      await axios.delete(`${baseURL}/outsource-internships/lte2month/${id}`, { withCredentials: true });
       setApplications(prev => prev.filter(a => a._id !== id));
       showToast('Application deleted successfully!', 'success');
     } catch (error) {
@@ -316,25 +363,20 @@ const LTE2MonthForm = () => {
       if (!app) {
         throw new Error('Application not found');
       }
-
       const photoUrl = app.photo ? `${baseURL}/${app.photo}` : null;
       const signatureUrl = app.signature ? `${baseURL}/${app.signature}` : null;
-
       const appWithImages = {
         ...app,
         photo: photoUrl,
         signature: signatureUrl
       };
-
       const doc = <LTE2MonthApplicationPDF application={appWithImages} baseURL={baseURL} />;
       const blob = await pdf(doc).toBlob();
       const filename = `LTE2Month_Application_${app._id.slice(-6)}.pdf`;
       const pdfFile = new File([blob], filename, { type: 'application/pdf' });
-
       const submitData = new FormData();
       submitData.append('pdf', pdfFile);
-
-      await axios.put(`${import.meta.env.REACT_APP_BASE_URL}/outsource-internships/lte2month/lock/${id}`, submitData, {
+      await axios.put(`${baseURL}/outsource-internships/lte2month/lock/${id}`, submitData, {
         headers: { 'Content-Type': 'multipart/form-data' },
         withCredentials: true
       });
@@ -352,49 +394,48 @@ const LTE2MonthForm = () => {
     }
   };
 
+  // Updated handleDownload function
+  const handleDownload = async (app) => {
+    const downloadKey = `download-${app._id}`;
+    setLoadingActions(prev => new Set([...prev, downloadKey]));
+    try {
+      console.log('Starting download for app:', app._id);
+      console.log('baseURL:', baseURL); // Debug: Ensure baseURL is defined/correct
+      
+      const photoUrl = app.photo ? `${baseURL}/${app.photo}` : null;
+      const signatureUrl = app.signature ? `${baseURL}/${app.signature}` : null;
+      
+      console.log('photoUrl:', photoUrl); // Debug
+      console.log('signatureUrl:', signatureUrl); // Debug
+      
+      const appWithImages = {
+        ...app,
+        photo: photoUrl,
+        signature: signatureUrl
+      };
+      const doc = <LTE2MonthApplicationPDF application={appWithImages} baseURL={baseURL} />;
+      const blob = await pdf(doc).toBlob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `LTE2Month_Application_${app._id.slice(-6)}.pdf`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      showToast('PDF downloaded successfully!', 'success');
+    } catch (error) {
+      console.error('Error generating PDF:', error);
+      showToast('Failed to download PDF. Try again!', 'error');
+    } finally {
+      setLoadingActions(prev => {
+        const newSet = new Set(prev);
+        newSet.delete(downloadKey);
+        return newSet;
+      });
+    }
+  };
 
-// Updated handleDownload function
-const handleDownload = async (app) => {
-  const downloadKey = `download-${app._id}`;
-  setLoadingActions(prev => new Set([...prev, downloadKey]));
-  try {
-    console.log('Starting download for app:', app._id);
-    console.log('baseURL:', baseURL);  // Debug: Ensure baseURL is defined/correct
-    
-    const photoUrl = app.photo ? `${baseURL}/${app.photo}` : null;
-    const signatureUrl = app.signature ? `${baseURL}/${app.signature}` : null;
-    
-    console.log('photoUrl:', photoUrl);  // Debug
-    console.log('signatureUrl:', signatureUrl);  // Debug
-    
-    const appWithImages = {
-      ...app,
-      photo: photoUrl,
-      signature: signatureUrl
-    };
-
-    const doc = <LTE2MonthApplicationPDF application={appWithImages} baseURL={baseURL} />;
-    const blob = await pdf(doc).toBlob();
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `LTE2Month_Application_${app._id.slice(-6)}.pdf`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-    showToast('PDF downloaded successfully!', 'success');
-  } catch (error) {
-    console.error('Error generating PDF:', error);
-    showToast('Failed to download PDF. Try again!', 'error');
-  } finally {
-    setLoadingActions(prev => {
-      const newSet = new Set(prev);
-      newSet.delete(downloadKey);
-      return newSet;
-    });
-  }
-};
   // Handle preview (simple view, no modal for now)
   const handlePreview = (app) => {
     setSelectedApp(app);
@@ -409,15 +450,53 @@ const handleDownload = async (app) => {
           <span>Summer / Winter <span className="text-custom-blue">Internship</span> Application</span>
         </h2>
         <div className="flex items-center gap-4 flex-1 justify-end">
+          {deadlineInfo && (
+            <div className="text-sm">
+              {deadlineInfo.isOpen ? (
+                <div className="flex items-center gap-2">
+                  <span className="text-gray-600">Closes in:</span>
+                  <div className="flex gap-2">
+                    {['days', 'hours', 'minutes', 'seconds'].map((unit) => {
+                      const value = timeLeft[unit];
+                      const isCritical = timeLeft.days === 0; // Less than 1 day
+                      return (
+                        <div
+                          key={unit}
+                          className={`flex flex-col items-center min-w-12 px-2 py-1 rounded-md font-mono text-sm font-bold border ${
+                            isCritical
+                              ? 'bg-red-100 text-red-700 border-red-300'
+                              : 'bg-custom-blue/10 text-custom-blue border-custom-blue/30'
+                          }`}
+                        >
+                          <span className="text-lg">{String(value).padStart(2, '0')}</span>
+                          <span className="text-xs uppercase opacity-80">
+                            {unit.slice(0, unit === 'days' ? 4 : 3)}
+                          </span>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              ) : (
+                <span className="text-red-500 font-medium">Application Closed</span>
+              )}
+            </div>
+          )}
           <button
             onClick={() => {
+              if (!deadlineInfo?.isOpen) return;
               setShowForm(true);
               resetFormData();
             }}
-            className="flex items-center space-x-2 px-4 py-2 bg-custom-blue text-white rounded-lg shadow-md hover:from-blue-600 hover:to-indigo-600 transition duration-300"
+            disabled={!deadlineInfo?.isOpen}
+            className={`flex items-center space-x-2 px-4 py-2 rounded-lg shadow-md transition duration-300 ${
+              !deadlineInfo?.isOpen
+                ? 'bg-gray-400 text-gray-600 cursor-not-allowed'
+                : 'bg-custom-blue text-white hover:from-blue-600 hover:to-indigo-600'
+            }`}
           >
             <FaPlus />
-            <span>Apply Now</span>
+            <span>{!deadlineInfo?.isOpen ? 'Application Closed' : 'Apply Now'}</span>
           </button>
         </div>
       </div>
@@ -440,14 +519,15 @@ const handleDownload = async (app) => {
                 className="p-6 bg-white rounded-xl shadow-lg cursor-pointer hover:shadow-xl transform hover:-translate-y-1 transition-all duration-300 border border-gray-100"
               >
                 <div className="flex justify-between items-center mb-2">
-                  <p className="text-lg font-semibold text-gray-900">{app.departmentAppliedFor}</p>
+                  <p className="text-xs font-semibold text-gray-900">Faculty: <span className='text-gray-500'>{app.proposedFacultyMember}</span></p>
                   <span className={`text-sm font-medium px-2 py-1 rounded-full ${
                     isLocked ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'
                   }`}>
                     {isLocked ? 'Locked' : 'Pending'}
                   </span>
                 </div>
-                <p className="bg-custom-blue/10 rounded-lg p-1 text-custom-blue text-xs font-semibold inline-block"># {app._id.slice(-6)}</p>
+                    <p className="text-xs font-semibold text-gray-900">Department: <span className='text-gray-500'>{app.departmentAppliedFor}</span></p>
+                {/* <p className="bg-custom-blue/10 rounded-lg p-1 text-custom-blue text-xs font-semibold inline-block"># {app._id.slice(-6)}</p> */}
                 <div className="flex flex-wrap gap-2 mt-4">
                   {!isLocked && (
                     <button
@@ -707,7 +787,7 @@ const handleDownload = async (app) => {
                   required
                 />
               </div>
-        
+          
               <div>
                 <label className="block text-sm font-medium text-gray-600">
                   Mobile No. <span className="text-red-500">*</span>
@@ -930,8 +1010,8 @@ const handleDownload = async (app) => {
                 <div className="relative">
                   <label className="flex items-center text-sm font-medium text-gray-600 cursor-pointer">
                     Documents (Combined PDF, max 5MB)
-                    <Info 
-                      className="ml-2 h-4 w-4 text-blue-500 cursor-pointer" 
+                    <Info
+                      className="ml-2 h-4 w-4 text-blue-500 cursor-pointer"
                       onClick={() => setShowDocumentsTooltip(!showDocumentsTooltip)}
                     />
                   </label>
