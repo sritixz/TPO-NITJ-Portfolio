@@ -449,11 +449,3 @@ export const deleteInternship = async (req, res) => {
   }
 };
 
-export const getAllInternshipsProf = async (req, res) => {
-  try {
-    const internships = await InternshipApplication.find({});
-    res.status(200).json(internships);
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
-};

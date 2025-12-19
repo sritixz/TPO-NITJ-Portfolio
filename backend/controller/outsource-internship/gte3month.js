@@ -491,12 +491,3 @@ export const deleteLongTermInternship = async (req, res) => {
   }
 };
 
-//pdashboard routes
-export const getAllLongTermInternshipsProf = async (req, res) => {
-  try {
-    const applications = await LongTermInternshipApplication.find({});
-    res.json(applications);
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
-};
