@@ -5,7 +5,8 @@ import {
   getInternshipById,
   updateInternship,
   lockInternshipApplication,
-  deleteInternship
+  deleteInternship,
+  getAllInternshipsProf
 } from '../controller/outsource-internship/lte2month.js';
 
 
@@ -15,7 +16,8 @@ import {
   getLongTermInternshipById,
   updateLongTermInternship,
   lockLongTermInternshipApplication,
-  deleteLongTermInternship
+  deleteLongTermInternship,
+  getAllLongTermInternshipsProf
 } from '../controller/outsource-internship/gte3month.js';
 
 import { getDocumentsOutsider } from '../controller/outsource-internship/documentOutsider.js';
@@ -41,5 +43,11 @@ router.delete('/gte3month/:id', deleteLongTermInternship);
 
 //document fetch
 router.get('/outsiderDocument', getDocumentsOutsider);
+
+
+//pdashboard routes
+router.get('/lte2month/get',getAllInternshipsProf)
+router.get('/gte3month/get',getAllLongTermInternshipsProf)
+
 
 export default router;
