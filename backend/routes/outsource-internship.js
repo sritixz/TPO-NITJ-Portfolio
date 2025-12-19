@@ -20,6 +20,11 @@ import {
   getAllLongTermInternshipsProf
 } from '../controller/outsource-internship/gte3month.js';
 
+import {
+  upsertLte2MonthDeadline,
+  checkLte2MonthStatus
+} from "../controller/outsource-internship/lte2monthdeadline.js";
+
 import { getDocumentsOutsider } from '../controller/outsource-internship/documentOutsider.js';
 
 const router = express.Router();
@@ -40,7 +45,6 @@ router.put('/gte3month/:id', updateLongTermInternship);
 router.put('/gte3month/lock/:id', lockLongTermInternshipApplication);
 router.delete('/gte3month/:id', deleteLongTermInternship);
 
-
 //document fetch
 router.get('/outsiderDocument', getDocumentsOutsider);
 
@@ -49,5 +53,8 @@ router.get('/outsiderDocument', getDocumentsOutsider);
 router.get('/lte2month/get',getAllInternshipsProf)
 router.get('/gte3month/get',getAllLongTermInternshipsProf)
 
+//lte2month deadline
+router.post("/lte2month/deadline", upsertLte2MonthDeadline);
+router.get("/lte2month/deadline/status", checkLte2MonthStatus);
 
 export default router;
