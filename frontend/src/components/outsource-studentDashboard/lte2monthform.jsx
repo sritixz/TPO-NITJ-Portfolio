@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useSelector } from 'react-redux';
 import axios from 'axios';
 import { FaPlus, FaEye, FaDownload, FaEdit, FaTrash, FaLock } from 'react-icons/fa';
@@ -21,6 +21,9 @@ const LTE2MonthForm = () => {
   const [previewUrls, setPreviewUrls] = useState({});
   const [showDocumentsTooltip, setShowDocumentsTooltip] = useState(false);
   const [timeLeft, setTimeLeft] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
+  const [showConfirm, setShowConfirm] = useState(false);
+  const [confirmAction, setConfirmAction] = useState(null);
+  const [confirmId, setConfirmId] = useState(null);
   const [formData, setFormData] = useState({
     departmentAppliedFor: '',
     proposedFacultyMember: '',
@@ -231,13 +234,13 @@ const LTE2MonthForm = () => {
 
   // Validate form
   const validateForm = () => {
-    const requiredFields = [
+    const stringFields = [
       'departmentAppliedFor', 'proposedFacultyMember', 'proposedFacultyMemberEmail', 'proposedFacultyMemberContact',
       'name', 'institution', 'course', 'presentSemester', 'branch', 'postalAddress', 'permanentAddress',
       'mobileNo', 'email', 'fathersName', 'gender', 'dateOfBirth', 'nationality',
-      'overallCGPA', 'declarationAccepted'
+      'overallCGPA'
     ];
-    const basicFilled = requiredFields.every(key => formData[key].toString().trim() !== '');
+    const basicFilled = stringFields.every(key => formData[key].toString().trim() !== '') && formData.declarationAccepted;
     if (!basicFilled) return false;
     // Validate education qualifications
     if (formData.educationQualifications.length === 0) return false;
@@ -311,8 +314,12 @@ const LTE2MonthForm = () => {
 
   // Handle edit
   const handleEdit = (app) => {
+    const formattedDateOfBirth = app.dateOfBirth ? (typeof app.dateOfBirth === 'string' && !isNaN(Date.parse(app.dateOfBirth)) 
+      ? new Date(app.dateOfBirth).toISOString().split('T')[0] 
+      : app.dateOfBirth) : '';
     setFormData({
       ...app,
+      dateOfBirth: formattedDateOfBirth,
       proposedFacultyMemberEmail: app.proposedFacultyMemberEmail || '',
       proposedFacultyMemberContact: app.proposedFacultyMemberContact || '',
       educationQualifications: app.educationQualifications || []
@@ -333,65 +340,77 @@ const LTE2MonthForm = () => {
     setShowForm(true);
   };
 
-  // Handle delete
-  const handleDelete = async (id) => {
-    if (!window.confirm('Are you sure you want to delete this application? This action cannot be undone.')) return;
-    setLoadingActions(prev => new Set([...prev, `delete-${id}`]));
-    try {
-      await axios.delete(`${baseURL}/outsource-internships/lte2month/${id}`, { withCredentials: true });
-      setApplications(prev => prev.filter(a => a._id !== id));
-      showToast('Application deleted successfully!', 'success');
-    } catch (error) {
-      console.error('Error deleting application:', error);
-      showToast('Failed to delete application. Try again!', 'error');
-    } finally {
-      setLoadingActions(prev => {
-        const newSet = new Set(prev);
-        newSet.delete(`delete-${id}`);
-        return newSet;
-      });
+  // Confirmation modal action performer
+  const performConfirmAction = useCallback(async () => {
+    if (confirmAction === 'delete' && confirmId) {
+      const deleteKey = `delete-${confirmId}`;
+      setLoadingActions(prev => new Set([...prev, deleteKey]));
+      try {
+        await axios.delete(`${baseURL}/outsource-internships/lte2month/${confirmId}`, { withCredentials: true });
+        setApplications(prev => prev.filter(a => a._id !== confirmId));
+        showToast('Application deleted successfully!', 'success');
+      } catch (error) {
+        console.error('Error deleting application:', error);
+        showToast('Failed to delete application. Try again!', 'error');
+      } finally {
+        setLoadingActions(prev => {
+          const newSet = new Set(prev);
+          newSet.delete(deleteKey);
+          return newSet;
+        });
+      }
+    } else if (confirmAction === 'lock' && confirmId) {
+      const lockKey = `lock-${confirmId}`;
+      setLoadingActions(prev => new Set([...prev, lockKey]));
+      try {
+        const app = applications.find(a => a._id === confirmId);
+        if (!app) {
+          throw new Error('Application not found');
+        }
+        const photoUrl = app.photo ? `${baseURL}/${app.photo}` : null;
+        const signatureUrl = app.signature ? `${baseURL}/${app.signature}` : null;
+        const appWithImages = {
+          ...app,
+          photo: photoUrl,
+          signature: signatureUrl
+        };
+        const doc = <LTE2MonthApplicationPDF application={appWithImages} baseURL={baseURL} />;
+        const blob = await pdf(doc).toBlob();
+        const filename = `LTE2Month_Application_${app._id.slice(-6)}.pdf`;
+        const pdfFile = new File([blob], filename, { type: 'application/pdf' });
+        const submitData = new FormData();
+        submitData.append('pdf', pdfFile);
+        await axios.put(`${baseURL}/outsource-internships/lte2month/lock/${confirmId}`, submitData, {
+          headers: { 'Content-Type': 'multipart/form-data' },
+          withCredentials: true
+        });
+        setApplications(prev => prev.map(a => a._id === confirmId ? { ...a, locked: true } : a));
+        showToast('Application Locked successfully!', 'success');
+      } catch (error) {
+        console.error('Error locking application:', error);
+        showToast('Failed to lock application. Try again!', 'error');
+      } finally {
+        setLoadingActions(prev => {
+          const newSet = new Set(prev);
+          newSet.delete(lockKey);
+          return newSet;
+        });
+      }
     }
+  }, [confirmAction, confirmId, applications, baseURL]);
+
+  // Handle delete
+  const handleDelete = (id) => {
+    setConfirmAction('delete');
+    setConfirmId(id);
+    setShowConfirm(true);
   };
 
   // Handle lock
-  const handleLock = async (id) => {
-    if (!window.confirm('Are you sure you want to lock this application? This action cannot be undone.')) return;
-    const lockKey = `lock-${id}`;
-    setLoadingActions(prev => new Set([...prev, lockKey]));
-    try {
-      const app = applications.find(a => a._id === id);
-      if (!app) {
-        throw new Error('Application not found');
-      }
-      const photoUrl = app.photo ? `${baseURL}/${app.photo}` : null;
-      const signatureUrl = app.signature ? `${baseURL}/${app.signature}` : null;
-      const appWithImages = {
-        ...app,
-        photo: photoUrl,
-        signature: signatureUrl
-      };
-      const doc = <LTE2MonthApplicationPDF application={appWithImages} baseURL={baseURL} />;
-      const blob = await pdf(doc).toBlob();
-      const filename = `LTE2Month_Application_${app._id.slice(-6)}.pdf`;
-      const pdfFile = new File([blob], filename, { type: 'application/pdf' });
-      const submitData = new FormData();
-      submitData.append('pdf', pdfFile);
-      await axios.put(`${baseURL}/outsource-internships/lte2month/lock/${id}`, submitData, {
-        headers: { 'Content-Type': 'multipart/form-data' },
-        withCredentials: true
-      });
-      setApplications(prev => prev.map(a => a._id === id ? { ...a, locked: true } : a));
-      showToast('Application Locked successfully!', 'success');
-    } catch (error) {
-      console.error('Error locking application:', error);
-      showToast('Failed to lock application. Try again!', 'error');
-    } finally {
-      setLoadingActions(prev => {
-        const newSet = new Set(prev);
-        newSet.delete(lockKey);
-        return newSet;
-      });
-    }
+  const handleLock = (id) => {
+    setConfirmAction('lock');
+    setConfirmId(id);
+    setShowConfirm(true);
   };
 
   // Updated handleDownload function
@@ -618,6 +637,47 @@ const LTE2MonthForm = () => {
     )
   );
 
+  // Confirmation Modal
+  const renderConfirmModal = () => (
+    showConfirm && (
+      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+        <div className="bg-white rounded-lg shadow-xl max-w-md w-full max-h-[90vh] overflow-y-auto">
+          <div className="p-6">
+            <h3 className="text-lg font-semibold text-gray-900 mb-2">
+              Confirm {confirmAction === 'delete' ? 'Delete' : 'Lock'} Application
+            </h3>
+            <p className="text-sm text-gray-600 mb-6">
+              Are you sure you want to {confirmAction} this application? This action cannot be undone and will {confirmAction === 'delete' ? 'permanently remove' : 'finalize'} your submission.
+            </p>
+            <div className="flex justify-end space-x-3 pt-4 border-t border-gray-200">
+              <button
+                onClick={() => {
+                  setShowConfirm(false);
+                  setConfirmAction(null);
+                  setConfirmId(null);
+                }}
+                className="px-4 py-2 text-gray-700 bg-gray-200 rounded-md hover:bg-gray-300 transition duration-200"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => {
+                  performConfirmAction();
+                  setShowConfirm(false);
+                  setConfirmAction(null);
+                  setConfirmId(null);
+                }}
+                className="px-4 py-2 text-white bg-red-500 rounded-md hover:bg-red-600 transition duration-200"
+              >
+                {confirmAction === 'delete' ? 'Delete' : 'Lock'} Application
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    )
+  );
+
   return (
     <div className="container mx-auto p-6 min-h-screen">
       {toast.show && (
@@ -629,6 +689,7 @@ const LTE2MonthForm = () => {
           {toast.message}
         </div>
       )}
+      {renderConfirmModal()}
       {!showForm ? (
         renderApplicationList()
       ) : (
@@ -1053,7 +1114,9 @@ const LTE2MonthForm = () => {
                   onChange={(e) => setFormData(prev => ({ ...prev, declarationAccepted: e.target.checked }))}
                 />
                 <label htmlFor="declaration" className="ml-2 text-sm leading-relaxed">
-                  I hereby declare that the statement made in this application are true, complete and correct to the best of my knowledge and belief. I understand that if any false information is found or if any required document is not uploaded, my internship application can be canceled at any time.
+                  I hereby declare that the statement made in this application are true, complete and correct to the best of my knowledge and belief. I also ensure that during the internship I will follow
+the institute rules and regulations. Consent of my parents for pursuing the Internship/Thesis work at Dr. B.R.
+Ambedkar NIT Jalandhar is already taken by me. I understand that if any false information is found or if any required document is not uploaded, my internship application can be canceled at any time.
                 </label>
               </div>
             </div>

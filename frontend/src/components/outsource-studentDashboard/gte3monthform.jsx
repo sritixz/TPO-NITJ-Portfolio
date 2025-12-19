@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useSelector } from 'react-redux';
 import axios from 'axios';
 import { FaPlus, FaEye, FaDownload, FaEdit, FaTrash, FaLock } from 'react-icons/fa';
@@ -18,6 +18,9 @@ const GTE3MonthForm = () => {
   const [existingFiles, setExistingFiles] = useState({});
   const [previewUrls, setPreviewUrls] = useState({});
   const [showDocumentsTooltip, setShowDocumentsTooltip] = useState(false);
+  const [showConfirm, setShowConfirm] = useState(false);
+  const [confirmAction, setConfirmAction] = useState(null);
+  const [confirmId, setConfirmId] = useState(null);
   const [formData, setFormData] = useState({
     homeUniversityName: '',
     homeUniversityAddress: '',
@@ -47,7 +50,7 @@ const GTE3MonthForm = () => {
     degree: '',
     academicYear: '',
     academicSemester: '',
-    languagesKnown: [], // Array of strings
+    languagesKnown: '', // Changed to string for direct input
     declarationAccepted: false,
   });
   const [files, setFiles] = useState({
@@ -117,7 +120,7 @@ const GTE3MonthForm = () => {
       degree: '',
       academicYear: '',
       academicSemester: '',
-      languagesKnown: [],
+      languagesKnown: '', // String reset
       declarationAccepted: false,
     });
     setFiles({
@@ -130,7 +133,7 @@ const GTE3MonthForm = () => {
   // Fetch all applications
   useEffect(() => {
     setLoading(true);
-    axios.get(`${import.meta.env.REACT_APP_BASE_URL}/outsource-internships/gte3month`, { withCredentials: true })
+    axios.get(`${baseURL}/outsource-internships/gte3month`, { withCredentials: true })
       .then(response => {
         setApplications(response.data);
         setLoading(false);
@@ -139,15 +142,11 @@ const GTE3MonthForm = () => {
         console.error('Error fetching applications:', error);
         setLoading(false);
       });
-  }, []);
+  }, [baseURL]);
   // Handle form input changes
   const handleInputChange = (e) => {
     const { name, value, type, checked } = e.target;
-    if (name === 'languagesKnown') {
-      // Split comma-separated values into array
-      const languages = value.split(',').map(lang => lang.trim()).filter(lang => lang);
-      setFormData(prev => ({ ...prev, [name]: languages }));
-    } else if (type === 'checkbox') {
+    if (type === 'checkbox') {
       setFormData(prev => ({ ...prev, [name]: checked }));
     } else {
       setFormData(prev => ({ ...prev, [name]: value }));
@@ -166,20 +165,22 @@ const GTE3MonthForm = () => {
     }
     setFiles(prev => ({ ...prev, [type]: file }));
   };
+  // Parse languages for validation and submission
+  const parseLanguages = (inputString) => {
+    return inputString.split(',').map(lang => lang.trim()).filter(lang => lang);
+  };
   // Validate form
   const validateForm = () => {
     const requiredFields = [
       'homeUniversityName', 'homeUniversityAddress', 'durationFrom', 'durationTo', 'internshipType',
       'ApplicantName', 'fathersName', 'mothersName', 'dateOfBirth', 'birthCity', 'birthCountry',
       'maritalStatus', 'nationality', 'correspondenceAddress', 'phone', 'email', 'facultySupervisor',
-      'facultySupervisorDepartment', 'department', 'degree', 'academicYear', 'academicSemester', 'languagesKnown', 'declarationAccepted'
+      'facultySupervisorDepartment', 'department', 'degree', 'academicYear', 'academicSemester'
     ];
-    const basicFilled = requiredFields.every(key => {
-      if (key === 'languagesKnown') {
-        return formData[key].length > 0;
-      }
-      return formData[key].toString().trim() !== '';
-    });
+    const stringFields = requiredFields;
+    const basicFilled = stringFields.every(key => formData[key].toString().trim() !== '') && 
+                       parseLanguages(formData.languagesKnown).length > 0 && 
+                       formData.declarationAccepted;
     if (!basicFilled) return false;
     // Check files
     if (!files.photo && !existingFiles.photo) return false;
@@ -201,9 +202,10 @@ const GTE3MonthForm = () => {
     }
     setIsSubmitting(true);
     const submitData = new FormData();
+    const languages = parseLanguages(formData.languagesKnown);
     Object.entries(formData).forEach(([key, value]) => {
       if (key === 'languagesKnown') {
-        submitData.append(key, JSON.stringify(value)); // Send as JSON string
+        submitData.append(key, JSON.stringify(languages)); // Send parsed array as JSON string
       } else {
         submitData.append(key, value);
       }
@@ -216,7 +218,7 @@ const GTE3MonthForm = () => {
     const url = editingId ? `/outsource-internships/gte3month/${editingId}` : `/outsource-internships/gte3month`;
     const method = editingId ? axios.put : axios.post;
     try {
-      const response = await method(`${import.meta.env.REACT_APP_BASE_URL}${url}`, submitData, {
+      const response = await method(`${baseURL}${url}`, submitData, {
         headers: { 'Content-Type': 'multipart/form-data' },
         withCredentials: true
       });
@@ -239,9 +241,20 @@ const GTE3MonthForm = () => {
   };
   // Handle edit
   const handleEdit = (app) => {
+    const formatDate = (dateStr) => {
+      if (!dateStr) return '';
+      const date = new Date(dateStr);
+      if (isNaN(date.getTime())) return dateStr;
+      return date.toISOString().split('T')[0];
+    };
     setFormData({
       ...app,
-      languagesKnown: app.languagesKnown || [],
+      dateOfBirth: formatDate(app.dateOfBirth),
+      durationFrom: formatDate(app.durationFrom),
+      durationTo: formatDate(app.durationTo),
+      passportIssueDate: formatDate(app.passportIssueDate),
+      passportValidUpTo: formatDate(app.passportValidUpTo),
+      languagesKnown: app.languagesKnown ? app.languagesKnown.join(', ') : '', // Join array to string for editing
       hostelNeeded: app.hostelNeeded || false,
       declarationAccepted: app.declarationAccepted || false
     });
@@ -260,67 +273,78 @@ const GTE3MonthForm = () => {
     setEditingId(app._id);
     setShowForm(true);
   };
-  // Handle delete
-  const handleDelete = async (id) => {
-    if (!window.confirm('Are you sure you want to delete this application? This action cannot be undone.')) return;
-    setLoadingActions(prev => new Set([...prev, `delete-${id}`]));
-    try {
-      await axios.delete(`${import.meta.env.REACT_APP_BASE_URL}/outsource-internships/gte3month/${id}`, { withCredentials: true });
-      setApplications(prev => prev.filter(a => a._id !== id));
-      showToast('Application deleted successfully!', 'success');
-    } catch (error) {
-      console.error('Error deleting application:', error);
-      showToast('Failed to delete application. Try again!', 'error');
-    } finally {
-      setLoadingActions(prev => {
-        const newSet = new Set(prev);
-        newSet.delete(`delete-${id}`);
-        return newSet;
-      });
+  // Confirmation modal action performer
+  const performConfirmAction = useCallback(async () => {
+    if (confirmAction === 'delete' && confirmId) {
+      const deleteKey = `delete-${confirmId}`;
+      setLoadingActions(prev => new Set([...prev, deleteKey]));
+      try {
+        await axios.delete(`${baseURL}/outsource-internships/gte3month/${confirmId}`, { withCredentials: true });
+        setApplications(prev => prev.filter(a => a._id !== confirmId));
+        showToast('Application deleted successfully!', 'success');
+      } catch (error) {
+        console.error('Error deleting application:', error);
+        showToast('Failed to delete application. Try again!', 'error');
+      } finally {
+        setLoadingActions(prev => {
+          const newSet = new Set(prev);
+          newSet.delete(deleteKey);
+          return newSet;
+        });
+      }
+    } else if (confirmAction === 'lock' && confirmId) {
+      const lockKey = `lock-${confirmId}`;
+      setLoadingActions(prev => new Set([...prev, lockKey]));
+      try {
+        const app = applications.find(a => a._id === confirmId);
+        if (!app) {
+          throw new Error('Application not found');
+        }
+
+        const photoUrl = app.photo ? `${baseURL}/${app.photo}` : null;
+        const signatureUrl = app.signature ? `${baseURL}/${app.signature}` : null;
+
+        const appWithImages = {
+          ...app,
+          photo: photoUrl,
+          signature: signatureUrl
+        };
+
+        const doc = <GTE3MonthApplicationPDF application={appWithImages} baseURL={baseURL} />;
+        const blob = await pdf(doc).toBlob();
+        const filename = `GTE3Month_Application_${app._id.slice(-6)}.pdf`;
+        const pdfFile = new File([blob], filename, { type: 'application/pdf' });
+        const submitData = new FormData();
+        submitData.append('pdf', pdfFile);
+        await axios.put(`${baseURL}/outsource-internships/gte3month/lock/${confirmId}`, submitData, {
+          headers: { 'Content-Type': 'multipart/form-data' },
+          withCredentials: true
+        });
+        setApplications(prev => prev.map(a => a._id === confirmId ? { ...a, locked: true } : a));
+        showToast('Application Locked successfully!', 'success');
+      } catch (error) {
+        console.error('Error locking application:', error);
+        showToast('Failed to lock application. Try again!', 'error');
+      } finally {
+        setLoadingActions(prev => {
+          const newSet = new Set(prev);
+          newSet.delete(lockKey);
+          return newSet;
+        });
+      }
     }
+  }, [confirmAction, confirmId, applications, baseURL]);
+  // Handle delete
+  const handleDelete = (id) => {
+    setConfirmAction('delete');
+    setConfirmId(id);
+    setShowConfirm(true);
   };
   // Handle lock
-  const handleLock = async (id) => {
-    if (!window.confirm('Are you sure you want to lock this application? This action cannot be undone.')) return;
-    const lockKey = `lock-${id}`;
-    setLoadingActions(prev => new Set([...prev, lockKey]));
-    try {
-      const app = applications.find(a => a._id === id);
-      if (!app) {
-        throw new Error('Application not found');
-      }
-
-      const photoUrl = app.photo ? `${baseURL}/${app.photo}` : null;
-      const signatureUrl = app.signature ? `${baseURL}/${app.signature}` : null;
-
-      const appWithImages = {
-        ...app,
-        photo: photoUrl,
-        signature: signatureUrl
-      };
-
-      const doc = <GTE3MonthApplicationPDF application={appWithImages} baseURL={baseURL} />;
-      const blob = await pdf(doc).toBlob();
-      const filename = `GTE3Month_Application_${app._id.slice(-6)}.pdf`;
-      const pdfFile = new File([blob], filename, { type: 'application/pdf' });
-      const submitData = new FormData();
-      submitData.append('pdf', pdfFile);
-      await axios.put(`${import.meta.env.REACT_APP_BASE_URL}/outsource-internships/gte3month/lock/${id}`, submitData, {
-        headers: { 'Content-Type': 'multipart/form-data' },
-        withCredentials: true
-      });
-      setApplications(prev => prev.map(a => a._id === id ? { ...a, locked: true } : a));
-      showToast('Application Locked successfully!', 'success');
-    } catch (error) {
-      console.error('Error locking application:', error);
-      showToast('Failed to lock application. Try again!', 'error');
-    } finally {
-      setLoadingActions(prev => {
-        const newSet = new Set(prev);
-        newSet.delete(lockKey);
-        return newSet;
-      });
-    }
+  const handleLock = (id) => {
+    setConfirmAction('lock');
+    setConfirmId(id);
+    setShowConfirm(true);
   };
   // Handle download
   const handleDownload = async (app) => {
@@ -505,6 +529,46 @@ const GTE3MonthForm = () => {
       </div>
     )
   );
+  // Confirmation Modal
+  const renderConfirmModal = () => (
+    showConfirm && (
+      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+        <div className="bg-white rounded-lg shadow-xl max-w-md w-full max-h-[90vh] overflow-y-auto">
+          <div className="p-6">
+            <h3 className="text-lg font-semibold text-gray-900 mb-2">
+              Confirm {confirmAction === 'delete' ? 'Delete' : 'Lock'} Application
+            </h3>
+            <p className="text-sm text-gray-600 mb-6">
+              Are you sure you want to {confirmAction} this application? This action cannot be undone and will {confirmAction === 'delete' ? 'permanently remove' : 'finalize'} your submission.
+            </p>
+            <div className="flex justify-end space-x-3 pt-4 border-t border-gray-200">
+              <button
+                onClick={() => {
+                  setShowConfirm(false);
+                  setConfirmAction(null);
+                  setConfirmId(null);
+                }}
+                className="px-4 py-2 text-gray-700 bg-gray-200 rounded-md hover:bg-gray-300 transition duration-200"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => {
+                  performConfirmAction();
+                  setShowConfirm(false);
+                  setConfirmAction(null);
+                  setConfirmId(null);
+                }}
+                className="px-4 py-2 text-white bg-red-500 rounded-md hover:bg-red-600 transition duration-200"
+              >
+                {confirmAction === 'delete' ? 'Delete' : 'Lock'} Application
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    )
+  );
   return (
     <div className="container mx-auto p-6 min-h-screen">
       {toast.show && (
@@ -516,6 +580,7 @@ const GTE3MonthForm = () => {
           {toast.message}
         </div>
       )}
+      {renderConfirmModal()}
       {!showForm ? (
         renderApplicationList()
       ) : (
@@ -809,7 +874,7 @@ const GTE3MonthForm = () => {
                 </label>
                 <textarea
                   name="languagesKnown"
-                  value={formData.languagesKnown.join(', ')}
+                  value={formData.languagesKnown}
                   onChange={handleInputChange}
                   rows={2}
                   placeholder="e.g., English, Hindi, French"
@@ -997,7 +1062,7 @@ const GTE3MonthForm = () => {
                     />
                   </label>
                   {showDocumentsTooltip && (
-                 <ul className="absolute top-full left-0 mt-1 z-10 bg-white border border-gray-200 rounded-md shadow-lg p-3 w-100 text-xs text-gray-700 space-y-1 list-disc list-inside">
+                 <ul className="absolute top-full left-0 mt-1 z-10 bg-white border border-gray-200 rounded-md shadow-lg p-3 w-64 text-xs text-gray-700 space-y-1 list-disc list-inside">
   <li>Recommendation from Home University</li>
   <li>Proof of registration at Home University</li>
   <li>Academic Record till last semester</li>

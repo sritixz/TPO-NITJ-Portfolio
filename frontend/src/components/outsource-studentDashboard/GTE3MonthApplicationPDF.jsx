@@ -24,8 +24,8 @@ const styles = StyleSheet.create({
     marginBottom: 15,
   },
   headerLogo: {
-    width: 70,
-    height: 70,
+    width: 60,
+    height: 60,
   },
   headerTextContainer: {
     marginTop: 8,
@@ -49,21 +49,17 @@ const styles = StyleSheet.create({
     fontWeight: 'normal',
     textAlign: 'center',
   },
-  photoAffix: {
-    position: 'absolute',
-    top: 130, // Positioned just below the double line (adjusted for header height ~100px + margins)
-    right: 40,
+  photoContainer: {
+    alignItems: 'flex-end',
+    marginLeft: 10,
+  },
+  image: {
     width: 65,
     height: 85,
     borderWidth: 1,
     borderColor: '#000',
     borderStyle: 'solid',
     backgroundColor: '#FFFFFF',
-  },
-  image: {
-    width: 63,
-    height: 83,
-    objectFit: 'cover',
   },
   doubleLine: {
     marginBottom: 25,
@@ -129,14 +125,10 @@ const styles = StyleSheet.create({
     backgroundColor: '#FAFAFA',
   },
   signature: {
-    marginTop: 30,
     textAlign: 'right',
     flexDirection: 'row',
     justifyContent: 'flex-end',
     alignItems: 'center',
-    borderTopWidth: 1,
-    borderTopColor: '#DDD',
-    borderTopStyle: 'solid',
     paddingTop: 15,
   },
   signatureText: {
@@ -147,22 +139,43 @@ const styles = StyleSheet.create({
     width: 110,
     height: 45,
   },
+  singleLine: {
+    marginTop:70,
+    marginBottom: 15,
+  },
+  approvalBlock: {
+    marginTop: 10,
+    marginBottom: 20,
+  },
+  approvalHeader: {
+    fontWeight: 'bold',
+    fontSize: 11,
+    marginBottom: 5,
+  },
+  commentLine: {
+    marginTop: 5,
+    minHeight: 20,
+  },
 });
 
 const GTE3MonthApplicationPDF = ({ application }) => { 
-  // Convert binary to base64 for react-pdf
-  const uint8ToBase64 = (uint8Array, format) => {
-    if (!uint8Array) return null;
-    const binary = String.fromCharCode(...uint8Array);
-    const mimeType = `image/${format}`;
-    return `data:${mimeType};base64,${btoa(binary)}`;
+  const formatDate = (date) => {
+    const d = new Date(date);
+    return d.toLocaleDateString("en-GB", {
+      day: "numeric",
+      month: "short",
+      year: "numeric",
+    });
   };
 
-  const photoSrc = application.photo ? uint8ToBase64(application.photo.data, application.photo.format) : null;
-  const signatureSrc = application.signature ? uint8ToBase64(application.signature.data, application.signature.format) : null;
+  const safeFormatDate = (date) => {
+    if (!date) return '';
+    const d = new Date(date);
+    return isNaN(d.getTime()) ? '' : formatDate(d);
+  };
 
-  console.log('Component received - photo:', photoSrc ? 'base64 ready' : 'null');
-  console.log('Component received - signature:', signatureSrc ? 'base64 ready' : 'null');
+  console.log('Component received - photo:', application.photo ? application.photo : 'null');
+  console.log('Component received - signature:', application.signature ? application.signature : 'null');
 
   const {
     homeUniversityName,
@@ -194,27 +207,15 @@ const GTE3MonthApplicationPDF = ({ application }) => {
     academicYear,
     academicSemester,
     languagesKnown,
+    photo,
+    signature,
   } = application;
-
-  const formatDate = (date) => {
-    const d = new Date(date);
-    return d.toLocaleDateString("en-GB", {
-      day: "numeric",
-      month: "short",
-      year: "numeric",
-    });
-  };
 
   const languages = Array.isArray(languagesKnown) ? languagesKnown.join(', ') : languagesKnown || '';
 
   return (
     <Document>
       <Page size="A4" style={styles.page}>
-        {/* Photo Affix Below Double Line on Right */}
-        <View fixed style={styles.photoAffix}>
-          {photoSrc && <Image style={styles.image} src={photoSrc} />}
-        </View>
-
         {/* Header with Logo on Left */}
         <View style={styles.header}>
           <View style={{ flexDirection: 'row', alignItems: 'flex-start' }}>
@@ -235,53 +236,61 @@ const GTE3MonthApplicationPDF = ({ application }) => {
           </Svg>
         </View>
 
-
-        {/* A. Personal Data */}
+        {/* A. Personal Data with Photo on Right */}
         <View style={styles.section}>
           <Text style={styles.sectionHeader}>A. Personal Data of the Student</Text>
-          <View style={styles.row}>
-            <Text style={styles.label}>1. Name:</Text>
-            <Text style={styles.value} wrap>{ApplicantName}</Text>
-          </View>
-          <View style={styles.row}>
-            <Text style={styles.label}>2. Father's Name:</Text>
-            <Text style={styles.value} wrap>{fathersName}</Text>
-          </View>
-          <View style={styles.row}>
-            <Text style={styles.label}>3. Mother's Name:</Text>
-            <Text style={styles.value} wrap>{mothersName}</Text>
-          </View>
-          <View style={styles.row}>
-            <Text style={styles.label}>4. Date of Birth:</Text>
-            <Text style={styles.value}>{formatDate(dateOfBirth)}</Text>
-          </View>
-          <View style={styles.row}>
-            <Text style={styles.label}>5. City & Country of Birth:</Text>
-            <Text style={styles.value}>{birthCity}, {birthCountry}</Text>
-          </View>
-          <View style={styles.row}>
-            <Text style={styles.label}>6. Nationality:</Text>
-            <Text style={styles.value}>{nationality}</Text>
-          </View>
-          <View style={styles.row}>
-            <Text style={styles.label}>7. Marital Status:</Text>
-            <Text style={styles.value}>{maritalStatus}</Text>
-          </View>
-          <View style={styles.row}>
-            <Text style={styles.label}>8. Phone:</Text>
-            <Text style={styles.value}>{phone}</Text>
-          </View>
-          <View style={styles.row}>
-            <Text style={styles.label}>9. Email:</Text>
-            <Text style={styles.value}>{email}</Text>
-          </View>
-            <View style={styles.row}>
-            <Text style={styles.label}>10. Languages Known:</Text>
-            <Text style={styles.value} wrap>{languages}</Text>
-          </View>
-            <View style={styles.row}>
-            <Text style={styles.label}>11. Correspondance Address:</Text>
-            <Text style={styles.value} wrap>{correspondenceAddress}</Text>
+          <View style={{ flexDirection: 'row', alignItems: 'flex-start' }}>
+            <View style={{ flex: 1 }}>
+              <View style={styles.row}>
+                <Text style={styles.label}>1. Name:</Text>
+                <Text style={styles.value} wrap>{ApplicantName}</Text>
+              </View>
+              <View style={styles.row}>
+                <Text style={styles.label}>2. Father's Name:</Text>
+                <Text style={styles.value} wrap>{fathersName}</Text>
+              </View>
+              <View style={styles.row}>
+                <Text style={styles.label}>3. Mother's Name:</Text>
+                <Text style={styles.value} wrap>{mothersName}</Text>
+              </View>
+              <View style={styles.row}>
+                <Text style={styles.label}>4. Date of Birth:</Text>
+                <Text style={styles.value}>{formatDate(dateOfBirth)}</Text>
+              </View>
+              <View style={styles.row}>
+                <Text style={styles.label}>5. City & Country of Birth:</Text>
+                <Text style={styles.value}>{birthCity}, {birthCountry}</Text>
+              </View>
+              <View style={styles.row}>
+                <Text style={styles.label}>6. Nationality:</Text>
+                <Text style={styles.value}>{nationality}</Text>
+              </View>
+              <View style={styles.row}>
+                <Text style={styles.label}>7. Marital Status:</Text>
+                <Text style={styles.value}>{maritalStatus}</Text>
+              </View>
+              <View style={styles.row}>
+                <Text style={styles.label}>8. Phone:</Text>
+                <Text style={styles.value}>{phone}</Text>
+              </View>
+              <View style={styles.row}>
+                <Text style={styles.label}>9. Email:</Text>
+                <Text style={styles.value}>{email}</Text>
+              </View>
+              <View style={styles.row}>
+                <Text style={styles.label}>10. Languages Known:</Text>
+                <Text style={styles.value} wrap>{languages}</Text>
+              </View>
+              <View style={styles.row}>
+                <Text style={styles.label}>11. Correspondance Address:</Text>
+                <Text style={styles.value} wrap>{correspondenceAddress}</Text>
+              </View>
+            </View>
+            {photo && (
+              <View style={styles.photoContainer}>
+                <Image style={styles.image} src={photo} />
+              </View>
+            )}
           </View>
         </View>
 
@@ -296,11 +305,11 @@ const GTE3MonthApplicationPDF = ({ application }) => {
             <Text style={styles.label}>ii. Faculty Supervisor's Department:</Text>
             <Text style={styles.value} wrap>{facultySupervisorDepartment}</Text>
           </View>
-            <View style={styles.row}>
+          <View style={styles.row}>
             <Text style={styles.label}>iii. Internship Type:</Text>
             <Text style={styles.value} wrap>{internshipType}</Text>
           </View>
-           <View style={styles.row}>
+          <View style={styles.row}>
             <Text style={styles.label}>iv. Internship Duration:</Text>
             <Text style={styles.value}>From {formatDate(durationFrom)} To {formatDate(durationTo)}</Text>
           </View>
@@ -335,39 +344,74 @@ const GTE3MonthApplicationPDF = ({ application }) => {
           </View>
         </View>
 
-                  {/* Passport Details in Box */}
-          <View style={styles.passportBox}>
-            <View style={styles.row}>
-              <Text style={styles.label}>9. Passport No.:</Text>
-              <Text style={styles.value}>{passportNo}</Text>
-              <Text style={[styles.label, { marginLeft: 20, width: 'auto' }]}>10. Date of Issue:</Text>
-              <Text style={styles.value}>{formatDate(passportIssueDate)}</Text>
-            </View>
-            <View style={styles.row}>
-              <Text style={styles.label}>11. Place of Issue:</Text>
-              <Text style={styles.value}>{passportIssuePlace}</Text>
-              <Text style={[styles.label, { marginLeft: 20, width: 'auto' }]}>12. Valid up to:</Text>
-              <Text style={styles.value}>{formatDate(passportValidUpTo)}</Text>
-            </View>
-          </View>
+
         <View style={styles.row}>
-            <Text style={styles.label}>Intended activities during stay as non-degree student:</Text>
-            <Text style={styles.value} wrap>{nonDegreeActivities}</Text>
+          <Text style={styles.label}>Intended activities during stay as non-degree student:</Text>
+          <Text style={styles.value} wrap>{nonDegreeActivities}</Text>
         </View>
 
         <View style={styles.checkboxRow}>
-  <Text style={styles.label}>
-    Hostel Accommodation needed at NIT Jalandhar:
-  </Text>
-  <Text style={styles.value}>
-    {hostelNeeded ? 'YES' : 'NO'}
-  </Text>
+          <Text style={styles.label}>
+            Hostel Accommodation needed at NIT Jalandhar:
+          </Text>
+          <Text style={styles.value}>
+            {hostelNeeded ? 'YES' : 'NO'}
+          </Text>
+        </View>
+
+        
+        {/* Passport Details in Box */}
+       <View style={styles.passportBox}>
+  <View style={styles.row}>
+    <Text style={styles.label}>Passport No.:</Text>
+    <Text style={styles.value}>{passportNo || ''}</Text>
+
+    <Text style={[styles.label, { marginLeft: 20, width: 'auto' }]}>
+      Date of Issue:
+    </Text>
+    <Text style={styles.value}>
+      {safeFormatDate(passportIssueDate)}
+    </Text>
+  </View>
+
+  <View style={styles.row}>
+    <Text style={styles.label}>Place of Issue:</Text>
+    <Text style={styles.value}>{passportIssuePlace || ''}</Text>
+
+    <Text style={[styles.label, { marginLeft: 20, width: 'auto' }]}>
+      Valid up to:
+    </Text>
+    <Text style={styles.value}>
+      {safeFormatDate(passportValidUpTo)}
+    </Text>
+  </View>
 </View>
 
         {/* Signature */}
         <View style={styles.signature}>
-          <Text style={styles.signatureText}>(Signature of the Applicant)</Text>
-          {signatureSrc && <Image style={styles.signatureImage} src={signatureSrc} />}
+          {signature && (
+            <Image style={styles.signatureImage} src={signature} />
+          )}
+        </View>
+
+        {/* Line below signature */}
+        <View style={styles.singleLine}>
+          <Svg width={515} height={2}>
+            <Line x1={0} y1={1} x2={520} y2={1} stroke="#000" strokeWidth={1} />
+          </Svg>
+        </View>
+
+        {/* Approval Section */}
+        <View style={styles.approvalBlock}>
+          <Text style={styles.approvalHeader}>Office of CTP :      Approved       Not Approved</Text>
+          <Text style={styles.label}>Any Comments:</Text>
+          <View style={styles.commentLine} />
+        </View>
+
+        <View style={styles.approvalBlock}>
+          <Text style={styles.approvalHeader}>Office of Dean Academics:      Approved       Not Approved</Text>
+          <Text style={styles.label}>Any Comments:</Text>
+          <View style={styles.commentLine} />
         </View>
       </Page>
     </Document>
