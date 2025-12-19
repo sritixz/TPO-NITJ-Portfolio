@@ -6,7 +6,6 @@ import {
   updateInternship,
   lockInternshipApplication,
   deleteInternship,
-  getAllInternshipsProf
 } from '../controller/outsource-internship/lte2month.js';
 
 
@@ -17,7 +16,6 @@ import {
   updateLongTermInternship,
   lockLongTermInternshipApplication,
   deleteLongTermInternship,
-  getAllLongTermInternshipsProf
 } from '../controller/outsource-internship/gte3month.js';
 
 import {
@@ -26,6 +24,7 @@ import {
 } from "../controller/outsource-internship/lte2monthdeadline.js";
 
 import { getDocumentsOutsider } from '../controller/outsource-internship/documentOutsider.js';
+import { changeStatusgte3month, changeStatuslte2month, getAllInternshipsProf, getAllLongTermInternshipsProf, } from '../controller/outsource-internship/pdashboardInternhsips.js';
 
 const router = express.Router();
 
@@ -48,10 +47,11 @@ router.delete('/gte3month/:id', deleteLongTermInternship);
 //document fetch
 router.get('/outsiderDocument', getDocumentsOutsider);
 
-
 //pdashboard routes
-router.get('/lte2month/get',getAllInternshipsProf)
-router.get('/gte3month/get',getAllLongTermInternshipsProf)
+router.get('/lte2month/get/data',getAllInternshipsProf)
+router.get('/gte3month/get/data',getAllLongTermInternshipsProf)
+router.post('/lte2month/post/changeStatus/:id', changeStatuslte2month)
+router.post('/gte3month/post/changeStatus/:id', changeStatusgte3month)
 
 //lte2month deadline
 router.post("/lte2month/deadline", upsertLte2MonthDeadline);

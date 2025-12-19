@@ -109,6 +109,9 @@ const ltemorethan3monthInternshipSchema = new mongoose.Schema({
   locked: {
     type: Boolean,
     default: false
+  },
+  status:{
+    type: String,
   }
 }, {
   timestamps: true
