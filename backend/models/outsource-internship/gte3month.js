@@ -112,6 +112,7 @@ const ltemorethan3monthInternshipSchema = new mongoose.Schema({
   },
   status:{
     type: String,
+    default: 'Pending'
   }
 }, {
   timestamps: true

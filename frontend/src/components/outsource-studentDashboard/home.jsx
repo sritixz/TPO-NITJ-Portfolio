@@ -203,7 +203,7 @@ const OutsourceInternshipPage = () => {
   );
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8 px-4">
+    <div className="min-h-screen bg-gray-50 py-8 px-4 relative">
       <div className="max-w-2xl mx-auto">
         <h1 className="text-3xl font-bold text-center text-gray-800 mb-8">Internship <span className='text-custom-blue'>Opportunities</span></h1>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
@@ -230,6 +230,14 @@ const OutsourceInternshipPage = () => {
         </div>
         {selectedOption === 'moreThan3Months' && moreThan3MonthsContent}
         {selectedOption === 'winterSummer' && winterSummerContent}
+      </div>
+      <div className="fixed bottom-6 right-6 z-50">
+        <button
+          onClick={() => navigate("/outsourceInternship/login")}
+          className="bg-custom-blue hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-full shadow-lg hover:shadow-xl transition-all duration-200 flex items-center justify-center gap-2"
+        >
+          Login for Outsider Students
+        </button>
       </div>
     </div>
   );

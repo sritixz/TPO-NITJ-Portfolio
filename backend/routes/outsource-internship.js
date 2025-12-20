@@ -48,8 +48,8 @@ router.delete('/gte3month/:id', deleteLongTermInternship);
 router.get('/outsiderDocument', getDocumentsOutsider);
 
 //pdashboard routes
-router.get('/lte2month/get/data',getAllInternshipsProf)
-router.get('/gte3month/get/data',getAllLongTermInternshipsProf)
+router.get('/lte2month/get/data/all',getAllInternshipsProf)
+router.get('/gte3month/get/data/all',getAllLongTermInternshipsProf)
 router.post('/lte2month/post/changeStatus/:id', changeStatuslte2month)
 router.post('/gte3month/post/changeStatus/:id', changeStatusgte3month)
 

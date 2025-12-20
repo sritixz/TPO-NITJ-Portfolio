@@ -962,16 +962,17 @@ export const checkEligibility = async (req, res) => {
     if (!student || !job) {
       return res.status(404).json({ message: "Student or Job Application not found" });
     }
+
        const currentDate = new Date();
        const hasApplied = job.Applied_Students.includes(studentId);
        const isDeadlineOver = job.deadline && currentDate > job.deadline;
-    // Check for isInterested only if the field exists
+
+  // Check for isInterested only if the field exists
   if (typeof student.isInterested !== 'undefined' && student.isInterested === false) {
   return res.json({
     eligible: false,
     reason: "You were not interested during placement registration"
-  });
-   }
+  });}
 
     let updatedStudent;
     try {
@@ -1006,7 +1007,7 @@ export const checkEligibility = async (req, res) => {
       updatedStudent = student.toObject();
     }
 
-    if(updatedStudent.activeBacklogCount>3){
+    if((job.job_type==='Intern'|| job.job_type==='Intern+FTE'|| job.job_type==='Intern+PPO') && updatedStudent.activeBacklogCount>3){
       return res.json({eligible: false, reason: "You have more than 3 active backlogs"});
     }
 
@@ -1117,15 +1118,15 @@ export const checkEligibility = async (req, res) => {
       const jobCTC = +jobctc || 0;
       if(studentOfferHistory?.offer.length==1){
         if(studentOfferHistory?.offer[0].offer_type === 'Intern+FTE' || studentOfferHistory?.offer[0].offer_type === 'FTE'){
-          return res.json({ eligible: false, reason: "You have already one FTE Offer" });
+          return res.json({ eligible: false, reason: "You have already one FTE Offer", applied: hasApplied  });
         }
         else if((studentOfferHistory?.offer[0].offer_type === 'Intern' || studentOfferHistory?.offer[0].offer_type === 'Intern+PPO') && studentOfferHistory?.offer[0].offer_intern_duration > 6){
-          return res.json({ eligible: false, reason: "You have already one Offer" });
+          return res.json({ eligible: false, reason: "You have already one Offer", applied: hasApplied  });
         }
         //I am assuming when ctc is not mentioned in intern+ppo by company then it is 0
         else if((studentOfferHistory?.offer[0].offer_type === 'Intern' || studentOfferHistory?.offer[0].offer_type === 'Intern+PPO') && studentOfferHistory?.offer[0].offer_intern_duration <= 6){
           if(jobCategory==='D'){
-            return res.json({ eligible: false, reason: "You have already one similar Offer" });
+            return res.json({ eligible: false, reason: "You have already one similar Offer", applied: hasApplied  });
           }
         else if(studentOfferHistory?.offer[0].offer_category === 'A'){
             if(jobCategory === 'D' || jobCategory ==='A'){
@@ -1136,13 +1137,13 @@ export const checkEligibility = async (req, res) => {
              }
         }
        else if(studentOfferHistory?.offer[0].offer_category === 'B' && (jobCategory==='D'|| jobCategory==='C' || jobCategory==='B' || (jobCategory==='A' && jobCTC<(currentCTC+5))) ){
-          return res.json({ eligible: false, reason: "You have already B category Offer or job ctc has less diff. than expected w.r.t current offer ctc" });
+          return res.json({ eligible: false, reason: "You have already B category Offer or job ctc has less diff. than expected w.r.t current offer ctc", applied: hasApplied  });
         }
        else if(studentOfferHistory?.offer[0].offer_category === 'C' && (jobCategory==='D' || jobCategory==='C'|| (jobCategory==='A' && jobCTC<(currentCTC+3))) ){
-          return res.json({ eligible: false, reason: "You have already C category Offer or job ctc has less diff. than expected w.r.t current offer ctc" });
+          return res.json({ eligible: false, reason: "You have already C category Offer or job ctc has less diff. than expected w.r.t current offer ctc", applied: hasApplied });
         }
       else if(studentOfferHistory.offer[0].offer_category === 'D' && (jobCategory==='D' || (jobCategory==='C' && jobCTC<(currentCTC+2) ))){
-          return res.json({ eligible: false, reason: "You have already D category Offer or job ctc has less diff. than expected w.r.t current offer ctc" });
+          return res.json({ eligible: false, reason: "You have already D category Offer or job ctc has less diff. than expected w.r.t current offer ctc", applied: hasApplied  });
         }
         }
       }

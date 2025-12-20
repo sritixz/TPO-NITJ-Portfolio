@@ -383,6 +383,16 @@ const PPlacementReport = () => {
     fetchReportData(filters);
   };
 
+  const calculateMedian = (packages) => {
+    if (packages.length === 0) return 'N/A';
+    const sorted = [...packages].sort((a, b) => a - b);
+    const mid = Math.floor(sorted.length / 2);
+    if (sorted.length % 2 !== 0) {
+      return sorted[mid].toFixed(2);
+    } else {
+      return ((sorted[mid - 1] + sorted[mid]) / 2).toFixed(2);
+    }
+  };
 
 const exportToExcel = async () => {
   if (reportData.length === 0) return;
@@ -474,6 +484,415 @@ const exportToExcel = async () => {
   };
 };
 
+const createDepartmentSummarySheet = (grouped) => {
+  const sheet = workbook.addWorksheet('Department Summary');
+
+  sheet.columns = [
+    { header: 'Department', key: 'dept', width: 30 },
+    { header: 'Avg Package', key: 'avg', width: 15 },
+    { header: 'Highest Package', key: 'high', width: 15 },
+    { header: 'Lowest Package', key: 'low', width: 15 },
+    { header: 'Median Package', key: 'median', width: 15 },
+    { header: 'Double Offers', key: 'double', width: 15 },
+    { header: 'Total Offers', key: 'total', width: 15 },
+    { header: 'Unique Students', key: 'unique', width: 15 },
+    { header: 'Males', key: 'males', width: 10 },
+    { header: 'Females', key: 'females', width: 10 }
+  ];
+
+  // Apply header styling
+  const headerRow = sheet.getRow(1);
+  headerRow.eachCell((cell) => {
+    cell.fill = {
+      type: 'pattern',
+      pattern: 'solid',
+      fgColor: { argb: 'FFD3D3D3' }
+    };
+    cell.border = {
+      top: { style: 'thin', color: { argb: 'FF000000' } },
+      left: { style: 'thin', color: { argb: 'FF000000' } },
+      bottom: { style: 'thin', color: { argb: 'FF000000' } },
+      right: { style: 'thin', color: { argb: 'FF000000' } }
+    };
+  });
+
+  if (Object.keys(grouped).length === 0) {
+    return;
+  }
+
+  Object.entries(grouped).forEach(([dept, deptData]) => {
+    const rollNoMap = {};
+    deptData.forEach(s => {
+      if (!rollNoMap[s.roll_no]) rollNoMap[s.roll_no] = 0;
+      rollNoMap[s.roll_no]++;
+    });
+
+    const doubleOffers = Object.values(rollNoMap).filter(c => c > 1).length;
+    const totalOffers = deptData.length;
+    const uniqueStudents = Object.keys(rollNoMap).length;
+
+    const genderMap = {};
+    deptData.forEach(s => {
+      if (!genderMap[s.roll_no]) genderMap[s.roll_no] = s.gender;
+      console.log(deptData.map(s => s.gender));
+
+    });
+
+    let males = 0, females = 0;
+    Object.keys(genderMap).forEach(r => {
+      const g = genderMap[r];
+      if (g === 'Male' || g === 'M') males++;
+      else if (g === 'Female' || g === 'F') females++;
+    });
+
+    const packages = deptData.map(item => parseFloat(item.package)).filter(p => !isNaN(p));
+    const avgPackage = packages.length > 0 ? (packages.reduce((sum, p) => sum + p, 0) / packages.length).toFixed(2) : 'N/A';
+    const highestPackage = packages.length > 0 ? Math.max(...packages).toFixed(2) : 'N/A';
+    const lowestPackage = packages.length > 0 ? Math.min(...packages).toFixed(2) : 'N/A';
+    const medianPackage = calculateMedian(packages);
+
+    const row = sheet.addRow({
+      dept,
+      avg: avgPackage,
+      high: highestPackage,
+      low: lowestPackage,
+      median: medianPackage,
+      double: doubleOffers,
+      total: totalOffers,
+      unique: uniqueStudents,
+      males,
+      females
+    });
+
+    row.eachCell((cell) => {
+      cell.border = {
+        top: { style: 'thin', color: { argb: 'FF000000' } },
+        left: { style: 'thin', color: { argb: 'FF000000' } },
+        bottom: { style: 'thin', color: { argb: 'FF000000' } },
+        right: { style: 'thin', color: { argb: 'FF000000' } }
+      };
+    });
+  });
+
+  // Enable filter and sorting
+  sheet.autoFilter = {
+    from: { row: 1, column: 1 },
+    to: { row: 1, column: sheet.columns.length }
+  };
+};
+
+const createCompanyByDepartmentSheet = (data) => {
+  const sheet = workbook.addWorksheet('Company by Department');
+
+  const uniqueDepts = [...new Set(data.map(item => item.branch || 'Unknown'))].sort();
+  const columns = [{ header: 'Company Name', key: 'company', width: 40 }];
+  uniqueDepts.forEach(dept => {
+    const cleanKey = dept.replace(/[^a-zA-Z0-9]/g, '_');
+    columns.push({ header: dept, key: cleanKey, width: 15 });
+  });
+  sheet.columns = columns;
+
+  // Apply header styling
+  const headerRow = sheet.getRow(1);
+  headerRow.eachCell((cell) => {
+    cell.fill = {
+      type: 'pattern',
+      pattern: 'solid',
+      fgColor: { argb: 'FFD3D3D3' }
+    };
+    cell.border = {
+      top: { style: 'thin', color: { argb: 'FF000000' } },
+      left: { style: 'thin', color: { argb: 'FF000000' } },
+      bottom: { style: 'thin', color: { argb: 'FF000000' } },
+      right: { style: 'thin', color: { argb: 'FF000000' } }
+    };
+  });
+
+  if (data.length === 0 || uniqueDepts.length === 0) {
+    return;
+  }
+
+  // Get unique companies with counts per dept (case-insensitive)
+  const companyDeptCounts = {};
+  data.forEach(item => {
+    const compLower = (item.company || 'Unknown').toLowerCase();
+    const displayComp = item.company || 'Unknown';
+    const dept = item.branch || 'Unknown';
+    if (!companyDeptCounts[compLower]) {
+      companyDeptCounts[compLower] = { display: displayComp, counts: {} };
+    }
+    if (!companyDeptCounts[compLower].counts[dept]) {
+      companyDeptCounts[compLower].counts[dept] = 0;
+    }
+    companyDeptCounts[compLower].counts[dept]++;
+  });
+
+  // Sort companies alphabetically by lower key
+  const sortedCompanies = Object.keys(companyDeptCounts).sort((a, b) => a.localeCompare(b));
+
+  sortedCompanies.forEach(key => {
+    const info = companyDeptCounts[key];
+    const rowData = { company: info.display };
+    uniqueDepts.forEach(dept => {
+      const cleanKey = dept.replace(/[^a-zA-Z0-9]/g, '_');
+      rowData[cleanKey] = info.counts[dept] || 0;
+    });
+    const row = sheet.addRow(rowData);
+    row.eachCell((cell) => {
+      cell.border = {
+        top: { style: 'thin', color: { argb: 'FF000000' } },
+        left: { style: 'thin', color: { argb: 'FF000000' } },
+        bottom: { style: 'thin', color: { argb: 'FF000000' } },
+        right: { style: 'thin', color: { argb: 'FF000000' } }
+      };
+    });
+  });
+
+  // Enable filter and sorting
+  sheet.autoFilter = {
+    from: { row: 1, column: 1 },
+    to: { row: 1, column: sheet.columns.length }
+  };
+};
+
+const createCompleteSheet = (data) => {
+  const sheet = workbook.addWorksheet('Complete');
+
+  sheet.columns = [
+    { header: 'Sr.No', key: 'sr_no', width: 10 },
+    { header: 'Roll No.', key: 'roll_no', width: 15 },
+    { header: 'Name', key: 'name', width: 20 },
+    { header: 'Branch', key: 'branch', width: 30 },
+    { header: 'Gender', key: 'gender', width: 10 },
+    { header: 'Category', key: 'category', width: 15 },
+    { header: 'Date Result', key: 'date_result', width: 15 },
+    { header: 'Profile', key: 'profile', width: 20 },
+    { header: 'Company', key: 'company', width: 20 },
+    { header: 'Package (LPA)', key: 'package', width: 15 },
+    { header: 'Student Status', key: 'student_status', width: 20 }
+  ];
+
+  // Apply header styling
+  const headerRow = sheet.getRow(1);
+  headerRow.eachCell((cell) => {
+    cell.fill = {
+      type: 'pattern',
+      pattern: 'solid',
+      fgColor: { argb: 'FFD3D3D3' } // light gray
+    };
+    cell.border = {
+      top: { style: 'thin', color: { argb: 'FF000000' } },
+      left: { style: 'thin', color: { argb: 'FF000000' } },
+      bottom: { style: 'thin', color: { argb: 'FF000000' } },
+      right: { style: 'thin', color: { argb: 'FF000000' } }
+    };
+  });
+
+  if (data.length === 0) {
+    // Apply borders to header only
+    headerRow.eachCell((cell) => {
+      cell.border = {
+        top: { style: 'thin', color: { argb: 'FF000000' } },
+        left: { style: 'thin', color: { argb: 'FF000000' } },
+        bottom: { style: 'thin', color: { argb: 'FF000000' } },
+        right: { style: 'thin', color: { argb: 'FF000000' } }
+      };
+    });
+    return;
+  }
+
+  // Sort data by company (case-insensitive)
+  const sortedData = [...data].sort((a, b) => (a.company || '').toLowerCase().localeCompare((b.company || '').toLowerCase()));
+
+  // Build rows
+  let rowsToAdd = [];
+  let currentCompanyLower = null;
+  let srNo = 1;
+
+  for (let i = 0; i < sortedData.length; ) {
+    const item = sortedData[i];
+    const companyLower = (item.company || 'Unknown').toLowerCase();
+    const displayCompany = item.company || 'Unknown';
+
+    if (companyLower !== currentCompanyLower) {
+      currentCompanyLower = companyLower;
+      // Add company header row data
+      rowsToAdd.push({
+        companyHeader: `Company: ${displayCompany}`
+      });
+    }
+
+    // Add data row
+    rowsToAdd.push({
+      sr_no: srNo++,
+      roll_no: item.roll_no,
+      name: item.name,
+      branch: item.branch,
+      gender: item.gender,
+      category: item.category,
+      date_result: item.date_result,
+      profile: item.profile,
+      company: item.company,
+      package: item.package,
+      student_status: item.student_status,
+      isDoublePlaced: item.isDoublePlaced
+    });
+
+    i++;
+  }
+
+  // Add rows to sheet
+  rowsToAdd.forEach((rowData) => {
+    if (rowData.companyHeader) {
+      // Company header row
+      const rowValues = new Array(11).fill('');
+      rowValues[0] = rowData.companyHeader;
+      const row = sheet.addRow(rowValues);
+
+      const firstCell = row.getCell(1);
+      firstCell.font = { bold: true, size: 14, color: { argb: 'FF000000' } };
+      firstCell.fill = {
+        type: 'pattern',
+        pattern: 'solid',
+        fgColor: { argb: 'FFD3D3D3' } // light gray
+      };
+      firstCell.alignment = { horizontal: 'left', vertical: 'middle' };
+
+      // Merge cells
+      sheet.mergeCells(sheet.lastRow.number, 1, sheet.lastRow.number, 11);
+    } else {
+      // Data row
+      const row = sheet.addRow({
+        sr_no: rowData.sr_no,
+        roll_no: rowData.roll_no,
+        name: rowData.name,
+        branch: rowData.branch,
+        gender: rowData.gender,
+        category: rowData.category,
+        date_result: rowData.date_result,
+        profile: rowData.profile,
+        company: rowData.company,
+        package: rowData.package,
+        student_status: rowData.student_status
+      });
+
+      if (rowData.isDoublePlaced) {
+        row.eachCell((cell) => {
+          cell.fill = {
+            type: 'pattern',
+            pattern: 'solid',
+            fgColor: { argb: '228B22' }
+          };
+        });
+      }
+    }
+  });
+
+  // Set borders for all cells (including header and company headers)
+  sheet.eachRow((row) => {
+    row.eachCell({ includeEmpty: true }, (cell) => {
+      cell.border = {
+        top: { style: 'thin', color: { argb: 'FF000000' } },
+        left: { style: 'thin', color: { argb: 'FF000000' } },
+        bottom: { style: 'thin', color: { argb: 'FF000000' } },
+        right: { style: 'thin', color: { argb: 'FF000000' } }
+      };
+    });
+  });
+
+  // Enable filter and sorting on header row
+  sheet.autoFilter = {
+    from: {
+      row: 1,
+      column: 1
+    },
+    to: {
+      row: 1,
+      column: sheet.columns.length
+    }
+  };
+};
+
+const createAllCompaniesSheet = (data) => {
+  const sheet = workbook.addWorksheet('All companies');
+
+  sheet.columns = [
+    { header: 'Company Name', key: 'company', width: 40 },
+    { header: 'Number of Offers', key: 'count', width: 15 }
+  ];
+
+  // Apply header styling
+  const headerRow = sheet.getRow(1);
+  headerRow.eachCell((cell) => {
+    cell.fill = {
+      type: 'pattern',
+      pattern: 'solid',
+      fgColor: { argb: 'FFD3D3D3' } // light gray
+    };
+    cell.border = {
+      top: { style: 'thin', color: { argb: 'FF000000' } },
+      left: { style: 'thin', color: { argb: 'FF000000' } },
+      bottom: { style: 'thin', color: { argb: 'FF000000' } },
+      right: { style: 'thin', color: { argb: 'FF000000' } }
+    };
+  });
+
+  if (data.length === 0) {
+    // Apply borders to header only
+    headerRow.eachCell((cell) => {
+      cell.border = {
+        top: { style: 'thin', color: { argb: 'FF000000' } },
+        left: { style: 'thin', color: { argb: 'FF000000' } },
+        bottom: { style: 'thin', color: { argb: 'FF000000' } },
+        right: { style: 'thin', color: { argb: 'FF000000' } }
+      };
+    });
+    return;
+  }
+
+  // Get unique companies with counts (case-insensitive)
+  const companyCounts = data.reduce((acc, item) => {
+    const compLower = (item.company || 'Unknown').toLowerCase();
+    const displayComp = item.company || 'Unknown';
+    if (!acc[compLower]) {
+      acc[compLower] = { count: 0, display: displayComp };
+    }
+    acc[compLower].count += 1;
+    return acc;
+  }, {});
+
+  // Sort companies alphabetically by lower key
+  const sortedCompanies = Object.keys(companyCounts).sort((a, b) => a.localeCompare(b)).map(key => ({
+    company: companyCounts[key].display,
+    count: companyCounts[key].count
+  }));
+
+  // Add rows
+  sortedCompanies.forEach(({ company, count }) => {
+    const row = sheet.addRow({ company, count });
+    row.eachCell((cell) => {
+      cell.border = {
+        top: { style: 'thin', color: { argb: 'FF000000' } },
+        left: { style: 'thin', color: { argb: 'FF000000' } },
+        bottom: { style: 'thin', color: { argb: 'FF000000' } },
+        right: { style: 'thin', color: { argb: 'FF000000' } }
+      };
+    });
+  });
+
+  // Enable filter and sorting
+  sheet.autoFilter = {
+    from: {
+      row: 1,
+      column: 1
+    },
+    to: {
+      row: 1,
+      column: sheet.columns.length
+    }
+  };
+};
+
 
   if (filters.department) {
     createSheetWithData(filters.department, reportData);
@@ -487,6 +906,10 @@ const exportToExcel = async () => {
     Object.entries(grouped).forEach(([dept, data]) => {
       createSheetWithData(dept, data);
     });
+    createDepartmentSummarySheet(grouped);
+    createCompanyByDepartmentSheet(reportData);
+    createCompleteSheet(reportData);
+    createAllCompaniesSheet(reportData);
   }
 
   const buffer = await workbook.xlsx.writeBuffer();

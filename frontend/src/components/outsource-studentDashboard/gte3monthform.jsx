@@ -451,13 +451,13 @@ const GTE3MonthForm = () => {
                       <span>Edit</span>
                     </button>
                   )}
-                  <button
+                  {/* <button
                     onClick={() => handlePreview(app)}
                     className="flex items-center space-x-1 text-sm text-custom-blue hover:text-white px-3 py-1 rounded-md border border-custom-blue hover:bg-custom-blue transition duration-300"
                   >
                     <FaEye />
                     <span>Preview</span>
-                  </button>
+                  </button> */}
                   {!isLocked ? (
                     <>
                       <button

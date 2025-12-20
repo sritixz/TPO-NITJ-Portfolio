@@ -348,6 +348,7 @@ page.drawLine({
         highlightPhrases: ['IAC Coordinator'],
         x: leftX,
         y: signatureY,
+        size: 11,
       });
       drawText(`${noc.department}`, {
         font: englishFont,
@@ -355,6 +356,7 @@ page.drawLine({
         highlightPhrases: [`${noc.department}`],
         x: leftX,
         y: signatureY - 18,
+        size: 11,
       });
       drawText('NIT JALANDHAR', {
         font: englishFont,
@@ -362,66 +364,82 @@ page.drawLine({
         highlightPhrases: ['NIT JALANDHAR'],
         x: leftX,
         y: signatureY - 36,
+        size: 11,
       });
 
-      // Internship Coordinator block
-      drawText('Internship Coordinator', {
-        font: englishFont,
-        boldFont: englishBoldFont,
-        highlightPhrases: ['Internship Coordinator'],
-        x: rightX,
-        y: signatureY,
-      });
-      drawText('Training & Placement Cell', {
-        font: englishFont,
-        boldFont: englishBoldFont,
-        highlightPhrases: ['Training & Placement Cell'],
-        x: rightX,
-        y: signatureY - 18,
-      });
-      drawText('NIT JALANDHAR', {
-        font: englishFont,
-        boldFont: englishBoldFont,
-        highlightPhrases: ['NIT JALANDHAR'],
-        x: rightX,
-        y: signatureY - 36,
-      });
-
-
-      drawLine(12);
-
+      
       // Signature HEAD OF DEPARTMENT
       drawText('HEAD OF DEPARTMENT', {
         font: englishFont,
         boldFont: englishBoldFont,
         highlightPhrases: ['HEAD OF DEPARTMENT'],
+        x: rightX-40,
+        y: signatureY,
+        size: 11,
       });
       drawText(`${noc.department}`, {
         font: englishFont,
         boldFont: englishBoldFont,
         highlightPhrases: [`${noc.department}`],
+        x: rightX-40,
+        y: signatureY - 18,
+        size: 11,
       });
       drawText('NIT JALANDHAR', {
         font: englishFont,
         boldFont: englishBoldFont,
         highlightPhrases: ['NIT JALANDHAR'],
+         x: rightX-40,
+        y: signatureY - 36,
+        size: 11,
       });
+
+      
+      drawLine(12);
+      // Internship Coordinator block
+      drawText('Internship Coordinator', {
+        font: englishFont,
+        boldFont: englishBoldFont,
+        highlightPhrases: ['Internship Coordinator'],
+        size: 11,
+    
+      });
+      drawText('Training & Placement Cell', {
+        font: englishFont,
+        boldFont: englishBoldFont,
+        highlightPhrases: ['Training & Placement Cell'],
+        size: 11,
+      
+      });
+      drawText('NIT JALANDHAR', {
+        font: englishFont,
+        boldFont: englishBoldFont,
+        highlightPhrases: ['NIT JALANDHAR'],
+        size: 11,
+     
+      });
+
+
+
     } else {
       // Original signature
       drawText('HEAD OF DEPARTMENT', {
         font: englishFont,
         boldFont: englishBoldFont,
         highlightPhrases: ['HEAD OF DEPARTMENT'],
+        size: 12,
       });
       drawText(`${noc.department}`, {
         font: englishFont,
         boldFont: englishBoldFont,
         highlightPhrases: [`${noc.department}`],
+        size: 12,
       });
        drawText('NIT JALANDHAR', {
         font: englishFont,
         boldFont: englishBoldFont,
         highlightPhrases: ['NIT JALANDHAR'],
+        size: 12,
       });
     }
     drawLine(6);

@@ -77,6 +77,9 @@ const studentSchema = new mongoose.Schema({
   image: {
     type: String,
     },
+  offerLetter:{
+    type:String
+  },
   placementstatus: {
         type: String,
         default:'Not Placed',
@@ -99,6 +102,12 @@ const studentSchema = new mongoose.Schema({
   otp: {
     type: String
   },
+  erpLastUpdated: {
+    type: Date,
+    default: null,
+    index: true,
+  },
+
 }, { timestamps: true });
 
 const Student = mongoose.model('Student', studentSchema);
