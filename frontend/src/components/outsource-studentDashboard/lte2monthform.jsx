@@ -539,11 +539,20 @@ const LTE2MonthForm = () => {
               >
                 <div className="flex justify-between items-center mb-2">
                   <p className="text-xs font-semibold text-gray-900">Faculty: <span className='text-gray-500'>{app.proposedFacultyMember}</span></p>
-                  <span className={`text-sm font-medium px-2 py-1 rounded-full ${
-                    isLocked ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'
-                  }`}>
-                    {isLocked ? 'Locked' : 'Pending'}
-                  </span>
+                  <span
+  className={`text-sm font-medium px-2 py-1 rounded-full ${
+    app.status === 'pending'
+      ? 'bg-yellow-100 text-yellow-800'
+      : app.status === 'approved'
+      ? 'bg-green-100 text-green-800'
+      : app.status === 'rejected'
+      ? 'bg-red-100 text-red-800'
+      : 'bg-gray-100 text-gray-800'
+  }`}
+>
+  {app.status}
+</span>
+
                 </div>
                     <p className="text-xs font-semibold text-gray-900">Department: <span className='text-gray-500'>{app.departmentAppliedFor}</span></p>
                 {/* <p className="bg-custom-blue/10 rounded-lg p-1 text-custom-blue text-xs font-semibold inline-block"># {app._id.slice(-6)}</p> */}
@@ -557,13 +566,13 @@ const LTE2MonthForm = () => {
                       <span>Edit</span>
                     </button>
                   )}
-                  <button
+                  {/* <button
                     onClick={() => handlePreview(app)}
                     className="flex items-center space-x-1 text-sm text-custom-blue hover:text-white px-3 py-1 rounded-md border border-custom-blue hover:bg-custom-blue transition duration-300"
                   >
                     <FaEye />
                     <span>Preview</span>
-                  </button>
+                  </button> */}
                   {!isLocked ? (
                     <>
                       <button

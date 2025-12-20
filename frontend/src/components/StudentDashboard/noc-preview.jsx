@@ -9,7 +9,7 @@ const NOCPreview = ({ noc, onClose }) => {
 
   const handleDocumentClick = (filePath) => {
     if (filePath) {
-      window.open(`${baseURL}${filePath}`, '_blank');
+      window.open(`${baseURL}/${filePath}`, '_blank');
     }
   };
 
@@ -213,7 +213,7 @@ const NOCPreview = ({ noc, onClose }) => {
                   {noc.signature ? (
                     <div className="flex flex-col items-center gap-2">
                       <img 
-                        src={`${baseURL}${noc.signature}`} 
+                        src={`${baseURL}/${noc.signature}`} 
                         alt="Student Signature" 
                         className="max-w-full max-h-32 object-contain border border-gray-300 rounded"
                         onClick={() => handleDocumentClick(noc.signature)}
@@ -237,7 +237,7 @@ const NOCPreview = ({ noc, onClose }) => {
             <div className="bg-gradient-to-br from-blue-50 to-white rounded-xl p-6 border border-blue-100 shadow-sm">
               <h2 className="text-2xl font-bold text-gray-800 mb-4 text-center">Generated NOC Letter</h2>
               <iframe
-                src={`${baseURL}${noc.nocLetter}`}
+                src={`${baseURL}/${noc.nocLetter}`}
                 width="100%"
                 height="600px"
                 className="border-2 border-blue-200 rounded-lg shadow-inner"

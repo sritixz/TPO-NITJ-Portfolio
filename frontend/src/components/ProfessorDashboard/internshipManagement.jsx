@@ -1,18 +1,26 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
+import { FaEye, FaFastBackward, FaFastForward, FaSearch, FaTimes } from "react-icons/fa";
+import { Info } from "lucide-react";
 
 const FILTERS = {
   SHORT: "lte2month",
   LONG: "gte3month",
 };
 
-const STATUSES = ["pending", "verified", "rejected"];
+const STATUSES = ["pending", "approved", "rejected"];
 
 export default function InternshipsManagement() {
-  const [internships, setInternships] = useState([]);
+  const [allInternships, setAllInternships] = useState([]);
+  const [displayedInternships, setDisplayedInternships] = useState([]);
   const [activeFilter, setActiveFilter] = useState(FILTERS.SHORT);
   const [activeStatus, setActiveStatus] = useState("pending");
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [toast, setToast] = useState({ show: false, message: '', type: 'info' });
+  const [searchQuery, setSearchQuery] = useState('');
+  const [showDetailsPopup, setShowDetailsPopup] = useState(false);
   const [selectedItem, setSelectedItem] = useState(null);
 
   /* ===== LTE DEADLINE STATE ===== */
@@ -22,23 +30,77 @@ export default function InternshipsManagement() {
   const [deadlineLoading, setDeadlineLoading] = useState(false);
 
   const BASE_URL = import.meta.env.REACT_APP_BASE_URL;
+  const internshipsPerPage = 9; // 3 per row on lg
 
-  /* ================= FETCH INTERNSHIPS ================= */
-  const fetchInternships = async (filter) => {
+  // Show toast
+  const showToast = (message, type = 'info') => {
+    setToast({ show: true, message, type });
+    setTimeout(() => setToast({ show: false, message: '', type: 'info' }), 3000);
+  };
+
+  // Fetch all internships for client-side filtering/pagination
+  const fetchAllInternships = async () => {
     setLoading(true);
     try {
-      const res = await axios.get(
-        `${BASE_URL}/outsource-internships/${filter}/get/data`,
-        { withCredentials: true }
-      );
-      setInternships(res.data?.data || []);
+      // Fetch without status filter to get all, then filter client-side
+      const shortEndpoint = `${BASE_URL}/outsource-internships/lte2month/get/data/all`;
+      const longEndpoint = `${BASE_URL}/outsource-internships/gte3month/get/data/all`;
+
+      // Assuming backend supports /all or adjust if needed; for now, fetch both
+      const [shortRes, longRes] = await Promise.all([
+        axios.get(shortEndpoint, { withCredentials: true }),
+        axios.get(longEndpoint, { withCredentials: true }),
+      ]);
+
+      const allData = [
+        ... (shortRes.data?.data || []),
+        ... (longRes.data?.data || [])
+      ].map(item => ({
+        ...item,
+        filterType: item.filterType || (item.departmentAppliedFor ? FILTERS.SHORT : FILTERS.LONG) // Assume based on fields
+      }));
+
+      setAllInternships(allData);
     } catch (err) {
       console.error("Fetch error", err);
-      setInternships([]);
+      showToast("Failed to fetch internships. Please try again!", 'error');
+      setAllInternships([]);
     } finally {
       setLoading(false);
     }
   };
+
+  // Update displayed internships based on filters/search/page
+  const updateDisplayedInternships = () => {
+    let filtered = allInternships.filter(item => item.filterType === activeFilter);
+    filtered = filtered.filter(item => item.status === activeStatus);
+    if (searchQuery) {
+      filtered = filtered.filter(item =>
+        item.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        item.ApplicantName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        item.departmentAppliedFor?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        item.department?.toLowerCase().includes(searchQuery.toLowerCase())
+      );
+    }
+
+    const total = filtered.length;
+    setTotalPages(Math.ceil(total / internshipsPerPage));
+    const startIdx = (currentPage - 1) * internshipsPerPage;
+    const endIdx = startIdx + internshipsPerPage;
+    setDisplayedInternships(filtered.slice(startIdx, endIdx));
+  };
+
+  useEffect(() => {
+    fetchAllInternships();
+  }, []);
+
+  useEffect(() => {
+    setCurrentPage(1);
+    updateDisplayedInternships();
+    if (activeFilter === FILTERS.SHORT) {
+      fetchLteDeadlineStatus();
+    }
+  }, [activeFilter, activeStatus, searchQuery, allInternships]);
 
   /* ================= CHANGE STATUS ================= */
   const changeStatus = async (id, status) => {
@@ -48,9 +110,11 @@ export default function InternshipsManagement() {
         { status },
         { withCredentials: true }
       );
-      fetchInternships(activeFilter);
+      setAllInternships(prev => prev.map(item => item._id === id ? { ...item, status } : item));
+      showToast(`Status updated to ${status}!`, 'success');
     } catch (err) {
       console.error("Status change error", err);
+      showToast("Failed to update status", 'error');
     }
   };
 
@@ -78,8 +142,10 @@ export default function InternshipsManagement() {
       );
       setDeadlineInput("");
       fetchLteDeadlineStatus();
+      showToast("Deadline updated successfully!", 'success');
     } catch (err) {
       console.error("Deadline update error", err);
+      showToast("Failed to update deadline", 'error');
     } finally {
       setDeadlineLoading(false);
     }
@@ -87,51 +153,177 @@ export default function InternshipsManagement() {
 
   /* ===== CLOSE NOW (Irrespective of Deadline) ===== */
   const closeLteNow = async () => {
+    if (!window.confirm("Are you sure you want to close applications now?")) return;
     const pastDate = new Date(Date.now() - 1000).toISOString();
     await updateLteDeadline(pastDate);
   };
 
-  /* ================= EFFECT ================= */
-  useEffect(() => {
-    fetchInternships(activeFilter);
+  // Handle search
+  const handleSearch = (e) => {
+    setSearchQuery(e.target.value);
+  };
 
-    if (activeFilter === FILTERS.SHORT) {
-      fetchLteDeadlineStatus();
+  // Show details popup
+  const handleShowDetails = (item) => {
+    setSelectedItem(item);
+    setShowDetailsPopup(true);
+  };
+
+  // Close details popup
+  const handleClosePopup = () => {
+    setShowDetailsPopup(false);
+    setSelectedItem(null);
+  };
+
+  // Handle page change
+  const handlePageChange = (page) => {
+    if (page >= 1 && page <= totalPages) {
+      setCurrentPage(page);
     }
-  }, [activeFilter]);
+  };
 
-  const filteredInternships = internships.filter(
-    (item) => item.status === activeStatus
+  // Handle jump to page
+  const handleJumpToPage = (e) => {
+    const page = parseInt(e.target.value, 10);
+    if (!isNaN(page) && page >= 1 && page <= totalPages) {
+      setCurrentPage(page);
+    }
+  };
+
+  const renderStatusTabs = () => (
+    <div className={`flex justify-center space-x-1 border-b border-gray-200 ${activeFilter === FILTERS.SHORT ? 'ml-8 pl-4' : 'ml-4'}`}>
+      {STATUSES.map((status) => (
+        <button
+          key={status}
+          onClick={() => setActiveStatus(status)}
+          className={`py-2 px-4 font-medium text-sm rounded-t-lg transition-colors ${
+            activeStatus === status
+              ? 'border-b-2 border-custom-blue text-custom-blue'
+              : 'text-gray-500 hover:text-gray-700'
+          }`}
+        >
+          {status.charAt(0).toUpperCase() + status.slice(1)}
+        </button>
+      ))}
+    </div>
   );
 
+  const startRange = (currentPage - 1) * internshipsPerPage + 1;
+  const endRange = Math.min(currentPage * internshipsPerPage, displayedInternships.length);
+  const totalItems = displayedInternships.length;
+  const maxPagesToShow = 5;
+  const halfPagesToShow = Math.floor(maxPagesToShow / 2);
+  let startPage = Math.max(1, currentPage - halfPagesToShow);
+  let endPage = Math.min(totalPages, startPage + maxPagesToShow - 1);
+  if (endPage - startPage + 1 < maxPagesToShow) {
+    startPage = Math.max(1, endPage - maxPagesToShow + 1);
+  }
+  const pageNumbers = [];
+  for (let i = startPage; i <= endPage; i++) {
+    pageNumbers.push(i);
+  }
+
+  const renderInternshipCard = (item) => {
+    const isShort = activeFilter === FILTERS.SHORT;
+    return (
+      <div
+        key={item._id}
+        className="p-6 bg-white rounded-xl shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition-all duration-300 border border-gray-100 relative"
+      >
+                <span
+          className={`absolute top-3 right-3 text-xs px-2 py-1 rounded ${
+            item.status === "approved"
+              ? "bg-green-100 text-green-700"
+              : item.status === "rejected"
+              ? "bg-red-100 text-red-700"
+              : "bg-yellow-100 text-yellow-700"
+          }`}
+        >
+          {item.status.toUpperCase()}
+        </span>
+        <h3 className="text-lg font-semibold text-gray-900">
+          {isShort ? item.name : item.ApplicantName}
+        </h3>
+        <p className="text-xs text-gray-600 mt-2">
+          Dept: {isShort ? item.departmentAppliedFor : item.department}
+        </p>
+        <p className="text-xs text-gray-600 mt-1">
+          Faculty: {isShort ? item.proposedFacultyMember : item.facultySupervisor}
+        </p>
+        <div className="flex flex-wrap gap-2 mt-4">
+          <button
+            onClick={() => changeStatus(item._id, "pending")}
+            className="flex items-center space-x-1 text-sm text-yellow-600 hover:text-white px-3 py-1 rounded-md border border-yellow-600 hover:bg-yellow-600 transition duration-300"
+          >
+            <span>Pending</span>
+          </button>
+          <button
+            onClick={() => changeStatus(item._id, "approved")}
+            className="flex items-center space-x-1 text-sm text-green-600 hover:text-white px-3 py-1 rounded-md border border-green-600 hover:bg-green-600 transition duration-300"
+          >
+            <span>Approve</span>
+          </button>
+          <button
+            onClick={() => changeStatus(item._id, "rejected")}
+            className="flex items-center space-x-1 text-sm text-red-600 hover:text-white px-3 py-1 rounded-md border border-red-600 hover:bg-red-600 transition duration-300"
+          >
+            <span>Reject</span>
+          </button>
+        </div>
+      </div>
+    );
+  };
+
   return (
-    <div className="p-6">
+    <div className="container mx-auto p-6 min-h-screen">
+      {toast.show && (
+        <div
+          className={`fixed top-4 right-4 p-4 rounded-lg shadow-lg animate-fade-in-out z-[1000] ${
+            toast.type === 'error'
+              ? 'bg-white border border-red-500 text-red-500'
+              : toast.type === 'success'
+              ? 'bg-white border border-green-500 text-green-500'
+              : 'bg-white border border-custom-blue text-custom-blue'
+          }`}
+        >
+          {toast.message}
+        </div>
+      )}
+
       {/* ================= HEADER ================= */}
-      <div className="flex justify-between items-center mb-6">
-        <h2 className="text-2xl font-semibold">Internship Applications</h2>
-
-        <div className="flex gap-2">
-          <button
-            onClick={() => setActiveFilter(FILTERS.SHORT)}
-            className={`px-4 py-2 rounded ${
-              activeFilter === FILTERS.SHORT
-                ? "bg-blue-600 text-white"
-                : "bg-gray-200"
-            }`}
-          >
-            Winter / Summer
-          </button>
-
-          <button
-            onClick={() => setActiveFilter(FILTERS.LONG)}
-            className={`px-4 py-2 rounded ${
-              activeFilter === FILTERS.LONG
-                ? "bg-blue-600 text-white"
-                : "bg-gray-200"
-            }`}
-          >
-            Long Term
-          </button>
+      <div className="flex sm:flex-row flex-col justify-between items-center p-2 rounded-t-lg bg-white mb-6">
+        <h2 className="text-3xl font-bold flex items-center space-x-3 text-gray-900">
+          <span>Internship <span className="text-custom-blue">Management</span></span>
+        </h2>
+        <div className="flex items-center space-x-3 mt-4 sm:mt-0">
+          <div className="relative">
+            <FaSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={16} />
+            <input
+              type="text"
+              placeholder="Search by Name or Dept..."
+              value={searchQuery}
+              onChange={handleSearch}
+              className="pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-custom-blue"
+            />
+          </div>
+          <div className="flex border border-gray-300 rounded-3xl bg-white">
+            <button
+              onClick={() => setActiveFilter(FILTERS.SHORT)}
+              className={`px-4 py-2 rounded-3xl ${
+                activeFilter === FILTERS.SHORT ? 'bg-custom-blue text-white' : 'bg-white text-gray-700'
+              }`}
+            >
+              Winter / Summer
+            </button>
+            <button
+              onClick={() => setActiveFilter(FILTERS.LONG)}
+              className={`px-4 py-2 rounded-3xl ${
+                activeFilter === FILTERS.LONG ? 'bg-custom-blue text-white' : 'bg-white text-gray-700'
+              }`}
+            >
+              Long Term
+            </button>
+          </div>
         </div>
       </div>
 
@@ -172,7 +364,7 @@ export default function InternshipsManagement() {
               className={`px-4 py-2 text-sm rounded text-white ${
                 deadlineLoading
                   ? "bg-gray-400"
-                  : "bg-blue-600 hover:bg-blue-700"
+                  : "bg-custom-blue hover:bg-blue-700"
               }`}
             >
               Set Deadline
@@ -189,104 +381,88 @@ export default function InternshipsManagement() {
         </div>
       )}
 
-      {/* ================= STATUS TABS ================= */}
-      <div className="flex gap-3 mb-6">
-        {STATUSES.map((status) => (
-          <button
-            key={status}
-            onClick={() => setActiveStatus(status)}
-            className={`px-4 py-2 rounded text-sm font-medium ${
-              activeStatus === status
-                ? "bg-black text-white"
-                : "bg-gray-200 text-gray-700"
-            }`}
-          >
-            {status.toUpperCase()}
-          </button>
-        ))}
-      </div>
+      {renderStatusTabs()}
 
-      {loading && <p className="text-center">Loading...</p>}
-
-      {!loading && filteredInternships.length === 0 && (
-        <p className="text-center text-gray-500">
-          No {activeStatus} applications.
-        </p>
-      )}
-
-      {/* ================= CARDS ================= */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        {filteredInternships.map((item) => (
-          <div
-            key={item._id}
-            className="bg-white shadow rounded-xl p-5 flex flex-col justify-between"
-          >
-            <div>
-              <h3 className="text-lg font-semibold">
-                {activeFilter === FILTERS.SHORT
-                  ? item.name
-                  : item.ApplicantName}
-              </h3>
-
-              <p className="text-sm text-gray-600">
-                Dept:{" "}
-                {activeFilter === FILTERS.SHORT
-                  ? item.departmentAppliedFor
-                  : item.department}
-              </p>
-
-              <p className="text-sm text-gray-600 mb-2">
-                Faculty:{" "}
-                {activeFilter === FILTERS.SHORT
-                  ? item.proposedFacultyMember
-                  : item.facultySupervisor}
-              </p>
-
-              <span
-                className={`text-xs px-2 py-1 rounded ${
-                  item.status === "verified"
-                    ? "bg-green-100 text-green-700"
-                    : item.status === "rejected"
-                    ? "bg-red-100 text-red-700"
-                    : "bg-yellow-100 text-yellow-700"
+      {loading ? (
+        <div className="flex items-center justify-center min-h-[400px]">
+          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-custom-blue"></div>
+        </div>
+      ) : displayedInternships.length === 0 ? (
+        <p className="text-gray-600 italic text-center">No {activeStatus} applications available.</p>
+      ) : (
+        <>
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {displayedInternships.map(renderInternshipCard)}
+          </div>
+          <div className="flex items-center justify-between mt-6">
+            <span className="text-gray-600">
+              {startRange} - {endRange} / {totalItems}
+            </span>
+            <div className="flex items-center space-x-2">
+              <button
+                onClick={() => handlePageChange(1)}
+                disabled={currentPage === 1}
+                className={`px-2 py-1 rounded-md ${
+                  currentPage === 1 ? 'text-gray-400 cursor-not-allowed' : 'text-custom-blue hover:bg-custom-blue/10'
                 }`}
               >
-                {item.status}
-              </span>
-            </div>
-
-            <div className="mt-4 space-y-2">
-              <button
-                onClick={() => setSelectedItem(item)}
-                className="text-blue-600 text-sm hover:underline block"
-              >
-                View Details
+                <FaFastBackward />
               </button>
-
-              <div className="flex gap-2">
+              <button
+                onClick={() => handlePageChange(currentPage - 1)}
+                disabled={currentPage === 1}
+                className={`px-2 py-1 rounded-md ${
+                  currentPage === 1 ? 'text-gray-400 cursor-not-allowed' : 'text-custom-blue hover:bg-blue-100'
+                }`}
+              >
+                ◄
+              </button>
+              {pageNumbers.map((page) => (
                 <button
-                  onClick={() => changeStatus(item._id, "pending")}
-                  className="px-2 py-1 text-xs bg-yellow-500 text-white rounded"
+                  key={page}
+                  onClick={() => handlePageChange(page)}
+                  className={`px-3 py-1 rounded-md ${
+                    currentPage === page
+                      ? 'border border-custom-blue text-custom-blue'
+                      : 'text-custom-blue hover:bg-custom-blue/10'
+                  }`}
                 >
-                  Pending
+                  {page}
                 </button>
-                <button
-                  onClick={() => changeStatus(item._id, "verified")}
-                  className="px-2 py-1 text-xs bg-green-600 text-white rounded"
-                >
-                  Verify
-                </button>
-                <button
-                  onClick={() => changeStatus(item._id, "rejected")}
-                  className="px-2 py-1 text-xs bg-red-600 text-white rounded"
-                >
-                  Reject
-                </button>
+              ))}
+              <button
+                onClick={() => handlePageChange(currentPage + 1)}
+                disabled={currentPage === totalPages}
+                className={`px-2 py-1 rounded-md ${
+                  currentPage === totalPages ? 'text-gray-400 cursor-not-allowed' : 'text-custom-blue hover:bg-blue-100'
+                }`}
+              >
+                ►
+              </button>
+              <button
+                onClick={() => handlePageChange(totalPages)}
+                disabled={currentPage === totalPages}
+                className={`px-2 py-1 rounded-md ${
+                  currentPage === totalPages ? 'text-gray-400 cursor-not-allowed' : 'text-custom-blue hover:bg-blue-100'
+                }`}
+              >
+                <FaFastForward />
+              </button>
+              <div className="flex items-center space-x-2">
+                <span className="text-gray-600">Jump to</span>
+                <input
+                  type="number"
+                  min="1"
+                  max={totalPages}
+                  value={currentPage}
+                  onChange={handleJumpToPage}
+                  className="w-16 px-2 py-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-custom-blue"
+                />
               </div>
             </div>
           </div>
-        ))}
-      </div>
+        </>
+      )}
     </div>
   );
 }
