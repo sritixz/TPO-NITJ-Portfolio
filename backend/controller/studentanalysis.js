@@ -57,7 +57,7 @@ export const getStudentAnalytics = async (req, res) => {
     const erpDataMap = new Map();
 
     // Batch size for ERP calls — you can tune this as needed
-    const BATCH_SIZE = 50;
+    const BATCH_SIZE = 100;
     const batches = chunkArray(rollNumbers, BATCH_SIZE);
 
     // try {
