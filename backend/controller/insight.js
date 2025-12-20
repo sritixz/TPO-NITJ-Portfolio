@@ -788,10 +788,9 @@ export const getOfferInsights = async (req, res) => {
       const staleRollNumbers = staleStudents.map(s => s.rollno).filter(Boolean);
       if (staleRollNumbers.length > 0) {
         // Batch ERP requests to parallelize and reduce per-request load
-        const batchSize = 10; // Adjust based on ERP server limits/performance
+        const batchSize = 100; // Adjust based on ERP server limits/performance
         const rollNumberChunks = chunkArray(staleRollNumbers, batchSize);
         const erpPromises = rollNumberChunks.map(chunk => {
-          console.log("sending 25 request");
           const payload = { rollNumbers: chunk, portalKey: process.env.ERP_IDENTITY_SECRET };
           const encryptedData = encryptValue(JSON.stringify(payload));
           return axios.post(`${process.env.ERP_SERVER}`, encryptedData)
