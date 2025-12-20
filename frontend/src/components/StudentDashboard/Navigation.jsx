@@ -76,15 +76,15 @@ const NavigationCards = () => {
       color: 'bg-pink-50',
       iconColor: 'text-pink-600'
     },
-    {
-    id: 8,
-    title: 'Fine Payment',
-    description: 'Pay your fine and track your payment status.',
-    icon: CreditCard,
-    path: '/sdashboard/fine-payment',
-    color: 'bg-red-50',
-    iconColor: 'text-red-600'
-    },
+    // {
+    // id: 8,
+    // title: 'Fine Payment',
+    // description: 'Pay your fine and track your payment status.',
+    // icon: CreditCard,
+    // path: '/sdashboard/fine-payment',
+    // color: 'bg-red-50',
+    // iconColor: 'text-red-600'
+    // },
   ];
 
   const handleCardClick = (path) => {
