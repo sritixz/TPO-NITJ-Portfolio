@@ -318,7 +318,7 @@ export const lockInternshipApplication = [
       try {
         const mailOptions = {
           from: `"CTP Portal" <${process.env.EMAIL_USER}>`,
-          to: "shivamp.cs.22@nitj.ac.in",
+          to: "internships@nitj.ac.in",
           subject: "Summer / Winter Internship Application",
           html: `
             <div style="font-family: Arial, sans-serif;">
