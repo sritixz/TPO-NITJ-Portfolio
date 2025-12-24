@@ -363,7 +363,7 @@ export const lockLongTermInternshipApplication = [
       try {
         const mailOptions = {
           from: `"CTP Portal" <${process.env.EMAIL_USER}>`,
-          to: 'shivamp.cs.22@nitj.ac.in',
+          to: 'internships@nitj.ac.in',
           subject: 'Long Term Internship Application (>3 Months)',
           html: `
             <div style="font-family: Arial, sans-serif;">

@@ -25,6 +25,8 @@ import {
 
 import { getDocumentsOutsider } from '../controller/outsource-internship/documentOutsider.js';
 import { changeStatusgte3month, changeStatuslte2month, getAllInternshipsProf, getAllLongTermInternshipsProf, } from '../controller/outsource-internship/pdashboardInternhsips.js';
+import { restrictTo } from '../utils/restrict.js';
+// import { restrictTo } from "./utils/restrict.js";
 
 const router = express.Router();
 
@@ -48,13 +50,13 @@ router.delete('/gte3month/:id', deleteLongTermInternship);
 router.get('/outsiderDocument', getDocumentsOutsider);
 
 //pdashboard routes
-router.get('/lte2month/get/data/all',getAllInternshipsProf)
-router.get('/gte3month/get/data/all',getAllLongTermInternshipsProf)
-router.post('/lte2month/post/changeStatus/:id', changeStatuslte2month)
-router.post('/gte3month/post/changeStatus/:id', changeStatusgte3month)
+router.get('/lte2month/get/data/all', restrictTo("Professor"), getAllInternshipsProf)
+router.get('/gte3month/get/data/all',restrictTo("Professor"), getAllLongTermInternshipsProf)
+router.post('/lte2month/post/changeStatus/:id', restrictTo("Professor"), changeStatuslte2month)
+router.post('/gte3month/post/changeStatus/:id', restrictTo("Professor"), changeStatusgte3month)
 
 //lte2month deadline
-router.post("/lte2month/deadline", upsertLte2MonthDeadline);
+router.post("/lte2month/deadline", restrictTo("Professor"), upsertLte2MonthDeadline);
 router.get("/lte2month/deadline/status", checkLte2MonthStatus);
 
 export default router;
