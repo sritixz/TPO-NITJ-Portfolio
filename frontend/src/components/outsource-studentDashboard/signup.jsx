@@ -1,9 +1,13 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import { Eye, EyeOff } from "lucide-react";
 
 const SignupFlow = () => {
   const [stage, setStage] = useState(1);
+
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const [email, setEmail] = useState("");
   const [otp, setOtp] = useState("");
@@ -202,29 +206,48 @@ const SignupFlow = () => {
               />
             ))}
 
-            <input
-              type="password"
-              placeholder="Password"
-              value={form.password}
-              onChange={(e) => setForm({ ...form, password: e.target.value })}
-              className="w-full border rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-custom-blue"
-              required
-            />
-
-            <div>
+            <div className="relative">
               <input
-                type="password"
+                type={showPassword ? "text" : "password"}
+                placeholder="Password"
+                value={form.password}
+                onChange={(e) => setForm({ ...form, password: e.target.value })}
+                className="w-full border rounded-lg p-2 pr-10 focus:outline-none focus:ring-2 focus:ring-custom-blue"
+                required
+                autoComplete="new-password"
+              />
+              <span
+                onClick={() => setShowPassword((p) => !p)}
+                className="absolute inset-y-0 right-3 flex items-center cursor-pointer"
+              >
+                {showPassword ? (
+                  <Eye className="w-5 h-5 text-gray-500" />
+                ) : (
+                  <EyeOff className="w-5 h-5 text-gray-500" />
+                )}
+              </span>
+            </div>
+
+            <div className="relative">
+              <input
+                type={showConfirmPassword ? "text" : "password"}
                 placeholder="Confirm Password"
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
-                className="w-full border rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-custom-blue"
+                className="w-full border rounded-lg p-2 pr-10 focus:outline-none focus:ring-2 focus:ring-custom-blue"
                 required
+                autoComplete="new-password"
               />
-              {errors.confirmPassword && (
-                <p className="text-red-500 text-sm mt-1">
-                  {errors.confirmPassword}
-                </p>
-              )}
+              <span
+                onClick={() => setShowConfirmPassword((p) => !p)}
+                className="absolute inset-y-0 right-3 flex items-center cursor-pointer"
+              >
+                {showConfirmPassword ? (
+                  <Eye className="w-5 h-5 text-gray-500" />
+                ) : (
+                  <EyeOff className="w-5 h-5 text-gray-500" />
+                )}
+              </span>
             </div>
 
             <button
