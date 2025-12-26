@@ -140,6 +140,7 @@ export default function InternshipsManagement() {
 
   useEffect(() => {
     fetchAllInternships();
+    fetchLteDeadlineStatus();
   }, []);
 
   // Reset page on filter change
@@ -347,7 +348,7 @@ export default function InternshipsManagement() {
   const endRange = Math.min(currentPage * internshipsPerPage, totalCount);
 
   const totalItems = displayedInternships.length;
-  const maxPagesToShow = 5;
+  const maxPagesToShow = 50;
   const halfPagesToShow = Math.floor(maxPagesToShow / 2);
   let startPage = Math.max(1, currentPage - halfPagesToShow);
   let endPage = Math.min(totalPages, startPage + maxPagesToShow - 1);
