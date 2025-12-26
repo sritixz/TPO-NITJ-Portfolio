@@ -12,8 +12,6 @@ import { pdf } from "@react-pdf/renderer";
 import LTE2MonthApplicationPDF from "../outsource-studentDashboard/LTE2MonthApplicationPDF";
 import GTE3MonthApplicationPDF from "../outsource-studentDashboard/GTE3MonthApplicationPDF";
 
-
-
 const FILTERS = {
   SHORT: "lte2month",
   LONG: "gte3month",
@@ -50,7 +48,6 @@ export default function InternshipsManagement() {
 
   const [loadingActions, setLoadingActions] = useState(new Set());
 
-
   // Show toast
   const showToast = (message, type = "info") => {
     setToast({ show: true, message, type });
@@ -74,13 +71,18 @@ export default function InternshipsManagement() {
         axios.get(longEndpoint, { withCredentials: true }),
       ]);
 
+      const normalize = (s) =>
+        typeof s === "string" ? s.trim().toLowerCase() : "pending";
+
       const allData = [
         ...(shortRes.data?.data || []).map((item) => ({
           ...item,
+          status: normalize(item.status),
           filterType: FILTERS.SHORT,
         })),
         ...(longRes.data?.data || []).map((item) => ({
           ...item,
+          status: normalize(item.status),
           filterType: FILTERS.LONG,
         })),
       ];
@@ -102,7 +104,9 @@ export default function InternshipsManagement() {
       (item) => item.filterType === activeFilter
     );
 
-    filtered = filtered.filter((item) => item.status === activeStatus);
+    filtered = filtered.filter(
+      (item) => (item.status ?? "").toLowerCase() === activeStatus.toLowerCase()
+    );
 
     if (searchQuery) {
       const q = searchQuery.toLowerCase();
@@ -119,7 +123,7 @@ export default function InternshipsManagement() {
     }
 
     const total = filtered.length;
-    setTotalPages(Math.ceil(total / internshipsPerPage));
+    setTotalPages(Math.max(1, Math.ceil(total / internshipsPerPage)));
 
     const startIdx = (currentPage - 1) * internshipsPerPage;
     const paginatedData = filtered.slice(
@@ -128,7 +132,8 @@ export default function InternshipsManagement() {
     );
 
     setDisplayedInternships(paginatedData);
-
+    console.log("paginated", paginatedData);
+    console.log("data", displayedInternships);
     // 🔥 STORE TOTAL COUNT FOR UI
     setTotalCount(total);
   };
@@ -148,19 +153,20 @@ export default function InternshipsManagement() {
   }, [currentPage, allInternships, activeFilter, activeStatus, searchQuery]);
 
   /* ================= CHANGE STATUS ================= */
-  const changeStatus = async (id, status) => {
+  const changeStatus = async (item, status) => {
     try {
       await axios.post(
-        `${BASE_URL}/outsource-internships/${activeFilter}/post/changeStatus/${id}`,
+        `${BASE_URL}/outsource-internships/${item.filterType}/post/changeStatus/${item._id}`,
         { status },
         { withCredentials: true }
       );
+
       setAllInternships((prev) =>
-        prev.map((item) => (item._id === id ? { ...item, status } : item))
+        prev.map((i) => (i._id === item._id ? { ...i, status } : i))
       );
+
       showToast(`Status updated to ${status}!`, "success");
     } catch (err) {
-      console.error("Status change error", err);
       showToast("Failed to update status", "error");
     }
   };
@@ -258,89 +264,88 @@ export default function InternshipsManagement() {
     </div>
   );
 
-
   //Document Download
   const handleDocumentDownload = (docs) => {
-  if (!docs) {
-    showToast("No documents uploaded", "error");
-    return;
-  }
+    if (!docs) {
+      showToast("No documents uploaded", "error");
+      return;
+    }
 
-  const documentsArray = Array.isArray(docs) ? docs : [docs];
+    const documentsArray = Array.isArray(docs) ? docs : [docs];
 
-  documentsArray.forEach((docPath) => {
-    const url = `${BASE_URL}/${docPath}`;
-    const a = document.createElement("a");
-    a.href = url;
-    a.target = "_blank";
-    a.download = docPath.split("/").pop();
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-  });
-};
-
-//Handle APplication PDF Download
-const handleDownload = async (app) => {
-  const downloadKey = `download-${app._id}`;
-  setLoadingActions((prev) => new Set([...prev, downloadKey]));
-
-  try {
-    const photoUrl = app.photo ? `${BASE_URL}/${app.photo}` : null;
-    const signatureUrl = app.signature ? `${BASE_URL}/${app.signature}` : null;
-
-    const appWithImages = {
-      ...app,
-      photo: photoUrl,
-      signature: signatureUrl,
-    };
-
-    // 🔥 Choose PDF based on internship type
-    const doc =
-      app.filterType === FILTERS.SHORT ? (
-        <LTE2MonthApplicationPDF
-          application={appWithImages}
-          baseURL={BASE_URL}
-        />
-      ) : (
-        <GTE3MonthApplicationPDF
-          application={appWithImages}
-          baseURL={BASE_URL}
-        />
-      );
-
-    const blob = await pdf(doc).toBlob();
-    const url = URL.createObjectURL(blob);
-
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `${
-      app.filterType === FILTERS.SHORT ? "LTE2Month" : "GTE3Month"
-    }_Application_${app._id.slice(-6)}.pdf`;
-
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-
-    showToast("Application downloaded successfully!", "success");
-  } catch (error) {
-    console.error("PDF download error:", error);
-    showToast("Failed to generate application PDF", "error");
-  } finally {
-    setLoadingActions((prev) => {
-      const newSet = new Set(prev);
-      newSet.delete(downloadKey);
-      return newSet;
+    documentsArray.forEach((docPath) => {
+      const url = `${BASE_URL}/${docPath}`;
+      const a = document.createElement("a");
+      a.href = url;
+      a.target = "_blank";
+      a.download = docPath.split("/").pop();
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
     });
-  }
-};
+  };
+
+  //Handle APplication PDF Download
+  const handleDownload = async (app) => {
+    const downloadKey = `download-${app._id}`;
+    setLoadingActions((prev) => new Set([...prev, downloadKey]));
+
+    try {
+      const photoUrl = app.photo ? `${BASE_URL}/${app.photo}` : null;
+      const signatureUrl = app.signature
+        ? `${BASE_URL}/${app.signature}`
+        : null;
+
+      const appWithImages = {
+        ...app,
+        photo: photoUrl,
+        signature: signatureUrl,
+      };
+
+      // 🔥 Choose PDF based on internship type
+      const doc =
+        app.filterType === FILTERS.SHORT ? (
+          <LTE2MonthApplicationPDF
+            application={appWithImages}
+            baseURL={BASE_URL}
+          />
+        ) : (
+          <GTE3MonthApplicationPDF
+            application={appWithImages}
+            baseURL={BASE_URL}
+          />
+        );
+
+      const blob = await pdf(doc).toBlob();
+      const url = URL.createObjectURL(blob);
+
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `${
+        app.filterType === FILTERS.SHORT ? "LTE2Month" : "GTE3Month"
+      }_Application_${app._id.slice(-6)}.pdf`;
+
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+
+      showToast("Application downloaded successfully!", "success");
+    } catch (error) {
+      console.error("PDF download error:", error);
+      showToast("Failed to generate application PDF", "error");
+    } finally {
+      setLoadingActions((prev) => {
+        const newSet = new Set(prev);
+        newSet.delete(downloadKey);
+        return newSet;
+      });
+    }
+  };
 
   const startRange = (currentPage - 1) * internshipsPerPage + 1;
-  const endRange = Math.min(
-    currentPage * internshipsPerPage,
-    displayedInternships.length
-  );
+  const endRange = Math.min(currentPage * internshipsPerPage, totalCount);
+
   const totalItems = displayedInternships.length;
   const maxPagesToShow = 5;
   const halfPagesToShow = Math.floor(maxPagesToShow / 2);
@@ -355,7 +360,7 @@ const handleDownload = async (app) => {
   }
 
   const renderInternshipCard = (item) => {
-    const isShort = activeFilter === FILTERS.SHORT;
+    const isShort = item.filterType === FILTERS.SHORT;
     return (
       <div
         key={item._id}
@@ -383,57 +388,56 @@ const handleDownload = async (app) => {
           {isShort ? item.proposedFacultyMember : item.facultySupervisor}
         </p>
         <div className="flex flex-wrap gap-2 mt-4">
-  {/* STATUS CONTROLS */}
-  <button
-    onClick={() => changeStatus(item._id, "pending")}
-    className="text-sm text-yellow-600 hover:text-white px-3 py-1 rounded-md border border-yellow-600 hover:bg-yellow-600 transition"
-  >
-    Pending
-  </button>
+          {/* STATUS CONTROLS */}
+          <button
+            onClick={() => changeStatus(item, "pending")}
+            className="text-sm text-yellow-600 hover:text-white px-3 py-1 rounded-md border border-yellow-600 hover:bg-yellow-600 transition"
+          >
+            Pending
+          </button>
 
-  <button
-    onClick={() => changeStatus(item._id, "approved")}
-    className="text-sm text-green-600 hover:text-white px-3 py-1 rounded-md border border-green-600 hover:bg-green-600 transition"
-  >
-    Approve
-  </button>
+          <button
+            onClick={() => changeStatus(item, "approved")}
+            className="text-sm text-green-600 hover:text-white px-3 py-1 rounded-md border border-green-600 hover:bg-green-600 transition"
+          >
+            Approve
+          </button>
 
-  <button
-    onClick={() => changeStatus(item._id, "rejected")}
-    className="text-sm text-red-600 hover:text-white px-3 py-1 rounded-md border border-red-600 hover:bg-red-600 transition"
-  >
-    Reject
-  </button>
+          <button
+            onClick={() => changeStatus(item, "rejected")}
+            className="text-sm text-red-600 hover:text-white px-3 py-1 rounded-md border border-red-600 hover:bg-red-600 transition"
+          >
+            Reject
+          </button>
 
-  {/* DOWNLOAD DOCUMENTS */}
-  {item.documents && (
-    <button
-      onClick={() => handleDocumentDownload(item.documents)}
-      className="flex items-center gap-1 text-sm text-blue-600 hover:text-white px-3 py-1 rounded-md border border-blue-600 hover:bg-blue-600 transition"
-    >
-      <FaEye size={12} />
-      Documents
-    </button>
-  )}
+          {/* DOWNLOAD DOCUMENTS */}
+          {item.documents && (
+            <button
+              onClick={() => handleDocumentDownload(item.documents)}
+              className="flex items-center gap-1 text-sm text-blue-600 hover:text-white px-3 py-1 rounded-md border border-blue-600 hover:bg-blue-600 transition"
+            >
+              <FaEye size={12} />
+              Documents
+            </button>
+          )}
 
-  {/* VIEW / DOWNLOAD APPLICATION */}
-  <button
-    onClick={() => handleDownload(item)}
-    disabled={loadingActions.has(`download-${item._id}`)}
-    className={`flex items-center gap-1 text-sm px-3 py-1 rounded-md border transition
+          {/* VIEW / DOWNLOAD APPLICATION */}
+          <button
+            onClick={() => handleDownload(item)}
+            disabled={loadingActions.has(`download-${item._id}`)}
+            className={`flex items-center gap-1 text-sm px-3 py-1 rounded-md border transition
       ${
         loadingActions.has(`download-${item._id}`)
           ? "bg-gray-300 text-gray-500 cursor-not-allowed"
           : "text-purple-600 border-purple-600 hover:bg-purple-600 hover:text-white"
       }`}
-  >
-    <Info size={14} />
-    {loadingActions.has(`download-${item._id}`)
-      ? "Generating..."
-      : "View Application"}
-  </button>
-</div>
-
+          >
+            <Info size={14} />
+            {loadingActions.has(`download-${item._id}`)
+              ? "Generating..."
+              : "View Application"}
+          </button>
+        </div>
       </div>
     );
   };

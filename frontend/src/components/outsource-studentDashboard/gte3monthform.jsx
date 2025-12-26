@@ -1,10 +1,17 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import { useSelector } from 'react-redux';
-import axios from 'axios';
-import { FaPlus, FaEye, FaDownload, FaEdit, FaTrash, FaLock } from 'react-icons/fa';
+import React, { useState, useEffect, useCallback } from "react";
+import { useSelector } from "react-redux";
+import axios from "axios";
+import {
+  FaPlus,
+  FaEye,
+  FaDownload,
+  FaEdit,
+  FaTrash,
+  FaLock,
+} from "react-icons/fa";
 import { Info } from "lucide-react";
-import { pdf } from '@react-pdf/renderer';
-import GTE3MonthApplicationPDF from './GTE3MonthApplicationPDF'; // Assuming this PDF component exists or will be created similarly
+import { pdf } from "@react-pdf/renderer";
+import GTE3MonthApplicationPDF from "./GTE3MonthApplicationPDF"; // Assuming this PDF component exists or will be created similarly
 const GTE3MonthForm = () => {
   const { userData } = useSelector((state) => state.auth);
   const [applications, setApplications] = useState([]);
@@ -14,7 +21,11 @@ const GTE3MonthForm = () => {
   const [loading, setLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [loadingActions, setLoadingActions] = useState(new Set());
-  const [toast, setToast] = useState({ show: false, message: '', type: 'info' });
+  const [toast, setToast] = useState({
+    show: false,
+    message: "",
+    type: "info",
+  });
   const [existingFiles, setExistingFiles] = useState({});
   const [previewUrls, setPreviewUrls] = useState({});
   const [showDocumentsTooltip, setShowDocumentsTooltip] = useState(false);
@@ -22,134 +33,141 @@ const GTE3MonthForm = () => {
   const [confirmAction, setConfirmAction] = useState(null);
   const [confirmId, setConfirmId] = useState(null);
   const [formData, setFormData] = useState({
-    homeUniversityName: '',
-    homeUniversityAddress: '',
-    durationFrom: '',
-    durationTo: '',
-    nonDegreeActivities: '',
-    internshipType: '',
-    ApplicantName: userData?.name || '',
-    fathersName: userData?.fathersName || '',
-    mothersName: '',
-    dateOfBirth: userData?.dob ? new Date(userData.dob).toISOString().split('T')[0] : '',
-    birthCity: '',
-    birthCountry: '',
-    maritalStatus: '',
-    nationality: userData?.nationality || '',
-    passportNo: '',
-    passportIssueDate: '',
-    passportIssuePlace: '',
-    passportValidUpTo: '',
-    correspondenceAddress: '',
-    phone: userData?.mobile || '',
-    email: userData?.email || '',
+    homeUniversityName: "",
+    homeUniversityAddress: "",
+    durationFrom: "",
+    durationTo: "",
+    nonDegreeActivities: "",
+    internshipType: "",
+    ApplicantName: userData?.name || "",
+    fathersName: userData?.fathersName || "",
+    mothersName: "",
+    dateOfBirth: userData?.dob
+      ? new Date(userData.dob).toISOString().split("T")[0]
+      : "",
+    birthCity: "",
+    birthCountry: "",
+    maritalStatus: "",
+    nationality: userData?.nationality || "",
+    passportNo: "",
+    passportIssueDate: "",
+    passportIssuePlace: "",
+    passportValidUpTo: "",
+    correspondenceAddress: "",
+    phone: userData?.mobile || "",
+    email: userData?.email || "",
     hostelNeeded: false,
-    facultySupervisor: '',
-    facultySupervisorDepartment: '',
-    department: '',
-    degree: '',
-    academicYear: '',
-    academicSemester: '',
-    languagesKnown: '', // Changed to string for direct input
+    facultySupervisor: "",
+    facultySupervisorDepartment: "",
+    department: "",
+    degree: "",
+    academicYear: "",
+    academicSemester: "",
+    languagesKnown: "", // Changed to string for direct input
     declarationAccepted: false,
   });
   const [files, setFiles] = useState({
     photo: null,
     signature: null,
-    documents: null
+    documents: null,
   });
-  const maritalStatusOptions = ['Single', 'Married', 'Divorced', 'Widowed'];
+  const maritalStatusOptions = ["Single", "Married", "Divorced", "Widowed"];
   const departments = [
-    'Biotechnology',
-    'Chemistry',
-    'Chemical Engineering',
-    'Civil Engineering',
-    'Computer Science and Engineering',
-    'Electronics and Communication Engineering',
-    'Electrical Engineering',
-    'Humanities and Management',
-    'Industrial and Production Engineering',
-    'Information Technology',
-    'Instrumentation and Control Engineering',
-    'Mathematics and Computing',
-    'Mechanical Engineering',
-    'Physics',
-    'Center for Artificial Intelligence',
-    'Center for Continuing Education',
-    'Center for Energy and Environment',
-    'Sports and Healthcare Research Centre',
-    'Skill Development Centre'
+    "Biotechnology",
+    "Chemistry",
+    "Chemical Engineering",
+    "Civil Engineering",
+    "Computer Science and Engineering",
+    "Electronics and Communication Engineering",
+    "Electrical Engineering",
+    "Humanities and Management",
+    "Industrial and Production Engineering",
+    "Information Technology",
+    "Instrumentation and Control Engineering",
+    "Mathematics and Computing",
+    "Mechanical Engineering",
+    "Physics",
+    "Center for Artificial Intelligence",
+    "Center for Continuing Education",
+    "Center for Energy and Environment",
+    "Sports and Healthcare Research Centre",
+    "Skill Development Centre",
   ];
   const baseURL = import.meta.env.REACT_APP_BASE_URL;
   // Cleanup preview URLs on unmount
   useEffect(() => {
     return () => {
-      Object.values(previewUrls).forEach(url => URL.revokeObjectURL(url));
+      Object.values(previewUrls).forEach((url) => URL.revokeObjectURL(url));
     };
   }, [previewUrls]);
   // Reset form data
   const resetFormData = () => {
-    Object.values(previewUrls).forEach(url => URL.revokeObjectURL(url));
+    Object.values(previewUrls).forEach((url) => URL.revokeObjectURL(url));
     setPreviewUrls({});
     setFormData({
-      homeUniversityName: '',
-      homeUniversityAddress: '',
-      durationFrom: '',
-      durationTo: '',
-      nonDegreeActivities: '',
-      internshipType: '',
-      ApplicantName: userData?.name || '',
-      fathersName: userData?.fathersName || '',
-      mothersName: '',
-      dateOfBirth: userData?.dob ? new Date(userData.dob).toISOString().split('T')[0] : '',
-      birthCity: '',
-      birthCountry: '',
-      maritalStatus: '',
-      nationality: userData?.nationality || '',
-      passportNo: '',
-      passportIssueDate: '',
-      passportIssuePlace: '',
-      passportValidUpTo: '',
-      correspondenceAddress: '',
-      phone: userData?.mobile || '',
-      email: userData?.email || '',
+      homeUniversityName: "",
+      homeUniversityAddress: "",
+      durationFrom: "",
+      durationTo: "",
+      nonDegreeActivities: "",
+      internshipType: "",
+      ApplicantName: userData?.name || "",
+      fathersName: userData?.fathersName || "",
+      mothersName: "",
+      dateOfBirth: userData?.dob
+        ? new Date(userData.dob).toISOString().split("T")[0]
+        : "",
+      birthCity: "",
+      birthCountry: "",
+      maritalStatus: "",
+      nationality: userData?.nationality || "",
+      passportNo: "",
+      passportIssueDate: "",
+      passportIssuePlace: "",
+      passportValidUpTo: "",
+      correspondenceAddress: "",
+      phone: userData?.mobile || "",
+      email: userData?.email || "",
       hostelNeeded: false,
-      facultySupervisor: '',
-      facultySupervisorDepartment: '',
-      department: '',
-      degree: '',
-      academicYear: '',
-      academicSemester: '',
-      languagesKnown: '', // String reset
+      facultySupervisor: "",
+      facultySupervisorDepartment: "",
+      department: "",
+      degree: "",
+      academicYear: "",
+      academicSemester: "",
+      languagesKnown: "", // String reset
       declarationAccepted: false,
     });
     setFiles({
       photo: null,
       signature: null,
-      documents: null
+      documents: null,
     });
     setExistingFiles({});
   };
   // Fetch all applications
   useEffect(() => {
     setLoading(true);
-    axios.get(`${baseURL}/outsource-internships/gte3month`, { withCredentials: true })
-      .then(response => {
+    axios
+      .get(`${baseURL}/outsource-internships/gte3month`, {
+        withCredentials: true,
+      })
+      .then((response) => {
         setApplications(response.data);
         setLoading(false);
       })
-      .catch(error => {
-        console.error('Error fetching applications:', error);
+      .catch((error) => {
+        console.error("Error fetching applications:", error);
         setLoading(false);
       });
   }, [baseURL]);
   // Handle form input changes
   const handleInputChange = (e) => {
     const { name, value, type, checked } = e.target;
-    if (type === 'checkbox') {
-      setFormData(prev => ({ ...prev, [name]: checked }));
+    if (type === "checkbox") {
+      setFormData((prev) => ({ ...prev, [name]: checked }));
     } else {
-      setFormData(prev => ({ ...prev, [name]: value }));
+      setFormData((prev) => ({ ...prev, [name]: value }));
     }
   };
   // Handle file changes
@@ -161,26 +179,48 @@ const GTE3MonthForm = () => {
         URL.revokeObjectURL(previewUrls[type]);
       }
       const url = URL.createObjectURL(file);
-      setPreviewUrls(prev => ({ ...prev, [type]: url }));
+      setPreviewUrls((prev) => ({ ...prev, [type]: url }));
     }
-    setFiles(prev => ({ ...prev, [type]: file }));
+    setFiles((prev) => ({ ...prev, [type]: file }));
   };
   // Parse languages for validation and submission
   const parseLanguages = (inputString) => {
-    return inputString.split(',').map(lang => lang.trim()).filter(lang => lang);
+    return inputString
+      .split(",")
+      .map((lang) => lang.trim())
+      .filter((lang) => lang);
   };
   // Validate form
   const validateForm = () => {
     const requiredFields = [
-      'homeUniversityName', 'homeUniversityAddress', 'durationFrom', 'durationTo', 'internshipType',
-      'ApplicantName', 'fathersName', 'mothersName', 'dateOfBirth', 'birthCity', 'birthCountry',
-      'maritalStatus', 'nationality', 'correspondenceAddress', 'phone', 'email', 'facultySupervisor',
-      'facultySupervisorDepartment', 'department', 'degree', 'academicYear', 'academicSemester'
+      "homeUniversityName",
+      "homeUniversityAddress",
+      "durationFrom",
+      "durationTo",
+      "internshipType",
+      "ApplicantName",
+      "fathersName",
+      "mothersName",
+      "dateOfBirth",
+      "birthCity",
+      "birthCountry",
+      "maritalStatus",
+      "nationality",
+      "correspondenceAddress",
+      "phone",
+      "email",
+      "facultySupervisor",
+      "facultySupervisorDepartment",
+      "department",
+      "degree",
+      "academicYear",
+      "academicSemester",
     ];
     const stringFields = requiredFields;
-    const basicFilled = stringFields.every(key => formData[key].toString().trim() !== '') && 
-                       parseLanguages(formData.languagesKnown).length > 0 && 
-                       formData.declarationAccepted;
+    const basicFilled =
+      stringFields.every((key) => formData[key].toString().trim() !== "") &&
+      parseLanguages(formData.languagesKnown).length > 0 &&
+      formData.declarationAccepted;
     if (!basicFilled) return false;
     // Check files
     if (!files.photo && !existingFiles.photo) return false;
@@ -189,22 +229,28 @@ const GTE3MonthForm = () => {
     return true;
   };
   // Show toast
-  const showToast = (message, type = 'info') => {
+  const showToast = (message, type = "info") => {
     setToast({ show: true, message, type });
-    setTimeout(() => setToast({ show: false, message: '', type: 'info' }), 3000);
+    setTimeout(
+      () => setToast({ show: false, message: "", type: "info" }),
+      3000
+    );
   };
   // Submit or update application
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!validateForm()) {
-      showToast('Please fill out all the fields and upload required files before submitting! 😎', 'error');
+      showToast(
+        "Please fill out all the fields and upload required files before submitting! 😎",
+        "error"
+      );
       return;
     }
     setIsSubmitting(true);
     const submitData = new FormData();
     const languages = parseLanguages(formData.languagesKnown);
     Object.entries(formData).forEach(([key, value]) => {
-      if (key === 'languagesKnown') {
+      if (key === "languagesKnown") {
         submitData.append(key, JSON.stringify(languages)); // Send parsed array as JSON string
       } else {
         submitData.append(key, value);
@@ -215,26 +261,35 @@ const GTE3MonthForm = () => {
         submitData.append(key, file);
       }
     });
-    const url = editingId ? `/outsource-internships/gte3month/${editingId}` : `/outsource-internships/gte3month`;
+    const url = editingId
+      ? `/outsource-internships/gte3month/${editingId}`
+      : `/outsource-internships/gte3month`;
     const method = editingId ? axios.put : axios.post;
     try {
       const response = await method(`${baseURL}${url}`, submitData, {
-        headers: { 'Content-Type': 'multipart/form-data' },
-        withCredentials: true
+        headers: { "Content-Type": "multipart/form-data" },
+        withCredentials: true,
       });
       if (editingId) {
-        setApplications(applications.map(app => app._id === editingId ? { ...app, ...formData } : app));
+        setApplications(
+          applications.map((app) =>
+            app._id === editingId ? { ...app, ...formData } : app
+          )
+        );
         setEditingId(null);
       } else {
         setApplications([...applications, response.data]);
       }
       resetFormData();
       setShowForm(false);
-      showToast('Application submitted successfully!', 'success');
+      showToast("Application submitted successfully!", "success");
     } catch (error) {
-      console.error('Error submitting application:', error);
+      console.error("Error submitting application:", error);
       const backendMessage = error?.response?.data?.message;
-      showToast(backendMessage || 'Oops! Something went wrong. Try again later! 😅', 'error');
+      showToast(
+        backendMessage || "Oops! Something went wrong. Try again later! 😅",
+        "error"
+      );
     } finally {
       setIsSubmitting(false);
     }
@@ -242,10 +297,10 @@ const GTE3MonthForm = () => {
   // Handle edit
   const handleEdit = (app) => {
     const formatDate = (dateStr) => {
-      if (!dateStr) return '';
+      if (!dateStr) return "";
       const date = new Date(dateStr);
       if (isNaN(date.getTime())) return dateStr;
-      return date.toISOString().split('T')[0];
+      return date.toISOString().split("T")[0];
     };
     setFormData({
       ...app,
@@ -254,79 +309,95 @@ const GTE3MonthForm = () => {
       durationTo: formatDate(app.durationTo),
       passportIssueDate: formatDate(app.passportIssueDate),
       passportValidUpTo: formatDate(app.passportValidUpTo),
-      languagesKnown: app.languagesKnown ? app.languagesKnown.join(', ') : '', // Join array to string for editing
+      languagesKnown: app.languagesKnown ? app.languagesKnown.join(", ") : "", // Join array to string for editing
       hostelNeeded: app.hostelNeeded || false,
-      declarationAccepted: app.declarationAccepted || false
+      declarationAccepted: app.declarationAccepted || false,
     });
     setExistingFiles({
       photo: app.photo || null,
       signature: app.signature || null,
-      documents: app.documents || null
+      documents: app.documents || null,
     });
-    Object.values(previewUrls).forEach(url => URL.revokeObjectURL(url));
+    Object.values(previewUrls).forEach((url) => URL.revokeObjectURL(url));
     setPreviewUrls({});
     setFiles({
       photo: null,
       signature: null,
-      documents: null
+      documents: null,
     });
     setEditingId(app._id);
     setShowForm(true);
   };
   // Confirmation modal action performer
   const performConfirmAction = useCallback(async () => {
-    if (confirmAction === 'delete' && confirmId) {
+    if (confirmAction === "delete" && confirmId) {
       const deleteKey = `delete-${confirmId}`;
-      setLoadingActions(prev => new Set([...prev, deleteKey]));
+      setLoadingActions((prev) => new Set([...prev, deleteKey]));
       try {
-        await axios.delete(`${baseURL}/outsource-internships/gte3month/${confirmId}`, { withCredentials: true });
-        setApplications(prev => prev.filter(a => a._id !== confirmId));
-        showToast('Application deleted successfully!', 'success');
+        await axios.delete(
+          `${baseURL}/outsource-internships/gte3month/${confirmId}`,
+          { withCredentials: true }
+        );
+        setApplications((prev) => prev.filter((a) => a._id !== confirmId));
+        showToast("Application deleted successfully!", "success");
       } catch (error) {
-        console.error('Error deleting application:', error);
-        showToast('Failed to delete application. Try again!', 'error');
+        console.error("Error deleting application:", error);
+        showToast("Failed to delete application. Try again!", "error");
       } finally {
-        setLoadingActions(prev => {
+        setLoadingActions((prev) => {
           const newSet = new Set(prev);
           newSet.delete(deleteKey);
           return newSet;
         });
       }
-    } else if (confirmAction === 'lock' && confirmId) {
+    } else if (confirmAction === "lock" && confirmId) {
       const lockKey = `lock-${confirmId}`;
-      setLoadingActions(prev => new Set([...prev, lockKey]));
+      setLoadingActions((prev) => new Set([...prev, lockKey]));
       try {
-        const app = applications.find(a => a._id === confirmId);
+        const app = applications.find((a) => a._id === confirmId);
         if (!app) {
-          throw new Error('Application not found');
+          throw new Error("Application not found");
         }
 
         const photoUrl = app.photo ? `${baseURL}/${app.photo}` : null;
-        const signatureUrl = app.signature ? `${baseURL}/${app.signature}` : null;
+        const signatureUrl = app.signature
+          ? `${baseURL}/${app.signature}`
+          : null;
 
         const appWithImages = {
           ...app,
           photo: photoUrl,
-          signature: signatureUrl
+          signature: signatureUrl,
         };
 
-        const doc = <GTE3MonthApplicationPDF application={appWithImages} baseURL={baseURL} />;
+        const doc = (
+          <GTE3MonthApplicationPDF
+            application={appWithImages}
+            baseURL={baseURL}
+          />
+        );
         const blob = await pdf(doc).toBlob();
         const filename = `GTE3Month_Application_${app._id.slice(-6)}.pdf`;
-        const pdfFile = new File([blob], filename, { type: 'application/pdf' });
+        const pdfFile = new File([blob], filename, { type: "application/pdf" });
         const submitData = new FormData();
-        submitData.append('pdf', pdfFile);
-        await axios.put(`${baseURL}/outsource-internships/gte3month/lock/${confirmId}`, submitData, {
-          headers: { 'Content-Type': 'multipart/form-data' },
-          withCredentials: true
-        });
-        setApplications(prev => prev.map(a => a._id === confirmId ? { ...a, locked: true } : a));
-        showToast('Application Locked successfully!', 'success');
+        submitData.append("pdf", pdfFile);
+        await axios.put(
+          `${baseURL}/outsource-internships/gte3month/lock/${confirmId}`,
+          submitData,
+          {
+            headers: { "Content-Type": "multipart/form-data" },
+            withCredentials: true,
+          }
+        );
+        setApplications((prev) =>
+          prev.map((a) => (a._id === confirmId ? { ...a, locked: true } : a))
+        );
+        showToast("Application Locked successfully!", "success");
       } catch (error) {
-        console.error('Error locking application:', error);
-        showToast('Failed to lock application. Try again!', 'error');
+        console.error("Error locking application:", error);
+        showToast("Failed to lock application. Try again!", "error");
       } finally {
-        setLoadingActions(prev => {
+        setLoadingActions((prev) => {
           const newSet = new Set(prev);
           newSet.delete(lockKey);
           return newSet;
@@ -336,52 +407,57 @@ const GTE3MonthForm = () => {
   }, [confirmAction, confirmId, applications, baseURL]);
   // Handle delete
   const handleDelete = (id) => {
-    setConfirmAction('delete');
+    setConfirmAction("delete");
     setConfirmId(id);
     setShowConfirm(true);
   };
   // Handle lock
   const handleLock = (id) => {
-    setConfirmAction('lock');
+    setConfirmAction("lock");
     setConfirmId(id);
     setShowConfirm(true);
   };
   // Handle download
   const handleDownload = async (app) => {
     const downloadKey = `download-${app._id}`;
-    setLoadingActions(prev => new Set([...prev, downloadKey]));
+    setLoadingActions((prev) => new Set([...prev, downloadKey]));
     try {
-      console.log('Starting download for app:', app._id);
-      console.log('baseURL:', baseURL);
-     
+      console.log("Starting download for app:", app._id);
+      console.log("baseURL:", baseURL);
+
       const photoUrl = app.photo ? `${baseURL}/${app.photo}` : null;
       const signatureUrl = app.signature ? `${baseURL}/${app.signature}` : null;
-     
-      console.log('photoUrl:', photoUrl);
-      console.log('signatureUrl:', signatureUrl);
-     
+
+      console.log("photoUrl:", photoUrl);
+      console.log("signatureUrl:", signatureUrl);
+
       const appWithImages = {
         ...app,
         photo: photoUrl,
-        signature: signatureUrl
+        signature: signatureUrl,
       };
-     
-      const doc = <GTE3MonthApplicationPDF application={appWithImages} baseURL={baseURL} />;
+
+      const doc = (
+        <GTE3MonthApplicationPDF
+          application={appWithImages}
+          baseURL={baseURL}
+        />
+      );
       const blob = await pdf(doc).toBlob();
       const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
+      const a = document.createElement("a");
       a.href = url;
       a.download = `GTE3Month_Application_${app._id.slice(-6)}.pdf`;
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
       URL.revokeObjectURL(url);
-      showToast('PDF downloaded successfully!', 'success');
+      showToast("PDF downloaded successfully!", "success");
     } catch (error) {
-      console.error('Error generating PDF:', error);
-      showToast('Failed to download PDF. Try again!', 'error');
+      console.error("Error generating PDF:", error);
+      showToast("Failed to download PDF. Try again!", "error");
     } finally {
-      setLoadingActions(prev => {
+      setLoadingActions((prev) => {
         const newSet = new Set(prev);
         newSet.delete(downloadKey);
         return newSet;
@@ -392,13 +468,16 @@ const GTE3MonthForm = () => {
   const handlePreview = (app) => {
     setSelectedApp(app);
     // Could open a modal here similar to NOCPreview
-    console.log('Preview:', app); // Placeholder
+    console.log("Preview:", app); // Placeholder
   };
   const renderApplicationList = () => (
     <div className="space-y-6 animate-fade-in">
       <div className="flex justify-between items-center mb-8 gap-4">
         <h2 className="text-3xl font-bold flex items-center space-x-3 text-gray-900">
-          <span>Long Term <span className="text-custom-blue">Internship</span> (more than 3 Months) Application</span>
+          <span>
+            Long Term <span className="text-custom-blue">Internship</span> (more
+            than 3 Months) Application
+          </span>
         </h2>
         <div className="flex items-center gap-4 flex-1 justify-end">
           <button
@@ -426,20 +505,41 @@ const GTE3MonthForm = () => {
             const deleteKey = `delete-${app._id}`;
             const lockKey = `lock-${app._id}`;
             const downloadKey = `download-${app._id}`;
+
+            const statusLabel = app.status
+              ? app.status.charAt(0).toUpperCase() + app.status.slice(1)
+              : "Pending";
+
             return (
               <div
                 key={app._id}
                 className="p-6 bg-white rounded-xl shadow-lg cursor-pointer hover:shadow-xl transform hover:-translate-y-1 transition-all duration-300 border border-gray-100"
-                >
+              >
                 <div className="flex justify-between items-center mb-2">
-                <p className="text-xs font-semibold text-gray-900">Faculty: <span className='text-gray-500'>{app.facultySupervisor}</span></p>
-                  <span className={`text-sm font-medium px-2 py-1 rounded-full ${
-                    isLocked ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'
-                  }`}>
-                    {isLocked ? 'Locked' : 'Pending'}
+                  <p className="text-xs font-semibold text-gray-900">
+                    Faculty:{" "}
+                    <span className="text-gray-500">
+                      {app.facultySupervisor}
+                    </span>
+                  </p>
+                  <span
+                    className={`text-sm font-medium px-2 py-1 rounded-full ${
+                      app.status === "verified"
+                        ? "bg-green-100 text-green-800"
+                        : app.status === "rejected"
+                          ? "bg-red-100 text-red-800"
+                          : "bg-yellow-100 text-yellow-800"
+                    }`}
+                  >
+                    {statusLabel}
                   </span>
                 </div>
-                    <p className="text-xs font-semibold text-gray-900">Department: <span className='text-gray-500'>{app.facultySupervisorDepartment}</span></p>
+                <p className="text-xs font-semibold text-gray-900">
+                  Department:{" "}
+                  <span className="text-gray-500">
+                    {app.facultySupervisorDepartment}
+                  </span>
+                </p>
                 {/* <p className="bg-custom-blue/10 rounded-lg p-1 text-custom-blue text-xs font-semibold inline-block"># {app._id.slice(-6)}</p> */}
                 <div className="flex flex-wrap gap-2 mt-4">
                   {!isLocked && (
@@ -465,24 +565,30 @@ const GTE3MonthForm = () => {
                         disabled={loadingActions.has(lockKey)}
                         className={`flex items-center space-x-1 text-sm px-3 py-1 rounded-md border transition duration-300 ${
                           loadingActions.has(lockKey)
-                            ? 'text-gray-400 border-gray-300 cursor-not-allowed'
-                            : 'text-custom-blue hover:text-white border-custom-blue hover:bg-custom-blue'
+                            ? "text-gray-400 border-gray-300 cursor-not-allowed"
+                            : "text-custom-blue hover:text-white border-custom-blue hover:bg-custom-blue"
                         }`}
                       >
                         <FaLock />
-                        <span>{loadingActions.has(lockKey) ? 'Locking...' : 'Lock'}</span>
+                        <span>
+                          {loadingActions.has(lockKey) ? "Locking..." : "Lock"}
+                        </span>
                       </button>
                       <button
                         onClick={() => handleDelete(app._id)}
                         disabled={loadingActions.has(deleteKey)}
                         className={`flex items-center space-x-1 text-sm px-3 py-1 rounded-md border transition duration-300 ${
                           loadingActions.has(deleteKey)
-                            ? 'text-gray-400 border-gray-300 cursor-not-allowed'
-                            : 'text-red-500 hover:text-white border-red-500 hover:bg-red-500'
+                            ? "text-gray-400 border-gray-300 cursor-not-allowed"
+                            : "text-red-500 hover:text-white border-red-500 hover:bg-red-500"
                         }`}
                       >
                         <FaTrash />
-                        <span>{loadingActions.has(deleteKey) ? 'Deleting...' : 'Delete'}</span>
+                        <span>
+                          {loadingActions.has(deleteKey)
+                            ? "Deleting..."
+                            : "Delete"}
+                        </span>
                       </button>
                     </>
                   ) : (
@@ -491,12 +597,16 @@ const GTE3MonthForm = () => {
                       disabled={loadingActions.has(downloadKey)}
                       className={`flex items-center space-x-1 text-sm px-3 py-1 rounded-md border transition duration-300 ${
                         loadingActions.has(downloadKey)
-                          ? 'text-gray-400 border-gray-300 cursor-not-allowed'
-                          : 'text-green-600 hover:text-white border-green-600 hover:bg-green-600'
+                          ? "text-gray-400 border-gray-300 cursor-not-allowed"
+                          : "text-green-600 hover:text-white border-green-600 hover:bg-green-600"
                       }`}
                     >
                       <FaDownload />
-                      <span>{loadingActions.has(downloadKey) ? 'Downloading...' : 'Download PDF'}</span>
+                      <span>
+                        {loadingActions.has(downloadKey)
+                          ? "Downloading..."
+                          : "Download PDF"}
+                      </span>
                     </button>
                   )}
                 </div>
@@ -507,10 +617,10 @@ const GTE3MonthForm = () => {
       )}
     </div>
   );
-  const renderFilePreview = (type) => (
+  const renderFilePreview = (type) =>
     previewUrls[type] && (
       <div className="mt-1">
-        {type === 'photo' || type === 'signature' ? (
+        {type === "photo" || type === "signature" ? (
           <img
             src={previewUrls[type]}
             alt={`${type} Preview`}
@@ -527,19 +637,22 @@ const GTE3MonthForm = () => {
           </a>
         )}
       </div>
-    )
-  );
+    );
   // Confirmation Modal
-  const renderConfirmModal = () => (
+  const renderConfirmModal = () =>
     showConfirm && (
       <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
         <div className="bg-white rounded-lg shadow-xl max-w-md w-full max-h-[90vh] overflow-y-auto">
           <div className="p-6">
             <h3 className="text-lg font-semibold text-gray-900 mb-2">
-              Confirm {confirmAction === 'delete' ? 'Delete' : 'Lock'} Application
+              Confirm {confirmAction === "delete" ? "Delete" : "Lock"}{" "}
+              Application
             </h3>
             <p className="text-sm text-gray-600 mb-6">
-              Are you sure you want to {confirmAction} this application? This action cannot be undone and will {confirmAction === 'delete' ? 'permanently remove' : 'finalize'} your submission.
+              Are you sure you want to {confirmAction} this application? This
+              action cannot be undone and will{" "}
+              {confirmAction === "delete" ? "permanently remove" : "finalize"}{" "}
+              your submission.
             </p>
             <div className="flex justify-end space-x-3 pt-4 border-t border-gray-200">
               <button
@@ -561,22 +674,25 @@ const GTE3MonthForm = () => {
                 }}
                 className="px-4 py-2 text-white bg-red-500 rounded-md hover:bg-red-600 transition duration-200"
               >
-                {confirmAction === 'delete' ? 'Delete' : 'Lock'} Application
+                {confirmAction === "delete" ? "Delete" : "Lock"} Application
               </button>
             </div>
           </div>
         </div>
       </div>
-    )
-  );
+    );
   return (
     <div className="container mx-auto p-6 min-h-screen">
       {toast.show && (
-        <div className={`fixed top-4 right-4 p-4 rounded-lg shadow-lg animate-fade-in-out z-[1000] ${
-          toast.type === 'error' ? 'bg-white border border-red-500 text-red-500' :
-          toast.type === 'success' ? 'bg-white border border-green-500 text-green-500' :
-          'bg-white border border-blue-500 text-blue-500'
-        }`}>
+        <div
+          className={`fixed top-4 right-4 p-4 rounded-lg shadow-lg animate-fade-in-out z-[1000] ${
+            toast.type === "error"
+              ? "bg-white border border-red-500 text-red-500"
+              : toast.type === "success"
+                ? "bg-white border border-green-500 text-green-500"
+                : "bg-white border border-blue-500 text-blue-500"
+          }`}
+        >
           {toast.message}
         </div>
       )}
@@ -586,7 +702,12 @@ const GTE3MonthForm = () => {
       ) : (
         <div className="bg-white shadow-lg rounded-lg p-8 mb-8 border border-gray-200 relative">
           <div className="flex justify-between items-center mb-6">
-            <h2 className="text-xl font-semibold text-gray-700">Apply for <span className='text-custom-blue'>Long Term Internship (more than 3 Months)</span></h2>
+            <h2 className="text-xl font-semibold text-gray-700">
+              Apply for{" "}
+              <span className="text-custom-blue">
+                Long Term Internship (more than 3 Months)
+              </span>
+            </h2>
             <button
               onClick={() => {
                 setShowForm(false);
@@ -602,7 +723,8 @@ const GTE3MonthForm = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
                 <label className="block text-sm font-medium text-gray-600">
-                  Home University / College Name <span className="text-red-500">*</span>
+                  Home University / College Name{" "}
+                  <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="text"
@@ -615,7 +737,8 @@ const GTE3MonthForm = () => {
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-600">
-                  Home University / College Address <span className="text-red-500">*</span>
+                  Home University / College Address{" "}
+                  <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="text"
@@ -654,7 +777,8 @@ const GTE3MonthForm = () => {
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-600">
-                  Intended activities during stay as non-degree student <span className="text-red-500">*</span>
+                  Intended activities during stay as non-degree student{" "}
+                  <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="text"
@@ -767,9 +891,13 @@ const GTE3MonthForm = () => {
                   className="mt-1 block w-full p-3 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
                   required
                 >
-                  <option value="" disabled hidden>Select Status</option>
-                  {maritalStatusOptions.map(status => (
-                    <option key={status} value={status}>{status}</option>
+                  <option value="" disabled hidden>
+                    Select Status
+                  </option>
+                  {maritalStatusOptions.map((status) => (
+                    <option key={status} value={status}>
+                      {status}
+                    </option>
                   ))}
                 </select>
               </div>
@@ -801,7 +929,7 @@ const GTE3MonthForm = () => {
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-600">
-                   Applicant's Email <span className="text-red-500">*</span>
+                  Applicant's Email <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="email"
@@ -812,9 +940,10 @@ const GTE3MonthForm = () => {
                   required
                 />
               </div>
-               <div>
+              <div>
                 <label className="block text-sm font-medium text-gray-600">
-                  Applicant's Department (at Home University/College) <span className="text-red-500">*</span>
+                  Applicant's Department (at Home University/College){" "}
+                  <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="text"
@@ -823,12 +952,12 @@ const GTE3MonthForm = () => {
                   onChange={handleInputChange}
                   className="mt-1 block w-full p-3 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
                   required
-               />
-               
+                />
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-600">
-                   Applicant's Degree (at Home University/College) <span className="text-red-500">*</span>
+                  Applicant's Degree (at Home University/College){" "}
+                  <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="text"
@@ -842,7 +971,8 @@ const GTE3MonthForm = () => {
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-600">
-                   Applicant's Academic Year <span className="text-red-500">*</span>
+                  Applicant's Academic Year{" "}
+                  <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="text"
@@ -856,7 +986,8 @@ const GTE3MonthForm = () => {
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-600">
-                   Applicant's Academic Semester <span className="text-red-500">*</span>
+                  Applicant's Academic Semester{" "}
+                  <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="text"
@@ -870,7 +1001,8 @@ const GTE3MonthForm = () => {
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-600">
-                  Languages Known (comma-separated) <span className="text-red-500">*</span>
+                  Languages Known (comma-separated){" "}
+                  <span className="text-red-500">*</span>
                 </label>
                 <textarea
                   name="languagesKnown"
@@ -897,7 +1029,9 @@ const GTE3MonthForm = () => {
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-600">
-                  Faculty Supervisor at NIT Jalandhar (if intended for Research/Dissertation/Project Work) <span className="text-red-500">*</span>
+                  Faculty Supervisor at NIT Jalandhar (if intended for
+                  Research/Dissertation/Project Work){" "}
+                  <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="text"
@@ -910,18 +1044,23 @@ const GTE3MonthForm = () => {
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-600">
-                 Faculty Supervisor's Department <span className="text-red-500">*</span>
+                  Faculty Supervisor's Department{" "}
+                  <span className="text-red-500">*</span>
                 </label>
                 <select
                   name="facultySupervisorDepartment"
                   value={formData.facultySupervisorDepartment}
                   onChange={handleInputChange}
-                     className="mt-1 block w-full p-3 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                  className="mt-1 block w-full p-3 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
                   required
                 >
-                  <option value="" disabled hidden>Select Department</option>
-                  {departments.map(dept => (
-                    <option key={dept} value={dept}>{dept}</option>
+                  <option value="" disabled hidden>
+                    Select Department
+                  </option>
+                  {departments.map((dept) => (
+                    <option key={dept} value={dept}>
+                      {dept}
+                    </option>
                   ))}
                 </select>
               </div>
@@ -943,7 +1082,7 @@ const GTE3MonthForm = () => {
                         sm:left-6 sm:top-1/2 sm:-translate-y-1/2 sm:translate-x-0 sm:mt-0
                       "
                     >
-                     Mandatory for foreign students only
+                      Mandatory for foreign students only
                     </div>
                   </div>
                 </h4>
@@ -998,7 +1137,7 @@ const GTE3MonthForm = () => {
                   </div>
                 </div>
               </div>
-                            <div className="md:col-span-2">
+              <div className="md:col-span-2">
                 <label className="block text-sm font-medium text-gray-600">
                   Hostel Needed <span className="text-red-500">*</span>
                 </label>
@@ -1010,44 +1149,70 @@ const GTE3MonthForm = () => {
                     onChange={handleInputChange}
                     className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
                   />
-                  <label className="ml-2 text-sm">Yes, I need hostel accommodation</label>
+                  <label className="ml-2 text-sm">
+                    Yes, I need hostel accommodation
+                  </label>
                 </div>
               </div>
             </div>
             <div className="mt-6">
-              <h4 className="text-lg font-semibold mb-4">Upload Documents <span className="text-red-500">*</span></h4>
+              <h4 className="text-lg font-semibold mb-4">
+                Upload Documents <span className="text-red-500">*</span>
+              </h4>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <div>
-                  <label className="block text-sm font-medium text-gray-600">Photograph</label>
+                  <label className="block text-sm font-medium text-gray-600">
+                    Photograph
+                  </label>
                   <input
                     type="file"
                     accept="image/*"
-                    onChange={(e) => handleFileChange(e, 'photo')}
+                    onChange={(e) => handleFileChange(e, "photo")}
                     className="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
                   />
-                  {files.photo && <p className="text-sm text-green-600 mt-1">Selected: {files.photo.name}</p>}
-                  {renderFilePreview('photo')}
+                  {files.photo && (
+                    <p className="text-sm text-green-600 mt-1">
+                      Selected: {files.photo.name}
+                    </p>
+                  )}
+                  {renderFilePreview("photo")}
                   {existingFiles.photo && !files.photo && (
                     <p className="text-sm text-blue-600 mt-1">
-                      <a href={`${baseURL}/${existingFiles.photo}`} target="_blank" rel="noopener noreferrer" className="underline hover:text-blue-800">
+                      <a
+                        href={`${baseURL}/${existingFiles.photo}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="underline hover:text-blue-800"
+                      >
                         View Current
                       </a>
                     </p>
                   )}
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-600">Signature</label>
+                  <label className="block text-sm font-medium text-gray-600">
+                    Signature
+                  </label>
                   <input
                     type="file"
                     accept="image/*"
-                    onChange={(e) => handleFileChange(e, 'signature')}
+                    onChange={(e) => handleFileChange(e, "signature")}
                     className="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
                   />
-                  {files.signature && <p className="text-sm text-green-600 mt-1">Selected: {files.signature.name}</p>}
-                  {renderFilePreview('signature')}
+                  {files.signature && (
+                    <p className="text-sm text-green-600 mt-1">
+                      Selected: {files.signature.name}
+                    </p>
+                  )}
+                  {renderFilePreview("signature")}
                   {existingFiles.signature && !files.signature && (
                     <p className="text-sm text-blue-600 mt-1">
-                      <a href={`${baseURL}/${existingFiles.signature}`} target="_blank" rel="noopener noreferrer" className="underline hover:text-blue-800">
+                      <a
+                        href={`${baseURL}/${existingFiles.signature}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="underline hover:text-blue-800"
+                      >
                         View Current
                       </a>
                     </p>
@@ -1058,39 +1223,57 @@ const GTE3MonthForm = () => {
                     Documents (Combined PDF, max 5MB)
                     <Info
                       className="ml-2 h-4 w-4 text-blue-500 cursor-pointer"
-                      onClick={() => setShowDocumentsTooltip(!showDocumentsTooltip)}
+                      onClick={() =>
+                        setShowDocumentsTooltip(!showDocumentsTooltip)
+                      }
                     />
                   </label>
                   {showDocumentsTooltip && (
-                 <ul className="absolute top-full left-0 mt-1 z-10 bg-white border border-gray-200 rounded-md shadow-lg p-3 w-64 text-xs text-gray-700 space-y-1 list-disc list-inside">
-  <li>Recommendation from Home University</li>
-  <li>Proof of registration at Home University</li>
-  <li>Academic Record till last semester</li>
-  <li>Academic Record (Transcripts) for foreign students</li>
-  <li>Statement of purpose</li>
-  <li>Acceptance letter / Recommendation of Supervisor from NIT Jalandhar</li>
-  <li>Copy of Passport (for foreign nationals, subject to MEA clearance)</li>
-</ul>
-
+                    <ul className="absolute top-full left-0 mt-1 z-10 bg-white border border-gray-200 rounded-md shadow-lg p-3 w-64 text-xs text-gray-700 space-y-1 list-disc list-inside">
+                      <li>Recommendation from Home University</li>
+                      <li>Proof of registration at Home University</li>
+                      <li>Academic Record till last semester</li>
+                      <li>
+                        Academic Record (Transcripts) for foreign students
+                      </li>
+                      <li>Statement of purpose</li>
+                      <li>
+                        Acceptance letter / Recommendation of Supervisor from
+                        NIT Jalandhar
+                      </li>
+                      <li>
+                        Copy of Passport (for foreign nationals, subject to MEA
+                        clearance)
+                      </li>
+                    </ul>
                   )}
                   <input
                     type="file"
                     accept="application/pdf"
-                    onChange={(e) => handleFileChange(e, 'documents')}
+                    onChange={(e) => handleFileChange(e, "documents")}
                     className="mt-2 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
                   />
-                  {files.documents && <p className="text-sm text-green-600 mt-1">Selected: {files.documents.name}</p>}
-                  {renderFilePreview('documents')}
+                  {files.documents && (
+                    <p className="text-sm text-green-600 mt-1">
+                      Selected: {files.documents.name}
+                    </p>
+                  )}
+                  {renderFilePreview("documents")}
                   {existingFiles.documents && !files.documents && (
                     <p className="text-sm text-blue-600 mt-1">
-                      <a href={`${baseURL}/${existingFiles.documents}`} target="_blank" rel="noopener noreferrer" className="underline hover:text-blue-800">
+                      <a
+                        href={`${baseURL}/${existingFiles.documents}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="underline hover:text-blue-800"
+                      >
                         View Current
                       </a>
                     </p>
                   )}
                 </div>
               </div>
-                   <div className='mt-6'>
+              <div className="mt-6">
                 <label className="block text-sm font-medium text-gray-600">
                   Declaration <span className="text-red-500">*</span>
                 </label>
@@ -1104,7 +1287,11 @@ const GTE3MonthForm = () => {
                     required
                   />
                   <label className="text-sm leading-relaxed">
-                    I hereby declare that the statement made in this application are true, complete and correct to the best of my knowledge and belief. I understand that if any false information is found or if any required document is not uploaded, my internship application can be canceled at any time.
+                    I hereby declare that the statement made in this application
+                    are true, complete and correct to the best of my knowledge
+                    and belief. I understand that if any false information is
+                    found or if any required document is not uploaded, my
+                    internship application can be canceled at any time.
                   </label>
                 </div>
               </div>
@@ -1114,11 +1301,15 @@ const GTE3MonthForm = () => {
               disabled={isSubmitting || !validateForm()}
               className={`w-full p-3 rounded-md transition duration-300 ${
                 isSubmitting || !validateForm()
-                  ? 'bg-gray-400 cursor-not-allowed'
-                  : 'bg-custom-blue text-white hover:bg-blue-700'
+                  ? "bg-gray-400 cursor-not-allowed"
+                  : "bg-custom-blue text-white hover:bg-blue-700"
               }`}
             >
-              {isSubmitting ? 'Submitting...' : editingId ? 'Update Application' : 'Submit Application'}
+              {isSubmitting
+                ? "Submitting..."
+                : editingId
+                  ? "Update Application"
+                  : "Submit Application"}
             </button>
           </form>
         </div>

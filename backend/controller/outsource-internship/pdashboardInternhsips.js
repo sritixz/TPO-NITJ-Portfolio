@@ -64,7 +64,7 @@ export const changeStatusgte3month = async (req, res) => {
     const { status } = req.body;
 
     // validate status
-    const allowedStatuses = ["pending", "verified", "rejected"];
+    const allowedStatuses = ["pending", "approved", "rejected"];
     if (!allowedStatuses.includes(status)) {
       return res.status(400).json({
         message: "Invalid status value",
