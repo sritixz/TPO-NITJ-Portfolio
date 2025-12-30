@@ -968,7 +968,7 @@ export const checkEligibility = async (req, res) => {
        const isDeadlineOver = job.deadline && currentDate > job.deadline;
 
   // Check for isInterested only if the field exists
-  if (typeof student.isInterested !== 'undefined' && student.isInterested === false) {
+  if (student.batch === '2026' && typeof student.isInterested !== 'undefined' && student.isInterested === false) {
   return res.json({
     eligible: false,
     reason: "You were not interested during placement registration"
