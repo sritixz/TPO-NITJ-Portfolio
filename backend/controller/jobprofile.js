@@ -40,117 +40,117 @@ export const getAllCompanies = async (req, res) => {
 };
 
 
-// onst transporter = nodemailer.createTransport({
-//   service: "gmail",
-//   auth: {
-//     user: process.env.EMAIL_USER,
-//     pass: process.env.EMAIL_PASS,
-//   },
-// });
+const transporter = nodemailer.createTransport({
+  service: "gmail",
+  auth: {
+    user: process.env.EMAIL_USER,
+    pass: process.env.EMAIL_PASS,
+  },
+});
 
 // Function to send email to a single student
-// const sendEmailToStudent = async (student, jobProfile) => {
-//     const deadlineDateTime = new Date(jobProfile.deadline).toLocaleString("en-IN", {
-//     dateStyle: "medium",
-//     timeStyle: "short", 
-//     timeZone: "Asia/Kolkata", 
-//   });
-// // Determine salary details based on job_type
-//   let salaryDetails = "";
-//   if (jobProfile.job_type === "Intern") {
-//     salaryDetails = `<tr>
-//             <td style="padding: 8px; font-weight: bold;">💸 Stipend:</td>
-//             <td style="padding: 8px;">${jobProfile.job_salary.stipend}</td>
-//           </tr>`;
-//   } else if (["Intern+PPO", "Intern+FTE"].includes(jobProfile.job_type)) {
-//     salaryDetails = `
-//       <tr>
-//             <td style="padding: 8px; font-weight: bold;">💸 Stipend:</td>
-//             <td style="padding: 8px;">${jobProfile.job_salary.stipend}</td>
-//           </tr>
-//           <tr>
-//             <td style="padding: 8px; font-weight: bold;">💰 CTC:</td>
-//             <td style="padding: 8px;"> ${jobProfile.job_salary.ctc} LPA</td>
-//           </tr>
-//     `;
-//   } else if (jobProfile.job_type === "FTE") {
-//     salaryDetails = `<tr>
-//             <td style="padding: 8px; font-weight: bold;">💰 CTC:</td>
-//             <td style="padding: 8px;"> ${jobProfile.job_salary.ctc} LPA</td>
-//           </tr>`;
-//   }
-//   const mailOptions = {
-//     from: process.env.EMAIL_USER,
-//     to: student.email,
-//     subject: `New Job Opportunity: ${jobProfile.job_role} at ${jobProfile.company_name}`,
-// html: `
-//   <div style="font-family: Arial, sans-serif; color: #333; line-height: 1.6;">
-//     <div style="max-width: 650px; margin: auto; border: 1px solid #e0e0e0; border-radius: 10px; overflow: hidden; box-shadow: 0 4px 10px rgba(0,0,0,0.05);">
+const sendEmailToStudent = async (student, jobProfile) => {
+    const deadlineDateTime = new Date(jobProfile.deadline).toLocaleString("en-IN", {
+    dateStyle: "medium",
+    timeStyle: "short", 
+    timeZone: "Asia/Kolkata", 
+  });
+// Determine salary details based on job_type
+  let salaryDetails = "";
+  if (jobProfile.job_type === "Intern") {
+    salaryDetails = `<tr>
+            <td style="padding: 8px; font-weight: bold;">💸 Stipend:</td>
+            <td style="padding: 8px;">${jobProfile.job_salary.stipend}</td>
+          </tr>`;
+  } else if (["Intern+PPO", "Intern+FTE"].includes(jobProfile.job_type)) {
+    salaryDetails = `
+      <tr>
+            <td style="padding: 8px; font-weight: bold;">💸 Stipend:</td>
+            <td style="padding: 8px;">${jobProfile.job_salary.stipend}</td>
+          </tr>
+          <tr>
+            <td style="padding: 8px; font-weight: bold;">💰 CTC:</td>
+            <td style="padding: 8px;"> ${jobProfile.job_salary.ctc} LPA</td>
+          </tr>
+    `;
+  } else if (jobProfile.job_type === "FTE") {
+    salaryDetails = `<tr>
+            <td style="padding: 8px; font-weight: bold;">💰 CTC:</td>
+            <td style="padding: 8px;"> ${jobProfile.job_salary.ctc} LPA</td>
+          </tr>`;
+  }
+  const mailOptions = {
+    from: process.env.EMAIL_USER,
+    to: student.email,
+    subject: `New Job Opportunity: ${jobProfile.job_role} at ${jobProfile.company_name}`,
+html: `
+  <div style="font-family: Arial, sans-serif; color: #333; line-height: 1.6;">
+    <div style="max-width: 650px; margin: auto; border: 1px solid #e0e0e0; border-radius: 10px; overflow: hidden; box-shadow: 0 4px 10px rgba(0,0,0,0.05);">
       
-//       <!-- Header -->
-//       <div style="background: linear-gradient(90deg, #0369A0, #04A6CF); padding: 24px; text-align: center; color: #ffffff;">
-//         <h2 style="margin: 0; font-size: 22px;">New Job Opportunity</h2>
-//         <p style="margin: 4px 0 0; font-size: 16px;">${jobProfile.job_role} at ${jobProfile.company_name}</p>
-//       </div>
+      <!-- Header -->
+      <div style="background: linear-gradient(90deg, #0369A0, #04A6CF); padding: 24px; text-align: center; color: #ffffff;">
+        <h2 style="margin: 0; font-size: 22px;">New Job Opportunity</h2>
+        <p style="margin: 4px 0 0; font-size: 16px;">${jobProfile.job_role} at ${jobProfile.company_name}</p>
+      </div>
       
-//       <!-- Body -->
-//       <div style="padding: 24px; background-color: #fafafa;">
-//         <p style="font-size: 16px;">Dear <strong>Student</strong>,</p>
+      <!-- Body -->
+      <div style="padding: 24px; background-color: #fafafa;">
+        <p style="font-size: 16px;">Dear <strong>Student</strong>,</p>
         
-//         <p style="font-size: 15px; margin-top: 10px;">
-//           We are excited to share a new job opening with you. Here are the details:
-//         </p>
+        <p style="font-size: 15px; margin-top: 10px;">
+          We are excited to share a new job opening with you. Here are the details:
+        </p>
 
-//         <table style="width: 100%; margin-top: 16px; border-collapse: collapse; font-size: 15px;">
-//           <tr>
-//             <td style="padding: 8px; font-weight: bold;">🏢 Company:</td>
-//             <td style="padding: 8px;">${jobProfile.company_name}</td>
-//           </tr>
-//           <tr style="background-color: #f9f9f9;">
-//             <td style="padding: 8px; font-weight: bold;">💼 Job Role:</td>
-//             <td style="padding: 8px;">${jobProfile.job_role}</td>
-//           </tr>
-//           <tr>
-//             <td style="padding: 8px; font-weight: bold;">📍 Location:</td>
-//             <td style="padding: 8px;">${jobProfile.joblocation}</td>
-//           </tr>
-//           ${salaryDetails ? `${salaryDetails}` : ""}
-//            <tr>
-//             <td style="padding: 8px; font-weight: bold;">⏳ Deadline:</td>
-//             <td style="padding: 8px; color: #d9534f; font-weight: bold;">${deadlineDateTime}</td>
-//           </tr>
-//         </table>
+        <table style="width: 100%; margin-top: 16px; border-collapse: collapse; font-size: 15px;">
+          <tr>
+            <td style="padding: 8px; font-weight: bold;">🏢 Company:</td>
+            <td style="padding: 8px;">${jobProfile.company_name}</td>
+          </tr>
+          <tr style="background-color: #f9f9f9;">
+            <td style="padding: 8px; font-weight: bold;">💼 Job Role:</td>
+            <td style="padding: 8px;">${jobProfile.job_role}</td>
+          </tr>
+          <tr>
+            <td style="padding: 8px; font-weight: bold;">📍 Location:</td>
+            <td style="padding: 8px;">${jobProfile.joblocation}</td>
+          </tr>
+          ${salaryDetails ? `${salaryDetails}` : ""}
+           <tr>
+            <td style="padding: 8px; font-weight: bold;">⏳ Deadline:</td>
+            <td style="padding: 8px; color: #d9534f; font-weight: bold;">${deadlineDateTime}</td>
+          </tr>
+        </table>
 
-//         <!-- CTA Button -->
-//         <div style="text-align: center; margin: 24px 0;">
-//           <a href="https://ctp.nitj.ac.in/sdashboard/job-application/${jobProfile._id}" 
-//             style="background: linear-gradient(90deg, #0369A0, #04A6CF); color: #ffffff; padding: 12px 24px; border-radius: 6px; text-decoration: none; font-size: 15px; font-weight: bold; display: inline-block; box-shadow: 0 2px 6px rgba(0,0,0,0.1);">
-//             🔗 Apply Now on TPO NITJ Portal
-//           </a>
-//         </div>
-//       </div>
+        <!-- CTA Button -->
+        <div style="text-align: center; margin: 24px 0;">
+          <a href="https://ctp.nitj.ac.in/sdashboard/job-application/${jobProfile._id}" 
+            style="background: linear-gradient(90deg, #0369A0, #04A6CF); color: #ffffff; padding: 12px 24px; border-radius: 6px; text-decoration: none; font-size: 15px; font-weight: bold; display: inline-block; box-shadow: 0 2px 6px rgba(0,0,0,0.1);">
+            🔗 Apply Now on TPO NITJ Portal
+          </a>
+        </div>
+      </div>
       
-//       <!-- Footer -->
-//       <div style="background-color: #f4f4f4; padding: 16px; text-align: center; font-size: 13px; color: #777;">
-//         <p style="margin: 0;">Best regards,</p>
-//         <p style="margin: 0; font-weight: bold; color: #0369A0;">TPO-NITJ</p>
-//         <p style="margin-top: 8px; font-size: 12px; color: #999;">
-//           This is an automated message. Please do not reply to this email.
-//         </p>
-//       </div>
+      <!-- Footer -->
+      <div style="background-color: #f4f4f4; padding: 16px; text-align: center; font-size: 13px; color: #777;">
+        <p style="margin: 0;">Best regards,</p>
+        <p style="margin: 0; font-weight: bold; color: #0369A0;">TPO-NITJ</p>
+        <p style="margin-top: 8px; font-size: 12px; color: #999;">
+          This is an automated message. Please do not reply to this email.
+        </p>
+      </div>
       
-//     </div>
-//   </div>
-// `
+    </div>
+  </div>
+`
 
-//   };
+  };
 
-//   try {
-//     await transporter.sendMail(mailOptions);
-//   } catch (error) {
-//     console.error(`Failed to send email to ${student.email}:`, error);
-//   }
-// };
+  try {
+    await transporter.sendMail(mailOptions);
+  } catch (error) {
+    console.error(`Failed to send email to ${student.email}:`, error);
+  }
+};
 export const createJobProfilecopy = async (req, res) => {
   try {
     // Extract recruiter ID from authenticated user
@@ -330,7 +330,7 @@ await Promise.all(
     const email = `${prefix}${admissionYear}@nitj.ac.in`;
 
     const pseudoStudent = { email };
-    // await sendEmailToStudent(pseudoStudent, savedProfile);
+    await sendEmailToStudent(pseudoStudent, savedProfile);
   })
 );
 
