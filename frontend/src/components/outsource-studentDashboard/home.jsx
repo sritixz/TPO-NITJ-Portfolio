@@ -99,6 +99,10 @@ const OutsourceInternshipPage = () => {
                   <CheckCircle size={16} className="text-custom-blue mt-0.5 flex-shrink-0" />
                   <span className="text-sm text-gray-700">NOC signed by Head of Department/Principal/Dean</span>
                 </div>
+                <div className="flex items-start gap-2">
+                  <CheckCircle size={16} className="text-custom-blue mt-0.5 flex-shrink-0" />
+                  <span className="text-sm text-gray-700">Payment Slip</span>
+                </div>
               </div>
             </div>
           </div>
