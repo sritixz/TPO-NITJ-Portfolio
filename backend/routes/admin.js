@@ -5,7 +5,6 @@ import multer from "multer";
 import path from "path";
 import fs from "fs";
 
-
 import {
   addJobProfile,
   getAllJobProfiles,
@@ -37,7 +36,7 @@ import {
   getDepartmentById,
 } from "../controller/Admin/Department.js";
 
-import{
+import {
   getAllDevelopers,
   updateDeveloperProfile,
   deleteDeveloperProfiles,
@@ -83,7 +82,6 @@ import {
   deleteAlert,
 } from "../controller/Admin/alert.js";
 
-
 import {
   createPlacementCalendar,
   getAllPlacementCalendars,
@@ -93,9 +91,8 @@ import {
   deleteManyPlacementCalendars,
   addCompanyToCalendar,
   removeCompanyFromCalendar,
-  getUpcomingOrPastCalendars
+  getUpcomingOrPastCalendars,
 } from "../controller/Admin/placement-calendar.js";
-
 
 import {
   createPlacementRegistration,
@@ -104,7 +101,10 @@ import {
   updatePlacementRegistration,
   deletePlacementRegistration,
   deleteManyPlacementRegistrations,
-} from '../controller/Admin/placement-registration.js'; 
+} from "../controller/Admin/placement-registration.js";
+
+import { uploadExcel } from "../utils/adminMulter.js";
+import { uploadStudentsExcel, updateExistingStudents } from "../controller/Admin/studentExcelUpload.js";
 
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
@@ -116,11 +116,10 @@ const storage = multer.diskStorage({
     const ext = path.extname(file.originalname);
     const name = file.fieldname + "-" + Date.now() + ext;
     cb(null, name);
-  }
+  },
 });
 
 const upload = multer({ storage });
-
 
 //job profile routes
 router.post("/jobprofiles", addJobProfile);
@@ -131,19 +130,27 @@ router.post("/jobprofiles/bulk-delete", bulkDeleteJobProfiles);
 router.put("/jobprofiles/:id/toggle-visibility", toggleJobProfileVisibility);
 //student profile routes
 router.get("/students", getAllStudents);
-router.put("/students/:id",updateStudentProfile);
-router.post("/students",addNewStudent);
+router.put("/students/:id", updateStudentProfile);
+router.post("/students", addNewStudent);
 router.delete("/students", deleteStudentProfiles);
 router.patch("/students/deactivate/:id", deactivateStudentProfiles);
+router.post(
+  "/students/upload-excel",
+  uploadExcel.single("file"),
+  uploadStudentsExcel
+);
+
+router.put("/students/update-existing", updateExistingStudents);
+
 //recruiter profile routes
 router.get("/recruiters", getAllRecruiters);
-router.put("/recruiters/:id",updateRecruiterProfile);
-router.post("/recruiters",addNewRecruiter);
+router.put("/recruiters/:id", updateRecruiterProfile);
+router.post("/recruiters", addNewRecruiter);
 router.delete("/recruiters", deleteRecruiterProfiles);
 //professor profile routes
 router.get("/professors", getAllProfessors);
-router.put("/professors/:id",updateProfessorProfile);
-router.post("/professors",addNewProfessor);
+router.put("/professors/:id", updateProfessorProfile);
+router.post("/professors", addNewProfessor);
 router.delete("/professors", deleteProfessorProfiles);
 router.get("/professors/:id", getProfessorById);
 //department profile routes
@@ -155,9 +162,9 @@ router.get("/departments/:id", getDepartmentById);
 
 //developer profile routes
 router.get("/devteam", getAllDevelopers);
-router.put("/devteam/:id",upload.single("imageFile"), updateDeveloperProfile);
+router.put("/devteam/:id", upload.single("imageFile"), updateDeveloperProfile);
 router.delete("/devteam", deleteDeveloperProfiles);
-router.post("/devteam",upload.single("imageFile"), addNewDeveloper);
+router.post("/devteam", upload.single("imageFile"), addNewDeveloper);
 
 //logs routes
 router.get("/getlogs", getLogs);
@@ -188,14 +195,12 @@ router.put("/offers/:id", updateOffer);
 router.delete("/offers/:id", deleteOffer);
 router.post("/offers/bulk-delete", deleteBulkOffers);
 
-
 //alert
 router.post("/alert/", createAlert);
 router.get("/alert/", getAllAlerts);
 router.get("/alert/active", getActiveAlerts);
 router.put("/alert/:id", updateAlert);
 router.delete("/alert/:id", deleteAlert);
-
 
 //placement calendar
 router.post("/placement-calendar/", createPlacementCalendar);
@@ -206,15 +211,20 @@ router.put("/placement-calendar/:id", updatePlacementCalendar);
 router.delete("/placement-calendar/:id", deletePlacementCalendar);
 router.post("/placement-calendar/delete-many", deleteManyPlacementCalendars);
 router.post("/placement-calendar/add-company/:date", addCompanyToCalendar);
-router.delete("/placement-calendar/remove-company/:date/:companyId", removeCompanyFromCalendar);
-
+router.delete(
+  "/placement-calendar/remove-company/:date/:companyId",
+  removeCompanyFromCalendar
+);
 
 // placement registration
-router.post('/placement-registration/', createPlacementRegistration);
-router.get('/placement-registration/', getAllPlacementRegistrations);
-router.get('/placement-registration/:id', getPlacementRegistrationById);
-router.put('/placement-registration/:id', updatePlacementRegistration);
-router.delete('/placement-registration/:id', deletePlacementRegistration);
-router.delete('/placement-registration/delete-many/', deleteManyPlacementRegistrations);
+router.post("/placement-registration/", createPlacementRegistration);
+router.get("/placement-registration/", getAllPlacementRegistrations);
+router.get("/placement-registration/:id", getPlacementRegistrationById);
+router.put("/placement-registration/:id", updatePlacementRegistration);
+router.delete("/placement-registration/:id", deletePlacementRegistration);
+router.delete(
+  "/placement-registration/delete-many/",
+  deleteManyPlacementRegistrations
+);
 
 export default router;
