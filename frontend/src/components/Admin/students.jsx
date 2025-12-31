@@ -66,22 +66,22 @@
 //     debarred: "",
 //     disability: "",
 //     account_deactivate: ""
-  
+
 //   });
 //   const [currentPage, setCurrentPage] = useState(1);
 //   const studentsPerPage = 100;
 
 //   // Predefined lists
 //   const departments = [
-//     "INTEGRATED TEACHER EDUCATION PROGRAMME", "BIO TECHNOLOGY", "CHEMICAL ENGINEERING", "CIVIL ENGINEERING", 
-//     "COMPUTER SCIENCE AND ENGINEERING", "ELECTRICAL ENGINEERING", "ELECTRONICS AND COMMUNICATION ENGINEERING", 
-//     "INDUSTRIAL AND PRODUCTION ENGINEERING", "INFORMATION TECHNOLOGY", "INSTRUMENTATION AND CONTROL ENGINEERING", 
-//     "MECHANICAL ENGINEERING", "TEXTILE TECHNOLOGY", "DATA SCIENCE AND ENGINEERING", "ELECTRONICS AND VLSI ENGINEERING", 
-//     "MATHEMATICS AND COMPUTING", "CHEMISTRY", "MATHEMATICS", "PHYSICS", "ARTIFICIAL INTELLIGENCE", 
-//     "COMPUTER SCIENCE AND ENGINEERING (INFORMATION SECURITY)", "CONTROL AND INSTRUMENTATION ENGINEERING", 
-//     "DATA ANALYTICS", "DESIGN ENGINEERING", "ELECTRIC VEHICLE DESIGN", "GEOTECHNICAL AND GEO-ENVIRONMENTAL ENGINEERING", 
-//     "INDUSTRIAL ENGINEERING AND DATA ANALYTICS", "POWER SYSTEMS AND RELIABILITY", "RENEWABLE ENERGY", 
-//     "SIGNAL PROCESSING AND MACHINE LEARNING", "STRUCTURAL AND CONSTRUCTION ENGINEERING", "TEXTILE ENGINEERING AND MANAGEMENT", 
+//     "INTEGRATED TEACHER EDUCATION PROGRAMME", "BIO TECHNOLOGY", "CHEMICAL ENGINEERING", "CIVIL ENGINEERING",
+//     "COMPUTER SCIENCE AND ENGINEERING", "ELECTRICAL ENGINEERING", "ELECTRONICS AND COMMUNICATION ENGINEERING",
+//     "INDUSTRIAL AND PRODUCTION ENGINEERING", "INFORMATION TECHNOLOGY", "INSTRUMENTATION AND CONTROL ENGINEERING",
+//     "MECHANICAL ENGINEERING", "TEXTILE TECHNOLOGY", "DATA SCIENCE AND ENGINEERING", "ELECTRONICS AND VLSI ENGINEERING",
+//     "MATHEMATICS AND COMPUTING", "CHEMISTRY", "MATHEMATICS", "PHYSICS", "ARTIFICIAL INTELLIGENCE",
+//     "COMPUTER SCIENCE AND ENGINEERING (INFORMATION SECURITY)", "CONTROL AND INSTRUMENTATION ENGINEERING",
+//     "DATA ANALYTICS", "DESIGN ENGINEERING", "ELECTRIC VEHICLE DESIGN", "GEOTECHNICAL AND GEO-ENVIRONMENTAL ENGINEERING",
+//     "INDUSTRIAL ENGINEERING AND DATA ANALYTICS", "POWER SYSTEMS AND RELIABILITY", "RENEWABLE ENERGY",
+//     "SIGNAL PROCESSING AND MACHINE LEARNING", "STRUCTURAL AND CONSTRUCTION ENGINEERING", "TEXTILE ENGINEERING AND MANAGEMENT",
 //     "VLSI DESIGN", "MACHINE INTELLIGENCE AND AUTOMATION", "THERMAL AND ENERGY ENGINEERING", "HUMANITIES AND MANAGEMENT"
 //   ];
 
@@ -112,17 +112,17 @@
 
 //   const handleSave = async () => {
 //     try {
-//       const url = editProfile._id 
+//       const url = editProfile._id
 //         ? `${import.meta.env.REACT_APP_BASE_URL}/admin/students/${editProfile._id}`
 //         : `${import.meta.env.REACT_APP_BASE_URL}/admin/students`;
-      
+
 //       const method = editProfile._id ? axios.put : axios.post;
-      
+
 //       const response = await method(url, editProfile, { withCredentials: true });
-      
+
 //       fetchStudents();
 //       setOpenEditDialog(false);
-      
+
 //       toast.success(editProfile._id ? "Student updated successfully" : "Student added successfully");
 //     } catch (error) {
 //       toast.error(`Failed to ${editProfile._id ? 'update' : 'add'} student`);
@@ -131,20 +131,20 @@
 
 //   const updateDeleteConfirmation = useCallback((value) => {
 //     setDeleteConfirmModal(prev => ({
-//       ...prev, 
+//       ...prev,
 //       rollNoConfirmation: value
 //     }));
 //   }, []);
 
 //   const updateDeactivateConfirmation = useCallback((value) => {
 //     setDeactivateConfirmModal(prev => ({
-//       ...prev, 
+//       ...prev,
 //       rollNoConfirmation: value
 //     }));
 //   }, []);
 
 //   const openDeleteConfirmModal = (type, studentId = null) => {
-//     const studentToDelete = type === 'single' 
+//     const studentToDelete = type === 'single'
 //       ? students.find(s => s._id === studentId)
 //       : null;
 
@@ -159,7 +159,7 @@
 
 //   const openDeactivateConfirmModal = (studentId) => {
 //     const studentToDeactivate = students.find(s => s._id === studentId);
-    
+
 //     setDeactivateConfirmModal({
 //       isOpen: true,
 //       studentId: studentId,
@@ -171,27 +171,27 @@
 
 //   const handleDeleteStudents = async () => {
 //     try {
-//       const idsToDelete = deleteConfirmModal.type === 'bulk' 
-//         ? selectedStudents 
+//       const idsToDelete = deleteConfirmModal.type === 'bulk'
+//         ? selectedStudents
 //         : [deleteConfirmModal.studentId];
 
 //       await axios.delete(
 //         `${import.meta.env.REACT_APP_BASE_URL}/admin/students`,
-//         { 
+//         {
 //           data: { studentIds: idsToDelete },
-//           withCredentials: true 
+//           withCredentials: true
 //         }
 //       );
-      
+
 //       setStudents(students.filter(student => !idsToDelete.includes(student._id)));
 //       setSelectedStudents([]);
-      
-//       setDeleteConfirmModal(prev => ({ 
+
+//       setDeleteConfirmModal(prev => ({
 //         ...prev,
-//         isOpen: false, 
-//         type: '', 
-//         studentId: null, 
-//         rollNoConfirmation: '' 
+//         isOpen: false,
+//         type: '',
+//         studentId: null,
+//         rollNoConfirmation: ''
 //       }));
 
 //       toast.success("Students deleted successfully");
@@ -205,25 +205,25 @@
 //       const studentId = deactivateConfirmModal.studentId;
 //       const studentToUpdate = students.find(s => s._id === studentId);
 //       const newStatus = !studentToUpdate.account_deactivate;
-      
+
 //       await axios.patch(
 //         `${import.meta.env.REACT_APP_BASE_URL}/admin/students/deactivate/${studentId}`,
 //         { deactivate: newStatus },
 //         { withCredentials: true }
 //       );
-      
+
 //       // Update local state
-//       setStudents(students.map(student => 
-//         student._id === studentId 
-//           ? { ...student, account_deactivate: newStatus } 
+//       setStudents(students.map(student =>
+//         student._id === studentId
+//           ? { ...student, account_deactivate: newStatus }
 //           : student
 //       ));
-      
-//       setDeactivateConfirmModal(prev => ({ 
+
+//       setDeactivateConfirmModal(prev => ({
 //         ...prev,
-//         isOpen: false, 
-//         studentId: null, 
-//         rollNoConfirmation: '' 
+//         isOpen: false,
+//         studentId: null,
+//         rollNoConfirmation: ''
 //       }));
 
 //       toast.success(`Student account ${newStatus ? 'deactivated' : 'activated'} successfully`);
@@ -244,32 +244,32 @@
 //         <div className="bg-white p-6 rounded-lg shadow-xl w-96">
 //           <div className="flex justify-between items-center mb-4">
 //             <h2 className="text-xl font-bold">Confirm Deletion</h2>
-//             <button 
-//               onClick={() => setDeleteConfirmModal(prev => ({ 
+//             <button
+//               onClick={() => setDeleteConfirmModal(prev => ({
 //                 ...prev,
-//                 isOpen: false, 
-//                 type: '', 
-//                 studentId: null, 
-//                 rollNoConfirmation: '' 
+//                 isOpen: false,
+//                 type: '',
+//                 studentId: null,
+//                 rollNoConfirmation: ''
 //               }))}
 //               className="text-gray-500 hover:text-gray-700"
 //             >
 //               <X size={24} />
 //             </button>
 //           </div>
-          
+
 //           <p className="mb-4">
 //             {deleteConfirmModal.type === 'bulk'
 //               ? `Are you sure you want to delete ${selectedStudents.length} selected students?`
 //               : `Are you sure you want to delete student with Roll No: ${studentToDelete?.rollno}?`
 //             }
 //           </p>
-          
+
 //           <div className="mb-4">
 //             <label className="block mb-2">
 //               Type the Roll Number to confirm:
 //             </label>
-//             <input 
+//             <input
 //               type="text"
 //               value={deleteConfirmModal.rollNoConfirmation}
 //               onChange={(e) => updateDeleteConfirmation(e.target.value)}
@@ -278,29 +278,29 @@
 //               autoFocus
 //             />
 //           </div>
-          
+
 //           <div className="flex justify-end space-x-2">
-//             <button 
-//               onClick={() => setDeleteConfirmModal(prev => ({ 
+//             <button
+//               onClick={() => setDeleteConfirmModal(prev => ({
 //                 ...prev,
-//                 isOpen: false, 
-//                 type: '', 
-//                 studentId: null, 
-//                 rollNoConfirmation: '' 
+//                 isOpen: false,
+//                 type: '',
+//                 studentId: null,
+//                 rollNoConfirmation: ''
 //               }))}
 //               className="bg-gray-300 text-gray-700 px-4 py-2 rounded"
 //             >
 //               Cancel
 //             </button>
-//             <button 
+//             <button
 //               onClick={handleDeleteStudents}
-//               disabled={deleteConfirmModal.type === 'single' 
+//               disabled={deleteConfirmModal.type === 'single'
 //                 ? deleteConfirmModal.rollNoConfirmation !== studentToDelete?.rollno
 //                 : false
 //               }
 //               className={`
 //                 px-4 py-2 rounded text-white
-//                 ${(deleteConfirmModal.type === 'single' 
+//                 ${(deleteConfirmModal.type === 'single'
 //                   ? deleteConfirmModal.rollNoConfirmation !== studentToDelete?.rollno
 //                   : false)
 //                   ? 'bg-gray-400 cursor-not-allowed'
@@ -327,28 +327,28 @@
 //         <div className="bg-white p-6 rounded-lg shadow-xl w-96">
 //           <div className="flex justify-between items-center mb-4">
 //             <h2 className="text-xl font-bold">Confirm Account {actionText.charAt(0).toUpperCase() + actionText.slice(1)}</h2>
-//             <button 
-//               onClick={() => setDeactivateConfirmModal(prev => ({ 
+//             <button
+//               onClick={() => setDeactivateConfirmModal(prev => ({
 //                 ...prev,
-//                 isOpen: false, 
-//                 studentId: null, 
-//                 rollNoConfirmation: '' 
+//                 isOpen: false,
+//                 studentId: null,
+//                 rollNoConfirmation: ''
 //               }))}
 //               className="text-gray-500 hover:text-gray-700"
 //             >
 //               <X size={24} />
 //             </button>
 //           </div>
-          
+
 //           <p className="mb-4">
 //             Are you sure you want to {actionText} the account for student with Roll No: {studentToDeactivate?.rollno}?
 //           </p>
-          
+
 //           <div className="mb-4">
 //             <label className="block mb-2">
 //               Type the Roll Number to confirm:
 //             </label>
-//             <input 
+//             <input
 //               type="text"
 //               value={deactivateConfirmModal.rollNoConfirmation}
 //               onChange={(e) => updateDeactivateConfirmation(e.target.value)}
@@ -357,27 +357,27 @@
 //               autoFocus
 //             />
 //           </div>
-          
+
 //           <div className="flex justify-end space-x-2">
-//             <button 
-//               onClick={() => setDeactivateConfirmModal(prev => ({ 
+//             <button
+//               onClick={() => setDeactivateConfirmModal(prev => ({
 //                 ...prev,
-//                 isOpen: false, 
-//                 studentId: null, 
-//                 rollNoConfirmation: '' 
+//                 isOpen: false,
+//                 studentId: null,
+//                 rollNoConfirmation: ''
 //               }))}
 //               className="bg-gray-300 text-gray-700 px-4 py-2 rounded"
 //             >
 //               Cancel
 //             </button>
-//             <button 
+//             <button
 //               onClick={handleDeactivateStudent}
 //               disabled={deactivateConfirmModal.rollNoConfirmation !== studentToDeactivate?.rollno}
 //               className={`
 //                 px-4 py-2 rounded text-white
 //                 ${deactivateConfirmModal.rollNoConfirmation !== studentToDeactivate?.rollno
 //                   ? 'bg-gray-400 cursor-not-allowed'
-//                   : studentToDeactivate?.account_deactivate 
+//                   : studentToDeactivate?.account_deactivate
 //                     ? 'bg-green-500 hover:bg-green-600'
 //                     : 'bg-orange-500 hover:bg-orange-600'
 //                 }
@@ -392,8 +392,8 @@
 //   };
 
 //   const handleSelectStudent = (studentId) => {
-//     setSelectedStudents(prev => 
-//       prev.includes(studentId) 
+//     setSelectedStudents(prev =>
+//       prev.includes(studentId)
 //         ? prev.filter(id => id !== studentId)
 //         : [...prev, studentId]
 //     );
@@ -434,11 +434,11 @@
 //         (!filters.minCgpa || parseFloat(student.cgpa) >= parseFloat(filters.minCgpa)) &&
 //         (!filters.gender || student.gender === filters.gender) &&
 //         (!filters.category || student.category === filters.category) &&
-//         (filters.activeBacklogs === '' || 
-//           (filters.activeBacklogs === 'yes' && student.active_backlogs) || 
+//         (filters.activeBacklogs === '' ||
+//           (filters.activeBacklogs === 'yes' && student.active_backlogs) ||
 //           (filters.activeBacklogs === 'no' && !student.active_backlogs)) &&
-//         (filters.deactivated === '' || 
-//           (filters.deactivated === 'yes' && student.account_deactivate) || 
+//         (filters.deactivated === '' ||
+//           (filters.deactivated === 'yes' && student.account_deactivate) ||
 //           (filters.deactivated === 'no' && !student.account_deactivate)) &&
 //         (!filters.internshipstatus || student.internshipstatus === filters.internshipstatus) &&
 //         (!filters.batch || String(student.batch) === String(filters.batch)) &&
@@ -449,23 +449,23 @@
 //         (!filters.rollno || (student.rollno && student.rollno.toLowerCase().includes(filters.rollno.toLowerCase()))) &&
 //         (!filters.cgpa || (student.cgpa && student.cgpa.toString().includes(filters.cgpa))) &&
 //         (!filters.active_backlogs || (
-//           student.active_backlogs !== undefined && 
+//           student.active_backlogs !== undefined &&
 //           student.active_backlogs === (filters.active_backlogs === "true")
 //         )) &&
 //         (!filters.backlogs_history || (
-//           student.backlogs_history !== undefined && 
+//           student.backlogs_history !== undefined &&
 //           student.backlogs_history === (filters.backlogs_history === "true")
 //         )) &&
 //         (!filters.debarred || (
-//           student.debarred !== undefined && 
+//           student.debarred !== undefined &&
 //           student.debarred === (filters.debarred === "true")
 //         )) &&
 //         (!filters.disability || (
-//           student.disability !== undefined && 
+//           student.disability !== undefined &&
 //           student.disability === (filters.disability === "true")
 //         )) &&
 //         (!filters.account_deactivate || (
-//           student.account_deactivate !== undefined && 
+//           student.account_deactivate !== undefined &&
 //           student.account_deactivate === (filters.account_deactivate === "true")
 //         ))
 //       );
@@ -489,14 +489,14 @@
 //           Student Management
 //         </h1>
 //         <div className="flex flex-col md:flex-row space-y-2 md:space-y-0 md:space-x-2">
-//           <button 
+//           <button
 //             onClick={() => openEditModal()}
 //             className="bg-green-500 text-white px-4 py-2 rounded flex items-center justify-center"
 //           >
 //             <Plus className="mr-2" /> Add Student
 //           </button>
 //           {selectedStudents.length > 0 && (
-//             <button 
+//             <button
 //               onClick={() => openDeleteConfirmModal('bulk')}
 //               className="bg-red-500 text-white px-4 py-2 rounded flex items-center justify-center"
 //             >
@@ -508,7 +508,7 @@
 
 //       {/* Filters */}
 //       <div className="mb-4 grid grid-cols-2 md:grid-cols-4 gap-2">
-//         <select 
+//         <select
 //           value={filters.department}
 //           onChange={(e) => {
 //             setFilters({...filters, department: e.target.value});
@@ -521,7 +521,7 @@
 //             <option key={dept} value={dept}>{dept}</option>
 //           ))}
 //         </select>
-//         <select 
+//         <select
 //           value={filters.course}
 //           onChange={(e) => {
 //             setFilters({...filters, course: e.target.value});
@@ -534,7 +534,7 @@
 //             <option key={course} value={course}>{course}</option>
 //           ))}
 //         </select>
-//         <select 
+//         <select
 //           value={filters.placementstatus}
 //           onChange={(e) => {
 //             setFilters({...filters, placementstatus: e.target.value});
@@ -547,7 +547,7 @@
 //             <option key={status} value={status}>{status}</option>
 //           ))}
 //         </select>
-//         <input 
+//         <input
 //           type="number"
 //           placeholder="Min CGPA"
 //           value={filters.minCgpa}
@@ -557,7 +557,7 @@
 //           }}
 //           className="border p-2 rounded"
 //         />
-//         <select 
+//         <select
 //           value={filters.gender}
 //           onChange={(e) => {
 //             setFilters({...filters, gender: e.target.value});
@@ -570,7 +570,7 @@
 //             <option key={gender} value={gender}>{gender}</option>
 //           ))}
 //         </select>
-//         <select 
+//         <select
 //           value={filters.category}
 //           onChange={(e) => {
 //             setFilters({...filters, category: e.target.value});
@@ -583,7 +583,7 @@
 //             <option key={category} value={category}>{category}</option>
 //           ))}
 //         </select>
-//         <select 
+//         <select
 //           value={filters.activeBacklogs}
 //           onChange={(e) => {
 //             setFilters({...filters, activeBacklogs: e.target.value});
@@ -595,7 +595,7 @@
 //           <option value="yes">Yes</option>
 //           <option value="no">No</option>
 //         </select>
-//         <select 
+//         <select
 //           value={filters.deactivated}
 //           onChange={(e) => {
 //             setFilters({...filters, deactivated: e.target.value});
@@ -615,7 +615,7 @@
 //           }}
 //           className="border p-2 rounded"
 //         >
-//           <option value="">Internship Status</option> 
+//           <option value="">Internship Status</option>
 //           {internshipStatuses.map(status => (
 //             <option key={status} value={status}>{status}</option>
 //           ))}
@@ -652,7 +652,7 @@
 //             setCurrentPage(1);
 //           }}
 //           className="border p-2 rounded"
-//         />    
+//         />
 //         <input
 //           type="text"
 //           placeholder="Email"
@@ -704,7 +704,7 @@
 //         <option value="true">Yes</option>
 //         <option value="false">No</option>
 //       </select>
-      
+
 //       <select
 //         value={filters.backlogs_history}
 //         onChange={(e) => {
@@ -717,7 +717,7 @@
 //         <option value="true">Yes</option>
 //         <option value="false">No</option>
 //       </select>
-      
+
 //       <select
 //         value={filters.debarred}
 //         onChange={(e) => {
@@ -730,7 +730,7 @@
 //         <option value="true">Yes</option>
 //         <option value="false">No</option>
 //       </select>
-      
+
 //       <select
 //         value={filters.disability}
 //         onChange={(e) => {
@@ -743,7 +743,7 @@
 //         <option value="true">Yes</option>
 //         <option value="false">No</option>
 //       </select>
-      
+
 //       <select
 //         value={filters.account_deactivate}
 //         onChange={(e) => {
@@ -769,12 +769,12 @@
 //               <thead>
 //                 <tr className="bg-gray-100">
 //                   <th className="border p-2">
-//                     <input 
+//                     <input
 //                       type="checkbox"
 //                       checked={selectedStudents.length === currentStudents.length}
 //                       onChange={() => setSelectedStudents(
-//                         selectedStudents.length === currentStudents.length 
-//                           ? [] 
+//                         selectedStudents.length === currentStudents.length
+//                           ? []
 //                           : currentStudents.map(student => student._id)
 //                       )}
 //                     />
@@ -802,7 +802,7 @@
 //                 {currentStudents.map(student => (
 //                   <tr key={student._id} className={`hover:bg-gray-50 ${student.account_deactivate ? 'bg-red-50' : ''}`}>
 //                     <td className="border p-2 text-center">
-//                       <input 
+//                       <input
 //                         type="checkbox"
 //                         checked={selectedStudents.includes(student._id)}
 //                         onChange={() => handleSelectStudent(student._id)}
@@ -833,21 +833,21 @@
 //                     </td>
 //                     <td className="border p-2">
 //                       <div className="flex justify-center space-x-2">
-//                         <button 
+//                         <button
 //                           onClick={() => openEditModal(student)}
 //                           className="text-blue-500 hover:text-blue-700"
 //                           title="Edit"
 //                         >
 //                           <Edit size={18} />
 //                         </button>
-//                         <button 
+//                         <button
 //                           onClick={() => openDeactivateConfirmModal(student._id)}
 //                           className={`${student.account_deactivate ? 'text-green-500 hover:text-green-700' : 'text-orange-500 hover:text-orange-700'}`}
 //                           title={student.account_deactivate ? 'Activate Account' : 'Deactivate Account'}
 //                         >
 //                           {student.account_deactivate ? <Unlock size={18} /> : <Lock size={18} />}
 //                         </button>
-//                         <button 
+//                         <button
 //                           onClick={() => openDeleteConfirmModal('single', student._id)}
 //                           className="text-red-500 hover:text-red-700"
 //                           title="Delete"
@@ -868,8 +868,8 @@
 //               Showing {indexOfFirstStudent + 1} to {Math.min(indexOfLastStudent, filteredStudents.length)} of {filteredStudents.length} students
 //             </div>
 //             <div className="flex items-center space-x-2">
-//               <button 
-//                 onClick={() => paginate(currentPage - 1)} 
+//               <button
+//                 onClick={() => paginate(currentPage - 1)}
 //                 disabled={currentPage === 1}
 //                 className="px-4 py-2 bg-gray-200 rounded disabled:opacity-50"
 //               >
@@ -878,8 +878,8 @@
 //               <span>
 //                 Page {currentPage} of {Math.ceil(filteredStudents.length / studentsPerPage)}
 //               </span>
-//               <button 
-//                 onClick={() => paginate(currentPage + 1)} 
+//               <button
+//                 onClick={() => paginate(currentPage + 1)}
 //                 disabled={currentPage >= Math.ceil(filteredStudents.length / studentsPerPage)}
 //                 className="px-4 py-2 bg-gray-200 rounded disabled:opacity-50"
 //               >
@@ -891,8 +891,8 @@
 //       )}
 
 //       {/* Add/Edit Student Dialog */}
-//       <Dialog 
-//         open={openEditDialog} 
+//       <Dialog
+//         open={openEditDialog}
 //         onClose={() => setOpenEditDialog(false)}
 //         maxWidth="md"
 //         fullWidth
@@ -1021,7 +1021,7 @@
 //                   onChange={(e) => setEditProfile({ ...editProfile, cgpa: e.target.value })}
 //                   inputProps={{ step: "0.01", min: "0", max: "10" }}
 //                 />
-                
+
 //                 {/* Address */}
 //                 <TextField
 //                   label="Address"
@@ -1032,7 +1032,7 @@
 //                   value={editProfile?.address || ''}
 //                   onChange={(e) => setEditProfile({ ...editProfile, address: e.target.value })}
 //                 />
-    
+
 //                 {/* Status Information */}
 //                 <FormControl fullWidth margin="normal">
 //                   <InputLabel>Internship Status</InputLabel>
@@ -1056,7 +1056,7 @@
 //                     ))}
 //                   </Select>
 //                 </FormControl>
-    
+
 //                 {/* Toggle Switches */}
 //                 <div className="col-span-1 md:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-4">
 //                   <FormControlLabel
@@ -1110,7 +1110,7 @@
 //                     label="Account Deactivated"
 //                   />
 //                 </div>
-    
+
 //                 {/* Image URL */}
 //                 <TextField
 //                   label="Profile Image URL"
@@ -1135,16 +1135,26 @@
 //         </div>
 //       );
 //     };
-    
-//     export default StudentManager;
 
+//     export default StudentManager;
 
 import React, { useState, useEffect, useCallback } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faUsers } from "@fortawesome/free-solid-svg-icons";
 import axios from "axios";
 import toast from "react-hot-toast";
-import { Plus, Trash2, Edit, X, ChevronLeft, ChevronRight, Eye, EyeOff, Lock, Unlock } from "lucide-react";
+import {
+  Plus,
+  Trash2,
+  Edit,
+  X,
+  ChevronLeft,
+  ChevronRight,
+  Eye,
+  EyeOff,
+  Lock,
+  Unlock,
+} from "lucide-react";
 import {
   Dialog,
   DialogTitle,
@@ -1160,78 +1170,120 @@ import {
   IconButton,
   FormControlLabel,
   Switch,
-  FormHelperText
+  FormHelperText,
 } from "@mui/material";
+import * as XLSX from "xlsx";
 
 const StudentManager = () => {
+  const [excelFile, setExcelFile] = useState(null);
+  const [excelPreviewData, setExcelPreviewData] = useState([]);
+  const [isExcelReady, setIsExcelReady] = useState(false);
+  const [uploadingExcel, setUploadingExcel] = useState(false);
+
   const [students, setStudents] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedStudents, setSelectedStudents] = useState([]);
   const [editProfile, setEditProfile] = useState(null);
   const [openEditDialog, setOpenEditDialog] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [showUpdateModal, setShowUpdateModal] = useState(false);
   const [deleteConfirmModal, setDeleteConfirmModal] = useState({
     isOpen: false,
-    type: '', // 'bulk' or 'single'
+    type: "", // 'bulk' or 'single'
     studentId: null,
-    rollNoConfirmation: '',
-    studentRollNo: ''
+    rollNoConfirmation: "",
+    studentRollNo: "",
   });
   const [deactivateConfirmModal, setDeactivateConfirmModal] = useState({
     isOpen: false,
     studentId: null,
-    rollNoConfirmation: '',
-    studentRollNo: '',
-    currentStatus: false
+    rollNoConfirmation: "",
+    studentRollNo: "",
+    currentStatus: false,
   });
   const [filters, setFilters] = useState({
-    department: '',
-    course: '',
-    placementstatus: '',
-    minCgpa: '',
-    gender: '',
-    category: '',
-    internshipstatus: '',
-    batch: '',
-    address: '',
-    phone: '',
-    email: '',
-    name: '',
-    rollno: '',
-    cgpa: '',
-    personalEmail: '',
-    dob: '',
-    Xth: '',
-    XIIth: '',
-    linkedin: '',
-    isInterested: '',
+    department: "",
+    course: "",
+    placementstatus: "",
+    minCgpa: "",
+    gender: "",
+    category: "",
+    internshipstatus: "",
+    batch: "",
+    address: "",
+    phone: "",
+    email: "",
+    name: "",
+    rollno: "",
+    cgpa: "",
+    personalEmail: "",
+    dob: "",
+    Xth: "",
+    XIIth: "",
+    linkedin: "",
+    isInterested: "",
     backlogs_history: "",
     debarred: "",
     disability: "",
-    account_deactivate: ""
+    account_deactivate: "",
   });
   const [currentPage, setCurrentPage] = useState(1);
   const studentsPerPage = 100;
 
   // Predefined lists
   const departments = [
-    "INTEGRATED TEACHER EDUCATION PROGRAMME", "BIO TECHNOLOGY", "CHEMICAL ENGINEERING", "CIVIL ENGINEERING", 
-    "COMPUTER SCIENCE AND ENGINEERING", "ELECTRICAL ENGINEERING", "ELECTRONICS AND COMMUNICATION ENGINEERING", 
-    "INDUSTRIAL AND PRODUCTION ENGINEERING", "INFORMATION TECHNOLOGY", "INSTRUMENTATION AND CONTROL ENGINEERING", 
-    "MECHANICAL ENGINEERING", "TEXTILE TECHNOLOGY", "DATA SCIENCE AND ENGINEERING", "ELECTRONICS AND VLSI ENGINEERING", 
-    "MATHEMATICS AND COMPUTING", "CHEMISTRY", "MATHEMATICS", "PHYSICS", "ARTIFICIAL INTELLIGENCE", 
-    "COMPUTER SCIENCE AND ENGINEERING (INFORMATION SECURITY)", "CONTROL AND INSTRUMENTATION ENGINEERING", 
-    "DATA ANALYTICS", "DESIGN ENGINEERING", "ELECTRIC VEHICLE DESIGN", "GEOTECHNICAL AND GEO-ENVIRONMENTAL ENGINEERING", 
-    "INDUSTRIAL ENGINEERING AND DATA ANALYTICS", "POWER SYSTEMS AND RELIABILITY", "RENEWABLE ENERGY", 
-    "SIGNAL PROCESSING AND MACHINE LEARNING", "STRUCTURAL AND CONSTRUCTION ENGINEERING", "TEXTILE ENGINEERING AND MANAGEMENT", 
-    "VLSI DESIGN", "MACHINE INTELLIGENCE AND AUTOMATION", "THERMAL AND ENERGY ENGINEERING", "HUMANITIES AND MANAGEMENT"
+    "INTEGRATED TEACHER EDUCATION PROGRAMME",
+    "BIO TECHNOLOGY",
+    "CHEMICAL ENGINEERING",
+    "CIVIL ENGINEERING",
+    "COMPUTER SCIENCE AND ENGINEERING",
+    "ELECTRICAL ENGINEERING",
+    "ELECTRONICS AND COMMUNICATION ENGINEERING",
+    "INDUSTRIAL AND PRODUCTION ENGINEERING",
+    "INFORMATION TECHNOLOGY",
+    "INSTRUMENTATION AND CONTROL ENGINEERING",
+    "MECHANICAL ENGINEERING",
+    "TEXTILE TECHNOLOGY",
+    "DATA SCIENCE AND ENGINEERING",
+    "ELECTRONICS AND VLSI ENGINEERING",
+    "MATHEMATICS AND COMPUTING",
+    "CHEMISTRY",
+    "MATHEMATICS",
+    "PHYSICS",
+    "ARTIFICIAL INTELLIGENCE",
+    "COMPUTER SCIENCE AND ENGINEERING (INFORMATION SECURITY)",
+    "CONTROL AND INSTRUMENTATION ENGINEERING",
+    "DATA ANALYTICS",
+    "DESIGN ENGINEERING",
+    "ELECTRIC VEHICLE DESIGN",
+    "GEOTECHNICAL AND GEO-ENVIRONMENTAL ENGINEERING",
+    "INDUSTRIAL ENGINEERING AND DATA ANALYTICS",
+    "POWER SYSTEMS AND RELIABILITY",
+    "RENEWABLE ENERGY",
+    "SIGNAL PROCESSING AND MACHINE LEARNING",
+    "STRUCTURAL AND CONSTRUCTION ENGINEERING",
+    "TEXTILE ENGINEERING AND MANAGEMENT",
+    "VLSI DESIGN",
+    "MACHINE INTELLIGENCE AND AUTOMATION",
+    "THERMAL AND ENERGY ENGINEERING",
+    "HUMANITIES AND MANAGEMENT",
   ];
 
   const courses = ["B.Tech", "M.Tech", "MBA", "M.Sc.", "PHD", "B.Sc.-B.Ed."];
-  const placementStatuses = ['Not Placed', 'Below Dream', 'Dream', 'Super Dream'];
-  const internshipStatuses = ['No Intern', '2m Intern', '6m Intern', '11m Intern'];
-  const genders = ['Male', 'Female', 'Other'];
-  const categories = ['General', 'GEN-EWS', 'SC', 'ST', 'OBC-NCL', 'OBC'];
+  const placementStatuses = [
+    "Not Placed",
+    "Below Dream",
+    "Dream",
+    "Super Dream",
+  ];
+  const internshipStatuses = [
+    "No Intern",
+    "2m Intern",
+    "6m Intern",
+    "11m Intern",
+  ];
+  const genders = ["Male", "Female", "Other"];
+  const categories = ["General", "GEN-EWS", "SC", "ST", "OBC-NCL", "OBC"];
 
   useEffect(() => {
     fetchStudents();
@@ -1254,86 +1306,96 @@ const StudentManager = () => {
 
   const handleSave = async () => {
     try {
-      const url = editProfile._id 
+      const url = editProfile._id
         ? `${import.meta.env.REACT_APP_BASE_URL}/admin/students/${editProfile._id}`
         : `${import.meta.env.REACT_APP_BASE_URL}/admin/students`;
-      
+
       const method = editProfile._id ? axios.put : axios.post;
-      
-      const response = await method(url, editProfile, { withCredentials: true });
-      
+
+      const response = await method(url, editProfile, {
+        withCredentials: true,
+      });
+
       fetchStudents();
       setOpenEditDialog(false);
-      
-      toast.success(editProfile._id ? "Student updated successfully" : "Student added successfully");
+
+      toast.success(
+        editProfile._id
+          ? "Student updated successfully"
+          : "Student added successfully"
+      );
     } catch (error) {
-      toast.error(`Failed to ${editProfile._id ? 'update' : 'add'} student`);
+      toast.error(`Failed to ${editProfile._id ? "update" : "add"} student`);
     }
   };
 
   const updateDeleteConfirmation = useCallback((value) => {
-    setDeleteConfirmModal(prev => ({
-      ...prev, 
-      rollNoConfirmation: value
+    setDeleteConfirmModal((prev) => ({
+      ...prev,
+      rollNoConfirmation: value,
     }));
   }, []);
 
   const updateDeactivateConfirmation = useCallback((value) => {
-    setDeactivateConfirmModal(prev => ({
-      ...prev, 
-      rollNoConfirmation: value
+    setDeactivateConfirmModal((prev) => ({
+      ...prev,
+      rollNoConfirmation: value,
     }));
   }, []);
 
   const openDeleteConfirmModal = (type, studentId = null) => {
-    const studentToDelete = type === 'single' 
-      ? students.find(s => s._id === studentId)
-      : null;
+    const studentToDelete =
+      type === "single" ? students.find((s) => s._id === studentId) : null;
 
     setDeleteConfirmModal({
       isOpen: true,
       type,
       studentId: studentId,
-      rollNoConfirmation: '',
-      studentRollNo: studentToDelete ? studentToDelete.rollno : ''
+      rollNoConfirmation: "",
+      studentRollNo: studentToDelete ? studentToDelete.rollno : "",
     });
   };
 
   const openDeactivateConfirmModal = (studentId) => {
-    const studentToDeactivate = students.find(s => s._id === studentId);
-    
+    const studentToDeactivate = students.find((s) => s._id === studentId);
+
     setDeactivateConfirmModal({
       isOpen: true,
       studentId: studentId,
-      rollNoConfirmation: '',
-      studentRollNo: studentToDeactivate ? studentToDeactivate.rollno : '',
-      currentStatus: studentToDeactivate ? studentToDeactivate.account_deactivate : false
+      rollNoConfirmation: "",
+      studentRollNo: studentToDeactivate ? studentToDeactivate.rollno : "",
+      currentStatus: studentToDeactivate
+        ? studentToDeactivate.account_deactivate
+        : false,
     });
   };
 
   const handleDeleteStudents = async () => {
     try {
-      const idsToDelete = deleteConfirmModal.type === 'bulk' 
-        ? selectedStudents 
-        : [deleteConfirmModal.studentId];
+      const idsToDelete =
+        deleteConfirmModal.type === "bulk"
+          ? selectedStudents
+          : [deleteConfirmModal.studentId];
 
       await axios.delete(
         `${import.meta.env.REACT_APP_BASE_URL}/admin/students`,
-        { 
+        {
           data: { studentIds: idsToDelete },
-          withCredentials: true 
+          withCredentials: true,
         }
       );
-      
-      setStudents(students.filter(student => !idsToDelete.includes(student._id)));
+
+      setStudents(
+        students.filter((student) => !idsToDelete.includes(student._id))
+      );
       setSelectedStudents([]);
-      
-      setDeleteConfirmModal(prev => ({ 
+
+      setDeleteConfirmModal((prev) => ({
         ...prev,
-        isOpen: false, 
-        type: '', 
-        studentId: null, 
-        rollNoConfirmation: '' 
+        isOpen: false,
+        type: "",
+        studentId: null,
+        rollNoConfirmation: "",
       }));
 
       toast.success("Students deleted successfully");
@@ -1345,73 +1407,81 @@ const StudentManager = () => {
   const handleDeactivateStudent = async () => {
     try {
       const studentId = deactivateConfirmModal.studentId;
-      const studentToUpdate = students.find(s => s._id === studentId);
+      const studentToUpdate = students.find((s) => s._id === studentId);
       const newStatus = !studentToUpdate.account_deactivate;
-      
+
       await axios.patch(
         `${import.meta.env.REACT_APP_BASE_URL}/admin/students/deactivate/${studentId}`,
         { deactivate: newStatus },
         { withCredentials: true }
       );
-      
+
       // Update local state
-      setStudents(students.map(student => 
-        student._id === studentId 
-          ? { ...student, account_deactivate: newStatus } 
-          : student
-      ));
-      
-      setDeactivateConfirmModal(prev => ({ 
+      setStudents(
+        students.map((student) =>
+          student._id === studentId
+            ? { ...student, account_deactivate: newStatus }
+            : student
+        )
+      );
+
+      setDeactivateConfirmModal((prev) => ({
         ...prev,
-        isOpen: false, 
-        studentId: null, 
-        rollNoConfirmation: '' 
+        isOpen: false,
+        studentId: null,
+        rollNoConfirmation: "",
       }));
 
-      toast.success(`Student account ${newStatus ? 'deactivated' : 'activated'} successfully`);
+      toast.success(
+        `Student account ${newStatus ? "deactivated" : "activated"} successfully`
+      );
     } catch (error) {
-      toast.error(`Failed to ${deactivateConfirmModal.currentStatus ? 'activate' : 'deactivate'} student account`);
+      toast.error(
+        `Failed to ${deactivateConfirmModal.currentStatus ? "activate" : "deactivate"} student account`
+      );
     }
   };
 
   const DeleteConfirmationModal = () => {
     if (!deleteConfirmModal.isOpen) return null;
 
-    const studentToDelete = deleteConfirmModal.type === 'single'
-      ? students.find(s => s._id === deleteConfirmModal.studentId)
-      : null;
+    const studentToDelete =
+      deleteConfirmModal.type === "single"
+        ? students.find((s) => s._id === deleteConfirmModal.studentId)
+        : null;
 
     return (
       <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
         <div className="bg-white p-6 rounded-lg shadow-xl w-96">
           <div className="flex justify-between items-center mb-4">
             <h2 className="text-xl font-bold">Confirm Deletion</h2>
-            <button 
-              onClick={() => setDeleteConfirmModal(prev => ({ 
-                ...prev,
-                isOpen: false, 
-                type: '', 
-                studentId: null, 
-                rollNoConfirmation: '' 
-              }))}
+            <button
+              onClick={() =>
+                setDeleteConfirmModal((prev) => ({
+                  ...prev,
+                  isOpen: false,
+                  type: "",
+                  studentId: null,
+                  rollNoConfirmation: "",
+                }))
+              }
               className="text-gray-500 hover:text-gray-700"
             >
               <X size={24} />
             </button>
           </div>
-          
+
           <p className="mb-4">
-            {deleteConfirmModal.type === 'bulk'
+            {deleteConfirmModal.type === "bulk"
               ? `Are you sure you want to delete ${selectedStudents.length} selected students?`
-              : `Are you sure you want to delete student with Roll No: ${studentToDelete?.rollno}?`
-            }
+              : `Are you sure you want to delete student with Roll No: ${studentToDelete?.rollno}?`}
           </p>
-          
+
           <div className="mb-4">
             <label className="block mb-2">
               Type the Roll Number to confirm:
             </label>
-            <input 
+            <input
               type="text"
               value={deleteConfirmModal.rollNoConfirmation}
               onChange={(e) => updateDeleteConfirmation(e.target.value)}
@@ -1420,33 +1490,41 @@ const StudentManager = () => {
               autoFocus
             />
           </div>
-          
+
           <div className="flex justify-end space-x-2">
-            <button 
-              onClick={() => setDeleteConfirmModal(prev => ({ 
-                ...prev,
-                isOpen: false, 
-                type: '', 
-                studentId: null, 
-                rollNoConfirmation: '' 
-              }))}
+            <button
+              onClick={() =>
+                setDeleteConfirmModal((prev) => ({
+                  ...prev,
+                  isOpen: false,
+                  type: "",
+                  studentId: null,
+                  rollNoConfirmation: "",
+                }))
+              }
               className="bg-gray-300 text-gray-700 px-4 py-2 rounded"
             >
               Cancel
             </button>
-            <button 
+            <button
               onClick={handleDeleteStudents}
-              disabled={deleteConfirmModal.type === 'single' 
-                ? deleteConfirmModal.rollNoConfirmation !== studentToDelete?.rollno
-                : false
+              disabled={
+                deleteConfirmModal.type === "single"
+                  ? deleteConfirmModal.rollNoConfirmation !==
+                    studentToDelete?.rollno
+                  : false
               }
               className={`
                 px-4 py-2 rounded text-white
-                ${(deleteConfirmModal.type === 'single' 
-                  ? deleteConfirmModal.rollNoConfirmation !== studentToDelete?.rollno
-                  : false)
-                  ? 'bg-gray-400 cursor-not-allowed'
-                  : 'bg-red-500 hover:bg-red-600'
+                ${
+                  (
+                    deleteConfirmModal.type === "single"
+                      ? deleteConfirmModal.rollNoConfirmation !==
+                        studentToDelete?.rollno
+                      : false
+                  )
+                    ? "bg-gray-400 cursor-not-allowed"
+                    : "bg-red-500 hover:bg-red-600"
                 }
               `}
             >
@@ -1461,36 +1539,46 @@ const StudentManager = () => {
   const DeactivateConfirmationModal = () => {
     if (!deactivateConfirmModal.isOpen) return null;
 
-    const studentToDeactivate = students.find(s => s._id === deactivateConfirmModal.studentId);
-    const actionText = studentToDeactivate?.account_deactivate ? 'activate' : 'deactivate';
+    const studentToDeactivate = students.find(
+      (s) => s._id === deactivateConfirmModal.studentId
+    );
+    const actionText = studentToDeactivate?.account_deactivate
+      ? "activate"
+      : "deactivate";
 
     return (
       <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
         <div className="bg-white p-6 rounded-lg shadow-xl w-96">
           <div className="flex justify-between items-center mb-4">
-            <h2 className="text-xl font-bold">Confirm Account {actionText.charAt(0).toUpperCase() + actionText.slice(1)}</h2>
-            <button 
-              onClick={() => setDeactivateConfirmModal(prev => ({ 
-                ...prev,
-                isOpen: false, 
-                studentId: null, 
-                rollNoConfirmation: '' 
-              }))}
+            <h2 className="text-xl font-bold">
+              Confirm Account{" "}
+              {actionText.charAt(0).toUpperCase() + actionText.slice(1)}
+            </h2>
+            <button
+              onClick={() =>
+                setDeactivateConfirmModal((prev) => ({
+                  ...prev,
+                  isOpen: false,
+                  studentId: null,
+                  rollNoConfirmation: "",
+                }))
+              }
               className="text-gray-500 hover:text-gray-700"
             >
               <X size={24} />
             </button>
           </div>
-          
+
           <p className="mb-4">
-            Are you sure you want to {actionText} the account for student with Roll No: {studentToDeactivate?.rollno}?
+            Are you sure you want to {actionText} the account for student with
+            Roll No: {studentToDeactivate?.rollno}?
           </p>
-          
+
           <div className="mb-4">
             <label className="block mb-2">
               Type the Roll Number to confirm:
             </label>
-            <input 
+            <input
               type="text"
               value={deactivateConfirmModal.rollNoConfirmation}
               onChange={(e) => updateDeactivateConfirmation(e.target.value)}
@@ -1499,29 +1587,36 @@ const StudentManager = () => {
               autoFocus
             />
           </div>
-          
+
           <div className="flex justify-end space-x-2">
-            <button 
-              onClick={() => setDeactivateConfirmModal(prev => ({ 
-                ...prev,
-                isOpen: false, 
-                studentId: null, 
-                rollNoConfirmation: '' 
-              }))}
+            <button
+              onClick={() =>
+                setDeactivateConfirmModal((prev) => ({
+                  ...prev,
+                  isOpen: false,
+                  studentId: null,
+                  rollNoConfirmation: "",
+                }))
+              }
               className="bg-gray-300 text-gray-700 px-4 py-2 rounded"
             >
               Cancel
             </button>
-            <button 
+            <button
               onClick={handleDeactivateStudent}
-              disabled={deactivateConfirmModal.rollNoConfirmation !== studentToDeactivate?.rollno}
+              disabled={
+                deactivateConfirmModal.rollNoConfirmation !==
+                studentToDeactivate?.rollno
+              }
               className={`
                 px-4 py-2 rounded text-white
-                ${deactivateConfirmModal.rollNoConfirmation !== studentToDeactivate?.rollno
-                  ? 'bg-gray-400 cursor-not-allowed'
-                  : studentToDeactivate?.account_deactivate 
-                    ? 'bg-green-500 hover:bg-green-600'
-                    : 'bg-orange-500 hover:bg-orange-600'
+                ${
+                  deactivateConfirmModal.rollNoConfirmation !==
+                  studentToDeactivate?.rollno
+                    ? "bg-gray-400 cursor-not-allowed"
+                    : studentToDeactivate?.account_deactivate
+                      ? "bg-green-500 hover:bg-green-600"
+                      : "bg-orange-500 hover:bg-orange-600"
                 }
               `}
             >
@@ -1534,88 +1629,211 @@ const StudentManager = () => {
   };
 
   const handleSelectStudent = (studentId) => {
-    setSelectedStudents(prev => 
-      prev.includes(studentId) 
-        ? prev.filter(id => id !== studentId)
+    setSelectedStudents((prev) =>
+      prev.includes(studentId)
+        ? prev.filter((id) => id !== studentId)
         : [...prev, studentId]
     );
   };
 
+  const handleExcelSelect = (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setExcelFile(file);
+
+    const reader = new FileReader();
+
+    reader.onload = (event) => {
+      try {
+        const data = new Uint8Array(event.target.result);
+        const workbook = XLSX.read(data, { type: "array" });
+
+        const sheetName = workbook.SheetNames[0];
+        const worksheet = workbook.Sheets[sheetName];
+
+        const rows = XLSX.utils.sheet_to_json(worksheet, {
+          defval: "", // 👈 IMPORTANT (prevents undefined)
+        });
+
+        console.log("Parsed Excel Rows:", rows); // DEBUG
+
+        if (!rows.length) {
+          toast.error("Excel is empty");
+          return;
+        }
+
+        setExcelPreviewData(rows);
+        setIsExcelReady(true);
+      } catch (err) {
+        console.error("Excel parse error:", err);
+        toast.error("Invalid Excel file");
+      }
+    };
+
+    reader.onerror = () => {
+      toast.error("Failed to read file");
+    };
+
+    reader.readAsArrayBuffer(file); // 👈 MUST BE ArrayBuffer
+  };
+
+  const handleExcelUpload = async () => {
+    if (!excelFile) {
+      toast.error("No Excel selected");
+      return;
+    }
+
+    try {
+      setUploadingExcel(true);
+
+      const formData = new FormData();
+      formData.append("file", excelFile);
+
+      const res = await axios.post(
+        `${import.meta.env.REACT_APP_BASE_URL}/admin/students/upload-excel`,
+        formData,
+        { withCredentials: true }
+      );
+
+      toast.success(`${res.data.insertedCount} students added`);
+
+      if (res.data.existingStudents?.length) {
+        setExistingStudents(res.data.existingStudents);
+        setShowUpdateModal(true);
+      }
+
+      setExcelFile(null);
+      setExcelPreviewData([]);
+      setIsExcelReady(false);
+
+      fetchStudents();
+    } catch (err) {
+      toast.error(err.response?.data?.message || "Upload failed");
+    } finally {
+      setUploadingExcel(false);
+    }
+  };
+
+  const handleUpdateExisting = async () => {
+    try {
+      await axios.put(
+        `${import.meta.env.REACT_APP_BASE_URL}/admin/students/update-existing`,
+        { students: existingStudents },
+        { withCredentials: true }
+      );
+
+      toast.success("Existing students updated");
+      setShowUpdateModal(false);
+      fetchStudents();
+    } catch {
+      toast.error("Update failed");
+    }
+  };
+
   const openEditModal = (student = null) => {
-    setEditProfile(student || {
-      name: '',
-      email: '',
-      personalEmail: '',
-      phone: '',
-      password: '',
-      rollno: '',
-      dob: '',
-      department: '',
-      batch: '',
-      course: '',
-      address: '',
-      cgpa: '',
-      Xth: '',
-      XIIth: '',
-      gender: '',
-      category: '',
-      activeBacklogCount: '',
-      active_backlogs: false,
-      backlogs_history: false,
-      debarred: false,
-      disability: false,
-      image: '',
-      placementstatus: 'Not Placed',
-      internshipstatus: 'No Intern',
-      account_deactivate: false,
-      isInterested: false,
-      linkedin: ''
-    });
+    setEditProfile(
+      student || {
+        name: "",
+        email: "",
+        personalEmail: "",
+        phone: "",
+        password: "",
+        rollno: "",
+        dob: "",
+        department: "",
+        batch: "",
+        course: "",
+        address: "",
+        cgpa: "",
+        Xth: "",
+        XIIth: "",
+        gender: "",
+        category: "",
+        activeBacklogCount: "",
+        active_backlogs: false,
+        backlogs_history: false,
+        debarred: false,
+        disability: false,
+        image: "",
+        placementstatus: "Not Placed",
+        internshipstatus: "No Intern",
+        account_deactivate: false,
+        isInterested: false,
+        linkedin: "",
+      }
+    );
     setOpenEditDialog(true);
     setShowPassword(false);
   };
 
   const applyFilters = () => {
-    return students.filter(student => {
+    return students.filter((student) => {
       return (
         (!filters.department || student.department === filters.department) &&
         (!filters.course || student.course === filters.course) &&
-        (!filters.placementstatus || student.placementstatus === filters.placementstatus) &&
-        (!filters.minCgpa || parseFloat(student.cgpa) >= parseFloat(filters.minCgpa)) &&
+        (!filters.placementstatus ||
+          student.placementstatus === filters.placementstatus) &&
+        (!filters.minCgpa ||
+          parseFloat(student.cgpa) >= parseFloat(filters.minCgpa)) &&
         (!filters.gender || student.gender === filters.gender) &&
         (!filters.category || student.category === filters.category) &&
-        (!filters.internshipstatus || student.internshipstatus === filters.internshipstatus) &&
+        (!filters.internshipstatus ||
+          student.internshipstatus === filters.internshipstatus) &&
         (!filters.batch || String(student.batch) === String(filters.batch)) &&
-        (!filters.address || (student.address && student.address.toLowerCase().includes(filters.address.toLowerCase()))) &&
-        (!filters.phone || (student.phone && student.phone.includes(filters.phone))) &&
-        (!filters.email || (student.email && student.email.toLowerCase().includes(filters.email.toLowerCase()))) &&
-        (!filters.name || (student.name && student.name.toLowerCase().includes(filters.name.toLowerCase()))) &&
-        (!filters.rollno || (student.rollno && student.rollno.toLowerCase().includes(filters.rollno.toLowerCase()))) &&
-        (!filters.cgpa || (student.cgpa && student.cgpa.toString().includes(filters.cgpa))) &&
-        (!filters.personalEmail || (student.personalEmail && student.personalEmail.toLowerCase().includes(filters.personalEmail.toLowerCase()))) &&
+        (!filters.address ||
+          (student.address &&
+            student.address
+              .toLowerCase()
+              .includes(filters.address.toLowerCase()))) &&
+        (!filters.phone ||
+          (student.phone && student.phone.includes(filters.phone))) &&
+        (!filters.email ||
+          (student.email &&
+            student.email
+              .toLowerCase()
+              .includes(filters.email.toLowerCase()))) &&
+        (!filters.name ||
+          (student.name &&
+            student.name.toLowerCase().includes(filters.name.toLowerCase()))) &&
+        (!filters.rollno ||
+          (student.rollno &&
+            student.rollno
+              .toLowerCase()
+              .includes(filters.rollno.toLowerCase()))) &&
+        (!filters.cgpa ||
+          (student.cgpa && student.cgpa.toString().includes(filters.cgpa))) &&
+        (!filters.personalEmail ||
+          (student.personalEmail &&
+            student.personalEmail
+              .toLowerCase()
+              .includes(filters.personalEmail.toLowerCase()))) &&
         (!filters.dob || (student.dob && student.dob.includes(filters.dob))) &&
         (!filters.Xth || (student.Xth && student.Xth.includes(filters.Xth))) &&
-        (!filters.XIIth || (student.XIIth && student.XIIth.includes(filters.XIIth))) &&
-        (!filters.linkedin || (student.linkedin && student.linkedin.toLowerCase().includes(filters.linkedin.toLowerCase()))) &&
-        (filters.isInterested === '' || 
-          (filters.isInterested === 'yes' && student.isInterested) || 
-          (filters.isInterested === 'no' && !student.isInterested)) &&
-        (!filters.backlogs_history || (
-          student.backlogs_history !== undefined && 
-          student.backlogs_history === (filters.backlogs_history === "true")
-        )) &&
-        (!filters.debarred || (
-          student.debarred !== undefined && 
-          student.debarred === (filters.debarred === "true")
-        )) &&
-        (!filters.disability || (
-          student.disability !== undefined && 
-          student.disability === (filters.disability === "true")
-        )) &&
-        (!filters.account_deactivate || (
-          student.account_deactivate !== undefined && 
-          student.account_deactivate === (filters.account_deactivate === "true")
-        ))
+        (!filters.XIIth ||
+          (student.XIIth && student.XIIth.includes(filters.XIIth))) &&
+        (!filters.linkedin ||
+          (student.linkedin &&
+            student.linkedin
+              .toLowerCase()
+              .includes(filters.linkedin.toLowerCase()))) &&
+        (filters.isInterested === "" ||
+          (filters.isInterested === "yes" && student.isInterested) ||
+          (filters.isInterested === "no" && !student.isInterested)) &&
+        (!filters.backlogs_history ||
+          (student.backlogs_history !== undefined &&
+            student.backlogs_history ===
+              (filters.backlogs_history === "true"))) &&
+        (!filters.debarred ||
+          (student.debarred !== undefined &&
+            student.debarred === (filters.debarred === "true"))) &&
+        (!filters.disability ||
+          (student.disability !== undefined &&
+            student.disability === (filters.disability === "true"))) &&
+        (!filters.account_deactivate ||
+          (student.account_deactivate !== undefined &&
+            student.account_deactivate ===
+              (filters.account_deactivate === "true")))
       );
     });
   };
@@ -1623,7 +1841,10 @@ const StudentManager = () => {
   const filteredStudents = applyFilters();
   const indexOfLastStudent = currentPage * studentsPerPage;
   const indexOfFirstStudent = indexOfLastStudent - studentsPerPage;
-  const currentStudents = filteredStudents.slice(indexOfFirstStudent, indexOfLastStudent);
+  const currentStudents = filteredStudents.slice(
+    indexOfFirstStudent,
+    indexOfLastStudent
+  );
 
   const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
@@ -1637,15 +1858,42 @@ const StudentManager = () => {
           Student Management
         </h1>
         <div className="flex flex-col md:flex-row space-y-2 md:space-y-0 md:space-x-2">
-          <button 
+          <button
             onClick={() => openEditModal()}
             className="bg-green-500 text-white px-4 py-2 rounded flex items-center justify-center"
           >
             <Plus className="mr-2" /> Add Student
           </button>
+          <div className="flex gap-3 mb-4">
+            <input
+              type="file"
+              accept=".xlsx"
+              id="excelInput"
+              hidden
+              onChange={handleExcelSelect}
+            />
+
+            <label
+              htmlFor="excelInput"
+              className="px-4 py-2 bg-blue-600 text-white rounded cursor-pointer"
+            >
+              Select Excel
+            </label>
+
+            <button
+              disabled={!isExcelReady || uploadingExcel}
+              onClick={handleExcelUpload}
+              className={`px-4 py-2 rounded text-white ${
+                isExcelReady ? "bg-green-600" : "bg-gray-400 cursor-not-allowed"
+              }`}
+            >
+              {uploadingExcel ? "Uploading..." : "Upload"}
+            </button>
+          </div>
+
           {selectedStudents.length > 0 && (
-            <button 
-              onClick={() => openDeleteConfirmModal('bulk')}
+            <button
+              onClick={() => openDeleteConfirmModal("bulk")}
               className="bg-red-500 text-white px-4 py-2 rounded flex items-center justify-center"
             >
               <Trash2 className="mr-2" /> Delete Selected
@@ -1656,79 +1904,89 @@ const StudentManager = () => {
 
       {/* Filters */}
       <div className="mb-4 grid grid-cols-2 md:grid-cols-4 gap-2">
-        <select 
+        <select
           value={filters.department}
           onChange={(e) => {
-            setFilters({...filters, department: e.target.value});
+            setFilters({ ...filters, department: e.target.value });
             setCurrentPage(1);
           }}
           className="border p-2 rounded"
         >
           <option value="">All Departments</option>
-          {departments.map(dept => (
-            <option key={dept} value={dept}>{dept}</option>
+          {departments.map((dept) => (
+            <option key={dept} value={dept}>
+              {dept}
+            </option>
           ))}
         </select>
-        <select 
+        <select
           value={filters.course}
           onChange={(e) => {
-            setFilters({...filters, course: e.target.value});
+            setFilters({ ...filters, course: e.target.value });
             setCurrentPage(1);
           }}
           className="border p-2 rounded"
         >
           <option value="">All Courses</option>
-          {courses.map(course => (
-            <option key={course} value={course}>{course}</option>
+          {courses.map((course) => (
+            <option key={course} value={course}>
+              {course}
+            </option>
           ))}
         </select>
-        <select 
+        <select
           value={filters.placementstatus}
           onChange={(e) => {
-            setFilters({...filters, placementstatus: e.target.value});
+            setFilters({ ...filters, placementstatus: e.target.value });
             setCurrentPage(1);
           }}
           className="border p-2 rounded"
         >
           <option value="">Placement Status</option>
-          {placementStatuses.map(status => (
-            <option key={status} value={status}>{status}</option>
+          {placementStatuses.map((status) => (
+            <option key={status} value={status}>
+              {status}
+            </option>
           ))}
         </select>
-        <input 
+        <input
           type="number"
           placeholder="Min CGPA"
           value={filters.minCgpa}
           onChange={(e) => {
-            setFilters({...filters, minCgpa: e.target.value});
+            setFilters({ ...filters, minCgpa: e.target.value });
             setCurrentPage(1);
           }}
           className="border p-2 rounded"
         />
-        <select 
+        <select
           value={filters.gender}
           onChange={(e) => {
-            setFilters({...filters, gender: e.target.value});
+            setFilters({ ...filters, gender: e.target.value });
             setCurrentPage(1);
           }}
           className="border p-2 rounded"
         >
           <option value="">All Genders</option>
-          {genders.map(gender => (
-            <option key={gender} value={gender}>{gender}</option>
+          {genders.map((gender) => (
+            <option key={gender} value={gender}>
+              {gender}
+            </option>
           ))}
         </select>
-        <select 
+        <select
           value={filters.category}
           onChange={(e) => {
-            setFilters({...filters, category: e.target.value});
+            setFilters({ ...filters, category: e.target.value });
             setCurrentPage(1);
           }}
           className="border p-2 rounded"
         >
           <option value="">All Categories</option>
-          {categories.map(category => (
-            <option key={category} value={category}>{category}</option>
+          {categories.map((category) => (
+            <option key={category} value={category}>
+              {category}
+            </option>
           ))}
         </select>
         <select
@@ -1739,9 +1997,11 @@ const StudentManager = () => {
           }}
           className="border p-2 rounded"
         >
-          <option value="">Internship Status</option> 
-          {internshipStatuses.map(status => (
-            <option key={status} value={status}>{status}</option>
+          <option value="">Internship Status</option>
+          {internshipStatuses.map((status) => (
+            <option key={status} value={status}>
+              {status}
+            </option>
           ))}
         </select>
         <select
@@ -1754,7 +2014,9 @@ const StudentManager = () => {
         >
           <option value="">Batch</option>
           {Array.from({ length: 10 }, (_, i) => (
-            <option key={i} value={2020 + i}>{2020 + i}</option>
+            <option key={i} value={2020 + i}>
+              {2020 + i}
+            </option>
           ))}
         </select>
         <input
@@ -1767,7 +2029,7 @@ const StudentManager = () => {
           }}
           className="border p-2 rounded"
         />
-            <input
+        <input
           type="text"
           placeholder="Phone"
           value={filters.phone}
@@ -1776,7 +2038,7 @@ const StudentManager = () => {
             setCurrentPage(1);
           }}
           className="border p-2 rounded"
-        />    
+        />
         <input
           type="text"
           placeholder="Email"
@@ -1879,58 +2141,57 @@ const StudentManager = () => {
           }}
           className="border p-2 rounded"
         />
-      <select
-        value={filters.backlogs_history}
-        onChange={(e) => {
-          setFilters({ ...filters, backlogs_history: e.target.value });
-          setCurrentPage(1);
-        }}
-        className="border p-2 rounded"
-      >
-        <option value="">Backlogs History</option>
-        <option value="true">Yes</option>
-        <option value="false">No</option>
-      </select>
-      
-      <select
-        value={filters.debarred}
-        onChange={(e) => {
-          setFilters({ ...filters, debarred: e.target.value });
-          setCurrentPage(1);
-        }}
-        className="border p-2 rounded"
-      >
-        <option value="">Debarred</option>
-        <option value="true">Yes</option>
-        <option value="false">No</option>
-      </select>
-      
-      <select
-        value={filters.disability}
-        onChange={(e) => {
-          setFilters({ ...filters, disability: e.target.value });
-          setCurrentPage(1);
-        }}
-        className="border p-2 rounded"
-      >
-        <option value="">Disability</option>
-        <option value="true">Yes</option>
-        <option value="false">No</option>
-      </select>
-      
-      <select
-        value={filters.account_deactivate}
-        onChange={(e) => {
-          setFilters({ ...filters, account_deactivate: e.target.value });
-          setCurrentPage(1);
-        }}
-        className="border p-2 rounded"
-      >
-        <option value="">Account Status</option>
-        <option value="true">Deactivated</option>
-        <option value="false">Active</option>
-      </select>
+        <select
+          value={filters.backlogs_history}
+          onChange={(e) => {
+            setFilters({ ...filters, backlogs_history: e.target.value });
+            setCurrentPage(1);
+          }}
+          className="border p-2 rounded"
+        >
+          <option value="">Backlogs History</option>
+          <option value="true">Yes</option>
+          <option value="false">No</option>
+        </select>
 
+        <select
+          value={filters.debarred}
+          onChange={(e) => {
+            setFilters({ ...filters, debarred: e.target.value });
+            setCurrentPage(1);
+          }}
+          className="border p-2 rounded"
+        >
+          <option value="">Debarred</option>
+          <option value="true">Yes</option>
+          <option value="false">No</option>
+        </select>
+
+        <select
+          value={filters.disability}
+          onChange={(e) => {
+            setFilters({ ...filters, disability: e.target.value });
+            setCurrentPage(1);
+          }}
+          className="border p-2 rounded"
+        >
+          <option value="">Disability</option>
+          <option value="true">Yes</option>
+          <option value="false">No</option>
+        </select>
+
+        <select
+          value={filters.account_deactivate}
+          onChange={(e) => {
+            setFilters({ ...filters, account_deactivate: e.target.value });
+            setCurrentPage(1);
+          }}
+          className="border p-2 rounded"
+        >
+          <option value="">Account Status</option>
+          <option value="true">Deactivated</option>
+          <option value="false">Active</option>
+        </select>
       </div>
 
       {/* Student Table */}
@@ -1943,14 +2204,18 @@ const StudentManager = () => {
               <thead>
                 <tr className="bg-gray-100">
                   <th className="border p-2">
-                    <input 
+                    <input
                       type="checkbox"
-                      checked={selectedStudents.length === currentStudents.length}
-                      onChange={() => setSelectedStudents(
-                        selectedStudents.length === currentStudents.length 
-                          ? [] 
-                          : currentStudents.map(student => student._id)
-                      )}
+                      checked={
+                        selectedStudents.length === currentStudents.length
+                      }
+                      onChange={() =>
+                        setSelectedStudents(
+                          selectedStudents.length === currentStudents.length
+                            ? []
+                            : currentStudents.map((student) => student._id)
+                        )
+                      }
                     />
                   </th>
                   <th className="border p-2">ID</th>
@@ -1973,10 +2238,13 @@ const StudentManager = () => {
                 </tr>
               </thead>
               <tbody>
-                {currentStudents.map(student => (
-                  <tr key={student._id} className={`hover:bg-gray-50 ${student.account_deactivate ? 'bg-red-50' : ''}`}>
+                {currentStudents.map((student) => (
+                  <tr
+                    key={student._id}
+                    className={`hover:bg-gray-50 ${student.account_deactivate ? "bg-red-50" : ""}`}
+                  >
                     <td className="border p-2 text-center">
-                      <input 
+                      <input
                         type="checkbox"
                         checked={selectedStudents.includes(student._id)}
                         onChange={() => handleSelectStudent(student._id)}
@@ -1986,8 +2254,12 @@ const StudentManager = () => {
                     <td className="border p-2">{student.name}</td>
                     <td className="border p-2">{student.rollno}</td>
                     <td className="border p-2">{student.email}</td>
-                    <td className="border p-2">{student.phone?student.phone:''}</td>
-                    <td className="border p-2">{student.address?student.address:''}</td>
+                    <td className="border p-2">
+                      {student.phone ? student.phone : ""}
+                    </td>
+                    <td className="border p-2">
+                      {student.address ? student.address : ""}
+                    </td>
                     <td className="border p-2">{student.department}</td>
                     <td className="border p-2">{student.course}</td>
                     <td className="border p-2">{student.batch}</td>
@@ -1995,34 +2267,52 @@ const StudentManager = () => {
                     <td className="border p-2">{student.category}</td>
                     <td className="border p-2">{student.cgpa}</td>
                     <td className="border p-2">
-                      {student.active_backlogs ? 'Active' : student.backlogs_history ? 'History' : 'None'}
+                      {student.active_backlogs
+                        ? "Active"
+                        : student.backlogs_history
+                          ? "History"
+                          : "None"}
                     </td>
                     <td className="border p-2">{student.internshipstatus}</td>
                     <td className="border p-2">{student.placementstatus}</td>
 
                     <td className="border p-2">
-                      <span className={`px-2 py-1 rounded text-xs ${student.account_deactivate ? 'bg-red-200 text-red-800' : 'bg-green-200 text-green-800'}`}>
-                        {student.account_deactivate ? 'Deactivated' : 'Active'}
+                      <span
+                        className={`px-2 py-1 rounded text-xs ${student.account_deactivate ? "bg-red-200 text-red-800" : "bg-green-200 text-green-800"}`}
+                      >
+                        {student.account_deactivate ? "Deactivated" : "Active"}
                       </span>
                     </td>
                     <td className="border p-2">
                       <div className="flex justify-center space-x-2">
-                        <button 
+                        <button
                           onClick={() => openEditModal(student)}
                           className="text-blue-500 hover:text-blue-700"
                           title="Edit"
                         >
                           <Edit size={18} />
                         </button>
-                        <button 
-                          onClick={() => openDeactivateConfirmModal(student._id)}
-                          className={`${student.account_deactivate ? 'text-green-500 hover:text-green-700' : 'text-orange-500 hover:text-orange-700'}`}
-                          title={student.account_deactivate ? 'Activate Account' : 'Deactivate Account'}
+                        <button
+                          onClick={() =>
+                            openDeactivateConfirmModal(student._id)
+                          }
+                          className={`${student.account_deactivate ? "text-green-500 hover:text-green-700" : "text-orange-500 hover:text-orange-700"}`}
+                          title={
+                            student.account_deactivate
+                              ? "Activate Account"
+                              : "Deactivate Account"
+                          }
                         >
-                          {student.account_deactivate ? <Unlock size={18} /> : <Lock size={18} />}
+                          {student.account_deactivate ? (
+                            <Unlock size={18} />
+                          ) : (
+                            <Lock size={18} />
+                          )}
                         </button>
-                        <button 
-                          onClick={() => openDeleteConfirmModal('single', student._id)}
+                        <button
+                          onClick={() =>
+                            openDeleteConfirmModal("single", student._id)
+                          }
                           className="text-red-500 hover:text-red-700"
                           title="Delete"
                         >
@@ -2039,22 +2329,28 @@ const StudentManager = () => {
           {/* Pagination */}
           <div className="flex justify-between items-center mt-4">
             <div>
-              Showing {indexOfFirstStudent + 1} to {Math.min(indexOfLastStudent, filteredStudents.length)} of {filteredStudents.length} students
+              Showing {indexOfFirstStudent + 1} to{" "}
+              {Math.min(indexOfLastStudent, filteredStudents.length)} of{" "}
+              {filteredStudents.length} students
             </div>
             <div className="flex items-center space-x-2">
-              <button 
-                onClick={() => paginate(currentPage - 1)} 
+              <button
+                onClick={() => paginate(currentPage - 1)}
                 disabled={currentPage === 1}
                 className="px-4 py-2 bg-gray-200 rounded disabled:opacity-50"
               >
                 <ChevronLeft />
               </button>
               <span>
-                Page {currentPage} of {Math.ceil(filteredStudents.length / studentsPerPage)}
+                Page {currentPage} of{" "}
+                {Math.ceil(filteredStudents.length / studentsPerPage)}
               </span>
-              <button 
-                onClick={() => paginate(currentPage + 1)} 
-                disabled={currentPage >= Math.ceil(filteredStudents.length / studentsPerPage)}
+              <button
+                onClick={() => paginate(currentPage + 1)}
+                disabled={
+                  currentPage >=
+                  Math.ceil(filteredStudents.length / studentsPerPage)
+                }
                 className="px-4 py-2 bg-gray-200 rounded disabled:opacity-50"
               >
                 <ChevronRight />
@@ -2065,14 +2361,14 @@ const StudentManager = () => {
       )}
 
       {/* Add/Edit Student Dialog */}
-      <Dialog 
-        open={openEditDialog} 
+      <Dialog
+        open={openEditDialog}
         onClose={() => setOpenEditDialog(false)}
         maxWidth="md"
         fullWidth
       >
         <DialogTitle>
-          {editProfile?._id ? 'Edit Student' : 'Add Student'}
+          {editProfile?._id ? "Edit Student" : "Add Student"}
         </DialogTitle>
         <DialogContent>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -2081,23 +2377,29 @@ const StudentManager = () => {
               label="Name"
               fullWidth
               margin="normal"
-              value={editProfile?.name || ''}
-              onChange={(e) => setEditProfile({ ...editProfile, name: e.target.value })}
+              value={editProfile?.name || ""}
+              onChange={(e) =>
+                setEditProfile({ ...editProfile, name: e.target.value })
+              }
             />
             <TextField
               label="Roll No"
               fullWidth
               margin="normal"
-              value={editProfile?.rollno || ''}
-              onChange={(e) => setEditProfile({ ...editProfile, rollno: e.target.value })}
+              value={editProfile?.rollno || ""}
+              onChange={(e) =>
+                setEditProfile({ ...editProfile, rollno: e.target.value })
+              }
             />
             <TextField
               label="Email"
               type="email"
               fullWidth
               margin="normal"
-              value={editProfile?.email || ''}
-              onChange={(e) => setEditProfile({ ...editProfile, email: e.target.value })}
+              value={editProfile?.email || ""}
+              onChange={(e) =>
+                setEditProfile({ ...editProfile, email: e.target.value })
+              }
               required
             />
             <TextField
@@ -2105,23 +2407,32 @@ const StudentManager = () => {
               type="email"
               fullWidth
               margin="normal"
-              value={editProfile?.personalEmail || ''}
-              onChange={(e) => setEditProfile({ ...editProfile, personalEmail: e.target.value })}
+              value={editProfile?.personalEmail || ""}
+              onChange={(e) =>
+                setEditProfile({
+                  ...editProfile,
+                  personalEmail: e.target.value,
+                })
+              }
             />
             <TextField
               label="Phone"
               fullWidth
               margin="normal"
-              value={editProfile?.phone || ''}
-              onChange={(e) => setEditProfile({ ...editProfile, phone: e.target.value })}
+              value={editProfile?.phone || ""}
+              onChange={(e) =>
+                setEditProfile({ ...editProfile, phone: e.target.value })
+              }
             />
             <TextField
               label="Date of Birth"
               type="date"
               fullWidth
               margin="normal"
-              value={editProfile?.dob || ''}
-              onChange={(e) => setEditProfile({ ...editProfile, dob: e.target.value })}
+              value={editProfile?.dob || ""}
+              onChange={(e) =>
+                setEditProfile({ ...editProfile, dob: e.target.value })
+              }
               InputLabelProps={{ shrink: true }}
             />
             <TextField
@@ -2129,8 +2440,10 @@ const StudentManager = () => {
               type={showPassword ? "text" : "password"}
               fullWidth
               margin="normal"
-              value={editProfile?.password || ''}
-              onChange={(e) => setEditProfile({ ...editProfile, password: e.target.value })}
+              value={editProfile?.password || ""}
+              onChange={(e) =>
+                setEditProfile({ ...editProfile, password: e.target.value })
+              }
               InputProps={{
                 endAdornment: (
                   <InputAdornment position="end">
@@ -2141,230 +2454,378 @@ const StudentManager = () => {
                       {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
                     </IconButton>
                   </InputAdornment>
-                )
+                ),
               }}
-              helperText={!editProfile?._id ? "Required for new students" : "Leave blank to keep existing password"}
+              helperText={
+                !editProfile?._id
+                  ? "Required for new students"
+                  : "Leave blank to keep existing password"
+              }
             />
             <TextField
               label="Batch (Year)"
               fullWidth
               margin="normal"
-              value={editProfile?.batch || ''}
-              onChange={(e) => setEditProfile({ ...editProfile, batch: e.target.value })}
+              value={editProfile?.batch || ""}
+              onChange={(e) =>
+                setEditProfile({ ...editProfile, batch: e.target.value })
+              }
             />
 
             {/* Academic Information */}
             <FormControl fullWidth margin="normal">
               <InputLabel>Department</InputLabel>
               <Select
-                value={editProfile?.department || ''}
-                onChange={(e) => setEditProfile({ ...editProfile, department: e.target.value })}
+                value={editProfile?.department || ""}
+                onChange={(e) =>
+                  setEditProfile({ ...editProfile, department: e.target.value })
+                }
               >
                 <MenuItem value="">Select Department</MenuItem>
-                {departments.map(dept => (
-                  <MenuItem key={dept} value={dept}>{dept}</MenuItem>
+                {departments.map((dept) => (
+                  <MenuItem key={dept} value={dept}>
+                    {dept}
+                  </MenuItem>
                 ))}
               </Select>
             </FormControl>
             <FormControl fullWidth margin="normal">
               <InputLabel>Course</InputLabel>
               <Select
-                value={editProfile?.course || ''}
-                onChange={(e) => setEditProfile({ ...editProfile, course: e.target.value })}
+                value={editProfile?.course || ""}
+                onChange={(e) =>
+                  setEditProfile({ ...editProfile, course: e.target.value })
+                }
               >
                 <MenuItem value="">Select Course</MenuItem>
-                {courses.map(course => (
-                  <MenuItem key={course}
-                    value={course}>{course}</MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
-                <FormControl fullWidth margin="normal">
-                  <InputLabel>Gender</InputLabel>
-                  <Select
-                    value={editProfile?.gender || ''}
-                    onChange={(e) => setEditProfile({ ...editProfile, gender: e.target.value })}
-                  >
-                    <MenuItem value="">Select Gender</MenuItem>
-                    {genders.map(gender => (
-                      <MenuItem key={gender} value={gender}>{gender}</MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
-                <FormControl fullWidth margin="normal">
-                  <InputLabel>Category</InputLabel>
-                  <Select
-                    value={editProfile?.category || ''}
-                    onChange={(e) => setEditProfile({ ...editProfile, category: e.target.value })}
-                  >
-                    <MenuItem value="">Select Category</MenuItem>
-                    {categories.map(category => (
-                      <MenuItem key={category} value={category}>{category}</MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
-                <TextField
-                  label="CGPA"
-                  type="number"
-                  fullWidth
-                  margin="normal"
-                  value={editProfile?.cgpa || ''}
-                  onChange={(e) => setEditProfile({ ...editProfile, cgpa: e.target.value })}
-                  inputProps={{ step: "0.01", min: "0", max: "10" }}
-                />
-                  <TextField
-                  label="Active Backlogs Count"
-                  fullWidth
-                  margin="normal"
-                  value={editProfile?.activeBacklogCount || ''}
-                  onChange={(e) => setEditProfile({ ...editProfile, activeBacklogCount: e.target.value })}
-                />
-    
-                <TextField
-                  label="10th Percentage"
-                  fullWidth
-                  margin="normal"
-                  value={editProfile?.Xth || ''}
-                  onChange={(e) => setEditProfile({ ...editProfile, Xth: e.target.value })}
-                />
-                <TextField
-                  label="12th Percentage"
-                  fullWidth
-                  margin="normal"
-                  value={editProfile?.XIIth || ''}
-                  onChange={(e) => setEditProfile({ ...editProfile, XIIth: e.target.value })}
-                />
-                {/* Status Information */}
-                <FormControl fullWidth margin="normal">
-                  <InputLabel>Internship Status</InputLabel>
-                  <Select
-                    value={editProfile?.internshipstatus || 'No Intern'}
-                    onChange={(e) => setEditProfile({ ...editProfile, internshipstatus: e.target.value })}
-                  >
-                    {internshipStatuses.map(status => (
-                      <MenuItem key={status} value={status}>{status}</MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
-                <FormControl fullWidth margin="normal">
-                  <InputLabel>Placement Status</InputLabel>
-                  <Select
-                    value={editProfile?.placementstatus || 'Not Placed'}
-                    onChange={(e) => setEditProfile({ ...editProfile, placementstatus: e.target.value })}
-                  >
-                    {placementStatuses.map(status => (
-                      <MenuItem key={status} value={status}>{status}</MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
+                {courses.map((course) => (
+                  <MenuItem key={course} value={course}>
+                    {course}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+            <FormControl fullWidth margin="normal">
+              <InputLabel>Gender</InputLabel>
+              <Select
+                value={editProfile?.gender || ""}
+                onChange={(e) =>
+                  setEditProfile({ ...editProfile, gender: e.target.value })
+                }
+              >
+                <MenuItem value="">Select Gender</MenuItem>
+                {genders.map((gender) => (
+                  <MenuItem key={gender} value={gender}>
+                    {gender}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+            <FormControl fullWidth margin="normal">
+              <InputLabel>Category</InputLabel>
+              <Select
+                value={editProfile?.category || ""}
+                onChange={(e) =>
+                  setEditProfile({ ...editProfile, category: e.target.value })
+                }
+              >
+                <MenuItem value="">Select Category</MenuItem>
+                {categories.map((category) => (
+                  <MenuItem key={category} value={category}>
+                    {category}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+            <TextField
+              label="CGPA"
+              type="number"
+              fullWidth
+              margin="normal"
+              value={editProfile?.cgpa || ""}
+              onChange={(e) =>
+                setEditProfile({ ...editProfile, cgpa: e.target.value })
+              }
+              inputProps={{ step: "0.01", min: "0", max: "10" }}
+            />
+            <TextField
+              label="Active Backlogs Count"
+              fullWidth
+              margin="normal"
+              value={editProfile?.activeBacklogCount || ""}
+              onChange={(e) =>
+                setEditProfile({
+                  ...editProfile,
+                  activeBacklogCount: e.target.value,
+                })
+              }
+            />
 
-                 {/* Address */}
-                <TextField
-                  label="Address"
-                  fullWidth
-                  margin="normal"
-                  multiline
-                  rows={2}
-                  value={editProfile?.address || ''}
-                  onChange={(e) => setEditProfile({ ...editProfile, address: e.target.value })}
-                />
-    
-                {/* Toggle Switches */}
-                <div className="col-span-1 md:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <FormControlLabel
-                    control={
-                      <Switch
-                        checked={editProfile?.active_backlogs || false}
-                        onChange={(e) => setEditProfile({ ...editProfile, active_backlogs: e.target.checked })}
-                        color="primary"
-                      />
+            <TextField
+              label="10th Percentage"
+              fullWidth
+              margin="normal"
+              value={editProfile?.Xth || ""}
+              onChange={(e) =>
+                setEditProfile({ ...editProfile, Xth: e.target.value })
+              }
+            />
+            <TextField
+              label="12th Percentage"
+              fullWidth
+              margin="normal"
+              value={editProfile?.XIIth || ""}
+              onChange={(e) =>
+                setEditProfile({ ...editProfile, XIIth: e.target.value })
+              }
+            />
+            {/* Status Information */}
+            <FormControl fullWidth margin="normal">
+              <InputLabel>Internship Status</InputLabel>
+              <Select
+                value={editProfile?.internshipstatus || "No Intern"}
+                onChange={(e) =>
+                  setEditProfile({
+                    ...editProfile,
+                    internshipstatus: e.target.value,
+                  })
+                }
+              >
+                {internshipStatuses.map((status) => (
+                  <MenuItem key={status} value={status}>
+                    {status}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+            <FormControl fullWidth margin="normal">
+              <InputLabel>Placement Status</InputLabel>
+              <Select
+                value={editProfile?.placementstatus || "Not Placed"}
+                onChange={(e) =>
+                  setEditProfile({
+                    ...editProfile,
+                    placementstatus: e.target.value,
+                  })
+                }
+              >
+                {placementStatuses.map((status) => (
+                  <MenuItem key={status} value={status}>
+                    {status}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+
+            {/* Address */}
+            <TextField
+              label="Address"
+              fullWidth
+              margin="normal"
+              multiline
+              rows={2}
+              value={editProfile?.address || ""}
+              onChange={(e) =>
+                setEditProfile({ ...editProfile, address: e.target.value })
+              }
+            />
+
+            {/* Toggle Switches */}
+            <div className="col-span-1 md:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-4">
+              <FormControlLabel
+                control={
+                  <Switch
+                    checked={editProfile?.active_backlogs || false}
+                    onChange={(e) =>
+                      setEditProfile({
+                        ...editProfile,
+                        active_backlogs: e.target.checked,
+                      })
                     }
-                    label="Active Backlogs"
+                    color="primary"
                   />
-                  <FormControlLabel
-                    control={
-                      <Switch
-                        checked={editProfile?.backlogs_history || false}
-                        onChange={(e) => setEditProfile({ ...editProfile, backlogs_history: e.target.checked })}
-                        color="primary"
-                      />
+                }
+                label="Active Backlogs"
+              />
+              <FormControlLabel
+                control={
+                  <Switch
+                    checked={editProfile?.backlogs_history || false}
+                    onChange={(e) =>
+                      setEditProfile({
+                        ...editProfile,
+                        backlogs_history: e.target.checked,
+                      })
                     }
-                    label="Backlogs History"
+                    color="primary"
                   />
-                  <FormControlLabel
-                    control={
-                      <Switch
-                        checked={editProfile?.debarred || false}
-                        onChange={(e) => setEditProfile({ ...editProfile, debarred: e.target.checked })}
-                        color="primary"
-                      />
+                }
+                label="Backlogs History"
+              />
+              <FormControlLabel
+                control={
+                  <Switch
+                    checked={editProfile?.debarred || false}
+                    onChange={(e) =>
+                      setEditProfile({
+                        ...editProfile,
+                        debarred: e.target.checked,
+                      })
                     }
-                    label="Debarred"
+                    color="primary"
                   />
-                  <FormControlLabel
-                    control={
-                      <Switch
-                        checked={editProfile?.disability || false}
-                        onChange={(e) => setEditProfile({ ...editProfile, disability: e.target.checked })}
-                        color="primary"
-                      />
+                }
+                label="Debarred"
+              />
+              <FormControlLabel
+                control={
+                  <Switch
+                    checked={editProfile?.disability || false}
+                    onChange={(e) =>
+                      setEditProfile({
+                        ...editProfile,
+                        disability: e.target.checked,
+                      })
                     }
-                    label="Disability"
+                    color="primary"
                   />
-                  <FormControlLabel
-                    control={
-                      <Switch
-                        checked={editProfile?.isInterested || false}
-                        onChange={(e) => setEditProfile({ ...editProfile, isInterested: e.target.checked })}
-                        color="primary"
-                      />
+                }
+                label="Disability"
+              />
+              <FormControlLabel
+                control={
+                  <Switch
+                    checked={editProfile?.isInterested || false}
+                    onChange={(e) =>
+                      setEditProfile({
+                        ...editProfile,
+                        isInterested: e.target.checked,
+                      })
                     }
-                    label="Interested in Placement"
+                    color="primary"
                   />
-                  <FormControlLabel
-                    control={
-                      <Switch
-                        checked={editProfile?.account_deactivate || false}
-                        onChange={(e) => setEditProfile({ ...editProfile, account_deactivate: e.target.checked })}
-                        color="primary"
-                      />
+                }
+                label="Interested in Placement"
+              />
+              <FormControlLabel
+                control={
+                  <Switch
+                    checked={editProfile?.account_deactivate || false}
+                    onChange={(e) =>
+                      setEditProfile({
+                        ...editProfile,
+                        account_deactivate: e.target.checked,
+                      })
                     }
-                    label="Account Deactivated"
+                    color="primary"
                   />
-                </div>
-    
-                {/* Image URL */}
-                <TextField
-                  label="Profile Image URL"
-                  fullWidth
-                  margin="normal"
-                  className="col-span-1 md:col-span-2"
-                  value={editProfile?.image || ''}
-                  onChange={(e) => setEditProfile({ ...editProfile, image: e.target.value })}
-                  helperText="Enter the URL for the student's profile image"
-                />
-                <TextField
-                  label="LinkedIn URL"
-                  fullWidth
-                  margin="normal"
-                  className="col-span-1 md:col-span-2"
-                  value={editProfile?.linkedin || ''}
-                  onChange={(e) => setEditProfile({ ...editProfile, linkedin: e.target.value })}
-                  helperText="Enter the LinkedIn profile URL"
-                />
-              </div>
-            </DialogContent>
-            <DialogActions>
-              <Button onClick={() => setOpenEditDialog(false)} color="secondary">
-                Cancel
-              </Button>
-              <Button onClick={handleSave} color="primary">
-                {editProfile?._id ? 'Update' : 'Add'}
-              </Button>
-            </DialogActions>
-          </Dialog>
+                }
+                label="Account Deactivated"
+              />
+            </div>
+
+            {/* Image URL */}
+            <TextField
+              label="Profile Image URL"
+              fullWidth
+              margin="normal"
+              className="col-span-1 md:col-span-2"
+              value={editProfile?.image || ""}
+              onChange={(e) =>
+                setEditProfile({ ...editProfile, image: e.target.value })
+              }
+              helperText="Enter the URL for the student's profile image"
+            />
+            <TextField
+              label="LinkedIn URL"
+              fullWidth
+              margin="normal"
+              className="col-span-1 md:col-span-2"
+              value={editProfile?.linkedin || ""}
+              onChange={(e) =>
+                setEditProfile({ ...editProfile, linkedin: e.target.value })
+              }
+              helperText="Enter the LinkedIn profile URL"
+            />
+          </div>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setOpenEditDialog(false)} color="secondary">
+            Cancel
+          </Button>
+          <Button onClick={handleSave} color="primary">
+            {editProfile?._id ? "Update" : "Add"}
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      {showUpdateModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-40 flex justify-center items-center">
+          <div className="bg-white p-6 rounded w-[500px]">
+            <h2 className="text-lg font-semibold mb-4">
+              Existing Students Found
+            </h2>
+
+            <ul className="max-h-40 overflow-auto text-sm mb-4">
+              {existingStudents.map((s) => (
+                <li key={s.rollno}>
+                  {s.rollno} - {s.name}
+                </li>
+              ))}
+            </ul>
+
+            <div className="flex justify-end gap-3">
+              <button
+                onClick={() => setShowUpdateModal(false)}
+                className="px-3 py-1 border rounded"
+              >
+                Skip
+              </button>
+
+              <button
+                onClick={handleUpdateExisting}
+                className="px-3 py-1 bg-green-600 text-white rounded"
+              >
+                Modify Existing
+              </button>
+            </div>
+          </div>
         </div>
-      );
-    };
-    
-    export default StudentManager;
+      )}
+
+      {excelPreviewData.length > 0 && (
+        <div className="border rounded p-3 mb-6 max-h-[400px] overflow-auto">
+          <h3 className="font-semibold mb-2">
+            Excel Preview ({excelPreviewData.length} rows)
+          </h3>
+
+          <table className="w-full text-sm border">
+            <thead className="bg-gray-100">
+              <tr>
+                {Object.keys(excelPreviewData[0]).map((key) => (
+                  <th key={key} className="border px-2 py-1 text-left">
+                    {key}
+                  </th>
+                ))}
+              </tr>
+            </thead>
+
+            <tbody>
+              {excelPreviewData.map((row, idx) => (
+                <tr key={idx}>
+                  {Object.keys(excelPreviewData[0]).map((key) => (
+                    <td key={key} className="border px-2 py-1">
+                      {row[key]}
+                    </td>
+                  ))}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+    </div>
+  );
+};
+
+export default StudentManager;
