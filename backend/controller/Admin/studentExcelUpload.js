@@ -68,27 +68,63 @@ export const uploadStudentsExcel = async (req, res) => {
 
 export const updateExistingStudents = async (req, res) => {
   try {
+    console.log("BODY:", req.body);
+    console.log("STUDENTS:", req.body?.students);
+
     const { students } = req.body;
 
-    if (!students || !students.length) {
+    if (!Array.isArray(students) || !students.length) {
       return res.status(400).json({ message: "No students provided" });
     }
 
-    const bulkOps = students.map((s) => ({
-      updateOne: {
-        filter: { rollno: String(s.rollno).trim() },
-        update: { $set: s },
-      },
-    }));
+    let updatedCount = 0;
+    let failed = [];
+    for (const student of students) {
+      try {
+        if (!student.rollno) continue;
 
-    await Student.bulkWrite(bulkOps);
+        const updatePayload = {
+          name: student.name,
+          email: student.email,
 
-    res.status(200).json({
-      message: "Existing students updated successfully",
-      updatedCount: students.length,
+          department: student.department,
+          course: student.course,
+          batch: student.batch,
+          gender: student.gender,
+          category: student.category,
+          cgpa: student.cgpa || "",
+
+          disability:
+            typeof student.disability === "string"
+              ? student.disability.toLowerCase() === "yes"
+              : Boolean(student.disability),
+
+          erpLastUpdated: new Date(),
+        };
+
+        const result = await Student.updateOne(
+          { rollno: String(student.rollno).trim() },
+          { $set: updatePayload },
+          { runValidators: false }
+        );
+
+        if (result.modifiedCount > 0) updatedCount++;
+      } catch (err) {
+        console.error("Failed for rollno:", student.rollno, err.message);
+        failed.push(student.rollno);
+      }
+    }
+
+    return res.status(200).json({
+      message: "Update completed",
+      updatedCount,
+      failed,
     });
-  } catch (error) {
-    console.error("Update existing error:", error);
-    res.status(500).json({ message: "Update failed" });
+  } catch (err) {
+    console.log(err);
+    return res.status(500).json({
+      message: "Failed to update existing students",
+      error:err
+    });
   }
 };
