@@ -139,13 +139,12 @@ app.use('/nodemailer',authenticate, restrictTo('Professor'),logMiddleware, nodem
 app.use('/add-recruiter', authenticate,restrictTo('Professor'),logMiddleware, addRecruiterRoutes);
 app.use('/cgpa-checker',authenticate, restrictTo('Professor'),logMiddleware, cgpaCheckerRoutes);
 app.use('/insight',authenticate, restrictTo('Professor','Student'),logMiddleware, insightRoutes);
-app.use('/placement-calendar',authenticate,logMiddleware, placementCalendarRoutes);
 
 
 //Admin routes
 app.use('/admin',authenticate,restrictTo('Admin'),logMiddleware,adminRoutes);
 
-//Protected inside routes
+//Protected and restricted inside sub-routes
 app.use('/pplacementReport',authenticate, logMiddleware, pplacementReportroutes);
 app.use('/jobprofile',authenticate,logMiddleware,jobprofileroutes);
 app.use("/feedback",authenticate,logMiddleware,feedbackRoutes);
@@ -163,6 +162,7 @@ app.use('/admin/outsider-documents',authenticate, logMiddleware,outsiderDocument
 app.use("/job-events",authenticate, logMiddleware, jobEventroutes);
 app.use("/travel-planner",authenticate, logMiddleware,travelplannerRoutes);
 app.use("/placement-registration",authenticate, logMiddleware, placementRegistrationRoutes);
+app.use('/placement-calendar',authenticate,logMiddleware, placementCalendarRoutes);
 
 //mix routes
 app.use('/notification',authenticate,restrictTo('Student','Professor'),logMiddleware,notificationRoutes);
