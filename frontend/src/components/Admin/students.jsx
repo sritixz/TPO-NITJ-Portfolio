@@ -1179,6 +1179,10 @@ const StudentManager = () => {
   const [excelPreviewData, setExcelPreviewData] = useState([]);
   const [isExcelReady, setIsExcelReady] = useState(false);
   const [uploadingExcel, setUploadingExcel] = useState(false);
+  const [excelStage, setExcelStage] = useState("idle");
+  const [existingStudents, setExistingStudents] = useState([]);
+  const [showExcelPreviewModal, setShowExcelPreviewModal] = useState(false);
+  const [updatingExisting, setUpdatingExisting] = useState(false);
 
   const [students, setStudents] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -1641,6 +1645,7 @@ const StudentManager = () => {
     if (!file) return;
 
     setExcelFile(file);
+    setExcelStage("selected");
 
     const reader = new FileReader();
 
@@ -1653,29 +1658,36 @@ const StudentManager = () => {
         const worksheet = workbook.Sheets[sheetName];
 
         const rows = XLSX.utils.sheet_to_json(worksheet, {
-          defval: "", // 👈 IMPORTANT (prevents undefined)
+          defval: "",
         });
-
-        console.log("Parsed Excel Rows:", rows); // DEBUG
 
         if (!rows.length) {
           toast.error("Excel is empty");
+          setExcelStage("idle");
+          return;
+        }
+
+        // ✅ NOW detect duplicates
+        const duplicates = detectDuplicates(rows);
+
+        if (duplicates.length) {
+          toast.error(`Duplicate Roll Numbers found: ${duplicates.join(", ")}`);
+          setExcelStage("preview");
           return;
         }
 
         setExcelPreviewData(rows);
         setIsExcelReady(true);
-      } catch (err) {
-        console.error("Excel parse error:", err);
+        setExcelStage("preview");
+        setShowExcelPreviewModal(true);
+        toast.success(`Loaded ${rows.length} rows`);
+      } catch {
         toast.error("Invalid Excel file");
+        setExcelStage("idle");
       }
     };
 
-    reader.onerror = () => {
-      toast.error("Failed to read file");
-    };
-
-    reader.readAsArrayBuffer(file); // 👈 MUST BE ArrayBuffer
+    reader.readAsArrayBuffer(file);
   };
 
   const handleExcelUpload = async () => {
@@ -1686,12 +1698,13 @@ const StudentManager = () => {
 
     try {
       setUploadingExcel(true);
+      setExcelStage("uploading");
 
       const formData = new FormData();
       formData.append("file", excelFile);
 
       const res = await axios.post(
-        `${import.meta.env.REACT_APP_BASE_URL}/admin/students/upload-excel`,
+        `${import.meta.env.REACT_APP_BASE_URL}/admin/students/excel/upload-excel`,
         formData,
         { withCredentials: true }
       );
@@ -1701,15 +1714,20 @@ const StudentManager = () => {
       if (res.data.existingStudents?.length) {
         setExistingStudents(res.data.existingStudents);
         setShowUpdateModal(true);
+        toast(`${res.data.existingStudents.length} duplicate students found`, {
+          icon: "⚠️",
+        });
       }
 
       setExcelFile(null);
       setExcelPreviewData([]);
       setIsExcelReady(false);
-
+      setExcelStage("done");
+      setShowExcelPreviewModal(false);
       fetchStudents();
     } catch (err) {
       toast.error(err.response?.data?.message || "Upload failed");
+      setExcelStage("preview");
     } finally {
       setUploadingExcel(false);
     }
@@ -1717,10 +1735,16 @@ const StudentManager = () => {
 
   const handleUpdateExisting = async () => {
     try {
+      setUpdatingExisting(true);
       await axios.put(
-        `${import.meta.env.REACT_APP_BASE_URL}/admin/students/update-existing`,
+        `${import.meta.env.REACT_APP_BASE_URL}/admin/students/excel/update-existing`,
         { students: existingStudents },
-        { withCredentials: true }
+        {
+          withCredentials: true,
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
       );
 
       toast.success("Existing students updated");
@@ -1728,7 +1752,22 @@ const StudentManager = () => {
       fetchStudents();
     } catch {
       toast.error("Update failed");
+    } finally {
+      setUpdatingExisting(false);
     }
+  };
+
+  const detectDuplicates = (rows) => {
+    const seen = new Set();
+    const duplicates = [];
+
+    rows.forEach((row) => {
+      const roll = String(row.rollno).trim();
+      if (seen.has(roll)) duplicates.push(roll);
+      else seen.add(roll);
+    });
+
+    return duplicates;
   };
 
   const openEditModal = (student = null) => {
@@ -1848,6 +1887,15 @@ const StudentManager = () => {
 
   const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
+  useEffect(() => {
+    if (!editProfile) return;
+
+    setEditProfile((prev) => ({
+      ...prev,
+      active_backlogs: Number(prev.activeBacklogCount) > 0,
+    }));
+  }, [editProfile?.activeBacklogCount]);
+
   return (
     <div className="container mx-auto p-4">
       <DeleteConfirmationModal />
@@ -1867,7 +1915,7 @@ const StudentManager = () => {
           <div className="flex gap-3 mb-4">
             <input
               type="file"
-              accept=".xlsx"
+              accept=".xlsx, .xls"
               id="excelInput"
               hidden
               onChange={handleExcelSelect}
@@ -1879,18 +1927,22 @@ const StudentManager = () => {
             >
               Select Excel
             </label>
-
-            <button
-              disabled={!isExcelReady || uploadingExcel}
-              onClick={handleExcelUpload}
-              className={`px-4 py-2 rounded text-white ${
-                isExcelReady ? "bg-green-600" : "bg-gray-400 cursor-not-allowed"
-              }`}
-            >
-              {uploadingExcel ? "Uploading..." : "Upload"}
-            </button>
           </div>
+          {excelStage === "selected" && (
+            <p className="text-sm text-blue-600">Excel selected, parsing…</p>
+          )}
 
+          {excelStage === "preview" && (
+            <p className="text-sm text-green-600">
+              Preview ready. Click Upload to continue.
+            </p>
+          )}
+
+          {excelStage === "uploading" && (
+            <p className="text-sm text-orange-600 animate-pulse">
+              Uploading students, please wait…
+            </p>
+          )}
           {selectedStudents.length > 0 && (
             <button
               onClick={() => openDeleteConfirmModal("bulk")}
@@ -2207,6 +2259,7 @@ const StudentManager = () => {
                     <input
                       type="checkbox"
                       checked={
+                        currentStudents.length > 0 &&
                         selectedStudents.length === currentStudents.length
                       }
                       onChange={() =>
@@ -2784,44 +2837,98 @@ const StudentManager = () => {
 
               <button
                 onClick={handleUpdateExisting}
-                className="px-3 py-1 bg-green-600 text-white rounded"
+                disabled={updatingExisting}
+                className={`px-3 py-1 rounded text-white ${
+                  updatingExisting
+                    ? "bg-gray-400 cursor-not-allowed"
+                    : "bg-green-600 hover:bg-green-700"
+                }`}
               >
-                Modify Existing
+                {updatingExisting ? "Modifying..." : "Modify Existing"}
               </button>
             </div>
           </div>
         </div>
       )}
 
-      {excelPreviewData.length > 0 && (
-        <div className="border rounded p-3 mb-6 max-h-[400px] overflow-auto">
-          <h3 className="font-semibold mb-2">
-            Excel Preview ({excelPreviewData.length} rows)
-          </h3>
+      {showExcelPreviewModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
+          <div className="bg-white w-[90%] max-w-6xl max-h-[85vh] rounded-lg shadow-lg flex flex-col">
+            {/* HEADER */}
+            <div className="flex justify-between items-center px-4 py-3 border-b">
+              <h3 className="text-lg font-semibold">
+                Excel Preview ({excelPreviewData.length} rows)
+              </h3>
+              <button
+                onClick={() => {
+                  setShowExcelPreviewModal(false);
+                  setExcelPreviewData([]);
+                  setExcelFile(null);
+                  setIsExcelReady(false);
+                }}
+                className="text-gray-600 hover:text-black"
+              >
+                <X size={22} />
+              </button>
+            </div>
 
-          <table className="w-full text-sm border">
-            <thead className="bg-gray-100">
-              <tr>
-                {Object.keys(excelPreviewData[0]).map((key) => (
-                  <th key={key} className="border px-2 py-1 text-left">
-                    {key}
-                  </th>
-                ))}
-              </tr>
-            </thead>
+            {/* TABLE */}
+            <div className="overflow-auto p-4">
+              <table className="w-full text-sm border">
+                <thead className="bg-gray-100 sticky top-0">
+                  <tr>
+                    {excelPreviewData.length > 0 &&
+                      Object.keys(excelPreviewData[0]).map((key) => (
+                        <th key={key} className="border px-2 py-1 text-left">
+                          {key}
+                        </th>
+                      ))}
+                  </tr>
+                </thead>
 
-            <tbody>
-              {excelPreviewData.map((row, idx) => (
-                <tr key={idx}>
-                  {Object.keys(excelPreviewData[0]).map((key) => (
-                    <td key={key} className="border px-2 py-1">
-                      {row[key]}
-                    </td>
-                  ))}
-                </tr>
-              ))}
-            </tbody>
-          </table>
+                <tbody>
+                  {excelPreviewData.map((row, idx) => {
+                    const isDuplicate =
+                      excelPreviewData.filter(
+                        (r) => String(r.rollno) === String(row.rollno)
+                      ).length > 1;
+
+                    return (
+                      <tr key={idx} className={isDuplicate ? "bg-red-100" : ""}>
+                        {Object.keys(excelPreviewData[0]).map((key) => (
+                          <td key={key} className="border px-2 py-1">
+                            {row[key]}
+                          </td>
+                        ))}
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+
+            {/* FOOTER */}
+            <div className="flex justify-end gap-3 px-4 py-3 border-t">
+              <button
+                onClick={() => setShowExcelPreviewModal(false)}
+                className="px-4 py-2 border rounded"
+              >
+                Cancel
+              </button>
+
+              <button
+                onClick={handleExcelUpload}
+                disabled={uploadingExcel}
+                className={`px-4 py-2 rounded text-white ${
+                  uploadingExcel
+                    ? "bg-gray-400"
+                    : "bg-green-600 hover:bg-green-700"
+                }`}
+              >
+                {uploadingExcel ? "Uploading..." : "Upload Students"}
+              </button>
+            </div>
+          </div>
         </div>
       )}
     </div>

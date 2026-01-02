@@ -128,6 +128,7 @@ router.put("/jobprofiles/:id", updateJobProfile);
 router.delete("/jobprofiles/:id", deleteJobProfile);
 router.post("/jobprofiles/bulk-delete", bulkDeleteJobProfiles);
 router.put("/jobprofiles/:id/toggle-visibility", toggleJobProfileVisibility);
+
 //student profile routes
 router.get("/students", getAllStudents);
 router.put("/students/:id", updateStudentProfile);
@@ -135,12 +136,12 @@ router.post("/students", addNewStudent);
 router.delete("/students", deleteStudentProfiles);
 router.patch("/students/deactivate/:id", deactivateStudentProfiles);
 router.post(
-  "/students/upload-excel",
+  "/students/excel/upload-excel",
   uploadExcel.single("file"),
   uploadStudentsExcel
 );
 
-router.put("/students/update-existing", updateExistingStudents);
+router.put("/students/excel/update-existing", updateExistingStudents);
 
 //recruiter profile routes
 router.get("/recruiters", getAllRecruiters);
