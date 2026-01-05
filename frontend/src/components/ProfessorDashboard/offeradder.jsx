@@ -66,8 +66,6 @@
 //     setSList(s => s.map(x => ({ ...x, override: { ...g } })));
 //   }
 
-
-
 //   function removeRow(i) {
 //     setSList(s => s.filter((_, idx) => idx !== i));
 //   }
@@ -121,18 +119,18 @@
 //           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
 //             <div>
 //               <label className="block text-sm font-medium text-gray-700 mb-2">Company Name</label>
-//               <input 
-//                 placeholder="Enter company name" 
-//                 value={company} 
-//                 onChange={e => setCompany(e.target.value)} 
+//               <input
+//                 placeholder="Enter company name"
+//                 value={company}
+//                 onChange={e => setCompany(e.target.value)}
 //                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
 //               />
 //             </div>
 //             <div>
 //               <label className="block text-sm font-medium text-gray-700 mb-2">Batch</label>
-//               <select 
-//                 value={batch} 
-//                 onChange={e => setBatch(e.target.value)} 
+//               <select
+//                 value={batch}
+//                 onChange={e => setBatch(e.target.value)}
 //                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
 //               >
 //                 <option value="2026">2026</option>
@@ -144,9 +142,9 @@
 //             </div>
 //             <div>
 //               <label className="block text-sm font-medium text-gray-700 mb-2">Course</label>
-//               <select 
-//                 value={course} 
-//                 onChange={e => setCourse(e.target.value)} 
+//               <select
+//                 value={course}
+//                 onChange={e => setCourse(e.target.value)}
 //                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
 //               >
 //                 <option value="B.Tech">B.Tech</option>
@@ -157,9 +155,9 @@
 //             </div>
 //             <div>
 //               <label className="block text-sm font-medium text-gray-700 mb-2">Offer Mode</label>
-//               <select 
-//                 value={offerMode} 
-//                 onChange={e => setOfferMode(e.target.value)} 
+//               <select
+//                 value={offerMode}
+//                 onChange={e => setOfferMode(e.target.value)}
 //                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
 //               >
 //                 <option value="PPO">PPO</option>
@@ -169,9 +167,9 @@
 //             </div>
 //             <div>
 //               <label className="block text-sm font-medium text-gray-700 mb-2">Offer Sector</label>
-//               <select 
-//                 value={offerSector} 
-//                 onChange={e => setOfferSector(e.target.value)} 
+//               <select
+//                 value={offerSector}
+//                 onChange={e => setOfferSector(e.target.value)}
 //                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
 //               >
 //                 <option value="Private">Private</option>
@@ -180,9 +178,9 @@
 //             </div>
 //             <div>
 //               <label className="block text-sm font-medium text-gray-700 mb-2">Offer Category</label>
-//               <select 
-//                 value={offerCategory} 
-//                 onChange={e => setOfferCategory(e.target.value)} 
+//               <select
+//                 value={offerCategory}
+//                 onChange={e => setOfferCategory(e.target.value)}
 //                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
 //               >
 //                 <option value="A">A</option>
@@ -193,10 +191,10 @@
 //             </div>
 //             <div>
 //               <label className="block text-sm font-medium text-gray-700 mb-2">Result Date</label>
-//               <input 
-//                 type="date" 
-//                 value={resultDate} 
-//                 onChange={e => setResultDate(e.target.value)} 
+//               <input
+//                 type="date"
+//                 value={resultDate}
+//                 onChange={e => setResultDate(e.target.value)}
 //                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
 //               />
 //             </div>
@@ -208,28 +206,28 @@
 //         <div className="bg-white rounded-lg shadow-sm border p-6 mb-6">
 //           <div className="flex items-center justify-between mb-4">
 //             <div className="flex items-center space-x-3">
-//               <input 
-//                 type="checkbox" 
-//                 checked={applyAll} 
+//               <input
+//                 type="checkbox"
+//                 checked={applyAll}
 //                 onChange={e => setApplyAll(e.target.checked)}
 //                 className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
 //               />
 //               <h2 className="text-lg font-semibold text-gray-900">Global Defaults</h2>
 //             </div>
-//             <button 
-//               onClick={applyGlobalToAll} 
+//             <button
+//               onClick={applyGlobalToAll}
 //               className="px-4 py-2 bg-custom-blue hover:bg-blue-700 text-white font-medium rounded-md transition-colors"
 //             >
 //               Apply to All Students
 //             </button>
 //           </div>
-          
+
 //           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
 //             <div>
 //               <label className="block text-sm font-medium text-gray-700 mb-1">Job Type</label>
-//               <select 
-//                 value={g.job_type} 
-//                 onChange={e => setG(s => ({ ...s, job_type: e.target.value }))} 
+//               <select
+//                 value={g.job_type}
+//                 onChange={e => setG(s => ({ ...s, job_type: e.target.value }))}
 //                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
 //               >
 //                 <option value="Intern">Intern</option>
@@ -240,29 +238,29 @@
 //             </div>
 //             <div>
 //               <label className="block text-sm font-medium text-gray-700 mb-1">Job Role</label>
-//               <input 
-//                 placeholder="e.g., Backend Developer" 
-//                 value={g.job_role} 
-//                 onChange={e => setG(s => ({ ...s, job_role: e.target.value }))} 
+//               <input
+//                 placeholder="e.g., Backend Developer"
+//                 value={g.job_role}
+//                 onChange={e => setG(s => ({ ...s, job_role: e.target.value }))}
 //                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
 //               />
 //             </div>
 //             <div>
 //               <label className="block text-sm font-medium text-gray-700 mb-1">CTC</label>
-//               <input 
-//                 placeholder="e.g., 12 LPA" 
-//                 value={g.ctc} 
-//                 onChange={e => setG(s => ({ ...s, ctc: e.target.value }))} 
+//               <input
+//                 placeholder="e.g., 12 LPA"
+//                 value={g.ctc}
+//                 onChange={e => setG(s => ({ ...s, ctc: e.target.value }))}
 //                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
 //               />
 //             </div>
 //             {g.job_type !== 'FTE' && (
 //   <div>
 //     <label className="block text-sm font-medium text-gray-700 mb-1">Stipend</label>
-//     <input 
-//       placeholder="e.g., 50,000" 
-//       value={g.stipend} 
-//       onChange={e => setG(s => ({ ...s, stipend: e.target.value }))} 
+//     <input
+//       placeholder="e.g., 50,000"
+//       value={g.stipend}
+//       onChange={e => setG(s => ({ ...s, stipend: e.target.value }))}
 //       className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
 //     />
 //   </div>
@@ -275,10 +273,10 @@
 //             ) : (
 //               <div>
 //                 <label className="block text-sm font-medium text-gray-700 mb-1">Intern Duration</label>
-//                 <input 
-//                   placeholder="e.g., 6 months" 
-//                   value={g.intern_duration} 
-//                   onChange={e => setG(s => ({ ...s, intern_duration: e.target.value }))} 
+//                 <input
+//                   placeholder="e.g., 6 months"
+//                   value={g.intern_duration}
+//                   onChange={e => setG(s => ({ ...s, intern_duration: e.target.value }))}
 //                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
 //                 />
 //               </div>
@@ -294,16 +292,16 @@
 //               <label className="block text-sm font-medium text-gray-700 mb-2">
 //                 Roll Numbers (comma, space, or newline separated)
 //               </label>
-//               <textarea 
-//                 value={rollText} 
-//                 onChange={e => setRollText(e.target.value)} 
+//               <textarea
+//                 value={rollText}
+//                 onChange={e => setRollText(e.target.value)}
 //                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent h-24 resize-none"
 //                 placeholder="Enter roll numbers here..."
 //               />
 //             </div>
 //             <div className="flex flex-wrap gap-3">
-//               <button 
-//                 onClick={handleFetch} 
+//               <button
+//                 onClick={handleFetch}
 //                 disabled={loading}
 //                 className="inline-flex items-center px-4 py-2 bg-custom-blue hover:bg-blue-700 disabled:bg-blue-400 text-white font-medium rounded-md transition-colors"
 //               >
@@ -317,8 +315,8 @@
 //                 )}
 //               </button>
 
-//               <button 
-//                 onClick={() => { setRollText(''); setSList([]); }} 
+//               <button
+//                 onClick={() => { setRollText(''); setSList([]); }}
 //                 className="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium rounded-md border border-gray-300 transition-colors"
 //               >
 //                 Clear All
@@ -327,14 +325,13 @@
 //           </div>
 //         </div>
 
-
 //         {/* Students List */}
 //         {sList.length > 0 && (
 //           <div className="bg-white rounded-lg shadow-sm border p-6 mb-6">
 //             <h2 className="text-lg font-semibold text-gray-900 mb-4">
 //               Students ({sList.length})
 //             </h2>
-            
+
 //             <div className="space-y-4">
 //               {sList.map((s, i) => (
 //                 <div key={i} className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
@@ -342,15 +339,15 @@
 //                     {/* Roll Number */}
 //                     <div className="lg:col-span-2">
 //                       <label className="block text-xs font-medium text-gray-600 mb-1">Roll Number</label>
-//                       <input 
-//                         value={s.roll} 
-//                         onChange={e => setSList(arr => { 
-//                           const t=[...arr]; 
-//                           t[i].roll=e.target.value; 
-//                           t[i].found=false; 
-//                           t[i].student=null; 
-//                           return t; 
-//                         })} 
+//                       <input
+//                         value={s.roll}
+//                         onChange={e => setSList(arr => {
+//                           const t=[...arr];
+//                           t[i].roll=e.target.value;
+//                           t[i].found=false;
+//                           t[i].student=null;
+//                           return t;
+//                         })}
 //                         className="w-full px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-500"
 //                         placeholder="Roll no."
 //                       />
@@ -378,9 +375,9 @@
 
 //                     {/* Job Details */}
 //                     <div className="lg:col-span-6 grid grid-cols-2 lg:grid-cols-4 gap-2">
-//                       <select 
-//                         value={s.override.job_type || (applyAll ? g.job_type : '')} 
-//                         onChange={e => setStudentField(i, 'job_type', e.target.value)} 
+//                       <select
+//                         value={s.override.job_type || (applyAll ? g.job_type : '')}
+//                         onChange={e => setStudentField(i, 'job_type', e.target.value)}
 //                         className="px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-500"
 //                       >
 //                         <option value="">Select job type</option>
@@ -389,22 +386,22 @@
 //                         <option value="FTE">FTE</option>
 //                         <option value="Intern+PPO">Intern+PPO</option>
 //                       </select>
-//                       <input 
-//                         placeholder="Job role" 
-//                         value={s.override.job_role || (applyAll ? g.job_role : '')} 
-//                         onChange={e => setStudentField(i, 'job_role', e.target.value)} 
+//                       <input
+//                         placeholder="Job role"
+//                         value={s.override.job_role || (applyAll ? g.job_role : '')}
+//                         onChange={e => setStudentField(i, 'job_role', e.target.value)}
 //                         className="px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-500"
 //                       />
-//                       <input 
-//                         placeholder="CTC" 
-//                         value={s.override.ctc || (applyAll ? g.ctc : '')} 
-//                         onChange={e => setStudentField(i, 'ctc', e.target.value)} 
+//                       <input
+//                         placeholder="CTC"
+//                         value={s.override.ctc || (applyAll ? g.ctc : '')}
+//                         onChange={e => setStudentField(i, 'ctc', e.target.value)}
 //                         className="px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-500"
 //                       />
-//                       <input 
-//                         placeholder="Stipend" 
-//                         value={s.override.stipend || (applyAll ? g.stipend : '')} 
-//                         onChange={e => setStudentField(i, 'stipend', e.target.value)} 
+//                       <input
+//                         placeholder="Stipend"
+//                         value={s.override.stipend || (applyAll ? g.stipend : '')}
+//                         onChange={e => setStudentField(i, 'stipend', e.target.value)}
 //                         className="px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-500"
 //                       />
 //                     </div>
@@ -412,26 +409,26 @@
 //                     {/* Intern Duration & Actions */}
 //                     <div className="lg:col-span-2 flex gap-2">
 //                       {((s.override.job_type || (applyAll ? g.job_type : '')) !== 'FTE') && (
-//                         <input 
-//                           placeholder="Duration" 
-//                           value={s.override.intern_duration || (applyAll ? g.intern_duration : '')} 
-//                           onChange={e => setStudentField(i, 'intern_duration', e.target.value)} 
+//                         <input
+//                           placeholder="Duration"
+//                           value={s.override.intern_duration || (applyAll ? g.intern_duration : '')}
+//                           onChange={e => setStudentField(i, 'intern_duration', e.target.value)}
 //                           className="flex-1 px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-500"
 //                         />
 //                       )}
-//                       <button 
+//                       <button
 //                         onClick={async () => {
 //                           setSList(a => { const t=[...a]; t[i].loading=true; return t; });
 //                           const r = await fetchOne(s.roll);
 //                           setSList(a => { const t=[...a]; t[i] = { ...t[i], loading:false, found: !!r.found, student: r.student || null }; return t; });
-//                         }} 
+//                         }}
 //                         className="px-2 py-1 text-xs bg-gray-100 hover:bg-gray-200 text-gray-700 rounded border"
 //                         title="Refetch student data"
 //                       >
 //                         ↻
 //                       </button>
-//                       <button 
-//                         onClick={() => removeRow(i)} 
+//                       <button
+//                         onClick={() => removeRow(i)}
 //                         className="px-2 py-1 text-xs bg-red-100 hover:bg-red-200 text-red-700 rounded border border-red-200"
 //                         title="Remove student"
 //                       >
@@ -449,9 +446,9 @@
 //         <div className="bg-white rounded-lg shadow-sm border p-6">
 //           <div className="flex flex-wrap gap-3 items-center justify-between">
 //             <div className="flex gap-3">
-//               <button 
-//                 onClick={handleSubmit} 
-//                 disabled={loading} 
+//               <button
+//                 onClick={handleSubmit}
+//                 disabled={loading}
 //                 className="inline-flex items-center px-6 py-3 bg-green-600 hover:bg-green-700 disabled:bg-green-400 text-white font-semibold rounded-md transition-colors"
 //               >
 //                 {loading ? (
@@ -463,18 +460,18 @@
 //                   'Save Offer'
 //                 )}
 //               </button>
-//               <button 
-//                 onClick={() => { setSList([]); setRollText(''); }} 
+//               <button
+//                 onClick={() => { setSList([]); setRollText(''); }}
 //                 className="px-6 py-3 bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold rounded-md border border-gray-300 transition-colors"
 //               >
 //                 Reset Students
 //               </button>
 //             </div>
-            
+
 //             {msg && (
 //               <div className={`px-4 py-2 rounded-md text-sm font-medium ${
-//                 msg.includes('success') 
-//                   ? 'bg-green-100 text-green-800 border border-green-200' 
+//                 msg.includes('success')
+//                   ? 'bg-green-100 text-green-800 border border-green-200'
 //                   : 'bg-red-100 text-red-800 border border-red-200'
 //               }`}>
 //                 {msg}
@@ -492,12 +489,38 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 
+function validateFetchedStudentCourses(
+  selectedCourse,
+  students,
+  setCourseError
+) {
+  const fetchedStudents = students.filter((s) => s.found && s.student?.course);
+
+  if (!fetchedStudents.length) {
+    setCourseError(null);
+    return true;
+  }
+
+  const mismatch = fetchedStudents.some(
+    (s) => s.student.course !== selectedCourse
+  );
+
+  if (mismatch) {
+    setCourseError("All fetched students must belong to the selected course");
+    return false;
+  }
+
+  setCourseError(null);
+  return true;
+}
+
 const OfferEditor = ({ onClose }) => {
   const [offers, setOffers] = useState([]);
-  const [searchTerm, setSearchTerm] = useState('');
+  const [searchTerm, setSearchTerm] = useState("");
   const [selectedId, setSelectedId] = useState(null);
   const [loading, setLoading] = useState(true);
   const [msg, setMsg] = useState(null);
+  const [courseError, setCourseError] = useState(null); // kept as-is
 
   useEffect(() => {
     fetchOffers();
@@ -507,7 +530,10 @@ const OfferEditor = ({ onClose }) => {
     setLoading(true);
     setMsg(null);
     try {
-      const res = await axios.get(`${import.meta.env.REACT_APP_BASE_URL}/offer-add/get-all`, { withCredentials: true });
+      const res = await axios.get(
+        `${import.meta.env.REACT_APP_BASE_URL}/offer-add/get-all`,
+        { withCredentials: true }
+      );
       setOffers(res.data);
     } catch (error) {
       setMsg("Failed to load offers");
@@ -515,16 +541,29 @@ const OfferEditor = ({ onClose }) => {
     setLoading(false);
   }
 
-  const filteredOffers = offers.filter(o => o.company_name && o.company_name.toLowerCase().includes(searchTerm.toLowerCase()));
+  const filteredOffers = offers.filter(
+    (o) =>
+      o.company_name &&
+      o.company_name.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
-  const selected = offers.find(o => o._id === selectedId);
+  const selected = offers.find((o) => o._id === selectedId);
 
   if (loading) {
     return <div className="text-center py-8">Loading offers...</div>;
   }
 
   if (selected) {
-    return <EditForm offer={selected} onSave={() => { fetchOffers(); setSelectedId(null); }} onCancel={() => setSelectedId(null)} />;
+    return (
+      <EditForm
+        offer={selected}
+        onSave={() => {
+          fetchOffers();
+          setSelectedId(null);
+        }}
+        onCancel={() => setSelectedId(null)}
+      />
+    );
   }
 
   return (
@@ -532,16 +571,22 @@ const OfferEditor = ({ onClose }) => {
       <div className="max-w-6xl mx-auto px-4">
         <div className="bg-white rounded-lg shadow-sm border p-6 mb-6">
           <div className="flex justify-between items-center mb-4">
-            <h2 className="text-lg font-semibold text-gray-900">Existing Offers</h2>
-            <button 
-              onClick={onClose} 
+            <h2 className="text-lg font-semibold text-gray-900">
+              Existing Offers
+            </h2>
+            <button
+              onClick={onClose}
               className="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium rounded-md border border-gray-300 transition-colors"
             >
               Close
             </button>
           </div>
-          
-          {msg && <div className="mb-4 px-4 py-2 bg-red-100 text-red-800 border border-red-200 rounded-md">{msg}</div>}
+
+          {msg && (
+            <div className="mb-4 px-4 py-2 bg-red-100 text-red-800 border border-red-200 rounded-md">
+              {msg}
+            </div>
+          )}
 
           <div className="mb-4">
             <input
@@ -549,42 +594,78 @@ const OfferEditor = ({ onClose }) => {
               placeholder="Search offers by company name"
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               value={searchTerm}
-              onChange={e => setSearchTerm(e.target.value)}
+              onChange={(e) => setSearchTerm(e.target.value)}
             />
           </div>
 
           {filteredOffers.length === 0 ? (
-            <p className="text-gray-500">{searchTerm ? 'No offers match the search.' : 'No offers found.'}</p>
+            <p className="text-gray-500">
+              {searchTerm ? "No offers match the search." : "No offers found."}
+            </p>
           ) : (
             <div className="overflow-x-auto">
               <table className="min-w-full divide-y divide-gray-200">
                 <thead className="bg-gray-50">
                   <tr>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Batch</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Course</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Company</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Mode</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Sector</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Category</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Result Date</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Students</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Batch
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Course
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Company
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Mode
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Sector
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Category
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Result Date
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Students
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Actions
+                    </th>
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
-                  {filteredOffers.map(o => (
+                  {filteredOffers.map((o) => (
                     <tr key={o._id}>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{o.batch}</td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{o.course}</td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{o.company_name}</td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{o.offer_mode}</td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{o.offer_sector}</td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{o.offer_category}</td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{o.result_date || '-'}</td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{o.shortlisted_students?.length || 0}</td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                        {o.batch}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                        {o.course}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                        {o.company_name}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                        {o.offer_mode}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                        {o.offer_sector}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                        {o.offer_category}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                        {o.result_date || "-"}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                        {o.shortlisted_students?.length || 0}
+                      </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm">
-                        <button 
-                          onClick={() => setSelectedId(o._id)} 
+                        <button
+                          onClick={() => setSelectedId(o._id)}
                           className="text-blue-600 hover:text-blue-900 font-medium"
                         >
                           Edit
@@ -604,50 +685,73 @@ const OfferEditor = ({ onClose }) => {
 
 const EditForm = ({ offer, onSave, onCancel }) => {
   const [company, setCompany] = useState(offer.company_name || "");
-  console.log("in edit form section",offer)
+  console.log("in edit form section", offer);
   const [batch, setBatch] = useState(offer.batch || "2026");
   const [course, setCourse] = useState(offer.course || "B.Tech");
-  const [resultDate, setResultDate] = useState(offer.result_date ? offer.result_date.split("T")[0] : "");
+  const [resultDate, setResultDate] = useState(
+    offer.result_date ? offer.result_date.split("T")[0] : ""
+  );
   const [offerMode, setOfferMode] = useState(offer.offer_mode || "PPO");
-  const [offerSector, setOfferSector] = useState(offer.offer_sector || "Private");
-  const [offerCategory, setOfferCategory] = useState(offer.offer_category || "A");
+  const [offerSector, setOfferSector] = useState(
+    offer.offer_sector || "Private"
+  );
+  const [offerCategory, setOfferCategory] = useState(
+    offer.offer_category || "A"
+  );
   const [rollText, setRollText] = useState("");
-  const [sList, setSList] = useState(offer.shortlisted_students.map(s => ({
-    roll: s.roll,
-    found: !!s.studentId,
-    student: {
-      _id: s.studentId,
-      name: s.name,
-      gender: s.gender,
-      department: s.department,
-      category: s.category
-    },
-    override: {
-      job_type: s.job_type,
-      job_role: s.job_role,
-      ctc: s.ctc,
-      stipend: s.stipend,
-      intern_duration: s.intern_duration
-    },
-    loading: false
-  })));
-  const [g, setG] = useState({ job_type: "FTE", job_role: "", ctc: "", stipend: "", intern_duration: "" });
+  const [sList, setSList] = useState(
+    offer.shortlisted_students.map((s) => ({
+      roll: s.roll,
+      found: !!s.studentId,
+      student: {
+        _id: s.studentId,
+        name: s.name,
+        gender: s.gender,
+        department: s.department,
+        category: s.category,
+        course: s.course, // 🔧 FIX
+      },
+      override: {
+        job_type: s.job_type,
+        job_role: s.job_role,
+        ctc: s.ctc,
+        stipend: s.stipend,
+        intern_duration: s.intern_duration,
+      },
+      loading: false,
+    }))
+  );
+  const [g, setG] = useState({
+    job_type: "FTE",
+    job_role: "",
+    ctc: "",
+    stipend: "",
+    intern_duration: "",
+  });
   const [applyAll, setApplyAll] = useState(false);
   const [loading, setLoading] = useState(false);
   const [msg, setMsg] = useState(null);
+  const [courseError, setCourseError] = useState(null);
 
   function parseRolls(txt) {
-    return Array.from(new Set(
-      txt
-        .split(/[,\n\s]+/)
-        .map(s => s.trim())
-        .filter(Boolean)
-    ));
+    return Array.from(
+      new Set(
+        txt
+          .split(/[,\n\s]+/)
+          .map((s) => s.trim())
+          .filter(Boolean)
+      )
+    );
   }
 
   async function fetchOne(roll) {
     try {
-      const res = await axios.get(`${import.meta.env.REACT_APP_BASE_URL}/offer-add/get/${encodeURIComponent(roll)}`, { withCredentials: true });
+      const res = await axios.get(
+        `${import.meta.env.REACT_APP_BASE_URL}/offer-add/get/${encodeURIComponent(
+          roll
+        )}`,
+        { withCredentials: true }
+      );
       return { roll, found: true, student: res.data };
     } catch (error) {
       return { roll, found: false };
@@ -655,27 +759,59 @@ const EditForm = ({ offer, onSave, onCancel }) => {
   }
 
   async function handleFetch() {
-    const newRolls = parseRolls(rollText).filter(r => !sList.some(x => x.roll === r));
+    const newRolls = parseRolls(rollText).filter((r) => {
+      !sList.some((x) => x.roll === r);
+      console.log("Fetched student:", r.student);
+    });
     if (!newRolls.length) return setMsg("No new roll numbers or duplicates.");
     setLoading(true);
     setMsg(null);
-    const arr = newRolls.map(r => ({ roll: r, loading: true, found: false, student: null, override: { job_type: "", job_role: "", ctc: "", stipend: "", intern_duration: "" } }));
-    setSList(current => [...current, ...arr]);
-    const res = await Promise.all(newRolls.map(r => fetchOne(r)));
-    const merged = res.map(r => ({
+
+    const arr = newRolls.map((r) => ({
+      roll: r,
+      loading: true,
+      found: false,
+      student: null,
+      override: {
+        job_type: "",
+        job_role: "",
+        ctc: "",
+        stipend: "",
+        intern_duration: "",
+      },
+    }));
+    setSList((current) => [...current, ...arr]);
+
+    const res = await Promise.all(newRolls.map((r) => fetchOne(r)));
+
+    const merged = res.map((r) => ({
       roll: r.roll,
       loading: false,
       found: !!r.found,
-      student: r.student || null,
-      override: { job_type: "", job_role: "", ctc: "", stipend: "", intern_duration: "" }
+      student: r.student
+        ? { ...r.student, course: r.student.course } // 🔧 FIX
+        : null,
+      override: {
+        job_type: "",
+        job_role: "",
+        ctc: "",
+        stipend: "",
+        intern_duration: "",
+      },
     }));
-    setSList(current => [...current.filter(x => !x.loading), ...merged]);
+
+    setSList((current) => {
+      const updated = [...current.filter((x) => !x.loading), ...merged];
+      validateFetchedStudentCourses(course, updated, setCourseError); // 🔧 FIX
+      return updated;
+    });
+
     setRollText("");
     setLoading(false);
   }
 
   function setStudentField(i, k, v) {
-    setSList(s => {
+    setSList((s) => {
       const t = [...s];
       t[i] = { ...t[i], override: { ...t[i].override, [k]: v } };
       return t;
@@ -683,19 +819,22 @@ const EditForm = ({ offer, onSave, onCancel }) => {
   }
 
   function applyGlobalToAll() {
-    setSList(s => s.map(x => ({ ...x, override: { ...g } })));
+    setSList((s) => s.map((x) => ({ ...x, override: { ...g } })));
   }
 
   function removeRow(i) {
-    setSList(s => s.filter((_, idx) => idx !== i));
+    setSList((s) => s.filter((_, idx) => idx !== i));
   }
 
   async function handleUpdate() {
+    if (!validateFetchedStudentCourses(course, sList, setCourseError)) return;
+
     if (!company) return setMsg("Company name required");
     if (!batch) return setMsg("Batch required");
     if (!course) return setMsg("Course required");
     if (!offerMode) return setMsg("Offer mode required");
     if (!sList.length) return setMsg("No students added");
+
     const payload = {
       company_name: company,
       batch,
@@ -704,7 +843,7 @@ const EditForm = ({ offer, onSave, onCancel }) => {
       offer_mode: offerMode,
       offer_category: offerCategory,
       offer_sector: offerSector,
-      shortlisted_students: sList.map(x => {
+      shortlisted_students: sList.map((x) => {
         const studentJobType = x.override.job_type || g.job_type;
         return {
           studentId: x.student?._id || null,
@@ -717,43 +856,60 @@ const EditForm = ({ offer, onSave, onCancel }) => {
           job_role: x.override.job_role || g.job_role,
           ctc: x.override.ctc || g.ctc,
           stipend: x.override.stipend || g.stipend,
-          intern_duration: studentJobType === 'FTE' ? undefined : (x.override.intern_duration || g.intern_duration)
+          intern_duration:
+            studentJobType === "FTE"
+              ? undefined
+              : x.override.intern_duration || g.intern_duration,
         };
-      })
+      }),
     };
+
     setLoading(true);
     try {
-      await axios.put(`${import.meta.env.REACT_APP_BASE_URL}/offer-add/update/${offer._id}`, payload, { withCredentials: true });
-      setMsg('Updated successfully');
+      await axios.put(
+        `${import.meta.env.REACT_APP_BASE_URL}/offer-add/update/${offer._id}`,
+        payload,
+        { withCredentials: true }
+      );
+      setMsg("Updated successfully");
       if (onSave) onSave();
     } catch (error) {
-      setMsg('Update failed');
+      setMsg("Update failed");
     }
     setLoading(false);
   }
 
+  useEffect(() => {
+    validateFetchedStudentCourses(course, sList, setCourseError);
+  }, [course, sList]);
+
   return (
     <div className="bg-gray-50 py-8">
       <div className="max-w-6xl mx-auto px-4">
-
         {/* Offer Details */}
         <div className="bg-white rounded-lg shadow-sm border p-6 mb-6">
-          <h2 className="text-lg font-semibold text-gray-900 mb-4">Edit Offer Details</h2>
+          <h2 className="text-lg font-semibold text-gray-900 mb-4">
+            Edit Offer Details
+          </h2>
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Company Name</label>
-              <input 
-                placeholder="Enter company name" 
-                value={company} 
-                onChange={e => setCompany(e.target.value)} 
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Company Name
+              </label>
+              <input
+                placeholder="Enter company name"
+                value={company}
+                onChange={(e) => setCompany(e.target.value)}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Batch</label>
-              <select 
-                value={batch} 
-                onChange={e => setBatch(e.target.value)} 
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Batch
+              </label>
+              <select
+                value={batch}
+                onChange={(e) => setBatch(e.target.value)}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               >
                 <option value="2026">2026</option>
@@ -764,10 +920,12 @@ const EditForm = ({ offer, onSave, onCancel }) => {
               </select>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Course</label>
-              <select 
-                value={course} 
-                onChange={e => setCourse(e.target.value)} 
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Course
+              </label>
+              <select
+                value={course}
+                onChange={(e) => setCourse(e.target.value)}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               >
                 <option value="B.Tech">B.Tech</option>
@@ -777,10 +935,12 @@ const EditForm = ({ offer, onSave, onCancel }) => {
               </select>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Offer Mode</label>
-              <select 
-                value={offerMode} 
-                onChange={e => setOfferMode(e.target.value)} 
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Offer Mode
+              </label>
+              <select
+                value={offerMode}
+                onChange={(e) => setOfferMode(e.target.value)}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               >
                 <option value="PPO">PPO</option>
@@ -789,10 +949,12 @@ const EditForm = ({ offer, onSave, onCancel }) => {
               </select>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Offer Sector</label>
-              <select 
-                value={offerSector} 
-                onChange={e => setOfferSector(e.target.value)} 
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Offer Sector
+              </label>
+              <select
+                value={offerSector}
+                onChange={(e) => setOfferSector(e.target.value)}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               >
                 <option value="Private">Private</option>
@@ -800,10 +962,12 @@ const EditForm = ({ offer, onSave, onCancel }) => {
               </select>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Offer Category</label>
-              <select 
-                value={offerCategory} 
-                onChange={e => setOfferCategory(e.target.value)} 
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Offer Category
+              </label>
+              <select
+                value={offerCategory}
+                onChange={(e) => setOfferCategory(e.target.value)}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               >
                 <option value="A">A</option>
@@ -813,11 +977,13 @@ const EditForm = ({ offer, onSave, onCancel }) => {
               </select>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Result Date</label>
-              <input 
-                type="date" 
-                value={resultDate} 
-                onChange={e => setResultDate(e.target.value)} 
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Result Date
+              </label>
+              <input
+                type="date"
+                value={resultDate}
+                onChange={(e) => setResultDate(e.target.value)}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               />
             </div>
@@ -828,28 +994,34 @@ const EditForm = ({ offer, onSave, onCancel }) => {
         <div className="bg-white rounded-lg shadow-sm border p-6 mb-6">
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center space-x-3">
-              <input 
-                type="checkbox" 
-                checked={applyAll} 
-                onChange={e => setApplyAll(e.target.checked)}
+              <input
+                type="checkbox"
+                checked={applyAll}
+                onChange={(e) => setApplyAll(e.target.checked)}
                 className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
               />
-              <h2 className="text-lg font-semibold text-gray-900">Global Defaults</h2>
+              <h2 className="text-lg font-semibold text-gray-900">
+                Global Defaults
+              </h2>
             </div>
-            <button 
-              onClick={applyGlobalToAll} 
+            <button
+              onClick={applyGlobalToAll}
               className="px-4 py-2 bg-custom-blue hover:bg-blue-700 text-white font-medium rounded-md transition-colors"
             >
               Apply to All Students
             </button>
           </div>
-          
+
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Job Type</label>
-              <select 
-                value={g.job_type} 
-                onChange={e => setG(s => ({ ...s, job_type: e.target.value }))} 
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Job Type
+              </label>
+              <select
+                value={g.job_type}
+                onChange={(e) =>
+                  setG((s) => ({ ...s, job_type: e.target.value }))
+                }
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               >
                 <option value="Intern">Intern</option>
@@ -859,45 +1031,61 @@ const EditForm = ({ offer, onSave, onCancel }) => {
               </select>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Job Role</label>
-              <input 
-                placeholder="e.g., Backend Developer" 
-                value={g.job_role} 
-                onChange={e => setG(s => ({ ...s, job_role: e.target.value }))} 
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Job Role
+              </label>
+              <input
+                placeholder="e.g., Backend Developer"
+                value={g.job_role}
+                onChange={(e) =>
+                  setG((s) => ({ ...s, job_role: e.target.value }))
+                }
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">CTC</label>
-              <input 
-                placeholder="e.g., 12 LPA" 
-                value={g.ctc} 
-                onChange={e => setG(s => ({ ...s, ctc: e.target.value }))} 
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                CTC
+              </label>
+              <input
+                placeholder="e.g., 12 LPA"
+                value={g.ctc}
+                onChange={(e) => setG((s) => ({ ...s, ctc: e.target.value }))}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               />
             </div>
-            {g.job_type !== 'FTE' && (
+            {g.job_type !== "FTE" && (
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Stipend</label>
-                <input 
-                  placeholder="e.g., 50,000" 
-                  value={g.stipend} 
-                  onChange={e => setG(s => ({ ...s, stipend: e.target.value }))} 
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Stipend
+                </label>
+                <input
+                  placeholder="e.g., 50,000"
+                  value={g.stipend}
+                  onChange={(e) =>
+                    setG((s) => ({ ...s, stipend: e.target.value }))
+                  }
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 />
               </div>
             )}
-            {g.job_type === 'FTE' ? (
+            {g.job_type === "FTE" ? (
               <div className="flex items-center justify-center bg-gray-50 rounded-md p-3">
-                <span className="text-sm text-gray-500">No internship duration and stipend for FTE</span>
+                <span className="text-sm text-gray-500">
+                  No internship duration and stipend for FTE
+                </span>
               </div>
             ) : (
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Intern Duration</label>
-                <input 
-                  placeholder="e.g., 6 months" 
-                  value={g.intern_duration} 
-                  onChange={e => setG(s => ({ ...s, intern_duration: e.target.value }))} 
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Intern Duration
+                </label>
+                <input
+                  placeholder="e.g., 6 months"
+                  value={g.intern_duration}
+                  onChange={(e) =>
+                    setG((s) => ({ ...s, intern_duration: e.target.value }))
+                  }
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 />
               </div>
@@ -907,22 +1095,24 @@ const EditForm = ({ offer, onSave, onCancel }) => {
 
         {/* Roll Numbers Input */}
         <div className="bg-white rounded-lg shadow-sm border p-6 mb-6">
-          <h2 className="text-lg font-semibold text-gray-900 mb-4">Add More Students</h2>
+          <h2 className="text-lg font-semibold text-gray-900 mb-4">
+            Add More Students
+          </h2>
           <div className="space-y-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Roll Numbers (comma, space, or newline separated)
               </label>
-              <textarea 
-                value={rollText} 
-                onChange={e => setRollText(e.target.value)} 
+              <textarea
+                value={rollText}
+                onChange={(e) => setRollText(e.target.value)}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent h-24 resize-none"
                 placeholder="Enter roll numbers here..."
               />
             </div>
             <div className="flex flex-wrap gap-3">
-              <button 
-                onClick={handleFetch} 
+              <button
+                onClick={handleFetch}
                 disabled={loading}
                 className="inline-flex items-center px-4 py-2 bg-custom-blue hover:bg-blue-700 disabled:bg-blue-400 text-white font-medium rounded-md transition-colors"
               >
@@ -932,12 +1122,14 @@ const EditForm = ({ offer, onSave, onCancel }) => {
                     Fetching...
                   </>
                 ) : (
-                  'Fetch Students'
+                  "Fetch Students"
                 )}
               </button>
 
-              <button 
-                onClick={() => { setRollText(''); }} 
+              <button
+                onClick={() => {
+                  setRollText("");
+                }}
                 className="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium rounded-md border border-gray-300 transition-colors"
               >
                 Clear Input
@@ -952,25 +1144,33 @@ const EditForm = ({ offer, onSave, onCancel }) => {
             <h2 className="text-lg font-semibold text-gray-900 mb-4">
               Students ({sList.length})
             </h2>
-            
+
             <div className="space-y-4">
               {sList.map((s, i) => {
-                const currentJobType = s.override.job_type || (applyAll ? g.job_type : '');
+                const currentJobType =
+                  s.override.job_type || (applyAll ? g.job_type : "");
                 return (
-                  <div key={i} className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
+                  <div
+                    key={i}
+                    className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow"
+                  >
                     <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 items-center">
                       {/* Roll Number */}
                       <div className="lg:col-span-2">
-                        <label className="block text-xs font-medium text-gray-600 mb-1">Roll Number</label>
-                        <input 
-                          value={s.roll} 
-                          onChange={e => setSList(arr => { 
-                            const t=[...arr]; 
-                            t[i].roll=e.target.value; 
-                            t[i].found=false; 
-                            t[i].student=null; 
-                            return t; 
-                          })} 
+                        <label className="block text-xs font-medium text-gray-600 mb-1">
+                          Roll Number
+                        </label>
+                        <input
+                          value={s.roll}
+                          onChange={(e) =>
+                            setSList((arr) => {
+                              const t = [...arr];
+                              t[i].roll = e.target.value;
+                              t[i].found = false;
+                              t[i].student = null;
+                              return t;
+                            })
+                          }
                           className="w-full px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-500"
                           placeholder="Roll no."
                         />
@@ -978,7 +1178,9 @@ const EditForm = ({ offer, onSave, onCancel }) => {
 
                       {/* Student Info */}
                       <div className="lg:col-span-2">
-                        <label className="block text-xs font-medium text-gray-600 mb-1">Student Info</label>
+                        <label className="block text-xs font-medium text-gray-600 mb-1">
+                          Student Info
+                        </label>
                         <div className="text-sm">
                           {s.loading ? (
                             <div className="flex items-center text-blue-600">
@@ -987,20 +1189,30 @@ const EditForm = ({ offer, onSave, onCancel }) => {
                             </div>
                           ) : s.found ? (
                             <div>
-                              <div className="font-medium text-gray-900">{s.student?.name || '-'}</div>
-                              <div className="text-gray-500 text-xs">{s.student?.department || '-'}</div>
+                              <div className="font-medium text-gray-900">
+                                {s.student?.name || "-"}
+                              </div>
+                              <div className="text-gray-500 text-xs">
+                                {s.student?.department || "-"}
+                              </div>
                             </div>
                           ) : (
-                            <div className="text-red-600 text-xs">Student not found</div>
+                            <div className="text-red-600 text-xs">
+                              Student not found
+                            </div>
                           )}
                         </div>
                       </div>
 
                       {/* Job Details */}
                       <div className="lg:col-span-6 grid grid-cols-2 lg:grid-cols-4 gap-2">
-                        <select 
-                          value={s.override.job_type || (applyAll ? g.job_type : '')} 
-                          onChange={e => setStudentField(i, 'job_type', e.target.value)} 
+                        <select
+                          value={
+                            s.override.job_type || (applyAll ? g.job_type : "")
+                          }
+                          onChange={(e) =>
+                            setStudentField(i, "job_type", e.target.value)
+                          }
                           className="px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-500"
                         >
                           <option value="">Select job type</option>
@@ -1009,23 +1221,33 @@ const EditForm = ({ offer, onSave, onCancel }) => {
                           <option value="FTE">FTE</option>
                           <option value="Intern+PPO">Intern+PPO</option>
                         </select>
-                        <input 
-                          placeholder="Job role" 
-                          value={s.override.job_role || (applyAll ? g.job_role : '')} 
-                          onChange={e => setStudentField(i, 'job_role', e.target.value)} 
+                        <input
+                          placeholder="Job role"
+                          value={
+                            s.override.job_role || (applyAll ? g.job_role : "")
+                          }
+                          onChange={(e) =>
+                            setStudentField(i, "job_role", e.target.value)
+                          }
                           className="px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-500"
                         />
-                        <input 
-                          placeholder="CTC" 
-                          value={s.override.ctc || (applyAll ? g.ctc : '')} 
-                          onChange={e => setStudentField(i, 'ctc', e.target.value)} 
+                        <input
+                          placeholder="CTC"
+                          value={s.override.ctc || (applyAll ? g.ctc : "")}
+                          onChange={(e) =>
+                            setStudentField(i, "ctc", e.target.value)
+                          }
                           className="px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-500"
                         />
-                        {currentJobType !== 'FTE' && (
-                          <input 
-                            placeholder="Stipend" 
-                            value={s.override.stipend || (applyAll ? g.stipend : '')} 
-                            onChange={e => setStudentField(i, 'stipend', e.target.value)} 
+                        {currentJobType !== "FTE" && (
+                          <input
+                            placeholder="Stipend"
+                            value={
+                              s.override.stipend || (applyAll ? g.stipend : "")
+                            }
+                            onChange={(e) =>
+                              setStudentField(i, "stipend", e.target.value)
+                            }
                             className="px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-500"
                           />
                         )}
@@ -1033,27 +1255,49 @@ const EditForm = ({ offer, onSave, onCancel }) => {
 
                       {/* Intern Duration & Actions */}
                       <div className="lg:col-span-2 flex gap-2">
-                        {currentJobType !== 'FTE' && (
-                          <input 
-                            placeholder="Duration" 
-                            value={s.override.intern_duration || (applyAll ? g.intern_duration : '')} 
-                            onChange={e => setStudentField(i, 'intern_duration', e.target.value)} 
+                        {currentJobType !== "FTE" && (
+                          <input
+                            placeholder="Duration"
+                            value={
+                              s.override.intern_duration ||
+                              (applyAll ? g.intern_duration : "")
+                            }
+                            onChange={(e) =>
+                              setStudentField(
+                                i,
+                                "intern_duration",
+                                e.target.value
+                              )
+                            }
                             className="flex-1 px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-500"
                           />
                         )}
-                        <button 
+                        <button
                           onClick={async () => {
-                            setSList(a => { const t=[...a]; t[i].loading=true; return t; });
+                            setSList((a) => {
+                              const t = [...a];
+                              t[i].loading = true;
+                              return t;
+                            });
                             const r = await fetchOne(s.roll);
-                            setSList(a => { const t=[...a]; t[i] = { ...t[i], loading:false, found: !!r.found, student: r.student || null }; return t; });
-                          }} 
+                            setSList((a) => {
+                              const t = [...a];
+                              t[i] = {
+                                ...t[i],
+                                loading: false,
+                                found: !!r.found,
+                                student: r.student || null,
+                              };
+                              return t;
+                            });
+                          }}
                           className="px-2 py-1 text-xs bg-gray-100 hover:bg-gray-200 text-gray-700 rounded border"
                           title="Refetch student data"
                         >
                           ↻
                         </button>
-                        <button 
-                          onClick={() => removeRow(i)} 
+                        <button
+                          onClick={() => removeRow(i)}
                           className="px-2 py-1 text-xs bg-red-100 hover:bg-red-200 text-red-700 rounded border border-red-200"
                           title="Remove student"
                         >
@@ -1072,10 +1316,12 @@ const EditForm = ({ offer, onSave, onCancel }) => {
         <div className="bg-white rounded-lg shadow-sm border p-6">
           <div className="flex flex-wrap gap-3 items-center justify-between">
             <div className="flex gap-3">
-              <button 
-                onClick={handleUpdate} 
-                disabled={loading} 
-                className="inline-flex items-center px-6 py-3 bg-green-600 hover:bg-green-700 disabled:bg-green-400 text-white font-semibold rounded-md transition-colors"
+              <button
+                onClick={handleUpdate}
+                disabled={loading || courseError}
+                className={`px-6 py-3 font-semibold rounded-md transition-colors
+    ${courseError ? "bg-gray-400 cursor-not-allowed" : "bg-green-600 hover:bg-green-700"}
+  `}
               >
                 {loading ? (
                   <>
@@ -1083,23 +1329,25 @@ const EditForm = ({ offer, onSave, onCancel }) => {
                     Saving...
                   </>
                 ) : (
-                  'Save Changes'
+                  "Save Changes"
                 )}
               </button>
-              <button 
-                onClick={onCancel} 
+              <button
+                onClick={onCancel}
                 className="px-6 py-3 bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold rounded-md border border-gray-300 transition-colors"
               >
                 Cancel
               </button>
             </div>
-            
+
             {msg && (
-              <div className={`px-4 py-2 rounded-md text-sm font-medium ${
-                msg.includes('success') 
-                  ? 'bg-green-100 text-green-800 border border-green-200' 
-                  : 'bg-red-100 text-red-800 border border-red-200'
-              }`}>
+              <div
+                className={`px-4 py-2 rounded-md text-sm font-medium ${
+                  msg.includes("success")
+                    ? "bg-green-100 text-green-800 border border-green-200"
+                    : "bg-red-100 text-red-800 border border-red-200"
+                }`}
+              >
                 {msg}
               </div>
             )}
@@ -1120,24 +1368,39 @@ const OfferAdder = ({ onDone }) => {
   const [offerCategory, setOfferCategory] = useState("A");
   const [rollText, setRollText] = useState("");
   const [sList, setSList] = useState([]);
-  const [g, setG] = useState({ job_type: "FTE", job_role: "", ctc: "", stipend: "", intern_duration: "" });
+  const [courseError, setCourseError] = useState(null);
+
+  const [g, setG] = useState({
+    job_type: "FTE",
+    job_role: "",
+    ctc: "",
+    stipend: "",
+    intern_duration: "",
+  });
   const [applyAll, setApplyAll] = useState(true);
   const [loading, setLoading] = useState(false);
   const [msg, setMsg] = useState(null);
   const [showEditor, setShowEditor] = useState(false);
 
   function parseRolls(txt) {
-    return Array.from(new Set(
-      txt
-        .split(/[,\n\s]+/)
-        .map(s => s.trim())
-        .filter(Boolean)
-    ));
+    return Array.from(
+      new Set(
+        txt
+          .split(/[,\n\s]+/)
+          .map((s) => s.trim())
+          .filter(Boolean)
+      )
+    );
   }
 
   async function fetchOne(roll) {
     try {
-      const res = await axios.get(`${import.meta.env.REACT_APP_BASE_URL}/offer-add/get/${encodeURIComponent(roll)}`, { withCredentials: true });
+      const res = await axios.get(
+        `${import.meta.env.REACT_APP_BASE_URL}/offer-add/get/${encodeURIComponent(
+          roll
+        )}`,
+        { withCredentials: true }
+      );
       return { roll, found: true, student: res.data };
     } catch (error) {
       return { roll, found: false };
@@ -1149,23 +1412,55 @@ const OfferAdder = ({ onDone }) => {
     if (!rolls.length) return setMsg("Paste at least one roll number.");
     setLoading(true);
     setMsg(null);
-    const arr = rolls.map(r => ({ roll: r, loading: true, found: false, student: null, override: { job_type: "", job_role: "", ctc: "", stipend: "", intern_duration: "" } }));
-    setSList(arr);
-    const res = await Promise.all(rolls.map(r => fetchOne(r)));
-    const merged = res.map(r => ({
-      roll: r.roll,
-      loading: false,
-      found: !!r.found,
-      student: r.student || null,
-      override: { job_type: "", job_role: "", ctc: "", stipend: "", intern_duration: "" }
+
+    const arr = rolls.map((r) => ({
+      roll: r,
+      loading: true,
+      found: false,
+      student: null,
+      override: {
+        job_type: "",
+        job_role: "",
+        ctc: "",
+        stipend: "",
+        intern_duration: "",
+      },
     }));
+    setSList(arr);
+
+    const res = await Promise.all(rolls.map((r) => fetchOne(r)));
+
+    const merged = res.map((r) => {
+      console.log("RAW fetch result:", r);
+
+      console.log("STUDENT before course inject:", r.student);
+
+      console.log("STUDENT.course value:", r.student?.course);
+      return {
+        roll: r.roll,
+        loading: false,
+        found: !!r.found,
+        student: r.student
+          ? { ...r.student, course: r.student.course } // 🔧 FIX
+          : null,
+        override: {
+          job_type: "",
+          job_role: "",
+          ctc: "",
+          stipend: "",
+          intern_duration: "",
+        },
+      };
+    });
+
     setSList(merged);
-    setRollText(""); // Clear the textarea after fetching
+    validateFetchedStudentCourses(course, merged, setCourseError); // 🔧 FIX
+    setRollText("");
     setLoading(false);
   }
 
   function setStudentField(i, k, v) {
-    setSList(s => {
+    setSList((s) => {
       const t = [...s];
       t[i] = { ...t[i], override: { ...t[i].override, [k]: v } };
       return t;
@@ -1173,19 +1468,22 @@ const OfferAdder = ({ onDone }) => {
   }
 
   function applyGlobalToAll() {
-    setSList(s => s.map(x => ({ ...x, override: { ...g } })));
+    setSList((s) => s.map((x) => ({ ...x, override: { ...g } })));
   }
 
   function removeRow(i) {
-    setSList(s => s.filter((_, idx) => idx !== i));
+    setSList((s) => s.filter((_, idx) => idx !== i));
   }
 
   async function handleSubmit() {
+    if (!validateFetchedStudentCourses(course, sList, setCourseError)) return;
+
     if (!company) return setMsg("Company name required");
     if (!batch) return setMsg("Batch required");
     if (!course) return setMsg("Course required");
-    if(!offerMode) return setMsg("Offer mode required");
+    if (!offerMode) return setMsg("Offer mode required");
     if (!sList.length) return setMsg("No students added");
+
     const payload = {
       company_name: company,
       batch,
@@ -1194,7 +1492,7 @@ const OfferAdder = ({ onDone }) => {
       offer_mode: offerMode,
       offer_category: offerCategory,
       offer_sector: offerSector,
-      shortlisted_students: sList.map(x => {
+      shortlisted_students: sList.map((x) => {
         const studentJobType = x.override.job_type || g.job_type;
         return {
           studentId: x.student?._id || null,
@@ -1207,32 +1505,56 @@ const OfferAdder = ({ onDone }) => {
           job_role: x.override.job_role || g.job_role,
           ctc: x.override.ctc || g.ctc,
           stipend: x.override.stipend || g.stipend,
-          intern_duration: studentJobType === 'FTE' ? undefined : (x.override.intern_duration || g.intern_duration)
+          intern_duration:
+            studentJobType === "FTE"
+              ? undefined
+              : x.override.intern_duration || g.intern_duration,
         };
-      })
+      }),
     };
+
     setLoading(true);
     try {
-      const res =  await axios.post(`${import.meta.env.REACT_APP_BASE_URL}/offer-add/add`,payload, { withCredentials: true });
-      setMsg('Saved successfully');
-      setCompany(''); setBatch('2026'); setCourse('B.Tech'); setRollText(''); setSList([]); setG({ job_type: "Intern", job_role: "", ctc: "", stipend: "", intern_duration: "" });
+      const res = await axios.post(
+        `${import.meta.env.REACT_APP_BASE_URL}/offer-add/add`,
+        payload,
+        { withCredentials: true }
+      );
+      setMsg("Saved successfully");
+      setCompany("");
+      setBatch("2026");
+      setCourse("B.Tech");
+      setRollText("");
+      setSList([]);
+      setG({
+        job_type: "Intern",
+        job_role: "",
+        ctc: "",
+        stipend: "",
+        intern_duration: "",
+      });
       if (onDone) onDone(res.data);
     } catch (error) {
-      setMsg('Save failed');
+      setMsg("Save failed");
     }
     setLoading(false);
   }
+
+  useEffect(() => {
+    validateFetchedStudentCourses(course, sList, setCourseError);
+  }, [course, sList]);
 
   return (
     <>
       <div className="min-h-screen bg-gray-50 py-8">
         <div className="max-w-6xl mx-auto px-4">
-
           <div className="mb-6">
             <div className="flex justify-between items-center">
-              <h1 className="text-2xl font-bold text-gray-900">Add New Offer</h1>
-              <button 
-                onClick={() => setShowEditor(true)} 
+              <h1 className="text-2xl font-bold text-gray-900">
+                Add New Offer
+              </h1>
+              <button
+                onClick={() => setShowEditor(true)}
                 className="px-6 py-3 bg-custom-blue hover:bg-blue-700 text-white font-semibold rounded-md transition-colors"
               >
                 Edit Existing Offers
@@ -1242,22 +1564,28 @@ const OfferAdder = ({ onDone }) => {
 
           {/* Offer Details */}
           <div className="bg-white rounded-lg shadow-sm border p-6 mb-6">
-            <h2 className="text-lg font-semibold text-gray-900 mb-4">Offer Details</h2>
+            <h2 className="text-lg font-semibold text-gray-900 mb-4">
+              Offer Details
+            </h2>
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Company Name</label>
-                <input 
-                  placeholder="Enter company name" 
-                  value={company} 
-                  onChange={e => setCompany(e.target.value)} 
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Company Name
+                </label>
+                <input
+                  placeholder="Enter company name"
+                  value={company}
+                  onChange={(e) => setCompany(e.target.value)}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Batch</label>
-                <select 
-                  value={batch} 
-                  onChange={e => setBatch(e.target.value)} 
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Batch
+                </label>
+                <select
+                  value={batch}
+                  onChange={(e) => setBatch(e.target.value)}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 >
                   <option value="2026">2026</option>
@@ -1268,10 +1596,12 @@ const OfferAdder = ({ onDone }) => {
                 </select>
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Course</label>
-                <select 
-                  value={course} 
-                  onChange={e => setCourse(e.target.value)} 
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Course
+                </label>
+                <select
+                  value={course}
+                  onChange={(e) => setCourse(e.target.value)}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 >
                   <option value="B.Tech">B.Tech</option>
@@ -1281,10 +1611,12 @@ const OfferAdder = ({ onDone }) => {
                 </select>
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Offer Mode</label>
-                <select 
-                  value={offerMode} 
-                  onChange={e => setOfferMode(e.target.value)} 
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Offer Mode
+                </label>
+                <select
+                  value={offerMode}
+                  onChange={(e) => setOfferMode(e.target.value)}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 >
                   <option value="PPO">PPO</option>
@@ -1293,10 +1625,12 @@ const OfferAdder = ({ onDone }) => {
                 </select>
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Offer Sector</label>
-                <select 
-                  value={offerSector} 
-                  onChange={e => setOfferSector(e.target.value)} 
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Offer Sector
+                </label>
+                <select
+                  value={offerSector}
+                  onChange={(e) => setOfferSector(e.target.value)}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 >
                   <option value="Private">Private</option>
@@ -1304,10 +1638,12 @@ const OfferAdder = ({ onDone }) => {
                 </select>
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Offer Category</label>
-                <select 
-                  value={offerCategory} 
-                  onChange={e => setOfferCategory(e.target.value)} 
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Offer Category
+                </label>
+                <select
+                  value={offerCategory}
+                  onChange={(e) => setOfferCategory(e.target.value)}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 >
                   <option value="A">A</option>
@@ -1317,15 +1653,16 @@ const OfferAdder = ({ onDone }) => {
                 </select>
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Result Date</label>
-                <input 
-                  type="date" 
-                  value={resultDate} 
-                  onChange={e => setResultDate(e.target.value)} 
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Result Date
+                </label>
+                <input
+                  type="date"
+                  value={resultDate}
+                  onChange={(e) => setResultDate(e.target.value)}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 />
               </div>
-
             </div>
           </div>
 
@@ -1333,28 +1670,34 @@ const OfferAdder = ({ onDone }) => {
           <div className="bg-white rounded-lg shadow-sm border p-6 mb-6">
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center space-x-3">
-                <input 
-                  type="checkbox" 
-                  checked={applyAll} 
-                  onChange={e => setApplyAll(e.target.checked)}
+                <input
+                  type="checkbox"
+                  checked={applyAll}
+                  onChange={(e) => setApplyAll(e.target.checked)}
                   className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
                 />
-                <h2 className="text-lg font-semibold text-gray-900">Global Defaults</h2>
+                <h2 className="text-lg font-semibold text-gray-900">
+                  Global Defaults
+                </h2>
               </div>
-              <button 
-                onClick={applyGlobalToAll} 
+              <button
+                onClick={applyGlobalToAll}
                 className="px-4 py-2 bg-custom-blue hover:bg-blue-700 text-white font-medium rounded-md transition-colors"
               >
                 Apply to All Students
               </button>
             </div>
-            
+
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Job Type</label>
-                <select 
-                  value={g.job_type} 
-                  onChange={e => setG(s => ({ ...s, job_type: e.target.value }))} 
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Job Type
+                </label>
+                <select
+                  value={g.job_type}
+                  onChange={(e) =>
+                    setG((s) => ({ ...s, job_type: e.target.value }))
+                  }
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 >
                   <option value="Intern">Intern</option>
@@ -1364,47 +1707,62 @@ const OfferAdder = ({ onDone }) => {
                 </select>
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Job Role</label>
-                <input 
-                  placeholder="e.g., Backend Developer" 
-                  value={g.job_role} 
-                  onChange={e => setG(s => ({ ...s, job_role: e.target.value }))} 
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Job Role
+                </label>
+                <input
+                  placeholder="e.g., Backend Developer"
+                  value={g.job_role}
+                  onChange={(e) =>
+                    setG((s) => ({ ...s, job_role: e.target.value }))
+                  }
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">CTC</label>
-                <input 
-                  placeholder="e.g., 12 LPA" 
-                  value={g.ctc} 
-                  onChange={e => setG(s => ({ ...s, ctc: e.target.value }))} 
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  CTC
+                </label>
+                <input
+                  placeholder="e.g., 12 LPA"
+                  value={g.ctc}
+                  onChange={(e) => setG((s) => ({ ...s, ctc: e.target.value }))}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 />
               </div>
-              {g.job_type !== 'FTE' && (
-    <div>
-      <label className="block text-sm font-medium text-gray-700 mb-1">Stipend</label>
-      <input 
-        placeholder="e.g., 50,000" 
-        value={g.stipend} 
-        onChange={e => setG(s => ({ ...s, stipend: e.target.value }))} 
-        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-      />
-    </div>
-  )}
-  
+              {g.job_type !== "FTE" && (
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Stipend
+                  </label>
+                  <input
+                    placeholder="e.g., 50,000"
+                    value={g.stipend}
+                    onChange={(e) =>
+                      setG((s) => ({ ...s, stipend: e.target.value }))
+                    }
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  />
+                </div>
+              )}
 
-              {g.job_type === 'FTE' ? (
+              {g.job_type === "FTE" ? (
                 <div className="flex items-center justify-center bg-gray-50 rounded-md p-3">
-                  <span className="text-sm text-gray-500">No internship duration and stipend for FTE</span>
+                  <span className="text-sm text-gray-500">
+                    No internship duration and stipend for FTE
+                  </span>
                 </div>
               ) : (
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Intern Duration</label>
-                  <input 
-                    placeholder="e.g., 6 months" 
-                    value={g.intern_duration} 
-                    onChange={e => setG(s => ({ ...s, intern_duration: e.target.value }))} 
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Intern Duration
+                  </label>
+                  <input
+                    placeholder="e.g., 6 months"
+                    value={g.intern_duration}
+                    onChange={(e) =>
+                      setG((s) => ({ ...s, intern_duration: e.target.value }))
+                    }
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   />
                 </div>
@@ -1414,22 +1772,24 @@ const OfferAdder = ({ onDone }) => {
 
           {/* Roll Numbers Input */}
           <div className="bg-white rounded-lg shadow-sm border p-6 mb-6">
-            <h2 className="text-lg font-semibold text-gray-900 mb-4">Add Students</h2>
+            <h2 className="text-lg font-semibold text-gray-900 mb-4">
+              Add Students
+            </h2>
             <div className="space-y-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Roll Numbers (comma, space, or newline separated)
                 </label>
-                <textarea 
-                  value={rollText} 
-                  onChange={e => setRollText(e.target.value)} 
+                <textarea
+                  value={rollText}
+                  onChange={(e) => setRollText(e.target.value)}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent h-24 resize-none"
                   placeholder="Enter roll numbers here..."
                 />
               </div>
               <div className="flex flex-wrap gap-3">
-                <button 
-                  onClick={handleFetch} 
+                <button
+                  onClick={handleFetch}
                   disabled={loading}
                   className="inline-flex items-center px-4 py-2 bg-custom-blue hover:bg-blue-700 disabled:bg-blue-400 text-white font-medium rounded-md transition-colors"
                 >
@@ -1439,20 +1799,27 @@ const OfferAdder = ({ onDone }) => {
                       Fetching...
                     </>
                   ) : (
-                    'Fetch Students'
+                    "Fetch Students"
                   )}
                 </button>
 
-                <button 
-                  onClick={() => { setRollText(''); setSList([]); }} 
+                <button
+                  onClick={() => {
+                    setRollText("");
+                    setSList([]);
+                  }}
                   className="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium rounded-md border border-gray-300 transition-colors"
                 >
                   Clear All
                 </button>
               </div>
+              {courseError && (
+                <div className="mb-4 px-4 py-2 bg-red-100 text-red-800 border border-red-200 rounded-md">
+                  {courseError}
+                </div>
+              )}
             </div>
           </div>
-
 
           {/* Students List */}
           {sList.length > 0 && (
@@ -1460,25 +1827,33 @@ const OfferAdder = ({ onDone }) => {
               <h2 className="text-lg font-semibold text-gray-900 mb-4">
                 Students ({sList.length})
               </h2>
-              
+
               <div className="space-y-4">
                 {sList.map((s, i) => {
-                  const currentJobType = s.override.job_type || (applyAll ? g.job_type : '');
+                  const currentJobType =
+                    s.override.job_type || (applyAll ? g.job_type : "");
                   return (
-                    <div key={i} className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
+                    <div
+                      key={i}
+                      className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow"
+                    >
                       <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 items-center">
                         {/* Roll Number */}
                         <div className="lg:col-span-2">
-                          <label className="block text-xs font-medium text-gray-600 mb-1">Roll Number</label>
-                          <input 
-                            value={s.roll} 
-                            onChange={e => setSList(arr => { 
-                              const t=[...arr]; 
-                              t[i].roll=e.target.value; 
-                              t[i].found=false; 
-                              t[i].student=null; 
-                              return t; 
-                            })} 
+                          <label className="block text-xs font-medium text-gray-600 mb-1">
+                            Roll Number
+                          </label>
+                          <input
+                            value={s.roll}
+                            onChange={(e) =>
+                              setSList((arr) => {
+                                const t = [...arr];
+                                t[i].roll = e.target.value;
+                                t[i].found = false;
+                                t[i].student = null;
+                                return t;
+                              })
+                            }
                             className="w-full px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-500"
                             placeholder="Roll no."
                           />
@@ -1486,7 +1861,9 @@ const OfferAdder = ({ onDone }) => {
 
                         {/* Student Info */}
                         <div className="lg:col-span-2">
-                          <label className="block text-xs font-medium text-gray-600 mb-1">Student Info</label>
+                          <label className="block text-xs font-medium text-gray-600 mb-1">
+                            Student Info
+                          </label>
                           <div className="text-sm">
                             {s.loading ? (
                               <div className="flex items-center text-blue-600">
@@ -1495,20 +1872,31 @@ const OfferAdder = ({ onDone }) => {
                               </div>
                             ) : s.found ? (
                               <div>
-                                <div className="font-medium text-gray-900">{s.student?.name || '-'}</div>
-                                <div className="text-gray-500 text-xs">{s.student?.department || '-'}</div>
+                                <div className="font-medium text-gray-900">
+                                  {s.student?.name || "-"}
+                                </div>
+                                <div className="text-gray-500 text-xs">
+                                  {s.student?.department || "-"}
+                                </div>
                               </div>
                             ) : (
-                              <div className="text-red-600 text-xs">Student not found</div>
+                              <div className="text-red-600 text-xs">
+                                Student not found
+                              </div>
                             )}
                           </div>
                         </div>
 
                         {/* Job Details */}
                         <div className="lg:col-span-6 grid grid-cols-2 lg:grid-cols-4 gap-2">
-                          <select 
-                            value={s.override.job_type || (applyAll ? g.job_type : '')} 
-                            onChange={e => setStudentField(i, 'job_type', e.target.value)} 
+                          <select
+                            value={
+                              s.override.job_type ||
+                              (applyAll ? g.job_type : "")
+                            }
+                            onChange={(e) =>
+                              setStudentField(i, "job_type", e.target.value)
+                            }
                             className="px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-500"
                           >
                             <option value="">Select job type</option>
@@ -1517,23 +1905,35 @@ const OfferAdder = ({ onDone }) => {
                             <option value="FTE">FTE</option>
                             <option value="Intern+PPO">Intern+PPO</option>
                           </select>
-                          <input 
-                            placeholder="Job role" 
-                            value={s.override.job_role || (applyAll ? g.job_role : '')} 
-                            onChange={e => setStudentField(i, 'job_role', e.target.value)} 
+                          <input
+                            placeholder="Job role"
+                            value={
+                              s.override.job_role ||
+                              (applyAll ? g.job_role : "")
+                            }
+                            onChange={(e) =>
+                              setStudentField(i, "job_role", e.target.value)
+                            }
                             className="px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-500"
                           />
-                          <input 
-                            placeholder="CTC" 
-                            value={s.override.ctc || (applyAll ? g.ctc : '')} 
-                            onChange={e => setStudentField(i, 'ctc', e.target.value)} 
+                          <input
+                            placeholder="CTC"
+                            value={s.override.ctc || (applyAll ? g.ctc : "")}
+                            onChange={(e) =>
+                              setStudentField(i, "ctc", e.target.value)
+                            }
                             className="px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-500"
                           />
-                          {currentJobType !== 'FTE' && (
-                            <input 
-                              placeholder="Stipend" 
-                              value={s.override.stipend || (applyAll ? g.stipend : '')} 
-                              onChange={e => setStudentField(i, 'stipend', e.target.value)} 
+                          {currentJobType !== "FTE" && (
+                            <input
+                              placeholder="Stipend"
+                              value={
+                                s.override.stipend ||
+                                (applyAll ? g.stipend : "")
+                              }
+                              onChange={(e) =>
+                                setStudentField(i, "stipend", e.target.value)
+                              }
                               className="px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-500"
                             />
                           )}
@@ -1541,27 +1941,49 @@ const OfferAdder = ({ onDone }) => {
 
                         {/* Intern Duration & Actions */}
                         <div className="lg:col-span-2 flex gap-2">
-                          {currentJobType !== 'FTE' && (
-                            <input 
-                              placeholder="Duration" 
-                              value={s.override.intern_duration || (applyAll ? g.intern_duration : '')} 
-                              onChange={e => setStudentField(i, 'intern_duration', e.target.value)} 
+                          {currentJobType !== "FTE" && (
+                            <input
+                              placeholder="Duration"
+                              value={
+                                s.override.intern_duration ||
+                                (applyAll ? g.intern_duration : "")
+                              }
+                              onChange={(e) =>
+                                setStudentField(
+                                  i,
+                                  "intern_duration",
+                                  e.target.value
+                                )
+                              }
                               className="flex-1 px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-500"
                             />
                           )}
-                          <button 
+                          <button
                             onClick={async () => {
-                              setSList(a => { const t=[...a]; t[i].loading=true; return t; });
+                              setSList((a) => {
+                                const t = [...a];
+                                t[i].loading = true;
+                                return t;
+                              });
                               const r = await fetchOne(s.roll);
-                              setSList(a => { const t=[...a]; t[i] = { ...t[i], loading:false, found: !!r.found, student: r.student || null }; return t; });
-                            }} 
+                              setSList((a) => {
+                                const t = [...a];
+                                t[i] = {
+                                  ...t[i],
+                                  loading: false,
+                                  found: !!r.found,
+                                  student: r.student || null,
+                                };
+                                return t;
+                              });
+                            }}
                             className="px-2 py-1 text-xs bg-gray-100 hover:bg-gray-200 text-gray-700 rounded border"
                             title="Refetch student data"
                           >
                             ↻
                           </button>
-                          <button 
-                            onClick={() => removeRow(i)} 
+                          <button
+                            onClick={() => removeRow(i)}
                             className="px-2 py-1 text-xs bg-red-100 hover:bg-red-200 text-red-700 rounded border border-red-200"
                             title="Remove student"
                           >
@@ -1576,43 +1998,50 @@ const OfferAdder = ({ onDone }) => {
             </div>
           )}
 
-        {/* Actions */}
-        <div className="bg-white rounded-lg shadow-sm border p-6">
-          <div className="flex flex-wrap gap-3 items-center justify-between">
-            <div className="flex gap-3">
-              <button 
-                onClick={handleSubmit} 
-                disabled={loading} 
-                className="inline-flex items-center px-6 py-3 bg-green-600 hover:bg-green-700 disabled:bg-green-400 text-white font-semibold rounded-md transition-colors"
-              >
-                {loading ? (
-                  <>
-                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                    Saving...
-                  </>
-                ) : (
-                  'Save Offer'
-                )}
-              </button>
-              <button 
-                onClick={() => { setSList([]); setRollText(''); }} 
-                className="px-6 py-3 bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold rounded-md border border-gray-300 transition-colors"
-              >
-                Reset Students
-              </button>
-            </div>
-            
-            {msg && (
-              <div className={`px-4 py-2 rounded-md text-sm font-medium ${
-                msg.includes('success') 
-                  ? 'bg-green-100 text-green-800 border border-green-200' 
-                  : 'bg-red-100 text-red-800 border border-red-200'
-              }`}>
-                {msg}
+          {/* Actions */}
+          <div className="bg-white rounded-lg shadow-sm border p-6">
+            <div className="flex flex-wrap gap-3 items-center justify-between">
+              <div className="flex gap-3">
+                <button
+                  onClick={handleSubmit}
+                  disabled={loading || courseError}
+                  className={`px-6 py-3 font-semibold rounded-md transition-colors
+    ${courseError ? "bg-gray-400 cursor-not-allowed" : "bg-green-600 hover:bg-green-700"}
+  `}
+                >
+                  {loading ? (
+                    <>
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                      Saving...
+                    </>
+                  ) : (
+                    "Save Offer"
+                  )}
+                </button>
+                <button
+                  onClick={() => {
+                    setSList([]);
+                    setRollText("");
+                  }}
+                  className="px-6 py-3 bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold rounded-md border border-gray-300 transition-colors"
+                >
+                  Reset Students
+                </button>
               </div>
-            )}
+
+              {msg && (
+                <div
+                  className={`px-4 py-2 rounded-md text-sm font-medium ${
+                    msg.includes("success")
+                      ? "bg-green-100 text-green-800 border border-green-200"
+                      : "bg-red-100 text-red-800 border border-red-200"
+                  }`}
+                >
+                  {msg}
+                </div>
+              )}
+            </div>
           </div>
-        </div>
         </div>
       </div>
 
