@@ -1,252 +1,238 @@
-import Offer from '../models/offer.js';
-import SummerIntern from '../models/summer_internship.js';
-import Student from '../models/user_model/student.js';
+import Offer from "../models/offer.js";
+import SummerIntern from "../models/summer_internship.js";
+
+const normalize = (v) => v?.toLowerCase().replace(/\./g, "");
 
 export const getPlacementReports = async (req, res) => {
   try {
-    console.log('Query parameters:', req.query);
     const { batch, degree, department, type } = req.query;
+
     const filter = {};
     if (batch) filter.batch = batch;
-    if (degree) filter.course = degree; // Map 'degree' from query to 'course' in models
-    if (department) filter['shortlisted_students.department'] = department;
+    if (department) filter["shortlisted_students.department"] = department;
 
     let results = [];
 
-    // Handle Placement (Offer) data
-    if (!type || type === 'placement') {
-      const offers = await Offer.find(filter).populate('shortlisted_students.studentId');
-      const offerData = offers.flatMap(offer => {
-        return offer.shortlisted_students
-          .filter(student => !department || student.department?.toLowerCase() === department.toLowerCase())
+    /* ===================== PLACEMENTS ===================== */
+    if (!type || type === "placement") {
+      const offers = await Offer.find(filter).populate({
+        path: "shortlisted_students.studentId",
+        select: "rollno course linkedin",
+      });
+
+      const offerData = offers.flatMap((offer) =>
+        offer.shortlisted_students
+          .filter((student) => {
+            const s = student.studentId;
+            return (
+              s &&
+              (!department || student.department === department) &&
+              (!degree || normalize(s.course) === normalize(degree))
+            );
+          })
           .map((student, index) => {
-            const studentData = student.studentId;
-            console.log('studentData:', studentData);
+            const s = student.studentId;
             return {
               id: `O-${offer._id}-${index}`,
-              roll_no: studentData ? studentData.rollno : 'N/A',
+              roll_no: s?.rollno || "N/A",
               name: student.name,
               branch: student.department,
-              gender: student.gender ? student.gender.charAt(0) : 'N/A',
-              category: student.category || 'N/A',
-              date_result: offer.result_date ? new Date(offer.result_date).toLocaleDateString() : 'N/A',
-              profile: student.job_role || 'N/A',
-              company: offer.company_name || 'N/A',
-              package: student.ctc || 'N/A',
-              student_status: student.job_type || 'Placed',
-              placement_type: 'Placement',
+              gender: student.gender ? student.gender.charAt(0) : "N/A",
+              category: student.category || "N/A",
+              date_result: offer.result_date
+                ? new Date(offer.result_date).toLocaleDateString()
+                : "N/A",
+              profile: student.job_role || "N/A",
+              company: offer.company_name || "N/A",
+              package: student.ctc || "N/A",
+              student_status: student.job_type || "Placed",
+              placement_type: "Placement",
               batch: offer.batch,
-              degree: offer.course,
+              degree: s?.course || "N/A", // ✅ FIXED
             };
-          });
-      });
-      results = [...results, ...offerData];
+          })
+      );
+
+      results.push(...offerData);
     }
 
-    // Handle Summer Internship data
-    if (!type || type === 'summer_intern') {
-      const internships = await SummerIntern.find(filter).populate('shortlisted_students.studentId');
-      const internshipData = internships.flatMap(internship => {
-        return internship.shortlisted_students
-          .filter(student => !department || student.department?.toLowerCase() === department.toLowerCase())
+    /* ===================== SUMMER INTERNSHIPS ===================== */
+    if (!type || type === "summer_intern") {
+      const internships = await SummerIntern.find(filter).populate({
+        path: "shortlisted_students.studentId",
+        select: "rollno course linkedin",
+      });
+
+      const internshipData = internships.flatMap((internship) =>
+        internship.shortlisted_students
+          .filter((student) => {
+            const s = student.studentId;
+            return (
+              s &&
+              (!department || student.department === department) &&
+              (!degree || normalize(s.course) === normalize(degree))
+            );
+          })
           .map((student, index) => {
-            const studentData = student.studentId;
+            const s = student.studentId;
             return {
               id: `SI-${internship._id}-${index}`,
-              roll_no: studentData ? studentData.rollno : 'N/A',
+              roll_no: s?.rollno || "N/A",
               name: student.name,
               branch: student.department,
-              gender: student.gender ? student.gender.charAt(0) : 'N/A',
-              category: student.category || 'N/A',
-              date_result: internship.result_date ? new Date(internship.result_date).toLocaleDateString() : 'N/A',
-              profile: student.job_role || 'Intern+PPO',
-              company: internship.company_name || 'N/A',
-              package: student.stipend || 'N/A',
-              student_status: student.job_type || 'Intern',
-              placement_type: 'Summer Internship',
-              duration: student.intern_duration || 'N/A',
+              gender: student.gender ? student.gender.charAt(0) : "N/A",
+              category: student.category || "N/A",
+              date_result: internship.result_date
+                ? new Date(internship.result_date).toLocaleDateString()
+                : "N/A",
+              profile: student.job_role || "Intern+PPO",
+              company: internship.company_name || "N/A",
+              package: student.stipend || "N/A",
+              student_status: student.job_type || "Intern",
+              placement_type: "Summer Internship",
+              duration: student.intern_duration || "N/A",
               batch: internship.batch,
-              degree: internship.course
+              degree: s?.course || "N/A", // ✅ FIXED
             };
-          });
-      });
-      results = [...results, ...internshipData];
+          })
+      );
+
+      results.push(...internshipData);
     }
 
-    // Group results by department and assign sr_no starting from 1 for each department
-    const departmentGroups = {};
-    results.forEach(item => {
-      const dept = item.branch || 'Unknown'; // Fallback to 'Unknown' if branch is undefined
-      if (!departmentGroups[dept]) {
-        departmentGroups[dept] = [];
-      }
-      departmentGroups[dept].push(item);
+    /* ===================== SR NO + SORT ===================== */
+    const deptGroups = {};
+    results.forEach((r) => {
+      const d = r.branch || "Unknown";
+      if (!deptGroups[d]) deptGroups[d] = [];
+      deptGroups[d].push(r);
     });
 
-    // Assign sr_no starting from 1 for each department
     let finalResults = [];
-    Object.keys(departmentGroups).forEach(dept => {
-      const deptRecords = departmentGroups[dept].map((item, index) => ({
-        ...item,
-        sr_no: index + 1 // Start sr_no from 1 for each department
-      }));
-      finalResults = [...finalResults, ...deptRecords];
+    Object.values(deptGroups).forEach((rows) => {
+      rows.forEach((r, i) => {
+        finalResults.push({ ...r, sr_no: i + 1 });
+      });
     });
 
-    // Sort results by department and then sr_no
-    finalResults.sort((a, b) => {
-      const deptA = a.branch || 'Unknown';
-      const deptB = b.branch || 'Unknown';
-      if (deptA === deptB) return a.sr_no - b.sr_no;
-      return deptA.localeCompare(deptB);
+    finalResults.sort((a, b) =>
+      (a.branch || "").localeCompare(b.branch || "") || a.sr_no - b.sr_no
+    );
+
+    /* ===================== DOUBLE PLACED ===================== */
+    const countMap = {};
+    finalResults.forEach((r) => {
+      countMap[r.roll_no] = (countMap[r.roll_no] || 0) + 1;
     });
 
-    // Count multiple placements/internships for double placement detection
-    const studentCounts = {};
-    finalResults.forEach(item => {
-      studentCounts[item.roll_no] = (studentCounts[item.roll_no] || 0) + 1;
-    });
-
-    // Add isDoublePlaced flag
-    finalResults = finalResults.map(item => ({
-      ...item,
-      isDoublePlaced: studentCounts[item.roll_no] > 1
+    finalResults = finalResults.map((r) => ({
+      ...r,
+      isDoublePlaced: countMap[r.roll_no] > 1,
     }));
 
-    res.status(200).json({
+    res.json({
       success: true,
       results: finalResults,
-      count: finalResults.length
+      count: finalResults.length,
     });
-  } catch (error) {
-    console.error('Error fetching placement reports:', error);
+  } catch (err) {
+    console.error(err);
     res.status(500).json({
       success: false,
-      message: 'Failed to fetch placement reports',
-      error: error.message
+      message: "Failed to fetch placement reports",
     });
   }
 };
-
-
 
 export const getStudentConnect = async (req, res) => {
   try {
-    console.log('Query parameters:', req.query);
     const { batch, degree, department, type } = req.query;
+
     const filter = {};
     if (batch) filter.batch = batch;
-    if (degree) filter.course = degree; // Map 'degree' from query to 'course' in models
-    if (department) filter['shortlisted_students.department'] = department;
+    if (department) filter["shortlisted_students.department"] = department;
 
     let results = [];
 
-    // Handle Placement (Offer) data
-    if (!type || type === 'placement') {
-      const offers = await Offer.find(filter).populate('shortlisted_students.studentId');
-      const offerData = offers.flatMap(offer => {
-        return offer.shortlisted_students
-          .filter(student => !department || student.department?.toLowerCase() === department.toLowerCase())
-          .map((student, index) => {
-            const studentData = student.studentId;
-            console.log('studentData:', studentData);
-            return {
-              id: `O-${offer._id}-${index}`,
-              roll_no: studentData ? studentData.rollno : 'N/A',
-              name: student.name,
-              branch: student.department,
-              gender: student.gender ? student.gender.charAt(0) : 'N/A',
-              profile: student.job_role || 'N/A',
-              company: offer.company_name || 'N/A',
-              placement_type: 'Placement',
+    if (!type || type === "placement") {
+      const offers = await Offer.find(filter).populate({
+        path: "shortlisted_students.studentId",
+        select: "rollno course linkedin",
+      });
+
+      results.push(
+        ...offers.flatMap((offer) =>
+          offer.shortlisted_students
+            .filter((s) => {
+              const sd = s.studentId;
+              return (
+                sd &&
+                (!department || s.department === department) &&
+                (!degree || normalize(sd.course) === normalize(degree))
+              );
+            })
+            .map((s, i) => ({
+              id: `O-${offer._id}-${i}`,
+              roll_no: s.studentId.rollno,
+              name: s.name,
+              branch: s.department,
+              gender: s.gender?.charAt(0) || "N/A",
+              profile: s.job_role || "N/A",
+              company: offer.company_name,
+              placement_type: "Placement",
               batch: offer.batch,
-              degree: offer.course,
-              linkedin: studentData ? studentData.linkedin : 'N/A'
-            };
-          });
-      });
-      results = [...results, ...offerData];
+              degree: s.studentId.course, // ✅ FIXED
+              linkedin: s.studentId.linkedin || "N/A",
+            }))
+        )
+      );
     }
 
-    // Handle Summer Internship data
-    if (!type || type === 'summer_intern') {
-      const internships = await SummerIntern.find(filter).populate('shortlisted_students.studentId');
-      const internshipData = internships.flatMap(internship => {
-        return internship.shortlisted_students
-          .filter(student => !department || student.department?.toLowerCase() === department.toLowerCase())
-          .map((student, index) => {
-            const studentData = student.studentId;
-            return {
-              id: `SI-${internship._id}-${index}`,
-              roll_no: studentData ? studentData.rollno : 'N/A',
-              name: student.name,
-              branch: student.department,
-              gender: student.gender ? student.gender.charAt(0) : 'N/A',
-              profile: student.job_role || 'N/A',
-              company: internship.company_name || 'N/A',
-              placement_type: 'Summer Internship',
-              duration: student.intern_duration || 'N/A',
+    if (!type || type === "summer_intern") {
+      const internships = await SummerIntern.find(filter).populate({
+        path: "shortlisted_students.studentId",
+        select: "rollno course linkedin",
+      });
+
+      results.push(
+        ...internships.flatMap((internship) =>
+          internship.shortlisted_students
+            .filter((s) => {
+              const sd = s.studentId;
+              return (
+                sd &&
+                (!department || s.department === department) &&
+                (!degree || normalize(sd.course) === normalize(degree))
+              );
+            })
+            .map((s, i) => ({
+              id: `SI-${internship._id}-${i}`,
+              roll_no: s.studentId.rollno,
+              name: s.name,
+              branch: s.department,
+              gender: s.gender?.charAt(0) || "N/A",
+              profile: s.job_role || "N/A",
+              company: internship.company_name,
+              placement_type: "Summer Internship",
+              duration: s.intern_duration || "N/A",
               batch: internship.batch,
-              degree: internship.course,
-              linkedin: studentData ? studentData.linkedin : 'N/A'
-            };
-          });
-      });
-      results = [...results, ...internshipData];
+              degree: s.studentId.course, // ✅ FIXED
+              linkedin: s.studentId.linkedin || "N/A",
+            }))
+        )
+      );
     }
 
-    // Group results by department and assign sr_no starting from 1 for each department
-    const departmentGroups = {};
-    results.forEach(item => {
-      const dept = item.branch || 'Unknown'; // Fallback to 'Unknown' if branch is undefined
-      if (!departmentGroups[dept]) {
-        departmentGroups[dept] = [];
-      }
-      departmentGroups[dept].push(item);
-    });
-
-    // Assign sr_no starting from 1 for each department
-    let finalResults = [];
-    Object.keys(departmentGroups).forEach(dept => {
-      const deptRecords = departmentGroups[dept].map((item, index) => ({
-        ...item,
-        sr_no: index + 1 // Start sr_no from 1 for each department
-      }));
-      finalResults = [...finalResults, ...deptRecords];
-    });
-
-    // Sort results by department and then sr_no
-    finalResults.sort((a, b) => {
-      const deptA = a.branch || 'Unknown';
-      const deptB = b.branch || 'Unknown';
-      if (deptA === deptB) return a.sr_no - b.sr_no;
-      return deptA.localeCompare(deptB);
-    });
-
-    // Count multiple placements/internships for double placement detection
-    const studentCounts = {};
-    finalResults.forEach(item => {
-      studentCounts[item.roll_no] = (studentCounts[item.roll_no] || 0) + 1;
-    });
-
-    // Add isDoublePlaced flag
-    finalResults = finalResults.map(item => ({
-      ...item,
-      isDoublePlaced: studentCounts[item.roll_no] > 1
-    }));
-
-    res.status(200).json({
+    res.json({
       success: true,
-      results: finalResults,
-      count: finalResults.length
+      results,
+      count: results.length,
     });
-  } catch (error) {
-    console.error('Error fetching placement reports:', error);
+  } catch (err) {
+    console.error(err);
     res.status(500).json({
       success: false,
-      message: 'Failed to fetch placement reports',
-      error: error.message
+      message: "Failed to fetch student connect",
     });
   }
 };
-
