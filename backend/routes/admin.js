@@ -72,6 +72,9 @@ import {
   updateOffer,
   deleteOffer,
   deleteBulkOffers,
+  addStudentToOffer,
+  updateStudentInOffer,
+  deleteStudentFromOffer
 } from "../controller/Admin/offer.js";
 
 import {
@@ -195,6 +198,9 @@ router.get("/offers/:id", getOffer);
 router.put("/offers/:id", updateOffer);
 router.delete("/offers/:id", deleteOffer);
 router.post("/offers/bulk-delete", deleteBulkOffers);
+router.post("/offers/:offerId/add-student", addStudentToOffer);
+router.put("/offers/:offerId/student/:studentId", updateStudentInOffer);
+router.delete("/offers/:offerId/student/:studentId", deleteStudentFromOffer);
 
 //alert
 router.post("/alert/", createAlert);
