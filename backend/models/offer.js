@@ -29,6 +29,7 @@ const OfferSchema = new mongoose.Schema(
     shortlisted_students: [
       {
         studentId:{
+
           type:mongoose.Schema.Types.ObjectId,
           ref:'Student'
         },
