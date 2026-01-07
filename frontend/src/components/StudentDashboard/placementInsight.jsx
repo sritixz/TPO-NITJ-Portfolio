@@ -16,6 +16,7 @@ import {
   Tooltip,
   Legend,
 } from 'chart.js';
+import ChartDataLabels from 'chartjs-plugin-datalabels';
 import { TrendingUp, Users, DollarSign, Building, Award, Calendar, BarChart3, PieChart, IndianRupee, Briefcase } from 'lucide-react';
 
 ChartJS.register(
@@ -27,8 +28,27 @@ ChartJS.register(
   ArcElement,
   Title,
   Tooltip,
-  Legend
+  Legend,
+  ChartDataLabels
 );
+
+// Department abbreviation mapping
+const DEPT_ABBREVIATIONS = {
+  'BIO TECHNOLOGY': 'BT',
+  'CIVIL ENGINEERING': 'CE',
+  'CHEMICAL ENGINEERING': 'CM',
+  'COMPUTER SCIENCE AND ENGINEERING': 'CS',
+  'DATA SCIENCE AND ENGINEERING': 'DS',
+  'ELECTRONICS AND COMMUNICATION ENGINEERING': 'EC',
+  'ELECTRICAL ENGINEERING': 'EE',
+  'INSTRUMENTATION AND CONTROL ENGINEERING': 'IC',
+  'INDUSTRIAL AND PRODUCTION ENGINEERING': 'IP',
+  'INFORMATION TECHNOLOGY': 'IT',
+  'MATHEMATICS AND COMPUTING': 'MC',
+  'MECHANICAL ENGINEERING': 'ME',
+  'TEXTILE TECHNOLOGY': 'TT',
+  'ELECTRONICS AND VLSI ENGINEERING': 'VL',
+};
 
 const btechdepartmentOptions = [
   {
@@ -385,6 +405,7 @@ const PlacementInsights = () => {
 
   useEffect(() => {
     const fetchInsights = async () => {
+      setLoading(true); // trying to fix loading 
       try {
         const params = { course: selectedCourse, batch: selectedBatch };
         const res = await axios.get(`${import.meta.env.REACT_APP_BASE_URL}/insight/stats/`, { 
@@ -478,6 +499,79 @@ const PlacementInsights = () => {
         bodyColor: 'white',
         cornerRadius: 8,
       },
+      datalabels: {
+        display: false, // Disable for non-bar charts
+      },
+    },
+  };
+
+  // Special options for vertical department bar chart
+  const departmentBarOptions = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: {
+        display: false, // Hide legend for cleaner look
+      },
+      tooltip: {
+        backgroundColor: 'rgba(0, 0, 0, 0.9)',
+        titleColor: 'white',
+        bodyColor: 'white',
+        cornerRadius: 8,
+        padding: 12,
+        callbacks: {
+          title: (context) => {
+            const abbreviation = context[0].label;
+            // Find full name from the original data
+            const fullNames = Object.keys(insights.placementsByDepartment || {});
+            const fullName = fullNames.find(name => 
+              (DEPT_ABBREVIATIONS[name] || name) === abbreviation
+            );
+            return fullName || abbreviation;
+          },
+          label: (context) => {
+            return `Placements: ${context.parsed.y}`;
+          },
+        },
+      },
+      datalabels: {
+        anchor: 'end',
+        align: 'top',
+        color: '#374151',
+        font: {
+          weight: 'bold',
+          size: 11,
+        },
+        formatter: (value) => value,
+        padding: 2,
+      },
+    },
+    scales: {
+      x: {
+        grid: {
+          display: false,
+        },
+        ticks: {
+          font: {
+            size: 11,
+            weight: '500',
+          },
+          autoSkip: false,
+          maxRotation: 0,
+          minRotation: 0,
+        },
+      },
+      y: {
+        beginAtZero: true,
+        grid: {
+          color: 'rgba(0, 0, 0, 0.05)',
+        },
+        ticks: {
+          font: {
+            size: 11,
+          },
+        },
+      },
     },
   };
 
@@ -534,7 +628,9 @@ const PlacementInsights = () => {
   };
 
   const departmentBarData = {
-    labels: Object.keys(insights.placementsByDepartment || {}),
+    labels: Object.keys(insights.placementsByDepartment || {}).map(
+      dept => DEPT_ABBREVIATIONS[dept] || dept
+    ),
     datasets: [{
       label: 'Placements',
       data: Object.values(insights.placementsByDepartment || {}),
@@ -545,9 +641,17 @@ const PlacementInsights = () => {
         'rgba(245, 158, 11, 0.8)',
         'rgba(168, 85, 247, 0.8)',
         'rgba(236, 72, 153, 0.8)',
+        'rgba(20, 184, 166, 0.8)',
+        'rgba(251, 146, 60, 0.8)',
+        'rgba(147, 51, 234, 0.8)',
+        'rgba(244, 63, 94, 0.8)',
+        'rgba(59, 130, 246, 0.8)',
+        'rgba(234, 179, 8, 0.8)',
       ],
-      borderRadius: 8,
+      borderRadius: 6,
       borderSkipped: false,
+      barThickness: 'flex',
+      maxBarThickness: 40,
     }],
   };
 
@@ -814,7 +918,7 @@ const deptData = insights.departmentStats?.[selectedDepartment];
           </ChartCard>
 
           <ChartCard title={selectedCourse === 'ALL' ? "Course-wise Placements" : "Department-wise Placements"} icon={BarChart3}>
-            <Bar data={departmentBarData} options={chartOptions} />
+            <Bar data={departmentBarData} options={departmentBarOptions} />
           </ChartCard>
         </div>
 
@@ -835,67 +939,65 @@ const deptData = insights.departmentStats?.[selectedDepartment];
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
       <div className="bg-white shadow-sm border-b border-gray-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-3xl font-bold text-gray-900">
-                Placement <span className="text-custom-blue">Analytics</span>
-              </h1>
-              <p className="text-gray-600 text-sm mt-1">
-                Comprehensive placement insights across all programs
-              </p>
-            </div>
-       
-            {/* Combine both dropdowns in one flex */}
-            <div className="flex items-center space-x-4">
-              <select
-                value={selectedBatch}
-                onChange={(e) => setSelectedBatch(e.target.value)}
-                className="bg-white border border-gray-300 rounded-lg px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-              >
-                {batches.map((batchOption) => (
-                  <option key={batchOption} value={batchOption}>
-                    {batchOption}
-                  </option>
-                ))}
-              </select>
-
-              <select
-                value={selectedCourse}
-                onChange={(e) => setSelectedCourse(e.target.value)}
-                className="bg-white border border-gray-300 rounded-lg px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-              >
-                {courses.map((courseOption) => (
-                  <option key={courseOption} value={courseOption}>
-                    {courseOption}
-                  </option>
-                ))}
-              </select>
-
-              {deptOptions.length > 0 && (
-                <select
-                  value={selectedDepartment}
-                  onChange={(e) => setSelectedDepartment(e.target.value)}
-                  className="bg-white border border-gray-300 rounded-lg px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-                >
-                  <option value="">All Departments</option>
-                  {deptOptions.map((dept) => (
-                    <option key={dept} value={dept}>
-                      {dept}
-                    </option>
-                  ))}
-                </select>
-              )}
-              <div className="flex justify-end">
-</div>
-            </div>
-          </div>
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6">
+        <div className="flex flex-col space-y-4 lg:flex-row lg:items-center lg:justify-between lg:space-y-0">
+        <div>
+          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">
+          Placement <span className="text-custom-blue">Analytics</span>
+          </h1>
+          <p className="text-gray-600 text-xs sm:text-sm mt-1">
+          Comprehensive placement insights across all programs
+          </p>
         </div>
+       
+        {/* Combine both dropdowns in one flex */}
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-4">
+          <select
+          value={selectedBatch}
+          onChange={(e) => setSelectedBatch(e.target.value)}
+          className="bg-white border border-gray-300 rounded-lg px-3 sm:px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent w-full sm:w-auto"
+          >
+          {batches.map((batchOption) => (
+            <option key={batchOption} value={batchOption}>
+            {batchOption}
+            </option>
+          ))}
+          </select>
+
+          <select
+          value={selectedCourse}
+          onChange={(e) => setSelectedCourse(e.target.value)}
+          className="bg-white border border-gray-300 rounded-lg px-3 sm:px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent w-full sm:w-auto"
+          >
+          {courses.map((courseOption) => (
+            <option key={courseOption} value={courseOption}>
+            {courseOption}
+            </option>
+          ))}
+          </select>
+
+          {deptOptions.length > 0 && (
+          <select
+            value={selectedDepartment}
+            onChange={(e) => setSelectedDepartment(e.target.value)}
+            className="bg-white border border-gray-300 rounded-lg px-3 sm:px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent w-full sm:w-auto"
+          >
+            <option value="">All Departments</option>
+            {deptOptions.map((dept) => (
+            <option key={dept} value={dept}>
+              {dept}
+            </option>
+            ))}
+          </select>
+          )}
+        </div>
+        </div>
+      </div>
       </div>
 
       {content}
     </div>
-  );
+    );
 };
 
 export default PlacementInsights;
