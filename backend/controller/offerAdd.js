@@ -9,7 +9,7 @@ if (!roll) return res.status(400).json({ error: 'roll parameter required' });
 
 
 const student = await Student.findOne({ rollno: roll })
-.select('name gender department category rollno')
+.select('_id name gender department category course rollno')
 .lean();
 
 
