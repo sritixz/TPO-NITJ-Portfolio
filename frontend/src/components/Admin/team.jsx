@@ -28,12 +28,81 @@ import {
   InputLabel,
 } from "@mui/material";
 
+
+
+
+
 const DevteamManager = () => {
   const [developers, setDevelopers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedDevelopers, setSelectedDevelopers] = useState([]);
   const [editProfile, setEditProfile] = useState(null);
   const [openEditDialog, setOpenEditDialog] = useState(false);
+
+// messages states and functions
+  const [messageModalOpen, setMessageModalOpen] = useState(false);
+const [activeAuthorId, setActiveAuthorId] = useState(null);
+const [activeMessage, setActiveMessage] = useState(null);
+const [messageContent, setMessageContent] = useState("");
+const [messages, setMessages] = useState([]);
+
+const openCreateMessage = (authorId) => {
+  setActiveAuthorId(authorId);
+  setActiveMessage(null);
+  setMessageContent("");
+  setMessageModalOpen(true);
+};
+const openEditMessage = (message) => {
+  setActiveMessage(message);
+  setActiveAuthorId(message.author); // ObjectId
+  setMessageContent(message.content);
+  setMessageModalOpen(true);
+};
+
+const deleteMessage = async (messageId) => {
+  try {
+    await axios.delete(
+      `${import.meta.env.REACT_APP_BASE_URL}/messages/${messageId}`,
+      { withCredentials: true }
+    );
+    toast.success("Message deleted");
+     setMessages((prev) => prev.filter((msg) => msg._id !== messageId));
+
+  } catch {
+    toast.error("Failed to delete message");
+  }
+};
+
+const saveMessage = async () => {
+  try {
+    if (activeMessage) {
+     
+      await axios.put(
+        `${import.meta.env.REACT_APP_BASE_URL}/messages/${activeMessage._id}`,
+        { content: messageContent },
+        { withCredentials: true }
+      );
+      toast.success("Message updated");
+    } else {
+   
+      await axios.post(
+        `${import.meta.env.REACT_APP_BASE_URL}/messages`,
+        {
+          authorId: activeAuthorId,
+          content: messageContent,
+        },
+        { withCredentials: true }
+      );
+      toast.success("Message added");
+    }
+
+    setMessageModalOpen(false);
+    await fetchDevelopers();
+    await fetchMessages();
+  } catch (err) {
+    toast.error("Failed to save message");
+  }
+};
   const [deleteConfirmModal, setDeleteConfirmModal] = useState({
     isOpen: false,
     type: "", // 'bulk' or 'single'
@@ -51,6 +120,7 @@ const DevteamManager = () => {
 
   useEffect(() => {
     fetchDevelopers();
+    fetchMessages();
   }, []);
 
   const fetchDevelopers = async () => {
@@ -67,6 +137,19 @@ const DevteamManager = () => {
       setLoading(false);
     }
   };
+
+  const fetchMessages = async () => {
+  try {
+    const res = await axios.get(
+      `${import.meta.env.REACT_APP_BASE_URL}/messages`,
+      { withCredentials: true }
+    );
+    setMessages(res.data);
+  } catch {
+    toast.error("Failed to fetch messages");
+  }
+};
+
 
   const handleSave = async () => {
     try {
@@ -304,7 +387,21 @@ const response = await method(url, formData, {
   const filteredDevelopers = applyFilters();
   const indexOfLastDeveloper = currentPage * developersPerPage;
   const indexOfFirstDeveloper = indexOfLastDeveloper - developersPerPage;
-  const currentDevelopers = filteredDevelopers.slice(
+
+  // messages logic
+  const developersWithMessages = developers.map((dev) => {
+  const message = messages.find(
+    (msg) => msg.author === dev._id || msg.author?._id === dev._id
+  );
+    
+  return {
+    ...dev,
+    message: message || null,
+  };
+});
+
+
+  const currentDevelopers = developersWithMessages.slice(
     indexOfFirstDeveloper,
     indexOfLastDeveloper
   );
@@ -404,6 +501,7 @@ const response = await method(url, formData, {
                   <th className="border p-2">Department</th>
                   <th className="border p-2">Batch</th>
                   <th className="border p-2">Designation</th>
+                  <th className="border p-2">Message</th>
                   <th className="border p-2">Actions</th>
                 </tr>
               </thead>
@@ -424,6 +522,50 @@ const response = await method(url, formData, {
                     <td className="border p-2">{developer.department}</td>
                     <td className="border p-2">{developer.batch}</td>
                     <td className="border p-2">{developer.designation}</td>
+                    <td className="border p-2 max-w-xs">
+                      {/* HEAD MESSAGES */}
+  {(
+    developer.role === "Coordinator" ||
+    developer.designation?.toLowerCase().includes("head")
+  ) ? (
+    developer.message ? (
+      <div className="flex flex-col gap-1">
+       <span
+  className="text-sm block overflow-hidden whitespace-nowrap text-ellipsis"
+  style={{ maxWidth: "120px" }} 
+  title={developer.message.content}
+>
+  {developer.message.content}
+</span>
+
+        <div className="flex gap-2 text-xs">
+          <button
+            className="text-blue-600 hover:underline"
+            onClick={() => { openEditMessage(developer.message); }}
+          >
+            Edit
+          </button>
+          <button
+            className="text-red-600 hover:underline"
+            onClick={() => deleteMessage(developer.message._id)}
+          >
+            Delete
+          </button>
+        </div>
+      </div>
+    ) : (
+      <button
+        className="text-green-600 text-sm hover:underline"
+        onClick={() => openCreateMessage(developer._id)}
+      >
+        + Add Message
+      </button>
+    )
+  ) : (
+    <span className="text-gray-300">—</span>
+  )}
+</td>
+
                     <td className="border p-2">
                       <div className="flex justify-center space-x-2">
                         <button
@@ -627,6 +769,37 @@ const response = await method(url, formData, {
           </Button>
         </DialogActions>
       </Dialog>
+      <Dialog
+  open={messageModalOpen}
+  onClose={() => setMessageModalOpen(false)}
+  maxWidth="sm"
+  fullWidth
+>
+  <DialogTitle>
+    {activeMessage ? "Edit Message" : "Add Message"}
+  </DialogTitle>
+
+  <DialogContent>
+    <TextField
+      multiline
+      rows={6}
+      fullWidth
+      value={messageContent}
+      onChange={(e) => setMessageContent(e.target.value)}
+      placeholder="Enter message"
+    />
+  </DialogContent>
+
+  <DialogActions>
+    <Button onClick={() => setMessageModalOpen(false)}>
+      Cancel
+    </Button>
+    <Button onClick={saveMessage} variant="contained">
+      Save
+    </Button>
+  </DialogActions>
+</Dialog>
+
     </div>
   );
 };

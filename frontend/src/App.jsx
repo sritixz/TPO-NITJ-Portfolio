@@ -36,6 +36,7 @@ import GTE3MonthForm from "./components/outsource-studentDashboard/gte3monthform
 import SignupFlow from "./components/outsource-studentDashboard/signup";
 import LoginOutsider from "./components/outsource-studentDashboard/login";
 import OutsourceStudentDashboard from "./components/outsource-studentDashboard/osdashboard";
+import ForgotPassword from "./components/outsource-studentDashboard/ForgotPassword";
 
 const AppContent = () => {
   const location = useLocation();
@@ -179,6 +180,7 @@ const AppContent = () => {
         <Route path="*" element={<ErrorPage />} />
         <Route path="/outsourceInternship/signup" element={<SignupFlow />} />
         <Route path="/outsourceInternship/login" element={<LoginOutsider />} />
+        <Route path="/outsourceInternship/forgot-password" element={<ForgotPassword />} />
       </Routes>
       <Toaster />
     </>
