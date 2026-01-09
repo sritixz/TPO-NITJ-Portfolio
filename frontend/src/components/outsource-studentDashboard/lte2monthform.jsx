@@ -464,11 +464,11 @@ const LTE2MonthForm = () => {
 
   const renderApplicationList = () => (
     <div className="space-y-6 animate-fade-in">
-      <div className="flex justify-between items-center mb-8 gap-4">
-        <h2 className="text-3xl font-bold flex items-center space-x-3 text-gray-900">
+      <div className="flex flex-col md:flex-row md:justify-between md:items-center mb-8 gap-6">
+        <h2 className="text-2xl md:text-3xl font-bold flex items-center space-x-3 text-gray-900">
           <span>Summer / Winter <span className="text-custom-blue">Internship</span> Application</span>
         </h2>
-        <div className="flex items-center gap-4 flex-1 justify-end">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 w-full md:w-auto md:justify-end">
           {deadlineInfo && (
             <div className="text-sm">
               {deadlineInfo.isOpen ? (
@@ -489,7 +489,7 @@ const LTE2MonthForm = () => {
                         >
                           <span className="text-lg">{String(value).padStart(2, '0')}</span>
                           <span className="text-xs uppercase opacity-80">
-                            {unit.slice(0, unit === 'days' ? 4 : 3)}
+                            {unit.slice(0, unit === 'days' || unit==='hours'? 4 : 3)}
                           </span>
                         </div>
                       );
