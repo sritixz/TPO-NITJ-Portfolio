@@ -72,23 +72,31 @@ const TpoMessage = () => {
                     "linear-gradient(180deg, #FFFFFF 0%, #DEE9F9 50.48%, #9DBCE4 100%)",
                 }}
               >
-                <div className="mt-16 text-md font-poppins text-justify">
-                  <img
-                    src="inverted Comma.png"
-                    alt=""
-                    className="absolute top-4 left-4"
-                  />
+               <div className="mt-16 text-md font-poppins relative">
+  <div className="flex items-start gap-4">
+    
+    <img
+      src="inverted Comma.png"
+      alt=""
+      className="w-6 h-6 mt-1"
+    />
 
-                  <span className="p-5"></span>
-                  {msg.content}
+    <p className="text-justify leading-relaxed">
+      {msg.content}
+    </p>
 
-                  <br />
-                  <br />
+  </div>
+  <br/>
+  <br/>
 
-                  <span className="font-semibold">
+                  <span className=" font-semibold">
                     {msg.author?.name}
                     <br />
                     {msg.author?.designation || msg.author?.role}
+                    <br />
+                    {msg.author?.email }
+                    <br />
+                    {msg.author?.mobile }
                     <br />
                     NIT Jalandhar
                   </span>
