@@ -12,6 +12,7 @@ import {
   ChevronRight,
   Eye,
   EyeOff,
+  Download
 } from "lucide-react";
 import {
   Dialog,
@@ -168,7 +169,8 @@ const response = await method(url, formData, {
         ? developers.find((d) => d._id === deleteConfirmModal.developerId)
         : null;
 
-    return (
+        
+        return (
       <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
         <div className="bg-white p-6 rounded-lg shadow-xl w-96">
           <div className="flex justify-between items-center mb-4">
@@ -184,7 +186,7 @@ const response = await method(url, formData, {
                 }))
               }
               className="text-gray-500 hover:text-gray-700"
-            >
+              >
               <X size={24} />
             </button>
           </div>
@@ -204,7 +206,7 @@ const response = await method(url, formData, {
               className="w-full border p-2 rounded"
               placeholder="Enter email"
               autoFocus
-            />
+              />
           </div>
 
           <div className="flex justify-end space-x-2">
@@ -219,31 +221,31 @@ const response = await method(url, formData, {
                 }))
               }
               className="bg-gray-300 text-gray-700 px-4 py-2 rounded"
-            >
+              >
               Cancel
             </button>
             <button
               onClick={handleDeleteDevelopers}
               disabled={
                 deleteConfirmModal.type === "single"
-                  ? deleteConfirmModal.confirmationInput !==
-                    developerToDelete?.email
-                  : false
+                ? deleteConfirmModal.confirmationInput !==
+                developerToDelete?.email
+                : false
               }
               className={`
                 px-4 py-2 rounded text-white
                 ${
                   (
                     deleteConfirmModal.type === "single"
-                      ? deleteConfirmModal.confirmationInput !==
-                        developerToDelete?.email
-                      : false
+                    ? deleteConfirmModal.confirmationInput !==
+                    developerToDelete?.email
+                    : false
                   )
-                    ? "bg-gray-400 cursor-not-allowed"
-                    : "bg-red-500 hover:bg-red-600"
+                  ? "bg-gray-400 cursor-not-allowed"
+                  : "bg-red-500 hover:bg-red-600"
                 }
-              `}
-            >
+                `}
+                >
               Delete
             </button>
           </div>
@@ -251,13 +253,13 @@ const response = await method(url, formData, {
       </div>
     );
   };
-
+  
   const handleSelectDeveloper = (developerId) => {
     setSelectedDevelopers((prev) =>
       prev.includes(developerId)
-        ? prev.filter((id) => id !== developerId)
+    ? prev.filter((id) => id !== developerId)
         : [...prev, developerId]
-    );
+      );
   };
 
   const openEditModal = (developer = null) => {
@@ -279,27 +281,27 @@ const response = await method(url, formData, {
     );
     setOpenEditDialog(true);
   };
-
+  
   const applyFilters = () => {
     return developers.filter((developer) => {
       return (
         (!filters.name ||
           (developer.name &&
             developer.name
-              .toLowerCase()
-              .includes(filters.name.toLowerCase()))) &&
-        (!filters.email ||
-          (developer.email &&
-            developer.email
+            .toLowerCase()
+            .includes(filters.name.toLowerCase()))) &&
+            (!filters.email ||
+              (developer.email &&
+                developer.email
               .toLowerCase()
               .includes(filters.email.toLowerCase()))) &&
-        (!filters.role ||
-          (developer.role &&
+              (!filters.role ||
+                (developer.role &&
             developer.role.toLowerCase().includes(filters.role.toLowerCase())))
       );
     });
   };
-
+  
   // Pagination logic
   const filteredDevelopers = applyFilters();
   const indexOfLastDeveloper = currentPage * developersPerPage;
@@ -308,9 +310,56 @@ const response = await method(url, formData, {
     indexOfFirstDeveloper,
     indexOfLastDeveloper
   );
-
+  
   const paginate = (pageNumber) => setCurrentPage(pageNumber);
+  
+  const handleExportJSON = () => {
+    try {
+      const dataToExport = applyFilters();
 
+      // If no data, export empty array with model structure as template
+      const exportData = dataToExport.length > 0 
+        ? dataToExport 
+        : [
+            {
+              _id: "",
+              name: "",
+              email: "",
+              mobile: "",
+              department: "",
+              batch: "",
+              role: "",
+              designation: "",
+              linkedinUrl: "",
+              githubUrl: "",
+              resumeUrl: "",
+              website: "",
+              image: ""
+            }
+          ];
+
+      const jsonString = JSON.stringify(exportData, null, 2);
+      const blob = new Blob([jsonString], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      const timestamp = new Date().toISOString().replace(/[:.]/g, '-').split('T')[0];
+      link.download = `developers_${timestamp}.json`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+
+      if (dataToExport.length === 0) {
+        toast.success("Exported empty JSON file with model template");
+      } else {
+        toast.success(`Exported ${dataToExport.length} developer(s) to JSON`);
+      }
+    } catch (error) {
+      toast.error("Failed to export JSON");
+    }
+  };
+  
   return (
     <div className="container mx-auto p-4">
       <DeleteConfirmationModal />
@@ -325,6 +374,12 @@ const response = await method(url, formData, {
             className="bg-green-500 text-white px-4 py-2 rounded flex items-center justify-center"
           >
             <Plus className="mr-2" /> Add Developer
+          </button>
+          <button
+            onClick={handleExportJSON}
+            className="bg-blue-500 text-white px-4 py-2 rounded flex items-center justify-center"
+          >
+            <Download className="mr-2" /> Export JSON
           </button>
           {selectedDevelopers.length > 0 && (
             <button
