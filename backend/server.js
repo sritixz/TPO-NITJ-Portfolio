@@ -56,6 +56,9 @@ import outsourceInternshipAuthRoutes from "./routes/outsource-internship-auth.js
 import companyFeedbackroutes from "./routes/companyFeedback.js"
 import studentsuggestionroute from "./routes/studentsuggestionroute.js";
 import professorsuggestionroute from "./routes/professersuggestionroute.js";
+import messageRoutes from "./routes/messages.js";
+
+
 import { mkdir } from 'fs/promises';
 try {
   await mkdir('uploads/pdfs', { recursive: true });
@@ -111,6 +114,7 @@ app.use('/uploads', express.static('uploads'));
 
 // app.use(logMiddleware);
 
+
 //Public routes
 app.use('/auth', logMiddleware, authroutes);
 app.use('/captcha', logMiddleware, captchaRoutes);
@@ -121,7 +125,7 @@ app.use('/student-documents', logMiddleware, studentDocumentsRoutes);
 app.use("/placements", logMiddleware, placementroutes);
 app.use("/internships", logMiddleware, internshiptroutes);
 app.use("/recruiterFeedback", logMiddleware, companyFeedbackroutes)
-
+app.use("/messages", messageRoutes);
 
 //Student routes
 app.use('/interview',authenticate, restrictTo('Student'),logMiddleware, interviewroutes);
