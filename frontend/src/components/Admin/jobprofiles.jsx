@@ -24,7 +24,7 @@ import {
   Box,
   Typography
 } from "@mui/material";
-import { Delete, Edit, Visibility, VisibilityOff, Add } from "@mui/icons-material";
+import { Delete, Edit, Visibility, VisibilityOff, Add, Download } from "@mui/icons-material";
 
 const AdminJobProfileManager = () => {
   const [jobProfiles, setJobProfiles] = useState([]);
@@ -159,6 +159,72 @@ const AdminJobProfileManager = () => {
     }
   };
 
+  const handleExportJSON = () => {
+    try {
+      const dataToExport = filteredProfiles;
+      
+      // If no data, export empty array with model structure as template
+      const exportData = dataToExport.length > 0 
+        ? dataToExport 
+        : [
+            {
+              _id: "",
+              recruiter_id: "",
+              job_id: "",
+              job_type: "",
+              company_name: "",
+              company_logo: "",
+              job_role: "",
+              jobdescription: "",
+              joblocation: "",
+              job_category: "",
+              job_salary: {
+                ctc: "",
+                base_salary: ""
+              },
+              deadline: "",
+              Hiring_Workflow: [],
+              eligibility_criteria: {
+                department_allowed: [],
+                gender_allowed: "",
+                eligible_batch: "",
+                minimum_cgpa: 0,
+                active_backlogs: false,
+                history_backlogs: false,
+                course_allowed: ""
+              },
+              job_class: "",
+              visibility: false,
+              Approved_Status: false,
+              completed: false,
+              recruiter_editing_allowed: false,
+              createdAt: "",
+              updatedAt: ""
+            }
+          ];
+      
+      const jsonString = JSON.stringify(exportData, null, 2);
+      const blob = new Blob([jsonString], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      const timestamp = new Date().toISOString().replace(/[:.]/g, '-').split('T')[0];
+      link.download = `job_profiles_${timestamp}.json`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+      
+      if (dataToExport.length === 0) {
+        alert("Exported empty JSON file with model template");
+      } else {
+        alert(`Exported ${dataToExport.length} job profile(s) to JSON`);
+      }
+    } catch (error) {
+      alert("Failed to export JSON");
+    }
+  };
+
   const handleToggleVisibility = async (id, visibility) => {
     try {
       await axios.put(
@@ -230,14 +296,24 @@ const AdminJobProfileManager = () => {
         <Typography variant="h5" component="h1" fontWeight="bold">
           Manage Job Profiles
         </Typography>
-        <Button
-          variant="contained"
-          color="primary"
-          startIcon={<Add />}
-          onClick={handleAdd}
-        >
-          Add Job Profile
-        </Button>
+        <Box sx={{ display: 'flex', gap: 2 }}>
+          <Button
+            variant="contained"
+            color="primary"
+            startIcon={<Add />}
+            onClick={handleAdd}
+          >
+            Add Job Profile
+          </Button>
+          <Button
+            variant="contained"
+            sx={{ bgcolor: '#3b82f6', '&:hover': { bgcolor: '#2563eb' } }}
+            startIcon={<Download />}
+            onClick={handleExportJSON}
+          >
+            Export JSON
+          </Button>
+        </Box>
       </Box>
 
       <Box sx={{ display: 'flex', gap: 2, mb: 3, flexWrap: 'wrap' }}>

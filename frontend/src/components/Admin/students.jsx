@@ -1154,6 +1154,7 @@ import {
   EyeOff,
   Lock,
   Unlock,
+  Download,
 } from "lucide-react";
 import {
   Dialog,
@@ -1887,6 +1888,73 @@ const StudentManager = () => {
 
   const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
+  const handleExportJSON = () => {
+    try {
+      const dataToExport = applyFilters();
+      
+      // If no data, export empty array with model structure as template
+      const exportData = dataToExport.length > 0 
+        ? dataToExport 
+        : [
+            {
+              _id: "",
+              name: "",
+              email: "",
+              personalEmail: "",
+              phone: "",
+              password: "",
+              rollno: "",
+              dob: "",
+              department: "",
+              batch: "",
+              course: "",
+              address: "",
+              cgpa: "",
+              Xth: "",
+              XIIth: "",
+              gender: "",
+              category: "",
+              active_backlogs: false,
+              activeBacklogCount: "",
+              backlogs_history: false,
+              debarred: false,
+              disability: false,
+              image: "",
+              offerLetter: "",
+              placementstatus: "",
+              internshipstatus: "",
+              account_deactivate: false,
+              isInterested: false,
+              linkedin: "",
+              otp: "",
+              erpLastUpdated: "",
+              createdAt: "",
+              updatedAt: ""
+            }
+          ];
+      
+      const jsonString = JSON.stringify(exportData, null, 2);
+      const blob = new Blob([jsonString], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      const timestamp = new Date().toISOString().replace(/[:.]/g, '-').split('T')[0];
+      link.download = `students_${timestamp}.json`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+      
+      if (dataToExport.length === 0) {
+        toast.success("Exported empty JSON file with model template");
+      } else {
+        toast.success(`Exported ${dataToExport.length} student(s) to JSON`);
+      }
+    } catch (error) {
+      toast.error("Failed to export JSON");
+    }
+  };
+
   // useEffect(() => {
   //   if (!editProfile) return;
 
@@ -1911,6 +1979,12 @@ const StudentManager = () => {
             className="bg-green-500 text-white px-4 py-2 rounded flex items-center justify-center"
           >
             <Plus className="mr-2" /> Add Student
+          </button>
+          <button
+            onClick={handleExportJSON}
+            className="bg-blue-500 text-white px-4 py-2 rounded flex items-center justify-center"
+          >
+            <Download className="mr-2" /> Export JSON
           </button>
           <div className="flex gap-3 mb-4">
             <input
