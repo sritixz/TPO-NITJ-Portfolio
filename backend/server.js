@@ -54,7 +54,7 @@ import alertRoutes from "./routes/alert.js";
 import outsourceInternshipRoutes from "./routes/outsource-internship.js"
 import outsourceInternshipAuthRoutes from "./routes/outsource-internship-auth.js"
 import companyFeedbackroutes from "./routes/companyFeedback.js"
-import messageRoutes from "./routes/messages.js";
+import messageRoutes from "./routes/messagesHeadAdmin.js";
 
 
 import { mkdir } from 'fs/promises';

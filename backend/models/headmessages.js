@@ -5,13 +5,10 @@ const messageSchema = new mongoose.Schema(
     author: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Devteam",
-      required: true,
     },
 
     content: {
       type: String,
-      required: true,
-      trim: true,
     },
 
     image: {
@@ -21,7 +18,6 @@ const messageSchema = new mongoose.Schema(
 
     isActive: {
       type: Boolean,
-      default: true,
     },
   },
   {
