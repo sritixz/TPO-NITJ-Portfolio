@@ -8,6 +8,7 @@ import {
   JOB_CATEGORY_OPTIONS,
   JOB_SECTOR_OPTIONS,
 } from "../../constants/jobConstants";
+import {Download} from "lucide-react"
 
 const BASE_URL = import.meta.env.REACT_APP_BASE_URL;
 const BATCH_OPTIONS = ["2025", "2026", "2027", "2028", "2029", "2030", "2031"];
@@ -184,6 +185,64 @@ export default function Offer() {
   const input =
     "w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none";
 
+    const handleExportJSON = () => {
+    try {
+      const dataToExport = offers;
+
+      // If no data, export empty array with model structure as template
+      const exportData = dataToExport.length > 0 
+        ? dataToExport 
+        : [
+            {
+              _id: "",
+              jobId: "",
+              company_name: "",
+              batch: "",
+              course: "",
+              offer_mode: "On-Campus",
+              offer_sector: "Private",
+              result_date: "",
+              shortlisted_students: [
+                {
+                  studentId: "",
+                  name: "",
+                  gender: "",
+                  department: "",
+                  category: "",
+                  job_type: "",
+                  job_role: "",
+                  ctc: "",
+                  stipend: "",
+                  intern_duration: ""
+                }
+              ],
+              visibility: true,
+              added: "Automatically"
+            }
+          ];
+
+      const jsonString = JSON.stringify(exportData, null, 2);
+      const blob = new Blob([jsonString], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      const timestamp = new Date().toISOString().replace(/[:.]/g, '-').split('T')[0];
+      link.download = `offers_${timestamp}.json`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+
+      if (dataToExport.length === 0) {
+        toast.success("Exported empty JSON file with model template");
+      } else {
+        toast.success(`Exported ${dataToExport.length} offer(s) to JSON`);
+      }
+    } catch (error) {
+      toast.error("Failed to export JSON");
+    }
+  };
+
   /* ---------------- UI ---------------- */
 
   return (
@@ -191,6 +250,12 @@ export default function Offer() {
       <h1 className="text-3xl font-bold text-slate-800">
         Offers Management
       </h1>
+      <button
+        onClick={handleExportJSON}
+        className="bg-blue-500 text-white px-4 py-2 rounded flex items-center justify-center"
+      >
+        <Download className="mr-2" /> Export JSON
+      </button>
 
       {/* ADD OFFER */}
       <div className="bg-white p-6 rounded-xl shadow">
