@@ -13,7 +13,7 @@ const router = express.Router();
 // landing page + admin (same endpoint)
 router.get("/",  getMessages);
 // admin only
-router.post("/", authenticatemiddleware, restrictTo("Admin","Coordinator"), createMessage);
+router.post("/", authenticatemiddleware, restrictTo("Admin"), createMessage);
 router.put("/:id", authenticatemiddleware, restrictTo("Admin"), updateMessage);
 router.delete("/:id", authenticatemiddleware, restrictTo("Admin"), deleteMessage);
 

@@ -70,32 +70,30 @@ const Suggestions= ()=>{
     return(
       <div className="space-y-6">
         
-  <div className="flex gap-4 mb-6">
-  <button
-    onClick={() => setActiveTab("not_contacted")}
-    className={`px-5 py-2 rounded-lg text-sm font-medium border transition
-      ${
+<div className="mb-6">
+  <div className="grid grid-cols-2 bg-gray-100 rounded-xl p-1 w-full max-w-8xl">
+    <button
+      onClick={() => setActiveTab("not_contacted")}
+      className={`py-3 rounded-lg text-sm font-medium transition-all ${
         activeTab === "not_contacted"
-          ? "bg-blue-600 text-white border-blue-600"
-          : "bg-white text-gray-700 border-gray-300 hover:bg-gray-100"
-      }
-    `}
-  >
-    Not Contacted
-  </button>
+          ? "bg-white text-gray-900 shadow-sm"
+          : "text-gray-500 hover:text-gray-700"
+      }`}
+    >
+      Not Contacted
+    </button>
 
-  <button
-    onClick={() => setActiveTab("contacted")}
-    className={`px-5 py-2 rounded-lg text-sm font-medium border transition
-      ${
+    <button
+      onClick={() => setActiveTab("contacted")}
+      className={`py-3 rounded-lg text-sm font-medium transition-all ${
         activeTab === "contacted"
-          ? "bg-blue-600 text-white border-blue-600"
-          : "bg-white text-gray-700 border-gray-300 hover:bg-gray-100"
-      }
-    `}
-  >
-    Contacted
-  </button>
+          ? "bg-white text-gray-900 shadow-sm"
+          : "text-gray-500 hover:text-gray-700"
+      }`}
+    >
+      Contacted
+    </button>
+  </div>
 </div>
 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
 {filteredSuggestions.length === 0 && (
