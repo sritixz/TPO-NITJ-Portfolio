@@ -5,6 +5,7 @@ const Suggestions = () => {
 const [recentSuggestions, setRecentSuggestions] = useState([]);
 const [invalidFields, setInvalidFields] = useState([]);
 const [activeTab, setActiveTab] = useState("not_contacted");
+const [view, setView] = useState("create"); 
 
 
  const token = localStorage.getItem("token");
@@ -88,43 +89,75 @@ const filteredSuggestions = recentSuggestions.filter((item) => {
 
   return (
     <div className="p-6 space-y-8 bg-gray-50 min-h-screen">
+<div className="mb-6 ">
+  <div className="grid grid-cols-2 bg-gray-100 rounded-xl p-1 w-full max-w-8xl">
+    <button
+      onClick={() => setView("create")}
+      className={`py-3 rounded-lg text-sm font-medium transition-all
+        ${
+          view === "create"
+            ? "bg-white text-gray-900 shadow-sm"
+            : "text-gray-500 hover:text-gray-700"
+        }`}
+    >
+      Create New Suggestion
+    </button>
 
+    <button
+      onClick={() => setView("recent")}
+      className={`py-3 rounded-lg text-sm font-medium transition-all
+        ${
+          view === "recent"
+            ? "bg-white text-gray-900 shadow-sm"
+            : "text-gray-500 hover:text-gray-700"
+        }`}
+    >
+      View Recent Suggestions
+    </button>
+  </div>
+</div>
 
-      <div className="bg-white rounded-xl shadow-md p-6">
+{/* Recent Suggestions Section */}
+{view === "recent" && (
+      
+      <div className="bg-white rounded-xl shadow-md p-6 ">
   <h2 className="text-xl font-semibold mb-4">
     Your Recent Suggestions
   </h2>
 {/* Sub Tabs */}
-<div className="flex gap-4 mb-6">
-  <button
-    onClick={() => setActiveTab("not_contacted")}
-    className={`px-4 py-2 rounded-lg text-sm font-medium ${
-      activeTab === "not_contacted"
-        ? "bg-blue-600 text-white"
-        : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-    }`}
-  >
-    Not Contacted
-  </button>
+<div className="mb-6">
+  <div className="grid grid-cols-2 bg-gray-100 rounded-xl p-1 w-full max-w-8xl">
+    <button
+      onClick={() => setActiveTab("not_contacted")}
+      className={`py-3 rounded-lg text-sm font-medium transition-all ${
+        activeTab === "not_contacted"
+          ? "bg-white text-gray-900 shadow-sm"
+          : "text-gray-500 hover:text-gray-700"
+      }`}
+    >
+      Not Contacted
+    </button>
 
-  <button
-    onClick={() => setActiveTab("contacted")}
-    className={`px-4 py-2 rounded-lg text-sm font-medium ${
-      activeTab === "contacted"
-        ? "bg-blue-600 text-white"
-        : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-    }`}
-  >
-    Contacted
-  </button>
+    <button
+      onClick={() => setActiveTab("contacted")}
+      className={`py-3 rounded-lg text-sm font-medium transition-all ${
+        activeTab === "contacted"
+          ? "bg-white text-gray-900 shadow-sm"
+          : "text-gray-500 hover:text-gray-700"
+      }`}
+    >
+      Contacted
+    </button>
+  </div>
 </div>
+
 {filteredSuggestions.length === 0 && (
   <p className="text-gray-500 text-sm">
     No suggestions in this category.
   </p>
 )}
 
-  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 ">
     {filteredSuggestions.map((item, index) => (
       <div
         key={index}
@@ -156,9 +189,11 @@ const filteredSuggestions = recentSuggestions.filter((item) => {
     ))}
   </div>
 </div>
+)}
+{/* Create new suggestion  */}
+{view === "create" && (
 
-
-      {/* Suggestion Form */}
+      
       <div className="bg-white rounded-xl shadow-md p-6">
         <h2 className="text-xl font-semibold mb-6">Suggest a Company</h2>
 
@@ -306,6 +341,7 @@ const filteredSuggestions = recentSuggestions.filter((item) => {
 
         </form>
       </div>
+)}
 
     </div>
   );

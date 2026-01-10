@@ -48,7 +48,7 @@ const TpoMessage = () => {
             <div
               className="-mb-20 z-10 rounded-full w-36 h-36 border-2 border-[#A5C8FFB2] bg-gray-200"
               style={{
-                backgroundImage: `url(${msg.author?.image || "/default-avatar.png"})`,
+                backgroundImage: `url(${import.meta.env.REACT_APP_BASE_URL}${msg.author?.image || "/default-avatar.png"})`,
                 backgroundRepeat: "no-repeat",
                 backgroundSize: "cover",
                 backgroundPosition: "center",
