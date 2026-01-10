@@ -258,15 +258,12 @@ const RecruiterManager = () => {
         ? dataToExport 
         : [
             {
-              _id: "",
               name: "",
               email: "",
               password: "",
               company: "",
               designation: "",
-              otp: "",
-              createdAt: "",
-              updatedAt: ""
+              otp: ""
             }
           ];
       

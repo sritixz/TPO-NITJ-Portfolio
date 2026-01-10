@@ -1897,7 +1897,6 @@ const StudentManager = () => {
         ? dataToExport 
         : [
             {
-              _id: "",
               name: "",
               email: "",
               personalEmail: "",
@@ -1927,9 +1926,7 @@ const StudentManager = () => {
               isInterested: false,
               linkedin: "",
               otp: "",
-              erpLastUpdated: "",
-              createdAt: "",
-              updatedAt: ""
+              erpLastUpdated: null
             }
           ];
       
