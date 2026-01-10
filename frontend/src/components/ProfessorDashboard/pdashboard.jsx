@@ -57,6 +57,7 @@ import PlacementCalendar from "./placement-calendar.jsx";
 import RecruiterFeedbackList from "./companyFeedback.jsx";
 import InternshipsManagement from "./internshipManagement.jsx";
 
+import Suggestions from "./suggestions.jsx";
 
 const Pdashboard = () => {
   const [isMobile, setIsMobile] = useState(false);
@@ -116,7 +117,7 @@ const Pdashboard = () => {
     { label: "User Requests", icon: faContactCard, path: "/pdashboard/contact-request" },
     { label: "Company Feedback", icon: faContactCard, path: "/pdashboard/recruiterFeedback" },
     { label: "Internships Management", icon: faContactCard, path: "/pdashboard/internshipsmanagement" },
-    
+    {label:"Suggestions",icon:faEnvelope, path:"/pdashboard/suggestions"},
   ];
 
 
@@ -318,6 +319,7 @@ const Pdashboard = () => {
             <Route path="team" element={<TeamSection />} />
             <Route path="recruiterFeedback" element={<RecruiterFeedbackList/>} />
             <Route path="internshipsmanagement" element={<InternshipsManagement/>} />
+             <Route path="suggestions" element={<Suggestions />} />
             {/* <Route path="uploads" element={<Upload />} /> */}
             </Routes>
         </div>
