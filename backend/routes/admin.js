@@ -108,6 +108,7 @@ import {
 
 import { uploadExcel } from "../utils/adminMulter.js";
 import { uploadStudentsExcel, updateExistingStudents } from "../controller/Admin/studentExcelUpload.js";
+import { getERPData } from "../controller/Admin/erpData.js";
 
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
@@ -234,4 +235,7 @@ router.delete(
   deleteManyPlacementRegistrations
 );
 
+
+//erpData
+router.get("/erp/student", getERPData)
 export default router;

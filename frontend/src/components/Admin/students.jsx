@@ -1887,14 +1887,14 @@ const StudentManager = () => {
 
   const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
-  useEffect(() => {
-    if (!editProfile) return;
+  // useEffect(() => {
+  //   if (!editProfile) return;
 
-    setEditProfile((prev) => ({
-      ...prev,
-      active_backlogs: Number(prev.activeBacklogCount) > 0,
-    }));
-  }, [editProfile?.activeBacklogCount]);
+  //   setEditProfile((prev) => ({
+  //     ...prev,
+  //     active_backlogs: Number(prev.activeBacklogCount) > 0,
+  //   }));
+  // }, [editProfile?.activeBacklogCount]);
 
   return (
     <div className="container mx-auto p-4">
