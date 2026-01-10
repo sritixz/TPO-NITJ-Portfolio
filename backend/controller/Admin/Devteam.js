@@ -1,13 +1,40 @@
 import Devteam from '../../models/devteam.js';
 import fs from 'fs';
 import path from 'path';
+import Message from "../../models/headmessages.js";
 
+
+// export const getAllDevelopers = async (req, res) => {
+//   try {
+//     const developerProfiles = await Devteam.find();
+//     res.status(200).json(developerProfiles);
+//   } catch (error) {
+//     res.status(500).json({ message: "Error fetching developer profiles", error });
+//   }
+// };
 export const getAllDevelopers = async (req, res) => {
   try {
-    const developerProfiles = await Devteam.find();
-    res.status(200).json(developerProfiles);
+    const developers = await Devteam.find().lean();
+    const messages = await Message.find().lean();
+
+    // Map messages by author (Devteam _id)
+    const messageMap = {};
+    messages.forEach((msg) => {
+      messageMap[msg.author.toString()] = msg;
+    });
+
+    // Merge message into developer response
+    const mergedDevelopers = developers.map((dev) => ({
+      ...dev,
+      message: messageMap[dev._id.toString()] || null,
+    }));
+
+    res.status(200).json(mergedDevelopers);
   } catch (error) {
-    res.status(500).json({ message: "Error fetching developer profiles", error });
+    res.status(500).json({
+      message: "Error fetching developer profiles",
+      error,
+    });
   }
 };
 

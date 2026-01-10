@@ -16,6 +16,7 @@ import {
   faRightToBracket,
   faClipboardList,
   faGift,
+  faDatabase,
 } from "@fortawesome/free-solid-svg-icons";
 
 import { Menu, X, LogOut } from "lucide-react";
@@ -42,6 +43,7 @@ import AlertManager from "./alert";
 import PlacementCalendarManager from "./placement-calendar";
 import PlacementRegistrationAdmin from "./placement-registration";
 import OutsiderDocumentManager from "./documentOutsider";
+import ERPStudentDashboard from "./erpDataStudent";
 
 const Admindashboard = () => {
   const [isMobile, setIsMobile] = useState(false);
@@ -102,6 +104,7 @@ const Admindashboard = () => {
     {label: "Login Attempts", icon: faRightToBracket, path:"/admindashboard/login-attempt"},
     {label: "Offer", icon: faGift, path:"/admindashboard/offer"},
     {label: "Offer Tracker", icon: faClipboardList, path:"/admindashboard/offer-tracker"},
+    {label: "ERP Data", icon: faDatabase, path:"/admindashboard/erpData"},
 
     // {label: "Placement Calendar", icon: faClipboardList, path:"/admindashboard/placement-calendar"},
   ];
@@ -296,6 +299,7 @@ const Admindashboard = () => {
             <Route path="/offer" element={<Offer />} />
             <Route path="/offer-tracker" element={<OfferTracker />} />
             <Route path="/placement-calendar" element={<PlacementCalendarManager />} />
+            <Route path="/erpData" element={<ERPStudentDashboard/>} />
             </Routes>
         </div>
 
