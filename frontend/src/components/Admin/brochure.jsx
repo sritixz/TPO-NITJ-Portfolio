@@ -243,7 +243,6 @@ const BrochureManager = () => {
         ? dataToExport 
         : [
             {
-              _id: "",
               department_name: "",
               department_link: "",
               brochure_link: ""

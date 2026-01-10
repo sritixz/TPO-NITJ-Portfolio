@@ -395,14 +395,11 @@ const DepartmentManager = () => {
         ? dataToExport 
         : [
             {
-              _id: "",
               name: "",
               departments: [],
               email: "",
               password: "",
-              otp: "",
-              createdAt: "",
-              updatedAt: ""
+              otp: ""
             }
           ];
       

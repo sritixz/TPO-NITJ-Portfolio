@@ -168,38 +168,35 @@ const AdminJobProfileManager = () => {
         ? dataToExport 
         : [
             {
-              _id: "",
               recruiter_id: "",
               job_id: "",
               job_type: "",
+              internship_duration: "",
               company_name: "",
               company_logo: "",
               job_role: "",
               jobdescription: "",
               joblocation: "",
               job_category: "",
+              job_sector: "",
               job_salary: {
                 ctc: "",
-                base_salary: ""
+                base_salary: "",
+                stipend: ""
               },
               deadline: "",
               Hiring_Workflow: [],
-              eligibility_criteria: {
-                department_allowed: [],
-                gender_allowed: "",
-                eligible_batch: "",
-                minimum_cgpa: 0,
-                active_backlogs: false,
-                history_backlogs: false,
-                course_allowed: ""
-              },
+              eligibility_criteria: [],
               job_class: "",
-              visibility: false,
+              Applied_Students: [],
+              final_shortlisted_students: [],
               Approved_Status: false,
               completed: false,
+              visibility: true,
               recruiter_editing_allowed: false,
-              createdAt: "",
-              updatedAt: ""
+              attachments: [],
+              data_Sent: false,
+              auditLogs: []
             }
           ];
       

@@ -254,13 +254,10 @@ const ProfessorManager = () => {
         ? dataToExport 
         : [
             {
-              _id: "",
               name: "",
               email: "",
               password: "",
-              otp: "",
-              createdAt: "",
-              updatedAt: ""
+              otp: ""
             }
           ];
       
