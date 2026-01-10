@@ -3,7 +3,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faUserTie } from "@fortawesome/free-solid-svg-icons";
 import axios from "axios";
 import toast from "react-hot-toast";
-import { Plus, Trash2, Edit, X, ChevronLeft, ChevronRight, Eye, EyeOff } from "lucide-react";
+import { Plus, Trash2, Edit, X, ChevronLeft, ChevronRight, Eye, EyeOff, Download } from "lucide-react";
 import {
   Dialog,
   DialogTitle,
@@ -245,6 +245,47 @@ const ProfessorManager = () => {
 
   const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
+  const handleExportJSON = () => {
+    try {
+      const dataToExport = applyFilters();
+      
+      // If no data, export empty array with model structure as template
+      const exportData = dataToExport.length > 0 
+        ? dataToExport 
+        : [
+            {
+              _id: "",
+              name: "",
+              email: "",
+              password: "",
+              otp: "",
+              createdAt: "",
+              updatedAt: ""
+            }
+          ];
+      
+      const jsonString = JSON.stringify(exportData, null, 2);
+      const blob = new Blob([jsonString], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      const timestamp = new Date().toISOString().replace(/[:.]/g, '-').split('T')[0];
+      link.download = `professors_${timestamp}.json`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+      
+      if (dataToExport.length === 0) {
+        toast.success("Exported empty JSON file with model template");
+      } else {
+        toast.success(`Exported ${dataToExport.length} professor(s) to JSON`);
+      }
+    } catch (error) {
+      toast.error("Failed to export JSON");
+    }
+  };
+
   return (
     <div className="container mx-auto p-4">
       <DeleteConfirmationModal />
@@ -259,6 +300,12 @@ const ProfessorManager = () => {
             className="bg-green-500 text-white px-4 py-2 rounded flex items-center justify-center"
           >
             <Plus className="mr-2" /> Add Professor
+          </button>
+          <button 
+            onClick={handleExportJSON}
+            className="bg-blue-500 text-white px-4 py-2 rounded flex items-center justify-center"
+          >
+            <Download className="mr-2" /> Export JSON
           </button>
           {selectedProfessors.length > 0 && (
             <button 
