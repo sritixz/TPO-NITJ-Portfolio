@@ -58,6 +58,7 @@ import RecruiterFeedbackList from "./companyFeedback.jsx";
 import InternshipsManagement from "./internshipManagement.jsx";
 import ManageEventAnnouncements from "./ManageEventAnnouncements.jsx";
 
+import Suggestions from "./suggestions.jsx";
 
 const Pdashboard = () => {
   const [isMobile, setIsMobile] = useState(false);
@@ -117,8 +118,8 @@ const Pdashboard = () => {
     { label: "User Requests", icon: faContactCard, path: "/pdashboard/contact-request" },
     { label: "Company Feedback", icon: faContactCard, path: "/pdashboard/recruiterFeedback" },
     { label: "Internships Management", icon: faContactCard, path: "/pdashboard/internshipsmanagement" },
-    { label: "Make Announcements", icon: faCalendarAlt, path: "/pdashboard/manage-landing-page" }
-    
+    { label: "Make Announcements", icon: faCalendarAlt, path: "/pdashboard/manage-landing-page" },    
+    {label:"Suggestions",icon:faEnvelope, path:"/pdashboard/suggestions"},
   ];
 
 
@@ -327,6 +328,7 @@ const Pdashboard = () => {
             <Route path="recruiterFeedback" element={<RecruiterFeedbackList/>} />
             <Route path="internshipsmanagement" element={<InternshipsManagement/>} />
             <Route path="manage-landing-page" element={<ManageEventAnnouncements />} />
+            <Route path="suggestions" element={<Suggestions />} />
             {/* <Route path="uploads" element={<Upload />} /> */}
             </Routes>
         </div>

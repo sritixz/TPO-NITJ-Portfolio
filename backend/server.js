@@ -66,6 +66,8 @@ import messageRoutes from "./routes/messagesHeadAdmin.js";
 
 
 
+import studentsuggestionroute from "./routes/studentsuggestionroute.js";
+import professorsuggestionroute from "./routes/professersuggestionroute.js";
 import { mkdir } from 'fs/promises';
 try {
   await mkdir('uploads/pdfs', { recursive: true });
@@ -145,6 +147,7 @@ app.use('/others',authenticate, restrictTo('Student'),logMiddleware, otherRoutes
 app.use('/question-bank', authenticate,restrictTo('Student'),logMiddleware, questionbankRoutes);
 app.use('/withdraw',authenticate, restrictTo('Student'),logMiddleware, withdrawRoutes);
 app.use('/alert',authenticate, restrictTo('Student'),logMiddleware, alertRoutes);
+app.use('/suggestions',authenticate,restrictTo("Student"),logMiddleware,studentsuggestionroute);
 
 //Professor routes
 app.use("/student-analysis",authenticate, restrictTo('Professor'),logMiddleware, studentanalysisRoutes);
@@ -154,7 +157,7 @@ app.use('/nodemailer',authenticate, restrictTo('Professor'),logMiddleware, nodem
 app.use('/add-recruiter', authenticate,restrictTo('Professor'),logMiddleware, addRecruiterRoutes);
 app.use('/cgpa-checker',authenticate, restrictTo('Professor'),logMiddleware, cgpaCheckerRoutes);
 app.use('/insight',authenticate, restrictTo('Professor','Student'),logMiddleware, insightRoutes);
-
+app.use('/psuggestions',authenticate,restrictTo('Professor'),logMiddleware,professorsuggestionroute);
 
 //Admin routes
 app.use('/admin',authenticate,restrictTo('Admin'),logMiddleware,adminRoutes);
