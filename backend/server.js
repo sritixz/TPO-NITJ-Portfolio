@@ -54,12 +54,17 @@ import alertRoutes from "./routes/alert.js";
 import outsourceInternshipRoutes from "./routes/outsource-internship.js"
 import outsourceInternshipAuthRoutes from "./routes/outsource-internship-auth.js"
 import companyFeedbackroutes from "./routes/companyFeedback.js"
+
 import eventAnnouncementRoutes from "./routes/eventAnnouncement.js";
 import { 
   getEventAnnouncements, 
   createEventAnnouncement, updateEventAnnouncement, deleteEventAnnouncement,
   upload 
 } from './controller/EventAnnouncement.js';
+
+import messageRoutes from "./routes/messagesHeadAdmin.js";
+
+
 
 import { mkdir } from 'fs/promises';
 try {
@@ -118,6 +123,7 @@ app.use('/uploads/events', express.static('uploads/events'));
 
 // app.use(logMiddleware);
 
+
 //Public routes
 app.use('/auth', logMiddleware, authroutes);
 app.use('/captcha', logMiddleware, captchaRoutes);
@@ -128,7 +134,7 @@ app.use('/student-documents', logMiddleware, studentDocumentsRoutes);
 app.use("/placements", logMiddleware, placementroutes);
 app.use("/internships", logMiddleware, internshiptroutes);
 app.use("/recruiterFeedback", logMiddleware, companyFeedbackroutes)
-
+app.use("/messages", messageRoutes);
 
 
 //Student routes

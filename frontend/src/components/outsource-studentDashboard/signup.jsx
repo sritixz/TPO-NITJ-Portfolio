@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { Eye, EyeOff } from "lucide-react";
@@ -10,7 +10,9 @@ const SignupFlow = () => {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const [email, setEmail] = useState("");
-  const [otp, setOtp] = useState("");
+  // const [otp, setOtp] = useState("");
+  const [otpValues, setOtpValues] = useState(Array(6).fill(""));
+  const otpRefs = useRef([...Array(6)].map(() => React.createRef()));
 
   const [form, setForm] = useState({
     name: "",
@@ -26,6 +28,45 @@ const SignupFlow = () => {
   const [emailVerified, setEmailVerified] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
   const navigate = useNavigate();
+
+  const handleOtpChange = (index, value) => {
+  const upperValue = value.toUpperCase();
+  if (!/^[A-Z0-9]*$/.test(upperValue)) return;
+
+  const newOtpValues = [...otpValues];
+  newOtpValues[index] = upperValue;
+  setOtpValues(newOtpValues);
+
+  if (upperValue !== "" && index < 5) {
+    otpRefs.current[index + 1].current.focus();
+  }
+};
+
+  const handleKeyDown = (index, e) => {
+    if (e.key === "Backspace" && !otpValues[index] && index > 0) {
+      otpRefs.current[index - 1].current.focus();
+    }
+  };
+
+  const handlePaste = (e) => {
+    e.preventDefault();
+    const pastedData = e.clipboardData.getData("text").toUpperCase();
+    const pastedChars = pastedData.match(/[A-Z0-9]/g);
+    
+    if (pastedChars && pastedChars.length) {
+      const newOtpValues = [...otpValues];
+      for (let i = 0; i < Math.min(6, pastedChars.length); i++) {
+        newOtpValues[i] = pastedChars[i];
+      }
+      setOtpValues(newOtpValues);
+      const nextEmptyIndex = newOtpValues.findIndex(value => !value);
+      if (nextEmptyIndex !== -1 && nextEmptyIndex < 6) {
+        otpRefs.current[nextEmptyIndex].current.focus();
+      } else {
+        otpRefs.current[5].current.focus();
+      }
+    }
+  };
 
   /* ---------- REAL-TIME PASSWORD MATCH ---------- */
   useEffect(() => {
@@ -78,10 +119,17 @@ const SignupFlow = () => {
     setErrors({});
     setLoading(true);
 
+    const fullOtp = otpValues.join(""); 
+
+    if (fullOtp.length !== 6) {
+      setErrors({ otp: "Please enter a 6-digit OTP" });
+      return;
+    }
+
     try {
       await axios.post(
         `${import.meta.env.REACT_APP_BASE_URL}/outsource-internships-auth/verifyOtp`,
-        { email, otp },
+        { email, otp: fullOtp },
         { withCredentials: true }
       );
       setStage(3);
@@ -105,10 +153,14 @@ const SignupFlow = () => {
       );
       setShowSuccess(true);
 
+      setLoading(true)
+
       setTimeout(() => {
         navigate("/outsourceInternship/login");
+        setLoading(false)
       }, 2000);
     } catch (err) {
+      setLoading(false)
       setErrors({ submit: err.response?.data?.message || "Signup failed" });
     }
   };
@@ -158,14 +210,22 @@ const SignupFlow = () => {
             </h2>
 
             <div>
-              <input
-                type="text"
-                value={otp}
-                onChange={(e) => setOtp(e.target.value)}
-                placeholder="Enter OTP"
-                required
-                className="w-full border rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-custom-blue"
-              />
+              <div className="flex justify-between gap-2" onPaste={handlePaste}>
+                {otpValues.map((value, index) => (
+                  <input
+                  key={index}
+                  ref={otpRefs.current[index]}
+                  className="w-12 h-12 text-center text-xl font-semibold rounded-md bg-gray-100 border border-gray-200 focus:outline-none focus:border-custom-blue focus:ring-1 focus:ring-custom-blue"
+                  type="text"
+                  maxLength={1}
+                  value={value}
+                  onChange={(e) => handleOtpChange(index, e.target.value)}
+                  onKeyDown={(e) => handleKeyDown(index, e)}
+                  required
+                  />
+                ))}
+              </div>
+
               {errors.otp && (
                 <p className="text-red-500 text-sm mt-1">{errors.otp}</p>
               )}
@@ -251,11 +311,17 @@ const SignupFlow = () => {
             </div>
 
             <button
-              disabled={!!errors.confirmPassword}
+              disabled={loading || !!errors.confirmPassword}
               className="w-full bg-custom-blue text-white py-2 rounded-lg hover:bg-opacity-90 disabled:opacity-60"
             >
               Create Account
             </button>
+
+            {loading && (
+              <div className="flex flex-col items-center justify-center py-4 bg-transparent mt-4 border-gray-200">
+                <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-indigo-600"></div>
+              </div>
+            )}
           </form>
         )}
       </div>
