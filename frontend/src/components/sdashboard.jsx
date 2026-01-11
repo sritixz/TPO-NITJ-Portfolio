@@ -58,7 +58,7 @@ import PlacementCalendar from "./StudentDashboard/placement-calendar.jsx";
 import StudentConnect from "./StudentDashboard/studentconnect.jsx";
 import AlertModal from "./StudentDashboard/alert.jsx";
 import FinePayment from "./StudentDashboard/fine-payment.jsx";
-import Suggestions from "./suggestions.jsx";
+import Suggestions from "./StudentDashboard/suggestions.jsx";
 
 const StudentDashboard = () => {
   const [isMobile, setIsMobile] = useState(false);
@@ -112,7 +112,6 @@ const StudentDashboard = () => {
     { path: "/sdashboard/placement-insights", label: "Placement Insights", icon: faChartLine },
     { path: "/sdashboard/navigator", label: "Navigator", icon: faLayerGroup, },
     { path: "/sdashboard/change-pass", label: "Change Password", icon: faKey },
-     {path:"/sdashboard/suggestions", label:"Suggestions", icon:faEnvelope},
   ];
 
   const MenuItem = ({ item, onClick, isSidebarExpanded }) => {
@@ -322,8 +321,8 @@ const StudentDashboard = () => {
             <Route path="student-documents" element={<StudentDocument />} />
             <Route path="placement-calendar" element={<PlacementCalendar />} />
             <Route path="student-connect" element={<StudentConnect />} />
-            <Route path="fine-payment" element={<FinePayment />} />
-              <Route path="suggestions" element={<Suggestions />} />
+            {/* <Route path="fine-payment" element={<FinePayment />} /> */}
+            <Route path="suggestions" element={<Suggestions />} />
             </Routes>
         </div>
 

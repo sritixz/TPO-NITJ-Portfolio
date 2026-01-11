@@ -8,12 +8,12 @@ const [activeTab, setActiveTab] = useState("not_contacted");
 const [view, setView] = useState("create"); 
 
 
- const token = localStorage.getItem("token");
+//  const token = localStorage.getItem("token");
  useEffect(()=>{
-    if (!token) return;
+    // if (!token) return;
     const fetchRecentSuggestions = async () => {
       try {
-        const res = await fetch("http://localhost:7000/suggestions/recentsuggestions",{
+        const res = await fetch(`${import.meta.env.REACT_APP_BASE_URL}/suggestions/recentsuggestions`,{
             method: "GET",
               credentials: "include", 
             headers: {
@@ -28,7 +28,7 @@ const [view, setView] = useState("create");
       }
     };
     fetchRecentSuggestions();
-  }, [token]);
+  }, []);
 const filteredSuggestions = recentSuggestions.filter((item) => {
   if (activeTab === "contacted") return item.status === true;
   return item.status === false;
@@ -54,7 +54,7 @@ const filteredSuggestions = recentSuggestions.filter((item) => {
   setInvalidFields([]);
     try {
       const res = await fetch(
-        "http://localhost:7000/suggestions/suggestions",
+        `${import.meta.env.REACT_APP_BASE_URL}/suggestions/suggestions`,
         {
           method: "POST",
             credentials: "include",
