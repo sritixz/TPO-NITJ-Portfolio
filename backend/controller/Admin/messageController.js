@@ -1,5 +1,5 @@
-import Message from "../models/headmessages.js";
-import Devteam from "../models/devteam.js";
+import Message from "../../models/headmessages.js";
+import Devteam from "../../models/devteam.js";
 
 export const getMessages = async (req, res) => {
   const messages = await Message.find()
