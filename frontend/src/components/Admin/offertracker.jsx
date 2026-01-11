@@ -562,7 +562,7 @@
 
 import { useEffect, useState } from "react";
 import axios from "axios";
-import { Trash2, Plus, CheckSquare, Square, Pencil, X } from "lucide-react";
+import { Trash2, Plus, CheckSquare, Square, Pencil, X, Download } from "lucide-react";
 
 export default function OfferTracker() {
   const [data, setData] = useState([]);
@@ -682,6 +682,51 @@ export default function OfferTracker() {
     }
   };
 
+  const handleExportJSON = () => {
+    try {
+      const dataToExport = data;
+
+      // If no data, export empty array with model structure as template
+      const exportData = dataToExport.length > 0 
+        ? dataToExport 
+        : [
+            {
+              _id: "",
+              studentId: "",
+              offer: [
+                {
+                  offer_type: "",
+                  offer_category: "",
+                  offer_sector: "Private",
+                  offer_ctc: "0",
+                  offer_intern_duration: ""
+                }
+              ]
+            }
+          ];
+
+      const jsonString = JSON.stringify(exportData, null, 2);
+      const blob = new Blob([jsonString], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      const timestamp = new Date().toISOString().replace(/[:.]/g, '-').split('T')[0];
+      link.download = `offer_tracker_${timestamp}.json`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+
+      if (dataToExport.length === 0) {
+        toast.success("Exported empty JSON file with model template");
+      } else {
+        toast.success(`Exported ${dataToExport.length} offer(s) to JSON`);
+      }
+    } catch (error) {
+      toast.error("Failed to export JSON");
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 p-6">
       <div className="max-w-7xl mx-auto">
@@ -689,6 +734,12 @@ export default function OfferTracker() {
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-slate-800 mb-2">Offer <span className="text-custom-blue">Tracker</span></h1>
           <p className="text-slate-600">Manage student placement offers and track recruitment progress</p>
+          <button
+            onClick={handleExportJSON}
+            className="bg-blue-500 text-white px-4 py-2 rounded flex items-center justify-center"
+          >
+            <Download className="mr-2" /> Export JSON
+          </button>
         </div>
 
         {/* Add Form Card */}
