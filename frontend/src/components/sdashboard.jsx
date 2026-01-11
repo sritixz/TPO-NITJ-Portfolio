@@ -22,7 +22,8 @@ import {
    faLaptopCode,
    faGraduationCap,
    faChalkboardTeacher,
-   faCode
+   faCode,
+   faEnvelope
 } from "@fortawesome/free-solid-svg-icons";
 
 import { Menu, X, LogOut } from "lucide-react";
@@ -57,6 +58,7 @@ import PlacementCalendar from "./StudentDashboard/placement-calendar.jsx";
 import StudentConnect from "./StudentDashboard/studentconnect.jsx";
 import AlertModal from "./StudentDashboard/alert.jsx";
 import FinePayment from "./StudentDashboard/fine-payment.jsx";
+import Suggestions from "./StudentDashboard/suggestions.jsx";
 
 const StudentDashboard = () => {
   const [isMobile, setIsMobile] = useState(false);
@@ -319,7 +321,8 @@ const StudentDashboard = () => {
             <Route path="student-documents" element={<StudentDocument />} />
             <Route path="placement-calendar" element={<PlacementCalendar />} />
             <Route path="student-connect" element={<StudentConnect />} />
-            <Route path="fine-payment" element={<FinePayment />} />
+            {/* <Route path="fine-payment" element={<FinePayment />} /> */}
+            <Route path="suggestions" element={<Suggestions />} />
             </Routes>
         </div>
 

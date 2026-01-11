@@ -1,4 +1,9 @@
 import Offer from "../../models/offer.js";
+import JobProfile from "../../models/jobprofile.js";
+import mongoose from "mongoose";
+
+const isAutoOffer = (offer) =>
+  offer?.jobId && mongoose.Types.ObjectId.isValid(offer.jobId);
 
 // Create
 export const addOffer = async (req, res) => {
@@ -52,24 +57,76 @@ export const updateOffer = async (req, res) => {
 // Delete one
 export const deleteOffer = async (req, res) => {
   try {
-    const o = await Offer.findByIdAndDelete(req.params.id);
-    if (!o) return res.status(404).json({ error: "Not found" });
+    const offer = await Offer.findById(req.params.id);
+    if (!offer) {
+      return res.status(404).json({ error: "Not found" });
+    }
+
+    //only auto-generated offers clean JobProfile
+    if (offer.jobId && mongoose.Types.ObjectId.isValid(offer.jobId)) {
+      const studentIds = offer.shortlisted_students
+        .map((s) => s.studentId)
+        .filter(Boolean);
+
+      if (studentIds.length > 0) {
+        await JobProfile.updateOne(
+          { _id: offer.jobId },
+          { $pull: { final_shortlisted_students: { $in: studentIds } } }
+        );
+      }
+    }
+
+    await Offer.findByIdAndDelete(req.params.id);
+
     res.status(200).json({ message: "Deleted successfully" });
   } catch (e) {
+    console.error("deleteOffer:", e);
     res.status(500).json({ error: e.message });
   }
 };
 
+
 // Bulk delete
+
+
 export const deleteBulkOffers = async (req, res) => {
   try {
     const { ids } = req.body;
+
+    const offers = await Offer.find({ _id: { $in: ids } });
+
+    const jobStudentMap = {};
+
+    offers.forEach((offer) => {
+      // skip manual offers
+      if (!offer.jobId || !mongoose.Types.ObjectId.isValid(offer.jobId)) return;
+
+      const jobId = offer.jobId.toString();
+      if (!jobStudentMap[jobId]) jobStudentMap[jobId] = [];
+
+      offer.shortlisted_students.forEach((s) => {
+        if (s.studentId) jobStudentMap[jobId].push(s.studentId);
+      });
+    });
+
+    await Promise.all(
+      Object.entries(jobStudentMap).map(([jobId, studentIds]) =>
+        JobProfile.updateOne(
+          { _id: jobId },
+          { $pull: { final_shortlisted_students: { $in: studentIds } } }
+        )
+      )
+    );
+
     await Offer.deleteMany({ _id: { $in: ids } });
+
     res.status(200).json({ message: "Bulk delete successful" });
   } catch (e) {
+    console.error("deleteBulkOffers:", e);
     res.status(500).json({ error: e.message });
   }
 };
+
 
 export const addStudentToOffer = async (req, res) => {
   try {
@@ -130,15 +187,36 @@ export const deleteStudentFromOffer = async (req, res) => {
     const { offerId, studentId } = req.params;
 
     const offer = await Offer.findById(offerId);
-    if (!offer) return res.status(404).json({ error: "Offer not found" });
+    if (!offer) {
+      return res.status(404).json({ error: "Offer not found" });
+    }
+
+    const removedStudent = offer.shortlisted_students.find(
+      (s) => s._id.toString() === studentId
+    );
 
     offer.shortlisted_students = offer.shortlisted_students.filter(
       (s) => s._id.toString() !== studentId
     );
 
     await offer.save();
+
+    // only auto-generated offers touch JobProfile
+    if (
+      removedStudent?.studentId &&
+      offer.jobId &&
+      mongoose.Types.ObjectId.isValid(offer.jobId)
+    ) {
+      await JobProfile.updateOne(
+        { _id: offer.jobId },
+        { $pull: { final_shortlisted_students: removedStudent.studentId } }
+      );
+    }
+
     res.status(200).json({ message: "Student removed", offer });
   } catch (e) {
+    console.error("deleteStudentFromOffer:", e);
     res.status(500).json({ error: e.message });
   }
 };
+
