@@ -54,10 +54,17 @@ import alertRoutes from "./routes/alert.js";
 import outsourceInternshipRoutes from "./routes/outsource-internship.js"
 import outsourceInternshipAuthRoutes from "./routes/outsource-internship-auth.js"
 import companyFeedbackroutes from "./routes/companyFeedback.js"
+import eventAnnouncementRoutes from "./routes/eventAnnouncement.js";
+import { 
+  getEventAnnouncements, 
+  createEventAnnouncement, updateEventAnnouncement, deleteEventAnnouncement,
+  upload 
+} from './controller/EventAnnouncement.js';
 
 import { mkdir } from 'fs/promises';
 try {
   await mkdir('uploads/pdfs', { recursive: true });
+  await mkdir('uploads/events', { recursive: true });
 } catch (err) {
   console.error('Error creating uploads directory:', err);
 }
@@ -77,7 +84,7 @@ app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
 
 
-const authenticate = (req, res, next) => {
+ const authenticate = (req, res, next) => {
     const token = req.cookies?.token;
     if (!token) {
         return res.status(401).json({ message: 'No token provided' });
@@ -107,6 +114,7 @@ app.get('/check-auth', authenticate, checkAuth );
 
 
 app.use('/uploads', express.static('uploads'));
+app.use('/uploads/events', express.static('uploads/events'));
 
 // app.use(logMiddleware);
 
@@ -120,6 +128,7 @@ app.use('/student-documents', logMiddleware, studentDocumentsRoutes);
 app.use("/placements", logMiddleware, placementroutes);
 app.use("/internships", logMiddleware, internshiptroutes);
 app.use("/recruiterFeedback", logMiddleware, companyFeedbackroutes)
+
 
 
 //Student routes
@@ -167,7 +176,16 @@ app.use('/placement-calendar',authenticate,logMiddleware, placementCalendarRoute
 //mix routes
 app.use('/notification',authenticate,restrictTo('Student','Professor'),logMiddleware,notificationRoutes);
 app.use('/events',authenticate,restrictTo('Professor','Department','Admin'),logMiddleware,eventRoutes);
+// This allows the route file itself to decide which methods are public vs protected
+// 1. PUBLIC: Allows fetching the list (Fixes the empty "Existing Updates" list)
+// No authenticate required here
+app.get('/event-announcements', logMiddleware, getEventAnnouncements);
 
+// 2. PROTECTED: Creating, Updating, and Deleting
+// Uses your local variables: authenticate, restrictTo, and logMiddleware
+app.post('/event-announcements', authenticate, restrictTo('Professor', 'Admin'), logMiddleware, upload.single('image'), createEventAnnouncement);
+app.put('/event-announcements/:id', authenticate, restrictTo('Professor', 'Admin'), logMiddleware, upload.single('image'), updateEventAnnouncement);
+app.delete('/event-announcements/:id', authenticate, restrictTo('Professor', 'Admin'), logMiddleware, deleteEventAnnouncement);
 // offer-add
 app.use('/offer-add',authenticate,restrictTo('Professor'),logMiddleware,offerAddRoutes);
 
