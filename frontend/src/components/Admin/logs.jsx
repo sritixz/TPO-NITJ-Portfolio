@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import { Search, Filter, RefreshCw, Calendar, Globe, Monitor, User, Activity } from "lucide-react";
+import { Search, Filter, RefreshCw, Calendar, Globe, Monitor, User, Activity, Download } from "lucide-react";
 
 const LogsTable = () => {
   const [logs, setLogs] = useState([]);
@@ -68,6 +68,52 @@ const LogsTable = () => {
     return colors[userType] || "bg-gray-100 text-gray-700";
   };
 
+  const handleExportJSON = () => {
+    try {
+      const dataToExport = filteredLogs;
+
+      // If no data, export empty array with model structure as template
+      const exportData = dataToExport.length > 0 
+        ? dataToExport 
+        : [
+            {
+              _id: "",
+              userId: "",
+              userType: null,
+              url: "",
+              method: "",
+              deviceInfo: {
+                browser: "",
+                os: "",
+                deviceType: ""
+              },
+              ip: "",
+              userAgent: ""
+            }
+          ];
+
+      const jsonString = JSON.stringify(exportData, null, 2);
+      const blob = new Blob([jsonString], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      const timestamp = new Date().toISOString().replace(/[:.]/g, '-').split('T')[0];
+      link.download = `logs_${timestamp}.json`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+
+      if (dataToExport.length === 0) {
+        toast.success("Exported empty JSON file with model template");
+      } else {
+        toast.success(`Exported ${dataToExport.length} log(s) to JSON`);
+      }
+    } catch (error) {
+      toast.error("Failed to export JSON");
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 p-6">
       <div className="max-w-7xl mx-auto">
@@ -78,6 +124,12 @@ const LogsTable = () => {
             <h1 className="text-3xl font-bold text-slate-800">Activity Logs</h1>
           </div>
           <p className="text-slate-600">Monitor and track all user activities in real-time</p>
+          <button
+            onClick={handleExportJSON}
+            className="bg-blue-500 text-white px-4 py-2 rounded flex items-center justify-center"
+            >
+            <Download className="mr-2" /> Export JSON
+          </button>
         </div>
 
         {/* Main Card */}

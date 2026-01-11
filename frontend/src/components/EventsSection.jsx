@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
+import axios from "axios";
 import Calendar from "react-calendar";
 import "react-calendar/dist/Calendar.css";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -17,6 +18,34 @@ function EventsSection() {
   const [filter, setFilter] = useState("all");
   const [isFilter, setIsFilter] = useState(false);
   const [showCalendar, setShowCalendar] = useState(false)
+  const [eventList, setEventList] = useState([]);
+  const [announcements, setAnnouncements] = useState([]);
+  const [loading, setLoading] = useState(true);
+ useEffect(() => {
+  const fetchData = async () => {
+    try {
+        const res = await axios.get(`${import.meta.env.REACT_APP_BASE_URL}/event-announcements`);
+      
+      const data = res.data.map(item => ({
+        ...item,
+        date: new Date(item.date),
+       
+        image: item.image.startsWith('http') 
+          ? item.image 
+          : `${import.meta.env.REACT_APP_BASE_URL}${item.image}`
+      }));
+
+      setEventList(data.filter(i => i.type === 'event'));
+      setAnnouncements(data.filter(i => i.type === 'announcement'));
+    } catch (err) {
+      console.error("Error fetching data:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+  fetchData();
+}, []);
+
   function scrollLeft(ref) {
     const scrollElement = ref.current;
     if (scrollElement) {
@@ -35,135 +64,7 @@ function EventsSection() {
       });
     }
   }
-  const eventList = [
-    {
-      id: 1,
-      title: "Tech Conference 2025",
-      date: new Date(2025, 10, 5),
-      location: "Online",
-      description: "Join the largest tech conference of the year!",
-      category: "Conference",
-      image: "https://nitj.ac.in/files/1736402875155-6-11.jpg",
-    },
-    {
-      id: 2,
-      title: "Tech Conference 2025",
-      date: new Date(2024, 11, 1),
-      location: "Online",
-      description: "Join the largest tech conference of the year!",
-      category: "Conference",
-      image: "https://nitj.ac.in/files/1736402875155-6-11.jpg",
-    },
-    {
-      id: 3,
-      title: "Tech Conference 2025",
-      date: new Date(2024, 12, 25),
-      location: "Online",
-      description: "Join the largest tech conference of the year!",
-      category: "Conference",
-      image: "https://nitj.ac.in/files/1736402875155-6-11.jpg",
-    },
-    {
-      id: 4,
-      title: "Tech Conference 2025",
-      date: new Date(2024, 12, 25),
-      location: "Online",
-      description: "Join the largest tech conference of the year!",
-      category: "Conference",
-      image: "https://nitj.ac.in/files/1736402875155-6-11.jpg",
-    },
-    {
-      id: 5,
-      title: "Tech Conference 2025",
-      date: new Date(2024, 12, 25),
-      location: "Online",
-      description: "Join the largest tech conference of the year!",
-      category: "Conference",
-      image: "https://nitj.ac.in/files/1736402875155-6-11.jpg",
-    },
-  ];
 
-  const announcements = [
-    {
-      id: 1,
-      title: "Web Development Workshop",
-      date: new Date(2024, 12, 25),
-      time: "10:00 AM - 4:00 PM",
-      location: "Auditorium, NITJ",
-      description:
-        "Hands-on workshop on modern web development practices using React and Tailwind CSS.",
-      category: "Workshop",
-    },
-    {
-      id: 2,
-      title: "Placement Drive: Infosys",
-      date: new Date(2024, 12, 25),
-      time: "9:00 AM",
-      location: "Placement Hall, NITJ",
-      description:
-        "Infosys is conducting a placement drive for final-year students. Registration is mandatory.",
-      category: "Placement Drive",
-    },
-    {
-      id: 3,
-      title: "AI/ML Bootcamp",
-      date: new Date(2024, 12, 25),
-      time: "9:00 AM - 5:00 PM",
-      location: "Online (Zoom)",
-      description:
-        "A 3-day bootcamp focused on building projects using AI/ML frameworks like TensorFlow and PyTorch.",
-      category: "Bootcamp",
-    },
-    {
-      id: 4,
-      title: "Alumni Talk Series",
-      date: new Date(2024, 12, 25),
-      time: "5:00 PM",
-      location: "Seminar Hall, NITJ",
-      description:
-        "Hear inspiring stories from successful NITJ alumni and their career journeys.",
-      category: "Talk",
-    },
-    {
-      id: 5,
-      title: "Cultural Fest: NITJ Beats 2025",
-      date: new Date(2024, 12, 25),
-      time: "All Day",
-      location: "NITJ Campus",
-      description:
-        "Join us for the annual cultural fest featuring music, dance, and drama performances.",
-      category: "Cultural Event",
-    },
-    {
-      id: 6,
-      title: "GATE Preparation Seminar",
-      date: new Date(2024, 12, 25),
-      time: "11:00 AM - 1:00 PM",
-      location: "Lecture Hall 2, NITJ",
-      description: "Expert guidance and tips for cracking the GATE exam.",
-      category: "Seminar",
-    },
-    {
-      id: 7,
-      title: "Hackathon: CodeSprint 2025",
-      date: new Date(2024, 12, 25),
-      time: "24 Hours",
-      location: "Computer Lab, NITJ",
-      description:
-        "A 24-hour hackathon for coding enthusiasts. Form teams and solve real-world problems.",
-      category: "Hackathon",
-    },
-    {
-      id: 8,
-      title: "Yoga for Mental Wellness",
-      date: new Date(2024, 12, 25),
-      time: "6:00 AM - 7:30 AM",
-      location: "Sports Ground, NITJ",
-      description:
-        "A morning yoga session to promote mental and physical well-being.",
-      category: "Wellness",
-    },
-  ];
 
   const isEventDate = (date) =>
     eventList.some(
