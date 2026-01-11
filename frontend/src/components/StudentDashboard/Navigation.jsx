@@ -7,7 +7,8 @@ import {
   FileQuestion,
   Calendar1,
   Network,
-  CreditCard
+  CreditCard,
+  Lightbulb 
 } from 'lucide-react';
 
 const NavigationCards = () => {
@@ -75,6 +76,15 @@ const NavigationCards = () => {
       path: '/sdashboard/student-connect',
       color: 'bg-pink-50',
       iconColor: 'text-pink-600'
+    },
+    {
+      id: 8,
+      title: 'Suggestion Box',
+      description: 'Please provide the company details you would like to invite for campus recruitment.',
+      icon: Lightbulb,
+      path: '/sdashboard/suggestions',
+      color: 'bg-orange-50',
+      iconColor: 'text-orange-600'
     },
     // {
     // id: 8,
