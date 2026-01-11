@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { FaEdit, FaTrash, FaPlus, FaTimes } from 'react-icons/fa'; // Assuming react-icons is installed
+import {Download} from 'lucide-react'
 
 const baseURL = import.meta.env.REACT_APP_BASE_URL;
 
@@ -145,6 +146,61 @@ const PlacementRegistrationAdmin = () => {
   if (loading) return <div className="p-5 text-center">Loading...</div>;
   if (error) return <div className="p-5 text-red-500">Error: {error}</div>;
 
+  const handleExportJSON = () => {
+    try {
+      const dataToExport = registrations;
+
+      // If no data, export empty array with model structure as template
+      const exportData = dataToExport.length > 0 
+        ? dataToExport 
+        : [
+            {
+              _id: "",
+              studentId: "",
+              name: "",
+              rollno: "",
+              department: "",
+              course: "",
+              batch: "",
+              fatherName: "",
+              motherName: "",
+              category: "",
+              gender: "",
+              dateOfBirth: "",
+              physicallyDisabled: false,
+              disabilityType: "",
+              permanentAddress: "",
+              mobileNo: "",
+              emailNitj: "",
+              emailPersonal: "",
+              aadharCardNo: "",
+              interested: true,
+              description: ""
+            }
+          ];
+
+      const jsonString = JSON.stringify(exportData, null, 2);
+      const blob = new Blob([jsonString], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      const timestamp = new Date().toISOString().replace(/[:.]/g, '-').split('T')[0];
+      link.download = `placement_registrations_${timestamp}.json`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+
+      if (dataToExport.length === 0) {
+        toast.success("Exported empty JSON file with model template");
+      } else {
+        toast.success(`Exported ${dataToExport.length} placement registration(s) to JSON`);
+      }
+    } catch (error) {
+      toast.error("Failed to export JSON");
+    }
+  };
+
   return (
     <div className="p-5">
       <div className="flex justify-between items-center mb-5">
@@ -155,6 +211,12 @@ const PlacementRegistrationAdmin = () => {
         >
           <FaPlus /> Add New Registration
         </button>
+        <button
+            onClick={handleExportJSON}
+            className="bg-blue-500 text-white px-4 py-2 rounded flex items-center justify-center"
+          >
+            <Download className="mr-2" /> Export JSON
+          </button>
       </div>
 
       <div className="overflow-x-auto">
