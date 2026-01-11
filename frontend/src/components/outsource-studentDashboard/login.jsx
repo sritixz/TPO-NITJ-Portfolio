@@ -281,6 +281,12 @@ const LoginOutsider = () => {
                 Sign up
               </Link>
             </p>
+            <p
+              className="text-custom-blue cursor-pointer"
+              onClick={() => navigate("/outsourceInternship/forgot-password")}
+            >
+              Forgot Password?
+            </p>
           </form>
         </div>
       )}
