@@ -34,7 +34,7 @@ import pplacementReportroutes from "./routes/pplacementReportRoute.js";
 import otherRoutes from "./routes/other.js";
 import notificationRoutes from "./routes/notification.js";
 import nodemailerRoutes from "./routes/nodemailer.js";
-import adminRoutes from "./routes/admin.js";
+import adminRoutes from "./routes/admin/admin.js";
 import captchaRoutes from "./routes/captcha.js";
 import addRecruiterRoutes from "./routes/addrecruiter.js";
 import questionbankRoutes from "./routes/questionbank.js";
@@ -62,7 +62,7 @@ import {
   upload 
 } from './controller/EventAnnouncement.js';
 
-import messageRoutes from "./routes/messagesHeadAdmin.js";
+import messageRoutes from "./routes/admin/messagesHeadAdmin.js";
 
 
 

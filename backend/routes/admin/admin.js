@@ -26,7 +26,7 @@ import {
   deleteProfessorProfiles,
   addNewProfessor,
   getProfessorById,
-} from "../controller/admin.js";
+} from "../../controller/admin.js";
 
 import {
   getAllDepartments,
@@ -34,16 +34,16 @@ import {
   deleteDepartmentProfiles,
   addNewDepartment,
   getDepartmentById,
-} from "../controller/Admin/Department.js";
+} from "../../controller/Admin/Department.js";
 
 import {
   getAllDevelopers,
   updateDeveloperProfile,
   deleteDeveloperProfiles,
   addNewDeveloper,
-} from "../controller/Admin/Devteam.js";
+} from "../../controller/Admin/Devteam.js";
 
-import { getLogs } from "../controller/Admin/Logs.js";
+import { getLogs } from "../../controller/Admin/Logs.js";
 
 import {
   addLoginAttempt,
@@ -52,7 +52,7 @@ import {
   updateLoginAttempt,
   deleteLoginAttempt,
   deleteBulkLoginAttempts,
-} from "../controller/Admin/loginattempt.js";
+} from "../../controller/Admin/loginattempt.js";
 
 import {
   addOfferTracker,
@@ -63,7 +63,7 @@ import {
   deleteBulkOfferTrackers,
   deleteSpecificOffer,
   updateSpecificOffer,
-} from "../controller/Admin/offertracker.js";
+} from "../../controller/Admin/offertracker.js";
 
 import {
   addOffer,
@@ -75,7 +75,7 @@ import {
   addStudentToOffer,
   updateStudentInOffer,
   deleteStudentFromOffer
-} from "../controller/Admin/offer.js";
+} from "../../controller/Admin/offer.js";
 
 import {
   createAlert,
@@ -83,7 +83,7 @@ import {
   getActiveAlerts,
   updateAlert,
   deleteAlert,
-} from "../controller/Admin/alert.js";
+} from "../../controller/Admin/alert.js";
 
 import {
   createPlacementCalendar,
@@ -95,7 +95,7 @@ import {
   addCompanyToCalendar,
   removeCompanyFromCalendar,
   getUpcomingOrPastCalendars,
-} from "../controller/Admin/placement-calendar.js";
+} from "../../controller/Admin/placement-calendar.js";
 
 import {
   createPlacementRegistration,
@@ -104,11 +104,11 @@ import {
   updatePlacementRegistration,
   deletePlacementRegistration,
   deleteManyPlacementRegistrations,
-} from "../controller/Admin/placement-registration.js";
+} from "../../controller/Admin/placement-registration.js";
 
-import { uploadExcel } from "../utils/adminMulter.js";
-import { uploadStudentsExcel, updateExistingStudents } from "../controller/Admin/studentExcelUpload.js";
-import { getERPData } from "../controller/Admin/erpData.js";
+import { uploadExcel } from "../../utils/adminMulter.js";
+import { uploadStudentsExcel, updateExistingStudents } from "../../controller/Admin/studentExcelUpload.js";
+import { getERPData } from "../../controller/Admin/erpData.js";
 
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
