@@ -4,9 +4,9 @@ import {
   getMessages,
   updateMessage,
   deleteMessage,
-} from "../controller/messageController.js";
-import { authenticatemiddleware } from "../utils/authenticate.js";
-import { restrictTo } from "../utils/restrict.js";
+} from "../../controller/Admin/messageController.js";
+import { authenticatemiddleware } from "../../utils/authenticate.js";
+import { restrictTo } from "../../utils/restrict.js";
 
 const router = express.Router();
 
