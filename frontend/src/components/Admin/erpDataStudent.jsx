@@ -70,8 +70,8 @@ const ERPStudentDashboard = () => {
             <p><b>CGPA:</b> {student.cgpa}</p>
             <p><b>Gender:</b> {student.gender}</p>
             <p><b>Category:</b> {student.category}</p>
-            <p><b>Active Backlogs:</b> {student.active_backlogs}</p>
-            <p><b>Backlogs History:</b> {student.backlogs_history}</p>
+            <p><b>Active Backlogs:</b> {student.active_backlogs? "Yes":"No"}</p>
+            <p><b>Backlogs History:</b> {student.backlogs_history? "Yes":"No"}</p>
             <p><b>Active Backlog Count:</b> {student.activeBacklogCount}</p>
           </div>
         </div>
