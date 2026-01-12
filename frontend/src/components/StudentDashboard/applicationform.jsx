@@ -78,13 +78,11 @@ const [noFormAvailable, setNoFormAvailable] = useState(false);
         
           if (existingField) {
             value = existingField.value;
-          } else if (field.isAutoFill) {
-            if (field.studentPropertyPath === 'cgpa %') {
-              // multiply cgpa by 10 if exists
-              value = studentData['cgpa'] != null ? studentData['cgpa'] * 10 : '';
-            } else {
-              value = studentData[field.studentPropertyPath] ?? '';
-            }
+          } else if (field.studentPropertyPath === 'cgpa %') {
+            // multiply cgpa by 10 if exists
+            value = studentData['cgpa'] != null ? studentData['cgpa'] * 10 : '';
+          } else {
+            value = studentData[field.studentPropertyPath] ?? '';
           }
           return {
             ...field,
