@@ -4,5 +4,5 @@ const router = express.Router();
 
 router.get("/fetchsuggestions",getsuggestions);
 router.patch("/updatesuggestion",updatesuggestions);
-router.delete("/deletesuggestion",deletesuggestions);
+router.patch("/deletesuggestion",deletesuggestions);
 export default router;
