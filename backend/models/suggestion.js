@@ -3,7 +3,7 @@ import Student from "./user_model/student.js";
 const SuggestionSchema=new mongoose.Schema({
     student_id:{
     type:mongoose.Schema.Types.ObjectId,
-    ref:Student,
+    ref:"Student",
     // required:true,
     },
     company_name:{
@@ -32,9 +32,29 @@ const SuggestionSchema=new mongoose.Schema({
     
     },
     status:{
-        type:Boolean,
+        type:String,
         // required:true,
+        default:"Not Contacted",
+    },
+    company_type:{
+type:String,
+    },
+    sector:{
+        type:String,
+    },
+    hiring_status:{
+type:String,
+    },
+    response:{
+        type:String,
+       
+    },
+    show_response:{
+        type:String,
         default:false,
+    },
+    Other_info:{
+      type:String,
     }
 },{ timestamps: true }
 );
