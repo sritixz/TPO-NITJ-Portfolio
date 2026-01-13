@@ -230,7 +230,8 @@
 // };
 
 // export default Navbar;
-// Navbar.jsx
+//Navbar.jsx
+// //Navbar.jsx
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import {
@@ -278,6 +279,23 @@ const Navbar = () => {
     return () => clearInterval(interval);
   }, []);
 
+  // Close mobile menu when route changes
+  useEffect(() => {
+    setIsMobileMenuOpen(false);
+  }, [location.pathname]);
+
+  // Prevent body scroll when mobile menu is open
+  useEffect(() => {
+    if (isMobileMenuOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'unset';
+    }
+    return () => {
+      document.body.style.overflow = 'unset';
+    };
+  }, [isMobileMenuOpen]);
+
   const scrollToWhyRecruit = () => {
     const whyRecruitSection = document.getElementById("why-recruit");
     if (whyRecruitSection) {
@@ -290,6 +308,10 @@ const Navbar = () => {
     if (location.pathname === "/") scrollToWhyRecruit();
     else
       navigate("/whyrecruit")
+  };
+
+  const closeMobileMenu = () => {
+    setIsMobileMenuOpen(false);
   };
 
   return (
@@ -380,8 +402,10 @@ const Navbar = () => {
           <div className="flex items-center justify-between h-10 md:h-10 relative">
             {/* Mobile Menu Button */}
             <button
-              className="md:hidden z-50"
+              className="md:hidden z-[60] relative p-2"
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+              aria-label="Toggle menu"
+              aria-expanded={isMobileMenuOpen}
             >
               {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
             </button>
@@ -401,7 +425,7 @@ const Navbar = () => {
                 PLACEMENTS
               </Link>
               <Link
-                to="/internships"
+                to="internships"
                 className="hover:text-blue-200 text-base lg:text-lg"
               >
                 INTERNSHIPS
@@ -425,7 +449,7 @@ const Navbar = () => {
                 <img
                   src="nitj-logo.png"
                   alt="NITJ Logo"
-                  className="absolute top-8 left-1/2 transform -translate-x-1/2 -translate-y-1/2 md:-translate-y-3/4 h-20 md:h-32 w-auto z-10"
+                  className="absolute top-8 left-1/2 transform -translate-x-1/2 -translate-y-1/2 md:-translate-y-3/4 h-20 md:h-32 w-auto z-[5]"
                 />
               </div>
             </div>
@@ -457,69 +481,79 @@ const Navbar = () => {
                 WHY RECRUIT
               </button> */}
             </div>
+          </div>
+        </div>
 
-            {/* Mobile Menu */}
-            {isMobileMenuOpen && (
-              <div className="absolute top-10 w-full bg-custom-blue md:hidden shadow-lg z-40">
-                <div className="flex flex-col items-center py-4 space-y-4">
-                  <Link to="/" onClick={() => setIsMobileMenuOpen(false)}>
-                    <Home
-                      size={20}
-                      className="hover:text-blue-200 cursor-pointer"
-                    />
-                  </Link>
-                  <Link
-                    to="#"
-                    className="hover:text-blue-200 text-base lg:text-lg"
-                    onClick={() => setIsMobileMenuOpen(false)}
-                  >
-                    PLACEMENTS
-                  </Link>
-                  <Link
-                    to="#"
-                    className="hover:text-blue-200 text-base lg:text-lg"
-                    onClick={() => setIsMobileMenuOpen(false)}
-                  >
-                    INTERNSHIPS
-                  </Link>
-                  <Link
-                    to="/departmental-brochure"
-                    className="hover:text-blue-200 text-base lg:text-lg"
-                    onClick={() => setIsMobileMenuOpen(false)}
-                  >
-                    BROCHUREs
-                  </Link>
-                  <Link
-                    to="/placement-statistics"
-                    className="hover:text-blue-200 text-base lg:text-lg"
-                    onClick={() => setIsMobileMenuOpen(false)}
-                  >
-                    PLACEMENT-STATS
-                  </Link>
-                  <Link
-                    to="/team"
-                    className="hover:text-blue-200 text-base lg:text-lg"
-                    onClick={() => setIsMobileMenuOpen(false)}
-                  >
-                    PEOPLE
-                  </Link>
-                  <Link
-                    to="/departmental-documents"
-                    className="hover:text-blue-200 text-base lg:text-lg"
-                    onClick={() => setIsMobileMenuOpen(false)}
-                  >
-                    DOCUMENTS
-                  </Link>
+        {/* Mobile Menu Overlay */}
+        {isMobileMenuOpen && (
+          <div
+            className="fixed inset-0 bg-black bg-opacity-50 z-[45] md:hidden"
+            onClick={closeMobileMenu}
+          />
+        )}
 
-                  {/* <button
-                    onClick={handleWhyRecruit}
-                    className="hover:text-blue-200 text-base lg:text-lg"
-                  >
-                    WHY RECRUIT
-                  </button> */}
-                </div>
-              </div>
-            )}
+        {/* Mobile Menu */}
+        <div
+          className={`fixed top-10 left-0 right-0 bg-custom-blue md:hidden shadow-lg z-[55] transition-transform duration-300 ease-in-out ${
+            isMobileMenuOpen ? 'translate-y-0' : '-translate-y-full'
+          }`}
+        >
+          <div className="flex flex-col items-center py-4 space-y-4 max-h-[calc(100vh-2.5rem)] overflow-y-auto">
+            <Link to="/" onClick={closeMobileMenu}>
+              <Home
+                size={20}
+                className="hover:text-blue-200 cursor-pointer"
+              />
+            </Link>
+            <Link
+              to="#"
+              className="hover:text-blue-200 text-base lg:text-lg"
+              onClick={closeMobileMenu}
+            >
+              PLACEMENTS
+            </Link>
+            <Link
+              to="internships"
+              className="hover:text-blue-200 text-base lg:text-lg"
+              onClick={closeMobileMenu}
+            >
+              INTERNSHIPS
+            </Link>
+            <Link
+              to="/departmental-brochure"
+              className="hover:text-blue-200 text-base lg:text-lg"
+              onClick={closeMobileMenu}
+            >
+              BROCHURES
+            </Link>
+            <Link
+              to="/placement-statistics"
+              className="hover:text-blue-200 text-base lg:text-lg"
+              onClick={closeMobileMenu}
+            >
+              PLACEMENT-STATS
+            </Link>
+            <Link
+              to="/team"
+              className="hover:text-blue-200 text-base lg:text-lg"
+              onClick={closeMobileMenu}
+            >
+              PEOPLE
+            </Link>
+            <Link
+              to="/departmental-documents"
+              className="hover:text-blue-200 text-base lg:text-lg"
+              onClick={closeMobileMenu}
+            >
+              DOCUMENTS
+            </Link>
+
+            {/* <button
+              onClick={handleWhyRecruit}
+              className="hover:text-blue-200 text-base lg:text-lg"
+            >
+              WHY RECRUIT
+            </button> */}
           </div>
         </div>
       </div>
