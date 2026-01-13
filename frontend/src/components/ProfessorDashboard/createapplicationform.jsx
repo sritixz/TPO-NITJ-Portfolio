@@ -105,7 +105,7 @@ const CreateApplicationForm = ({ jobId, onClose, onSubmit }) => {
     isRequired: true,
     isAutoFill: false,
     fieldStar: false,
-    studentPropertyPath: '',
+    studentPropertyPath: 'XIIth',
     options: []
   },
   {
@@ -114,7 +114,7 @@ const CreateApplicationForm = ({ jobId, onClose, onSubmit }) => {
     isRequired: true,
     isAutoFill: false,
     fieldStar: false,
-    studentPropertyPath: '',
+    studentPropertyPath: 'Xth',
     options: []
   },
   {
