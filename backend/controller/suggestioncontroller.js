@@ -1,7 +1,11 @@
-import Suggestions from "../models/suggestion.js"
-
+import Suggestions from "../models/suggestion.js";
+import Student from "../models/user_model/student.js";
 export const savesuggestions= async(req,res)=>{
-    
+        const companyType =
+      req.body.company_type_other &&
+      req.body.company_type_other.trim() !== ""
+        ? req.body.company_type_other
+        : req.body.company_type;
      try{const newSuggestions= new Suggestions({
       student_id:req.user.userId,
       company_name:req.body.company_name,
@@ -9,6 +13,9 @@ export const savesuggestions= async(req,res)=>{
     Hr_name:req.body.Hr_name,
     Hr_contact:req.body.Hr_contact,
     HR_email:req.body.HR_email,
+    company_type:companyType,
+    sector:req.body.sector,
+    hiring_status:req.body.hiring_status,
     Additional_Info:req.body.Additional_Info,
   });
 const savedSuggestion=await newSuggestions.save();
@@ -30,7 +37,7 @@ catch(error)
 
 export const getsuggestions=async(req,res)=>{
      try {
-    const suggestions = await Suggestions.find(); 
+    const suggestions = await Suggestions.find().populate("student_id", "name rollno"); 
     res.status(200).json(suggestions);
   } catch (error) {
     console.error(error);
@@ -60,10 +67,14 @@ const suggestions = await Suggestions.find({
 
 export const updatesuggestions=async(req,res)=>{
   try{
-    const { id } = req.body;
+   const { id, option, Other_info,show_info } = req.body;
+
 
     const suggestion=await Suggestions.findById(id);
-    suggestion.status=true;
+    suggestion.status="Contacted";
+   suggestion.response = option;
+suggestion.Other_info = Other_info;
+suggestion.show_response=show_info;
     await suggestion.save();
 
       res.status(200).json({
@@ -82,8 +93,10 @@ export const updatesuggestions=async(req,res)=>{
 export const deletesuggestions=async(req,res)=>{
   try{
     const {id}=req.body;
-    await Suggestions.findByIdAndDelete(id);
-     res.status(200).json({ message: "Suggestion deleted successfully" });
+    const suggestion=await Suggestions.findById(id);
+    suggestion.status="Rejected";
+    await suggestion.save();
+     res.status(200).json({ message: "Suggestion rejected successfully" });
 
   }
   catch(error)

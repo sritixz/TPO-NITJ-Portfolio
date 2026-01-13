@@ -6,6 +6,8 @@ const [recentSuggestions, setRecentSuggestions] = useState([]);
 const [invalidFields, setInvalidFields] = useState([]);
 const [activeTab, setActiveTab] = useState("not_contacted");
 const [view, setView] = useState("create"); 
+const [expandedId, setExpandedId] = useState(null);
+const [companyType, setCompanyType] = useState("");
 
 
 //  const token = localStorage.getItem("token");
@@ -30,9 +32,11 @@ const [view, setView] = useState("create");
     fetchRecentSuggestions();
   }, []);
 const filteredSuggestions = recentSuggestions.filter((item) => {
-  if (activeTab === "contacted") return item.status === true;
-  return item.status === false;
+  if (activeTab === "contacted") return item.status === "Contacted";
+  if (activeTab === "rejected") return item.status === "Rejected";
+  return item.status === "Not Contacted";
 });
+
 
  const handleSubmit = async (e) => {
     e.preventDefault();
@@ -41,15 +45,27 @@ const filteredSuggestions = recentSuggestions.filter((item) => {
 
    
     const data = Object.fromEntries(formData.entries());
+const requiredFields = [
+  "company_name",
+  "company_linkedin",
+  "Hr_name",
+  "Hr_contact",
+  "HR_email",
+  "company_type",
+  "sector",
+  "hiring_status",
+  "Additional_Info",
+];
+const emptyFields = requiredFields.filter(
+  (field) =>
+    !data[field] || data[field].toString().trim() === ""
+);
 
-    const emptyFields = Object.entries(data)
-    .filter(([_, value]) => value.trim() === "")
-    .map(([key]) => key);
+if (emptyFields.length > 0) {
+  setInvalidFields(emptyFields);
+  return;
+}
 
-  if (emptyFields.length > 0) {
-    setInvalidFields(emptyFields);
-    return;
-  }
 
   setInvalidFields([]);
     try {
@@ -126,7 +142,7 @@ const filteredSuggestions = recentSuggestions.filter((item) => {
   </h2>
 {/* Sub Tabs */}
 <div className="mb-6">
-  <div className="grid grid-cols-2 bg-gray-100 rounded-xl p-1 w-full max-w-8xl">
+  <div className="grid grid-cols-3 bg-gray-100 rounded-xl p-1 w-full max-w-8xl">
     <button
       onClick={() => setActiveTab("not_contacted")}
       className={`py-3 rounded-lg text-sm font-medium transition-all ${
@@ -148,6 +164,12 @@ const filteredSuggestions = recentSuggestions.filter((item) => {
     >
       Contacted
     </button>
+     <button onClick={() => setActiveTab("rejected")} className={`py-3 rounded-lg text-sm font-medium transition-all ${
+        activeTab === "rejected"
+          ? "bg-white text-gray-900 shadow-sm"
+          : "text-gray-500 hover:text-gray-700"}`}>
+    Rejected
+  </button>
   </div>
 </div>
 
@@ -159,33 +181,71 @@ const filteredSuggestions = recentSuggestions.filter((item) => {
 
   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 ">
     {filteredSuggestions.map((item, index) => (
-      <div
-        key={index}
-        className="flex items-center justify-between border rounded-lg p-4"
-      >
-        {/* Left content */}
-        <div>
-          <p className="font-medium text-gray-800">
-            {item.company_name}
-          </p>
-          <p className="text-sm text-gray-500">
-            Suggested on: {item.createdAt.slice(0, 10)}
-          </p>
-        </div>
+    <div
+  key={index}
+  className="border rounded-lg p-4 space-y-3 bg-white"
+>
+  {/* Top Row */}
+  <div className="flex items-center justify-between">
+    <div>
+      <p className="font-medium text-gray-800">
+        {item.company_name}
+      </p>
+      <p className="text-sm text-gray-500">
+        Suggested on: {item.createdAt.slice(0, 10)}
+      </p>
+    </div>
 
-        {/* Status badge */}
-        <span
-          className={`px-3 py-1 text-sm rounded-full ${
-            item.status 
-              ? "bg-green-100 text-green-700"
-              : "bg-red-100 text-red-600"
-          }`}
-        >
-          {item.status
-            ? "Contacted"
-            : "Not Contacted"}
+ <span
+  className={`px-3 py-1 text-sm rounded-full ${
+    item.status === "Contacted"
+      ? "bg-green-100 text-green-700"
+      : item.status === "Rejected"
+      ? "bg-red-100 text-red-700"
+      : "bg-yellow-100 text-yellow-700"
+  }`}
+>
+  {item.status}
+</span>
+
+  </div>
+
+  {/* View Response Button */}
+  {item.status==="Contacted" && item.show_response==="true" && (
+    <button
+      onClick={() =>
+        setExpandedId(expandedId === item._id ? null : item._id)
+      }
+      className="text-sm text-blue-600 hover:underline"
+    >
+      {expandedId === item._id ? "Hide Response" : "View Response"}
+    </button>
+  )}
+
+  {/* Expanded Response Section */}
+  {expandedId === item._id && (
+    <div className="bg-gray-50 border rounded-lg p-3 text-sm space-y-2">
+      <p>
+        <span className="font-medium text-gray-700">
+          Professor Response:
+        </span>{" "}
+        <span className="text-gray-800">
+          {item.response || "—"}
         </span>
-      </div>
+      </p>
+
+      <p>
+        <span className="font-medium text-gray-700">
+          Additional Info:
+        </span>{" "}
+        <span className="text-gray-800">
+          {item.Other_info || "No additional information"}
+        </span>
+      </p>
+    </div>
+  )}
+</div>
+
     ))}
   </div>
 </div>
@@ -303,7 +363,139 @@ const filteredSuggestions = recentSuggestions.filter((item) => {
 
           
 
-          {/* Additional Notes */}
+        
+          {/* Company Type */}
+<div>
+  <label className="block text-sm font-medium mb-1">
+    Company Type
+  </label>
+  <select
+    name="company_type"
+    className={`w-full border rounded-lg px-4 py-2 ${
+      invalidFields.includes("company_type")
+        ? "border-red-500"
+        : ""
+    }`}
+    onChange={(e) =>{
+      setCompanyType(e.target.value);
+      setInvalidFields((prev) =>
+        prev.filter((field) => field !== e.target.name)
+      )
+    }}
+  >
+    <option value="">Select type</option>
+    <option value="Core">Core</option>
+    <option value="Tech">Tech</option>
+    <option value="Non-tech">Non-tech</option>
+    <option value="Other">Other</option>
+  </select>
+</div>
+{companyType === "Other" && (
+  <div>
+    <label className="block text-sm font-medium mb-1">
+      Specify Company Type
+    </label>
+    <input
+      type="text"
+      name="company_type_other"
+      placeholder="Enter company type"
+      className={`w-full border rounded-lg px-4 py-2 ${
+        invalidFields.includes("company_type_other")
+          ? "border-red-500"
+          : ""
+      }`}
+      onChange={(e) =>
+        setInvalidFields((prev) =>
+          prev.filter((field) => field !== e.target.name)
+        )
+      }
+    />
+  </div>
+)}
+
+{/* Sector */}
+<div>
+  <label className="block text-sm font-medium mb-2">
+    Sector
+  </label>
+
+  <div
+    className={`flex gap-4 ${
+      invalidFields.includes("sector")
+        ? "border border-red-500 rounded-lg p-3"
+        : ""
+    }`}
+  >
+    {["PSU", "Private"].map((option) => (
+      <label
+        key={option}
+        className="flex items-center gap-2 cursor-pointer"
+      >
+        <input
+          type="radio"
+          name="sector"
+          value={option}
+          className="h-4 w-4 text-blue-600 focus:ring-blue-500"
+          onChange={(e) =>
+            setInvalidFields((prev) =>
+              prev.filter((field) => field !== e.target.name)
+            )
+          }
+        />
+        <span className="text-sm text-gray-700">
+          {option}
+        </span>
+      </label>
+    ))}
+  </div>
+
+
+</div>
+
+
+{/* Hiring Status */}
+<div>
+  <label className="block text-sm font-medium mb-2">
+    Hiring Status
+  </label>
+
+  <div
+    className={`flex gap-4 ${
+      invalidFields.includes("hiring_status")
+        ? "border border-red-500 rounded-lg p-3"
+        : ""
+    }`}
+  >
+    {[
+      { label: "Actively Hiring", value: "Active" },
+      { label: "Not Actively Hiring", value: "Inactive" },
+    ].map((option) => (
+      <label
+        key={option.value}
+        className="flex items-center gap-2 cursor-pointer"
+      >
+        <input
+          type="radio"
+          name="hiring_status"
+          value={option.value}
+          className="h-4 w-4 text-blue-600 focus:ring-blue-500"
+          onChange={(e) =>
+            setInvalidFields((prev) =>
+              prev.filter((field) => field !== e.target.name)
+            )
+          }
+        />
+        <span className="text-sm text-gray-700">
+          {option.label}
+        </span>
+      </label>
+    ))}
+  </div>
+
+ 
+</div>
+
+  {/* Additional Notes */}
           <div className="md:col-span-2">
             <label className="block text-sm font-medium mb-1">
               Additional Information
@@ -322,7 +514,6 @@ const filteredSuggestions = recentSuggestions.filter((item) => {
 }
             ></textarea>
           </div>
-          
           {invalidFields.length > 0 && (
   <div className="md:col-span-2 bg-red-50 border border-red-300 text-red-700 px-4 py-2 rounded-lg text-sm">
     Please fill all details first
