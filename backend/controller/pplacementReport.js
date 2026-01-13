@@ -37,6 +37,7 @@ export const getPlacementReports = async (req, res) => {
               placement_type: 'Placement',
               batch: offer.batch,
               degree: offer.course,
+              stipend: student.stipend || 'N/A'
             };
           });
       });
@@ -61,12 +62,13 @@ export const getPlacementReports = async (req, res) => {
               date_result: internship.result_date ? new Date(internship.result_date).toLocaleDateString() : 'N/A',
               profile: student.job_role || 'Intern+PPO',
               company: internship.company_name || 'N/A',
-              package: student.stipend || 'N/A',
+              package: student.ctc || 'N/A',
               student_status: student.job_type || 'Intern',
               placement_type: 'Summer Internship',
               duration: student.intern_duration || 'N/A',
               batch: internship.batch,
-              degree: internship.course
+              degree: internship.course,
+              stipend: student.stipend || 'N/A'
             };
           });
       });
