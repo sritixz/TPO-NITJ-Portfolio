@@ -494,8 +494,8 @@ const Navbar = () => {
 
         {/* Mobile Menu */}
         <div
-          className={`fixed top-10 left-0 right-0 bg-custom-blue md:hidden shadow-lg z-[55] transition-transform duration-300 ease-in-out ${
-            isMobileMenuOpen ? 'translate-y-0' : '-translate-y-full'
+          className={`fixed left-0 right-0 bg-custom-blue md:hidden shadow-lg z-[55] transition-transform duration-300 ease-in-out ${
+            isMobileMenuOpen ? 'translate-y-0 top-0' : '-translate-y-full -top-5'
           }`}
         >
           <div className="flex flex-col items-center py-4 space-y-4 max-h-[calc(100vh-2.5rem)] overflow-y-auto">
@@ -513,7 +513,7 @@ const Navbar = () => {
               PLACEMENTS
             </Link>
             <Link
-              to="internships"
+              to="/internships"
               className="hover:text-blue-200 text-base lg:text-lg"
               onClick={closeMobileMenu}
             >
