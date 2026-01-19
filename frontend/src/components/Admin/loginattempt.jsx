@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
-import { Lock, Unlock, Trash2, Search, AlertCircle, Clock, Mail, Monitor } from "lucide-react";
+import { Lock, Unlock, Trash2, Search, AlertCircle, Clock, Mail, Monitor, Download } from "lucide-react";
 
 export default function LoginAttempts() {
   const [data, setData] = useState([]);
@@ -73,6 +73,49 @@ export default function LoginAttempts() {
     active: data.filter(d => !d.isLocked).length,
   };
 
+  const handleExportJSON = () => {
+    try {
+      const dataToExport = filteredData;
+
+      // If no data, export empty array with model structure as template
+      const exportData = dataToExport.length > 0 
+        ? dataToExport 
+        : [
+            {
+              _id: "",
+              email: "",
+              isLocked: false,
+              loginAttempts: 0,
+              otp: null,
+              otpExpires: "",
+              otpAttempts: 0,
+              ip: null,
+              timestamp: new Date().toISOString()
+            }
+          ];
+
+      const jsonString = JSON.stringify(exportData, null, 2);
+      const blob = new Blob([jsonString], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      const timestamp = new Date().toISOString().replace(/[:.]/g, '-').split('T')[0];
+      link.download = `login_attempts_${timestamp}.json`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+
+      if (dataToExport.length === 0) {
+        toast.success("Exported empty JSON file with model template");
+      } else {
+        toast.success(`Exported ${dataToExport.length} login attempt(s) to JSON`);
+      }
+    } catch (error) {
+      toast.error("Failed to export JSON");
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 p-6">
       <div className="max-w-7xl mx-auto">
@@ -80,6 +123,12 @@ export default function LoginAttempts() {
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-slate-800 mb-2">Login <span className="text-custom-blue">Attempts</span></h1>
           <p className="text-sm text-slate-600">Monitor and manage login security attempts</p>
+          <button
+            onClick={handleExportJSON}
+            className="bg-blue-500 text-white px-4 py-2 rounded flex items-center justify-center"
+          >
+            <Download className="mr-2" /> Export JSON
+          </button>
         </div>
 
         {/* Stats Cards */}
