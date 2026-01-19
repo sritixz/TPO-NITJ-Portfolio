@@ -15,15 +15,30 @@ export const getAllJobProfiles = async (req, res) => {
   }
 };
 
-export const addJobProfile = async (req, res) => {
-  const newJobProfile = new JobProfile(req.body);
-  try {
-    const savedJobProfile = await newJobProfile.save();
-    res.status(201).json(savedJobProfile);
-  } catch (error) {
-    res.status(500).json({ message: "Error creating job profile", error });
-  }
-};
+// export const addJobProfile = async (req, res) => {
+//   const newJobProfile = new JobProfile(req.body);
+//   // console.log(newJobProfile);
+//   try {
+//     const savedJobProfile = await newJobProfile.save();
+//     const fromDB = await JobProfile.findById(savedJobProfile._id).lean();
+// console.log("Fetched fresh from DB:", fromDB);
+//     // console.log("saved"+savedJobProfile);
+//     // console.log("Saved from DB:", savedJobProfile.toObject());
+//     res.status(201).json(savedJobProfile);
+//   } catch (error) {
+//     res.status(500).json({ message: "Error creating job profile", error });
+//   }
+// };
+export const addJobProfile = async (req, res) =>
+   { const newJobProfile = new JobProfile(req.body); 
+ 
+     try { const savedJobProfile = await newJobProfile.save();
+   
+       res.status(201).json(savedJobProfile); } 
+       catch (error) 
+       { res.status(500).json({ message: "Error creating job profile", error });
+       } };
+
 
 export const updateJobProfile = async (req, res) => {
     const { id } = req.params;
@@ -85,6 +100,194 @@ export const updateJobProfile = async (req, res) => {
       res.status(500).json({ message: "Error toggling visibility", error });
     }
   };
+// export const getJobProfiledetails = async (req, res) => {
+//   try {
+//     const { _id } = req.params;
+//     const job = await JobProfile.findById(_id)
+//     // .populate("Applied_Students", "name email rollno department")
+//     //   .populate("final_shortlisted_students", "name email rollno department")
+//     //   .populate("Hiring_Workflow.eligible_students", "name email rollno")
+//     //   .populate("Hiring_Workflow.shortlisted_students", "name email rollno");
+
+//     res.status(200).json({job});
+//   } catch (err) {
+//     res.status(500).json({ error: err.message });
+//   }
+// }
+export const addAppliedStudent = async (req, res) => {
+  const { studentId } = req.body;
+  
+ try {
+
+
+    const job = await JobProfile.findById(req.params.id);
+    if (!job) {
+      return res.status(404).json({ error: "Job not found" });
+    }
+
+   
+    if (job.final_shortlisted_students.includes(studentId)) {
+      return res.status(400).json({
+        error: "Student is already final shortlisted",
+      });
+    }
+    const alreadyInWorkflow = job.Hiring_Workflow.some(step =>
+      step.eligible_students.includes(studentId) ||
+      step.shortlisted_students.includes(studentId) ||
+      step.absent_students?.includes(studentId)
+    );
+
+    if (alreadyInWorkflow) {
+      return res.status(400).json({
+        error: "Student already exists in hiring workflow",
+      });
+    }
+   job.Applied_Students.addToSet(studentId);
+    await job.save();
+    res.json({ success: true });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
+
+export const removeAppliedStudent = async (req, res) => {
+  const { studentId } = req.body;
+
+  try {
+    await JobProfile.findByIdAndUpdate(
+      req.params.id,
+      {
+        $pull: {
+          Applied_Students: studentId,
+          final_shortlisted_students: studentId,
+        },
+      }
+    );
+    res.json({ success: true });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+export const addFinalShortlisted = async (req, res) => {
+  const { studentId } = req.body;
+
+  try {
+
+    const job = await JobProfile.findById(req.params.id);
+
+    if (!job.Applied_Students.includes(studentId)) {
+      return res.status(400).json({
+        message: "Student must be applied before final shortlisting",
+      });
+    }
+
+    await JobProfile.findByIdAndUpdate(
+      req.params.id,
+      { $addToSet: { final_shortlisted_students: studentId } }
+    );
+
+    res.json({ success: true });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+export const removeFinalShortlisted = async (req, res) => {
+  const { studentId } = req.body;
+
+  try {
+
+    await JobProfile.findByIdAndUpdate(
+      req.params.id,
+      { $pull: { final_shortlisted_students: studentId } }
+    );
+    res.json({ success: true });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+export const getJobProfileDetails = async (req, res) => {
+  try {
+    const { id } = req.params; // ✅ FIX
+
+    const job = await JobProfile.findById(id)
+      .populate("Applied_Students", "name email rollno department")
+      .populate("final_shortlisted_students", "name email rollno department")
+      .populate("Hiring_Workflow.eligible_students", "name email rollno department")
+      .populate("Hiring_Workflow.shortlisted_students", "name email rollno department");
+
+     
+    res.status(200).json({ job });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
+
+
+export const moveStudentForward = async (req, res) => {
+  const { jobId, studentId, stepIndex, bypassWorkflow } = req.body;
+
+  const job = await JobProfile.findById(jobId);
+  if (!job) {
+    return res.status(404).json({ error: "Job not found" });
+  }
+
+  if (bypassWorkflow === true) {
+    job.Applied_Students.pull(studentId);
+
+    job.Hiring_Workflow.forEach(step => {
+      step.eligible_students.pull(studentId);
+     step.shortlisted_students.addToSet(studentId);
+      step.absent_students?.pull(studentId);
+    });
+
+    job.final_shortlisted_students.addToSet(studentId);
+    await job.save();
+
+    return res.json({ movedTo: "final", bypassed: true });
+  }
+
+  
+  if (stepIndex === -1) {
+    if (!job.Applied_Students.includes(studentId)) {
+      return res.status(400).json({ error: "Student not in applied state" });
+    }
+
+    job.Applied_Students.pull(studentId);
+    job.Hiring_Workflow[0].eligible_students.addToSet(studentId);
+
+    await job.save();
+    return res.json({ movedTo: job.Hiring_Workflow[0].step_type });
+  }
+
+  
+  const step = job.Hiring_Workflow[stepIndex];
+  if (!step) {
+    return res.status(400).json({ error: "Invalid step index" });
+  }
+
+  // 1Remove from CURRENT eligible
+  step.eligible_students.pull(studentId);
+
+
+  step.shortlisted_students.addToSet(studentId);
+
+  
+  if (stepIndex === job.Hiring_Workflow.length - 1) {
+    job.final_shortlisted_students.addToSet(studentId);
+    await job.save();
+    return res.json({ movedTo: "final" });
+  }
+
+
+  job.Hiring_Workflow[stepIndex + 1].eligible_students.addToSet(studentId);
+
+  await job.save();
+  return res.json({
+    movedTo: job.Hiring_Workflow[stepIndex + 1].step_type,
+  });
+};
 
   
 //for student management

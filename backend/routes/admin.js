@@ -26,6 +26,12 @@ import {
   deleteProfessorProfiles,
   addNewProfessor,
   getProfessorById,
+   getJobProfileDetails,
+  addAppliedStudent,
+  removeAppliedStudent,
+  addFinalShortlisted,
+  removeFinalShortlisted,
+  moveStudentForward,
 } from "../controller/admin.js";
 
 import {
@@ -132,7 +138,15 @@ router.delete("/jobprofiles/:id", deleteJobProfile);
 router.post("/jobprofiles/bulk-delete", bulkDeleteJobProfiles);
 router.put("/jobprofiles/:id/toggle-visibility", toggleJobProfileVisibility);
 
+router.get("/jobprofiles/:id/details",  getJobProfileDetails);
+router.post("/jobprofiles/:id/applied/add",  addAppliedStudent);
+router.delete("/jobprofiles/:id/applied/remove",  removeAppliedStudent);
+router.post("/jobprofiles/:id/final/add",  addFinalShortlisted);
+router.delete("/jobprofiles/:id/final/remove",  removeFinalShortlisted);
+router.post("/jobprofiles/move-forward",  moveStudentForward);
+
 //student profile routes
+
 router.get("/students", getAllStudents);
 router.put("/students/:id", updateStudentProfile);
 router.post("/students", addNewStudent);
