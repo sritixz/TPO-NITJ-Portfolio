@@ -56,7 +56,9 @@ import InsightDashboard from "./InsightDashboard.jsx";
 import PlacementCalendar from "./placement-calendar.jsx";
 import RecruiterFeedbackList from "./companyFeedback.jsx";
 import InternshipsManagement from "./internshipManagement.jsx";
+import ManageEventAnnouncements from "./ManageEventAnnouncements.jsx";
 
+import Suggestions from "./suggestions.jsx";
 
 const Pdashboard = () => {
   const [isMobile, setIsMobile] = useState(false);
@@ -116,7 +118,8 @@ const Pdashboard = () => {
     { label: "User Requests", icon: faContactCard, path: "/pdashboard/contact-request" },
     { label: "Company Feedback", icon: faContactCard, path: "/pdashboard/recruiterFeedback" },
     { label: "Internships Management", icon: faContactCard, path: "/pdashboard/internshipsmanagement" },
-    
+    { label: "Make Announcements", icon: faCalendarAlt, path: "/pdashboard/manage-landing-page" },    
+    {label:"Suggestions",icon:faEnvelope, path:"/pdashboard/suggestions"},
   ];
 
 
@@ -244,31 +247,37 @@ const Pdashboard = () => {
       {/* Desktop Sidebar */}
       {!isMobile && (
         <>
-          <aside
-            className={`fixed left-0 top-16 h-full bg-white border-r border-gray-200 overflow-y-auto transition-all duration-300 ${
-              isSidebarExpanded ? "w-65" : "w-16"
-            }`}
-          >
-            <nav className="p-4">
-              {menuItems.map((item) => (
-                <MenuItem
-                  key={item.path}
-                  item={item}
-                  isSidebarExpanded={isSidebarExpanded}
-                />
-              ))}
-              <button
-                onClick={handleLogout}
-                className={`flex items-center w-full px-4 py-2 text-red-500 hover:bg-red-50 rounded-lg ${
-                  !isSidebarExpanded ? "justify-center" : ""
-                }`}
-              >
-                <LogOut className="w-5 h-5" />
-                {/* Conditionally render the label only when the sidebar is expanded */}
-                {isSidebarExpanded && <span className="ml-3">Logout</span>}
-              </button>
-            </nav>
-          </aside>
+        <aside
+  className={`fixed left-0 top-16 h-[calc(100vh-64px)] bg-white border-r border-gray-200 transition-all duration-300 ${
+    isSidebarExpanded ? "w-65" : "w-16"
+  }`}
+>
+  <div className="flex flex-col h-full">
+    {/* Scrollable Navigation Area */}
+    <nav className="flex-1 p-4 overflow-y-auto scrollbar-hide">
+      {menuItems.map((item) => (
+        <MenuItem
+          key={item.path}
+          item={item}
+          isSidebarExpanded={isSidebarExpanded}
+        />
+      ))}
+    </nav>
+
+    {/* Fixed Bottom Logout Section */}
+    <div className="p-4 border-t border-gray-100">
+      <button
+        onClick={handleLogout}
+        className={`flex items-center w-full px-4 py-2 text-red-500 hover:bg-red-50 rounded-lg transition-colors ${
+          !isSidebarExpanded ? "justify-center" : ""
+        }`}
+      >
+        <LogOut className="w-5 h-5" />
+        {isSidebarExpanded && <span className="ml-3 font-medium">Logout</span>}
+      </button>
+    </div>
+  </div>
+</aside>
 
           {/* Toggle Button */}
           <button
@@ -318,6 +327,8 @@ const Pdashboard = () => {
             <Route path="team" element={<TeamSection />} />
             <Route path="recruiterFeedback" element={<RecruiterFeedbackList/>} />
             <Route path="internshipsmanagement" element={<InternshipsManagement/>} />
+            <Route path="manage-landing-page" element={<ManageEventAnnouncements />} />
+            <Route path="suggestions" element={<Suggestions />} />
             {/* <Route path="uploads" element={<Upload />} /> */}
             </Routes>
         </div>

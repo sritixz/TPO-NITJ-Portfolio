@@ -126,8 +126,8 @@ const mtechdepartmentOptions = [
         label: "COMPUTER SCIENCE AND ENGINEERING",
       },
       {
-        value: "COMPUTER SCIENCE AND ENGINEERING (INFORMATION SECURITY)",
-        label: "COMPUTER SCIENCE AND ENGINEERING (INFORMATION SECURITY)",
+        value: "COMPUTER SCIENCE AND ENG (INFORMATION SECURITY)",
+        label: "COMPUTER SCIENCE AND ENG (INFORMATION SECURITY)",
       },
       {
         value: "DATA SCIENCE AND ENGINEERING",
@@ -413,7 +413,8 @@ const exportToExcel = async () => {
     { header: 'Profile', key: 'profile', width: 20 },
     { header: 'Company', key: 'company', width: 20 },
     { header: 'Package (LPA)', key: 'package', width: 15 },
-    { header: 'Student Status', key: 'student_status', width: 20 }
+    { header: 'Student Status', key: 'student_status', width: 20 },
+    { header: 'Stipend', key: 'stipend', width: 15 }
   ];
 
   // Add data rows
@@ -429,7 +430,8 @@ const exportToExcel = async () => {
       profile: item.profile,
       company: item.company,
       package: item.package,
-      student_status: item.student_status
+      student_status: item.student_status,
+      stipend: item.stipend
     });
 
     if (item.isDoublePlaced) {

@@ -86,6 +86,7 @@ const [noFormAvailable, setNoFormAvailable] = useState(false);
               value = studentData[field.studentPropertyPath] ?? '';
             }
           }
+
           return {
             ...field,
             value,
