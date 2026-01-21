@@ -223,8 +223,6 @@ export const getJobProfileDetails = async (req, res) => {
   }
 };
 
-
-
 export const moveStudentForward = async (req, res) => {
   const { jobId, studentId, stepIndex, bypassWorkflow } = req.body;
 
@@ -232,6 +230,11 @@ export const moveStudentForward = async (req, res) => {
   if (!job) {
     return res.status(404).json({ error: "Job not found" });
   }
+if (job.Hiring_Workflow.length === 0 && !bypassWorkflow) {
+  return res.status(400).json({
+    error: "The hiring workflow is not defined for this job",
+  });
+}
 
   if (bypassWorkflow === true) {
     job.Applied_Students.pull(studentId);

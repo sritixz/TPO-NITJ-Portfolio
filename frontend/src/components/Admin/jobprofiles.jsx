@@ -24,20 +24,12 @@ import {
   Box,
   Typography,
 } from "@mui/material";
-<<<<<<< HEAD
-import {
-  Delete,
-  Edit,
-  Visibility,
-  VisibilityOff,
-  Add,
-} from "@mui/icons-material";
+
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-=======
+
 import { Delete, Edit, Visibility, VisibilityOff, Add, Download } from "@mui/icons-material";
 
->>>>>>> upstream/main
 const AdminJobProfileManager = () => {
   const [jobProfiles, setJobProfiles] = useState([]);
   const [filteredProfiles, setFilteredProfiles] = useState([]);
@@ -162,16 +154,25 @@ const AdminJobProfileManager = () => {
     }
   };
   const bypassToFinal = async (studentId) => {
-    await axios.post(
+
+   try {await axios.post(
       `${import.meta.env.REACT_APP_BASE_URL}/admin/jobprofiles/move-forward`,
-      {
-        jobId: activeJob._id,
+     { jobId: activeJob._id,
         studentId,
-        bypassWorkflow: true,
+       
       },
       { withCredentials: true }
     );
-
+  }
+catch (error) {
+  const message =
+    error.response?.data?.error ||
+    error.response?.data?.message ||
+    "Something went wrong";
+console.log("Error in bypass to final:", message);
+  toast.error(message);
+}
+   
     // refresh UI
     await openAppliedDialog(activeJob._id);
     fetchJobProfiles();
@@ -244,16 +245,25 @@ const AdminJobProfileManager = () => {
   const moveStudent = async (studentId, stepIndex) => {
     if (!activeJob) return;
 
-    await axios.post(
+   try {await axios.post(
       `${import.meta.env.REACT_APP_BASE_URL}/admin/jobprofiles/move-forward`,
-      {
+    {
         jobId: activeJob._id,
         studentId,
         stepIndex,
       },
       { withCredentials: true }
     );
-
+  }
+catch (error) {
+  const message =
+    error.response?.data?.error ||
+    error.response?.data?.message ||
+    "Something went wrong";
+console.log("Error in move student:", message);
+  toast.error(message);
+}
+   
     openElgiblehiringDialog(activeJob._id);
     fetchJobProfiles();
   };
