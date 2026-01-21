@@ -26,17 +26,17 @@ import {
   deleteProfessorProfiles,
   addNewProfessor,
   getProfessorById,
-<<<<<<< HEAD:backend/routes/admin.js
+// <<<<<<< HEAD:backend/routes/admin.js
    getJobProfileDetails,
   addAppliedStudent,
   removeAppliedStudent,
   addFinalShortlisted,
   removeFinalShortlisted,
   moveStudentForward,
-} from "../controller/admin.js";
-=======
+// } from "../controller/admin.js";
+// =======
 } from "../../controller/admin.js";
->>>>>>> upstream/main:backend/routes/admin/admin.js
+// >>>>>>> upstream/main:backend/routes/admin/admin.js
 
 import {
   getAllDepartments,
