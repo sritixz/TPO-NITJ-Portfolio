@@ -24,7 +24,7 @@ const ERPStudentDashboard = () => {
           withCredentials: true
         }
       );
-
+      console.log(res.data.data);
       setStudent(res.data.data);
     } catch (err) {
       toast.error(err.response?.data?.message || "Failed to fetch ERP data");
