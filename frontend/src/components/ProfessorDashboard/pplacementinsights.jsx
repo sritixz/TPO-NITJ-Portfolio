@@ -1,10 +1,14 @@
-import React, { useState, useEffect } from 'react';
-import axios from 'axios';
-import { saveAs } from 'file-saver';
-import ExcelJS from 'exceljs';
-import * as XLSX from 'xlsx';
-import { FaFileExcel, FaSpinner, FaFilter } from 'react-icons/fa';
-import { MdKeyboardArrowLeft, MdKeyboardArrowRight, MdInfo } from 'react-icons/md';
+import React, { useState, useEffect } from "react";
+import axios from "axios";
+import { saveAs } from "file-saver";
+import ExcelJS from "exceljs";
+import * as XLSX from "xlsx";
+import { FaFileExcel, FaSpinner, FaFilter } from "react-icons/fa";
+import {
+  MdKeyboardArrowLeft,
+  MdKeyboardArrowRight,
+  MdInfo,
+} from "react-icons/md";
 
 const btechdepartmentOptions = [
   {
@@ -126,8 +130,8 @@ const mtechdepartmentOptions = [
         label: "COMPUTER SCIENCE AND ENGINEERING",
       },
       {
-        value: "COMPUTER SCIENCE AND ENG (INFORMATION SECURITY)",
-        label: "COMPUTER SCIENCE AND ENG (INFORMATION SECURITY)",
+        value: "COMPUTER SCIENCE AND ENGINEERING (INFORMATION SECURITY)",
+        label: "COMPUTER SCIENCE AND ENGINEERING (INFORMATION SECURITY)",
       },
       {
         value: "DATA SCIENCE AND ENGINEERING",
@@ -242,59 +246,80 @@ const mscdepartmentOptions = [
 
 const phddepartmentOptions = [];
 
+const getSafeSheetName = (name, usedNames) => {
+  let base = String(name || "Sheet")
+    .trim()
+    .replace(/\s+/g, " ")
+    .substring(0, 31);
+
+  let finalName = base;
+  let counter = 1;
+
+  while (usedNames.has(finalName)) {
+    const suffix = `_${counter++}`;
+    finalName = base.substring(0, 31 - suffix.length) + suffix;
+  }
+
+  usedNames.add(finalName);
+  return finalName;
+};
+
 const PPlacementReport = () => {
   const [reportData, setReportData] = useState([]);
   const [filterOptions, setFilterOptions] = useState({
-    batches: [ "2025", "2026", "2027", "2028", "2029", "2030"],
+    batches: ["2025", "2026", "2027", "2028", "2029", "2030"],
     degrees: ["B.Tech", "M.Tech", "MBA", "M.Sc", "PHD"],
-    departments: []
+    departments: [],
   });
   const [filters, setFilters] = useState({
-    batch: '',
-    degree: '',
-    department: '',
-    type: ''
+    batch: "",
+    degree: "",
+    department: "",
+    type: "",
   });
   const [loading, setLoading] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const rowsPerPage = 10;
-
 
   useEffect(() => {
     if (filters.degree) {
       let departments = [];
       // Populate departments based on selected degree
       switch (filters.degree) {
-        case 'B.Tech':
-          departments = btechdepartmentOptions.flatMap(group => group.options.map(opt => opt.value));
+        case "B.Tech":
+          departments = btechdepartmentOptions.flatMap((group) =>
+            group.options.map((opt) => opt.value),
+          );
           break;
-        case 'M.Tech':
-          departments = mtechdepartmentOptions.flatMap(group => group.options.map(opt => opt.value));
+        case "M.Tech":
+          departments = mtechdepartmentOptions.flatMap((group) =>
+            group.options.map((opt) => opt.value),
+          );
           break;
-        case 'MBA':
-          departments = mbadepartmentOptions.map(opt => opt.value);
+        case "MBA":
+          departments = mbadepartmentOptions.map((opt) => opt.value);
           break;
-        case 'M.Sc':
-          departments = mscdepartmentOptions.map(opt => opt.value);
+        case "M.Sc":
+          departments = mscdepartmentOptions.map((opt) => opt.value);
           break;
-        case 'PHD':
-          departments = phddepartmentOptions.map(opt => opt.value);
+        case "PHD":
+          departments = phddepartmentOptions.map((opt) => opt.value);
           break;
         default:
           departments = [];
       }
-      setFilterOptions(prev => ({
+      setFilterOptions((prev) => ({
         ...prev,
-        departments
+        departments,
       }));
     } else {
-      setFilterOptions(prev => ({
+      setFilterOptions((prev) => ({
         ...prev,
-        departments: []
+        departments: [],
       }));
-      setFilters(prev => ({
+      setFilters((prev) => ({
         ...prev,
-        department: ''
+        department: "",
       }));
     }
   }, [filters.degree]);
@@ -303,14 +328,19 @@ const PPlacementReport = () => {
     try {
       const { batch, degree, department, type } = currentFilters;
       const queryParams = new URLSearchParams();
-      if (batch) queryParams.append('batch', batch);
-      if (degree) queryParams.append('degree', degree);
-      if (department) queryParams.append('department', department);
-      if (type) queryParams.append('type', type);
+      if (batch) queryParams.append("batch", batch);
+      if (degree) queryParams.append("degree", degree);
+      if (department) queryParams.append("department", department);
+      if (type) queryParams.append("type", type);
 
-      const response = await axios.get(`${import.meta.env.REACT_APP_BASE_URL}/pplacementReport/placement-reports?${queryParams.toString()}`, { withCredentials: true });
+      const response = await axios.get(
+        `${import.meta.env.REACT_APP_BASE_URL}/pplacementReport/placement-reports?${queryParams.toString()}`,
+        { withCredentials: true },
+      );
       if (response.data.success) {
-        const processedData = processDoubleplacedStudents(response.data.results);
+        const processedData = processDoubleplacedStudents(
+          response.data.results,
+        );
         setReportData(processedData);
         setCurrentPage(1);
       }
@@ -323,8 +353,8 @@ const PPlacementReport = () => {
 
   const processDoubleplacedStudents = (data) => {
     const rollNoMap = {};
-    
-    data.forEach(student => {
+
+    data.forEach((student) => {
       if (!rollNoMap[student.roll_no]) {
         rollNoMap[student.roll_no] = { count: 1, records: [student] };
       } else {
@@ -332,21 +362,29 @@ const PPlacementReport = () => {
         rollNoMap[student.roll_no].records.push(student);
       }
     });
-    
-    return data.map(student => ({
+
+    return data.map((student) => ({
       ...student,
-      isDoublePlaced: rollNoMap[student.roll_no].count > 1
+      isDoublePlaced: rollNoMap[student.roll_no].count > 1,
     }));
   };
 
   const calculateStats = () => {
-    const uniqueStudents = new Set(reportData.map(item => item.roll_no)).size;
-    const doubleOffers = reportData.filter(item => item.isDoublePlaced).length/2;
+    const uniqueStudents = new Set(reportData.map((item) => item.roll_no)).size;
+    const doubleOffers =
+      reportData.filter((item) => item.isDoublePlaced).length / 2;
     const totalOffers = reportData.length;
-    const packages = reportData.map(item => parseFloat(item.package)).filter(p => !isNaN(p));
-    const avgPackage = packages.length > 0 ? (packages.reduce((sum, p) => sum + p, 0) / packages.length).toFixed(2) : 'N/A';
-    const highestPackage = packages.length > 0 ? Math.max(...packages).toFixed(2) : 'N/A';
-    const lowestPackage = packages.length > 0 ? Math.min(...packages).toFixed(2) : 'N/A';
+    const packages = reportData
+      .map((item) => parseFloat(item.package))
+      .filter((p) => !isNaN(p));
+    const avgPackage =
+      packages.length > 0
+        ? (packages.reduce((sum, p) => sum + p, 0) / packages.length).toFixed(2)
+        : "N/A";
+    const highestPackage =
+      packages.length > 0 ? Math.max(...packages).toFixed(2) : "N/A";
+    const lowestPackage =
+      packages.length > 0 ? Math.min(...packages).toFixed(2) : "N/A";
 
     return {
       uniqueStudents,
@@ -354,26 +392,25 @@ const PPlacementReport = () => {
       totalOffers,
       avgPackage,
       highestPackage,
-      lowestPackage
+      lowestPackage,
     };
   };
 
-
   const handleFilterChange = (e) => {
     const { name, value } = e.target;
-    setFilters(prev => ({
+    setFilters((prev) => ({
       ...prev,
       [name]: value,
-      ...(name === 'degree' && { department: '' })
-    }));    
+      ...(name === "degree" && { department: "" }),
+    }));
   };
 
   const resetFilters = () => {
     setFilters({
-      batch: '',
-      degree: '',
-      department: '',
-      type: ''
+      batch: "",
+      degree: "",
+      department: "",
+      type: "",
     });
     setReportData([]);
     setCurrentPage(1);
@@ -384,7 +421,7 @@ const PPlacementReport = () => {
   };
 
   const calculateMedian = (packages) => {
-    if (packages.length === 0) return 'N/A';
+    if (packages.length === 0) return "N/A";
     const sorted = [...packages].sort((a, b) => a - b);
     const mid = Math.floor(sorted.length / 2);
     if (sorted.length % 2 !== 0) {
@@ -394,534 +431,559 @@ const PPlacementReport = () => {
     }
   };
 
-const exportToExcel = async () => {
-  if (reportData.length === 0) return;
+  const exportToExcel = async () => {
+    if (reportData.length === 0) return;
 
-  const workbook = new ExcelJS.Workbook();
+    const workbook = new ExcelJS.Workbook();
+    const usedSheetNames = new Set();
 
- const createSheetWithData = (sheetName, data) => {
-  const sheet = workbook.addWorksheet(sheetName.substring(0, 31));
+    const createSheetWithData = (sheetName, data) => {
+      const safeName = getSafeSheetName(sheetName, usedSheetNames);
+      const sheet = workbook.addWorksheet(safeName);
 
-  sheet.columns = [
-    { header: 'Sr.No', key: 'sr_no', width: 10 },
-    { header: 'Roll No.', key: 'roll_no', width: 15 },
-    { header: 'Name', key: 'name', width: 20 },
-    { header: 'Branch', key: 'branch', width: 30 },
-    { header: 'Gender', key: 'gender', width: 10 },
-    { header: 'Category', key: 'category', width: 15 },
-    { header: 'Date Result', key: 'date_result', width: 15 },
-    { header: 'Profile', key: 'profile', width: 20 },
-    { header: 'Company', key: 'company', width: 20 },
-    { header: 'Package (LPA)', key: 'package', width: 15 },
-    { header: 'Student Status', key: 'student_status', width: 20 },
-    { header: 'Stipend', key: 'stipend', width: 15 }
-  ];
+      sheet.columns = [
+        { header: "Sr.No", key: "sr_no", width: 10 },
+        { header: "Roll No.", key: "roll_no", width: 15 },
+        { header: "Name", key: "name", width: 20 },
+        { header: "Branch", key: "branch", width: 30 },
+        { header: "Gender", key: "gender", width: 10 },
+        { header: "Category", key: "category", width: 15 },
+        { header: "Date Result", key: "date_result", width: 15 },
+        { header: "Profile", key: "profile", width: 20 },
+        { header: "Company", key: "company", width: 20 },
+        { header: "Package (LPA)", key: "package", width: 15 },
+        { header: "Student Status", key: "student_status", width: 20 },
+        { header: "Stipend", key: "stipend", width: 15 },
+      ];
 
-  // Add data rows
-  data.forEach((item, idx) => {
-    const row = sheet.addRow({
-      sr_no: idx + 1,
-      roll_no: item.roll_no,
-      name: item.name,
-      branch: item.branch,
-      gender: item.gender,
-      category: item.category,
-      date_result: item.date_result,
-      profile: item.profile,
-      company: item.company,
-      package: item.package,
-      student_status: item.student_status,
-      stipend: item.stipend
-    });
+      // Add data rows
+      data.forEach((item, idx) => {
+        const row = sheet.addRow({
+          sr_no: idx + 1,
+          roll_no: item.roll_no,
+          name: item.name,
+          branch: item.branch,
+          gender: item.gender,
+          category: item.category,
+          date_result: item.date_result,
+          profile: item.profile,
+          company: item.company,
+          package: item.package,
+          student_status: item.student_status,
+          stipend: item.stipend,
+        });
 
-    if (item.isDoublePlaced) {
-      row.eachCell((cell) => {
+        if (item.isDoublePlaced) {
+          row.eachCell((cell) => {
+            cell.fill = {
+              type: "pattern",
+              pattern: "solid",
+              fgColor: { argb: "228B22" }, // light blue
+            };
+          });
+        }
+      });
+
+      // Apply gray header and black borders
+      const headerRow = sheet.getRow(1);
+      headerRow.eachCell((cell) => {
         cell.fill = {
-          type: 'pattern',
-          pattern: 'solid',
-          fgColor: { argb: '228B22' } // light blue
+          type: "pattern",
+          pattern: "solid",
+          fgColor: { argb: "FFD3D3D3" }, // light gray
+        };
+        cell.border = {
+          top: { style: "thin", color: { argb: "FF000000" } },
+          left: { style: "thin", color: { argb: "FF000000" } },
+          bottom: { style: "thin", color: { argb: "FF000000" } },
+          right: { style: "thin", color: { argb: "FF000000" } },
         };
       });
-    }
-  });
 
-  // Apply gray header and black borders
-  const headerRow = sheet.getRow(1);
-  headerRow.eachCell((cell) => {
-    cell.fill = {
-      type: 'pattern',
-      pattern: 'solid',
-      fgColor: { argb: 'FFD3D3D3' } // light gray
-    };
-    cell.border = {
-      top: { style: 'thin', color: { argb: 'FF000000' } },
-      left: { style: 'thin', color: { argb: 'FF000000' } },
-      bottom: { style: 'thin', color: { argb: 'FF000000' } },
-      right: { style: 'thin', color: { argb: 'FF000000' } }
-    };
-  });
-
-  // Set border for all cells
-  sheet.eachRow((row) => {
-    row.eachCell((cell) => {
-      cell.border = {
-        top: { style: 'thin', color: { argb: 'FF000000' } },
-        left: { style: 'thin', color: { argb: 'FF000000' } },
-        bottom: { style: 'thin', color: { argb: 'FF000000' } },
-        right: { style: 'thin', color: { argb: 'FF000000' } }
-      };
-    });
-  });
-
-  // Enable filter and sorting
-  sheet.autoFilter = {
-    from: {
-      row: 1,
-      column: 1
-    },
-    to: {
-      row: 1,
-      column: sheet.columns.length
-    }
-  };
-};
-
-const createDepartmentSummarySheet = (grouped) => {
-  const sheet = workbook.addWorksheet('Department Summary');
-
-  sheet.columns = [
-    { header: 'Department', key: 'dept', width: 30 },
-    { header: 'Avg Package', key: 'avg', width: 15 },
-    { header: 'Highest Package', key: 'high', width: 15 },
-    { header: 'Lowest Package', key: 'low', width: 15 },
-    { header: 'Median Package', key: 'median', width: 15 },
-    { header: 'Double Offers', key: 'double', width: 15 },
-    { header: 'Total Offers', key: 'total', width: 15 },
-    { header: 'Unique Students', key: 'unique', width: 15 },
-    { header: 'Males', key: 'males', width: 10 },
-    { header: 'Females', key: 'females', width: 10 }
-  ];
-
-  // Apply header styling
-  const headerRow = sheet.getRow(1);
-  headerRow.eachCell((cell) => {
-    cell.fill = {
-      type: 'pattern',
-      pattern: 'solid',
-      fgColor: { argb: 'FFD3D3D3' }
-    };
-    cell.border = {
-      top: { style: 'thin', color: { argb: 'FF000000' } },
-      left: { style: 'thin', color: { argb: 'FF000000' } },
-      bottom: { style: 'thin', color: { argb: 'FF000000' } },
-      right: { style: 'thin', color: { argb: 'FF000000' } }
-    };
-  });
-
-  if (Object.keys(grouped).length === 0) {
-    return;
-  }
-
-  Object.entries(grouped).forEach(([dept, deptData]) => {
-    const rollNoMap = {};
-    deptData.forEach(s => {
-      if (!rollNoMap[s.roll_no]) rollNoMap[s.roll_no] = 0;
-      rollNoMap[s.roll_no]++;
-    });
-
-    const doubleOffers = Object.values(rollNoMap).filter(c => c > 1).length;
-    const totalOffers = deptData.length;
-    const uniqueStudents = Object.keys(rollNoMap).length;
-
-    const genderMap = {};
-    deptData.forEach(s => {
-      if (!genderMap[s.roll_no]) genderMap[s.roll_no] = s.gender;
-      console.log(deptData.map(s => s.gender));
-
-    });
-
-    let males = 0, females = 0;
-    Object.keys(genderMap).forEach(r => {
-      const g = genderMap[r];
-      if (g === 'Male' || g === 'M') males++;
-      else if (g === 'Female' || g === 'F') females++;
-    });
-
-    const packages = deptData.map(item => parseFloat(item.package)).filter(p => !isNaN(p));
-    const avgPackage = packages.length > 0 ? (packages.reduce((sum, p) => sum + p, 0) / packages.length).toFixed(2) : 'N/A';
-    const highestPackage = packages.length > 0 ? Math.max(...packages).toFixed(2) : 'N/A';
-    const lowestPackage = packages.length > 0 ? Math.min(...packages).toFixed(2) : 'N/A';
-    const medianPackage = calculateMedian(packages);
-
-    const row = sheet.addRow({
-      dept,
-      avg: avgPackage,
-      high: highestPackage,
-      low: lowestPackage,
-      median: medianPackage,
-      double: doubleOffers,
-      total: totalOffers,
-      unique: uniqueStudents,
-      males,
-      females
-    });
-
-    row.eachCell((cell) => {
-      cell.border = {
-        top: { style: 'thin', color: { argb: 'FF000000' } },
-        left: { style: 'thin', color: { argb: 'FF000000' } },
-        bottom: { style: 'thin', color: { argb: 'FF000000' } },
-        right: { style: 'thin', color: { argb: 'FF000000' } }
-      };
-    });
-  });
-
-  // Enable filter and sorting
-  sheet.autoFilter = {
-    from: { row: 1, column: 1 },
-    to: { row: 1, column: sheet.columns.length }
-  };
-};
-
-const createCompanyByDepartmentSheet = (data) => {
-  const sheet = workbook.addWorksheet('Company by Department');
-
-  const uniqueDepts = [...new Set(data.map(item => item.branch || 'Unknown'))].sort();
-  const columns = [{ header: 'Company Name', key: 'company', width: 40 }];
-  uniqueDepts.forEach(dept => {
-    const cleanKey = dept.replace(/[^a-zA-Z0-9]/g, '_');
-    columns.push({ header: dept, key: cleanKey, width: 15 });
-  });
-  sheet.columns = columns;
-
-  // Apply header styling
-  const headerRow = sheet.getRow(1);
-  headerRow.eachCell((cell) => {
-    cell.fill = {
-      type: 'pattern',
-      pattern: 'solid',
-      fgColor: { argb: 'FFD3D3D3' }
-    };
-    cell.border = {
-      top: { style: 'thin', color: { argb: 'FF000000' } },
-      left: { style: 'thin', color: { argb: 'FF000000' } },
-      bottom: { style: 'thin', color: { argb: 'FF000000' } },
-      right: { style: 'thin', color: { argb: 'FF000000' } }
-    };
-  });
-
-  if (data.length === 0 || uniqueDepts.length === 0) {
-    return;
-  }
-
-  // Get unique companies with counts per dept (case-insensitive)
-  const companyDeptCounts = {};
-  data.forEach(item => {
-    const compLower = (item.company || 'Unknown').toLowerCase();
-    const displayComp = item.company || 'Unknown';
-    const dept = item.branch || 'Unknown';
-    if (!companyDeptCounts[compLower]) {
-      companyDeptCounts[compLower] = { display: displayComp, counts: {} };
-    }
-    if (!companyDeptCounts[compLower].counts[dept]) {
-      companyDeptCounts[compLower].counts[dept] = 0;
-    }
-    companyDeptCounts[compLower].counts[dept]++;
-  });
-
-  // Sort companies alphabetically by lower key
-  const sortedCompanies = Object.keys(companyDeptCounts).sort((a, b) => a.localeCompare(b));
-
-  sortedCompanies.forEach(key => {
-    const info = companyDeptCounts[key];
-    const rowData = { company: info.display };
-    uniqueDepts.forEach(dept => {
-      const cleanKey = dept.replace(/[^a-zA-Z0-9]/g, '_');
-      rowData[cleanKey] = info.counts[dept] || 0;
-    });
-    const row = sheet.addRow(rowData);
-    row.eachCell((cell) => {
-      cell.border = {
-        top: { style: 'thin', color: { argb: 'FF000000' } },
-        left: { style: 'thin', color: { argb: 'FF000000' } },
-        bottom: { style: 'thin', color: { argb: 'FF000000' } },
-        right: { style: 'thin', color: { argb: 'FF000000' } }
-      };
-    });
-  });
-
-  // Enable filter and sorting
-  sheet.autoFilter = {
-    from: { row: 1, column: 1 },
-    to: { row: 1, column: sheet.columns.length }
-  };
-};
-
-const createCompleteSheet = (data) => {
-  const sheet = workbook.addWorksheet('Complete');
-
-  sheet.columns = [
-    { header: 'Sr.No', key: 'sr_no', width: 10 },
-    { header: 'Roll No.', key: 'roll_no', width: 15 },
-    { header: 'Name', key: 'name', width: 20 },
-    { header: 'Branch', key: 'branch', width: 30 },
-    { header: 'Gender', key: 'gender', width: 10 },
-    { header: 'Category', key: 'category', width: 15 },
-    { header: 'Date Result', key: 'date_result', width: 15 },
-    { header: 'Profile', key: 'profile', width: 20 },
-    { header: 'Company', key: 'company', width: 20 },
-    { header: 'Package (LPA)', key: 'package', width: 15 },
-    { header: 'Student Status', key: 'student_status', width: 20 }
-  ];
-
-  // Apply header styling
-  const headerRow = sheet.getRow(1);
-  headerRow.eachCell((cell) => {
-    cell.fill = {
-      type: 'pattern',
-      pattern: 'solid',
-      fgColor: { argb: 'FFD3D3D3' } // light gray
-    };
-    cell.border = {
-      top: { style: 'thin', color: { argb: 'FF000000' } },
-      left: { style: 'thin', color: { argb: 'FF000000' } },
-      bottom: { style: 'thin', color: { argb: 'FF000000' } },
-      right: { style: 'thin', color: { argb: 'FF000000' } }
-    };
-  });
-
-  if (data.length === 0) {
-    // Apply borders to header only
-    headerRow.eachCell((cell) => {
-      cell.border = {
-        top: { style: 'thin', color: { argb: 'FF000000' } },
-        left: { style: 'thin', color: { argb: 'FF000000' } },
-        bottom: { style: 'thin', color: { argb: 'FF000000' } },
-        right: { style: 'thin', color: { argb: 'FF000000' } }
-      };
-    });
-    return;
-  }
-
-  // Sort data by company (case-insensitive)
-  const sortedData = [...data].sort((a, b) => (a.company || '').toLowerCase().localeCompare((b.company || '').toLowerCase()));
-
-  // Build rows
-  let rowsToAdd = [];
-  let currentCompanyLower = null;
-  let srNo = 1;
-
-  for (let i = 0; i < sortedData.length; ) {
-    const item = sortedData[i];
-    const companyLower = (item.company || 'Unknown').toLowerCase();
-    const displayCompany = item.company || 'Unknown';
-
-    if (companyLower !== currentCompanyLower) {
-      currentCompanyLower = companyLower;
-      // Add company header row data
-      rowsToAdd.push({
-        companyHeader: `Company: ${displayCompany}`
-      });
-    }
-
-    // Add data row
-    rowsToAdd.push({
-      sr_no: srNo++,
-      roll_no: item.roll_no,
-      name: item.name,
-      branch: item.branch,
-      gender: item.gender,
-      category: item.category,
-      date_result: item.date_result,
-      profile: item.profile,
-      company: item.company,
-      package: item.package,
-      student_status: item.student_status,
-      isDoublePlaced: item.isDoublePlaced
-    });
-
-    i++;
-  }
-
-  // Add rows to sheet
-  rowsToAdd.forEach((rowData) => {
-    if (rowData.companyHeader) {
-      // Company header row
-      const rowValues = new Array(11).fill('');
-      rowValues[0] = rowData.companyHeader;
-      const row = sheet.addRow(rowValues);
-
-      const firstCell = row.getCell(1);
-      firstCell.font = { bold: true, size: 14, color: { argb: 'FF000000' } };
-      firstCell.fill = {
-        type: 'pattern',
-        pattern: 'solid',
-        fgColor: { argb: 'FFD3D3D3' } // light gray
-      };
-      firstCell.alignment = { horizontal: 'left', vertical: 'middle' };
-
-      // Merge cells
-      sheet.mergeCells(sheet.lastRow.number, 1, sheet.lastRow.number, 11);
-    } else {
-      // Data row
-      const row = sheet.addRow({
-        sr_no: rowData.sr_no,
-        roll_no: rowData.roll_no,
-        name: rowData.name,
-        branch: rowData.branch,
-        gender: rowData.gender,
-        category: rowData.category,
-        date_result: rowData.date_result,
-        profile: rowData.profile,
-        company: rowData.company,
-        package: rowData.package,
-        student_status: rowData.student_status
-      });
-
-      if (rowData.isDoublePlaced) {
+      // Set border for all cells
+      sheet.eachRow((row) => {
         row.eachCell((cell) => {
-          cell.fill = {
-            type: 'pattern',
-            pattern: 'solid',
-            fgColor: { argb: '228B22' }
+          cell.border = {
+            top: { style: "thin", color: { argb: "FF000000" } },
+            left: { style: "thin", color: { argb: "FF000000" } },
+            bottom: { style: "thin", color: { argb: "FF000000" } },
+            right: { style: "thin", color: { argb: "FF000000" } },
           };
         });
+      });
+
+      // Enable filter and sorting
+      sheet.autoFilter = {
+        from: {
+          row: 1,
+          column: 1,
+        },
+        to: {
+          row: 1,
+          column: sheet.columns.length,
+        },
+      };
+    };
+
+    const createDepartmentSummarySheet = (grouped) => {
+      const sheet = workbook.addWorksheet("Department Summary");
+
+      sheet.columns = [
+        { header: "Department", key: "dept", width: 30 },
+        { header: "Avg Package", key: "avg", width: 15 },
+        { header: "Highest Package", key: "high", width: 15 },
+        { header: "Lowest Package", key: "low", width: 15 },
+        { header: "Median Package", key: "median", width: 15 },
+        { header: "Double Offers", key: "double", width: 15 },
+        { header: "Total Offers", key: "total", width: 15 },
+        { header: "Unique Students", key: "unique", width: 15 },
+        { header: "Males", key: "males", width: 10 },
+        { header: "Females", key: "females", width: 10 },
+      ];
+
+      // Apply header styling
+      const headerRow = sheet.getRow(1);
+      headerRow.eachCell((cell) => {
+        cell.fill = {
+          type: "pattern",
+          pattern: "solid",
+          fgColor: { argb: "FFD3D3D3" },
+        };
+        cell.border = {
+          top: { style: "thin", color: { argb: "FF000000" } },
+          left: { style: "thin", color: { argb: "FF000000" } },
+          bottom: { style: "thin", color: { argb: "FF000000" } },
+          right: { style: "thin", color: { argb: "FF000000" } },
+        };
+      });
+
+      if (Object.keys(grouped).length === 0) {
+        return;
       }
-    }
-  });
 
-  // Set borders for all cells (including header and company headers)
-  sheet.eachRow((row) => {
-    row.eachCell({ includeEmpty: true }, (cell) => {
-      cell.border = {
-        top: { style: 'thin', color: { argb: 'FF000000' } },
-        left: { style: 'thin', color: { argb: 'FF000000' } },
-        bottom: { style: 'thin', color: { argb: 'FF000000' } },
-        right: { style: 'thin', color: { argb: 'FF000000' } }
+      Object.entries(grouped).forEach(([dept, deptData]) => {
+        const rollNoMap = {};
+        deptData.forEach((s) => {
+          if (!rollNoMap[s.roll_no]) rollNoMap[s.roll_no] = 0;
+          rollNoMap[s.roll_no]++;
+        });
+
+        const doubleOffers = Object.values(rollNoMap).filter(
+          (c) => c > 1,
+        ).length;
+        const totalOffers = deptData.length;
+        const uniqueStudents = Object.keys(rollNoMap).length;
+
+        const genderMap = {};
+        deptData.forEach((s) => {
+          if (!genderMap[s.roll_no]) genderMap[s.roll_no] = s.gender;
+          console.log(deptData.map((s) => s.gender));
+        });
+
+        let males = 0,
+          females = 0;
+        Object.keys(genderMap).forEach((r) => {
+          const g = genderMap[r];
+          if (g === "Male" || g === "M") males++;
+          else if (g === "Female" || g === "F") females++;
+        });
+
+        const packages = deptData
+          .map((item) => parseFloat(item.package))
+          .filter((p) => !isNaN(p));
+        const avgPackage =
+          packages.length > 0
+            ? (
+                packages.reduce((sum, p) => sum + p, 0) / packages.length
+              ).toFixed(2)
+            : "N/A";
+        const highestPackage =
+          packages.length > 0 ? Math.max(...packages).toFixed(2) : "N/A";
+        const lowestPackage =
+          packages.length > 0 ? Math.min(...packages).toFixed(2) : "N/A";
+        const medianPackage = calculateMedian(packages);
+
+        const row = sheet.addRow({
+          dept,
+          avg: avgPackage,
+          high: highestPackage,
+          low: lowestPackage,
+          median: medianPackage,
+          double: doubleOffers,
+          total: totalOffers,
+          unique: uniqueStudents,
+          males,
+          females,
+        });
+
+        row.eachCell((cell) => {
+          cell.border = {
+            top: { style: "thin", color: { argb: "FF000000" } },
+            left: { style: "thin", color: { argb: "FF000000" } },
+            bottom: { style: "thin", color: { argb: "FF000000" } },
+            right: { style: "thin", color: { argb: "FF000000" } },
+          };
+        });
+      });
+
+      // Enable filter and sorting
+      sheet.autoFilter = {
+        from: { row: 1, column: 1 },
+        to: { row: 1, column: sheet.columns.length },
       };
-    });
-  });
-
-  // Enable filter and sorting on header row
-  sheet.autoFilter = {
-    from: {
-      row: 1,
-      column: 1
-    },
-    to: {
-      row: 1,
-      column: sheet.columns.length
-    }
-  };
-};
-
-const createAllCompaniesSheet = (data) => {
-  const sheet = workbook.addWorksheet('All companies');
-
-  sheet.columns = [
-    { header: 'Company Name', key: 'company', width: 40 },
-    { header: 'Number of Offers', key: 'count', width: 15 }
-  ];
-
-  // Apply header styling
-  const headerRow = sheet.getRow(1);
-  headerRow.eachCell((cell) => {
-    cell.fill = {
-      type: 'pattern',
-      pattern: 'solid',
-      fgColor: { argb: 'FFD3D3D3' } // light gray
     };
-    cell.border = {
-      top: { style: 'thin', color: { argb: 'FF000000' } },
-      left: { style: 'thin', color: { argb: 'FF000000' } },
-      bottom: { style: 'thin', color: { argb: 'FF000000' } },
-      right: { style: 'thin', color: { argb: 'FF000000' } }
+
+    const createCompanyByDepartmentSheet = (data) => {
+      const sheet = workbook.addWorksheet("Company by Department");
+
+      const uniqueDepts = [
+        ...new Set(data.map((item) => item.branch || "Unknown")),
+      ].sort();
+      const columns = [{ header: "Company Name", key: "company", width: 40 }];
+      uniqueDepts.forEach((dept) => {
+        const cleanKey = dept.replace(/[^a-zA-Z0-9]/g, "_");
+        columns.push({ header: dept, key: cleanKey, width: 15 });
+      });
+      sheet.columns = columns;
+
+      // Apply header styling
+      const headerRow = sheet.getRow(1);
+      headerRow.eachCell((cell) => {
+        cell.fill = {
+          type: "pattern",
+          pattern: "solid",
+          fgColor: { argb: "FFD3D3D3" },
+        };
+        cell.border = {
+          top: { style: "thin", color: { argb: "FF000000" } },
+          left: { style: "thin", color: { argb: "FF000000" } },
+          bottom: { style: "thin", color: { argb: "FF000000" } },
+          right: { style: "thin", color: { argb: "FF000000" } },
+        };
+      });
+
+      if (data.length === 0 || uniqueDepts.length === 0) {
+        return;
+      }
+
+      // Get unique companies with counts per dept (case-insensitive)
+      const companyDeptCounts = {};
+      data.forEach((item) => {
+        const compLower = (item.company || "Unknown").toLowerCase();
+        const displayComp = item.company || "Unknown";
+        const dept = item.branch || "Unknown";
+        if (!companyDeptCounts[compLower]) {
+          companyDeptCounts[compLower] = { display: displayComp, counts: {} };
+        }
+        if (!companyDeptCounts[compLower].counts[dept]) {
+          companyDeptCounts[compLower].counts[dept] = 0;
+        }
+        companyDeptCounts[compLower].counts[dept]++;
+      });
+
+      // Sort companies alphabetically by lower key
+      const sortedCompanies = Object.keys(companyDeptCounts).sort((a, b) =>
+        a.localeCompare(b),
+      );
+
+      sortedCompanies.forEach((key) => {
+        const info = companyDeptCounts[key];
+        const rowData = { company: info.display };
+        uniqueDepts.forEach((dept) => {
+          const cleanKey = dept.replace(/[^a-zA-Z0-9]/g, "_");
+          rowData[cleanKey] = info.counts[dept] || 0;
+        });
+        const row = sheet.addRow(rowData);
+        row.eachCell((cell) => {
+          cell.border = {
+            top: { style: "thin", color: { argb: "FF000000" } },
+            left: { style: "thin", color: { argb: "FF000000" } },
+            bottom: { style: "thin", color: { argb: "FF000000" } },
+            right: { style: "thin", color: { argb: "FF000000" } },
+          };
+        });
+      });
+
+      // Enable filter and sorting
+      sheet.autoFilter = {
+        from: { row: 1, column: 1 },
+        to: { row: 1, column: sheet.columns.length },
+      };
     };
-  });
 
-  if (data.length === 0) {
-    // Apply borders to header only
-    headerRow.eachCell((cell) => {
-      cell.border = {
-        top: { style: 'thin', color: { argb: 'FF000000' } },
-        left: { style: 'thin', color: { argb: 'FF000000' } },
-        bottom: { style: 'thin', color: { argb: 'FF000000' } },
-        right: { style: 'thin', color: { argb: 'FF000000' } }
+    const createCompleteSheet = (data) => {
+      const sheet = workbook.addWorksheet("Complete");
+
+      sheet.columns = [
+        { header: "Sr.No", key: "sr_no", width: 10 },
+        { header: "Roll No.", key: "roll_no", width: 15 },
+        { header: "Name", key: "name", width: 20 },
+        { header: "Branch", key: "branch", width: 30 },
+        { header: "Gender", key: "gender", width: 10 },
+        { header: "Category", key: "category", width: 15 },
+        { header: "Date Result", key: "date_result", width: 15 },
+        { header: "Profile", key: "profile", width: 20 },
+        { header: "Company", key: "company", width: 20 },
+        { header: "Package (LPA)", key: "package", width: 15 },
+        { header: "Student Status", key: "student_status", width: 20 },
+      ];
+
+      // Apply header styling
+      const headerRow = sheet.getRow(1);
+      headerRow.eachCell((cell) => {
+        cell.fill = {
+          type: "pattern",
+          pattern: "solid",
+          fgColor: { argb: "FFD3D3D3" }, // light gray
+        };
+        cell.border = {
+          top: { style: "thin", color: { argb: "FF000000" } },
+          left: { style: "thin", color: { argb: "FF000000" } },
+          bottom: { style: "thin", color: { argb: "FF000000" } },
+          right: { style: "thin", color: { argb: "FF000000" } },
+        };
+      });
+
+      if (data.length === 0) {
+        // Apply borders to header only
+        headerRow.eachCell((cell) => {
+          cell.border = {
+            top: { style: "thin", color: { argb: "FF000000" } },
+            left: { style: "thin", color: { argb: "FF000000" } },
+            bottom: { style: "thin", color: { argb: "FF000000" } },
+            right: { style: "thin", color: { argb: "FF000000" } },
+          };
+        });
+        return;
+      }
+
+      // Sort data by company (case-insensitive)
+      const sortedData = [...data].sort((a, b) =>
+        (a.company || "")
+          .toLowerCase()
+          .localeCompare((b.company || "").toLowerCase()),
+      );
+
+      // Build rows
+      let rowsToAdd = [];
+      let currentCompanyLower = null;
+      let srNo = 1;
+
+      for (let i = 0; i < sortedData.length; ) {
+        const item = sortedData[i];
+        const companyLower = (item.company || "Unknown").toLowerCase();
+        const displayCompany = item.company || "Unknown";
+
+        if (companyLower !== currentCompanyLower) {
+          currentCompanyLower = companyLower;
+          // Add company header row data
+          rowsToAdd.push({
+            companyHeader: `Company: ${displayCompany}`,
+          });
+        }
+
+        // Add data row
+        rowsToAdd.push({
+          sr_no: srNo++,
+          roll_no: item.roll_no,
+          name: item.name,
+          branch: item.branch,
+          gender: item.gender,
+          category: item.category,
+          date_result: item.date_result,
+          profile: item.profile,
+          company: item.company,
+          package: item.package,
+          student_status: item.student_status,
+          isDoublePlaced: item.isDoublePlaced,
+        });
+
+        i++;
+      }
+
+      // Add rows to sheet
+      rowsToAdd.forEach((rowData) => {
+        if (rowData.companyHeader) {
+          // Company header row
+          const rowValues = new Array(11).fill("");
+          rowValues[0] = rowData.companyHeader;
+          const row = sheet.addRow(rowValues);
+
+          const firstCell = row.getCell(1);
+          firstCell.font = {
+            bold: true,
+            size: 14,
+            color: { argb: "FF000000" },
+          };
+          firstCell.fill = {
+            type: "pattern",
+            pattern: "solid",
+            fgColor: { argb: "FFD3D3D3" }, // light gray
+          };
+          firstCell.alignment = { horizontal: "left", vertical: "middle" };
+
+          // Merge cells
+          sheet.mergeCells(sheet.lastRow.number, 1, sheet.lastRow.number, 11);
+        } else {
+          // Data row
+          const row = sheet.addRow({
+            sr_no: rowData.sr_no,
+            roll_no: rowData.roll_no,
+            name: rowData.name,
+            branch: rowData.branch,
+            gender: rowData.gender,
+            category: rowData.category,
+            date_result: rowData.date_result,
+            profile: rowData.profile,
+            company: rowData.company,
+            package: rowData.package,
+            student_status: rowData.student_status,
+          });
+
+          if (rowData.isDoublePlaced) {
+            row.eachCell((cell) => {
+              cell.fill = {
+                type: "pattern",
+                pattern: "solid",
+                fgColor: { argb: "228B22" },
+              };
+            });
+          }
+        }
+      });
+
+      // Set borders for all cells (including header and company headers)
+      sheet.eachRow((row) => {
+        row.eachCell({ includeEmpty: true }, (cell) => {
+          cell.border = {
+            top: { style: "thin", color: { argb: "FF000000" } },
+            left: { style: "thin", color: { argb: "FF000000" } },
+            bottom: { style: "thin", color: { argb: "FF000000" } },
+            right: { style: "thin", color: { argb: "FF000000" } },
+          };
+        });
+      });
+
+      // Enable filter and sorting on header row
+      sheet.autoFilter = {
+        from: {
+          row: 1,
+          column: 1,
+        },
+        to: {
+          row: 1,
+          column: sheet.columns.length,
+        },
       };
-    });
-    return;
-  }
+    };
 
-  // Get unique companies with counts (case-insensitive)
-  const companyCounts = data.reduce((acc, item) => {
-    const compLower = (item.company || 'Unknown').toLowerCase();
-    const displayComp = item.company || 'Unknown';
-    if (!acc[compLower]) {
-      acc[compLower] = { count: 0, display: displayComp };
-    }
-    acc[compLower].count += 1;
-    return acc;
-  }, {});
+    const createAllCompaniesSheet = (data) => {
+      const sheet = workbook.addWorksheet("All companies");
 
-  // Sort companies alphabetically by lower key
-  const sortedCompanies = Object.keys(companyCounts).sort((a, b) => a.localeCompare(b)).map(key => ({
-    company: companyCounts[key].display,
-    count: companyCounts[key].count
-  }));
+      sheet.columns = [
+        { header: "Company Name", key: "company", width: 40 },
+        { header: "Number of Offers", key: "count", width: 15 },
+      ];
 
-  // Add rows
-  sortedCompanies.forEach(({ company, count }) => {
-    const row = sheet.addRow({ company, count });
-    row.eachCell((cell) => {
-      cell.border = {
-        top: { style: 'thin', color: { argb: 'FF000000' } },
-        left: { style: 'thin', color: { argb: 'FF000000' } },
-        bottom: { style: 'thin', color: { argb: 'FF000000' } },
-        right: { style: 'thin', color: { argb: 'FF000000' } }
+      // Apply header styling
+      const headerRow = sheet.getRow(1);
+      headerRow.eachCell((cell) => {
+        cell.fill = {
+          type: "pattern",
+          pattern: "solid",
+          fgColor: { argb: "FFD3D3D3" }, // light gray
+        };
+        cell.border = {
+          top: { style: "thin", color: { argb: "FF000000" } },
+          left: { style: "thin", color: { argb: "FF000000" } },
+          bottom: { style: "thin", color: { argb: "FF000000" } },
+          right: { style: "thin", color: { argb: "FF000000" } },
+        };
+      });
+
+      if (data.length === 0) {
+        // Apply borders to header only
+        headerRow.eachCell((cell) => {
+          cell.border = {
+            top: { style: "thin", color: { argb: "FF000000" } },
+            left: { style: "thin", color: { argb: "FF000000" } },
+            bottom: { style: "thin", color: { argb: "FF000000" } },
+            right: { style: "thin", color: { argb: "FF000000" } },
+          };
+        });
+        return;
+      }
+
+      // Get unique companies with counts (case-insensitive)
+      const companyCounts = data.reduce((acc, item) => {
+        const compLower = (item.company || "Unknown").toLowerCase();
+        const displayComp = item.company || "Unknown";
+        if (!acc[compLower]) {
+          acc[compLower] = { count: 0, display: displayComp };
+        }
+        acc[compLower].count += 1;
+        return acc;
+      }, {});
+
+      // Sort companies alphabetically by lower key
+      const sortedCompanies = Object.keys(companyCounts)
+        .sort((a, b) => a.localeCompare(b))
+        .map((key) => ({
+          company: companyCounts[key].display,
+          count: companyCounts[key].count,
+        }));
+
+      // Add rows
+      sortedCompanies.forEach(({ company, count }) => {
+        const row = sheet.addRow({ company, count });
+        row.eachCell((cell) => {
+          cell.border = {
+            top: { style: "thin", color: { argb: "FF000000" } },
+            left: { style: "thin", color: { argb: "FF000000" } },
+            bottom: { style: "thin", color: { argb: "FF000000" } },
+            right: { style: "thin", color: { argb: "FF000000" } },
+          };
+        });
+      });
+
+      // Enable filter and sorting
+      sheet.autoFilter = {
+        from: {
+          row: 1,
+          column: 1,
+        },
+        to: {
+          row: 1,
+          column: sheet.columns.length,
+        },
       };
-    });
-  });
+    };
 
-  // Enable filter and sorting
-  sheet.autoFilter = {
-    from: {
-      row: 1,
-      column: 1
-    },
-    to: {
-      row: 1,
-      column: sheet.columns.length
+    if (filters.department) {
+      createSheetWithData(filters.department, reportData);
+    } else {
+      const grouped = reportData.reduce((acc, item) => {
+        const dept = item.branch || "Unknown";
+        if (!acc[dept]) acc[dept] = [];
+        acc[dept].push(item);
+        return acc;
+      }, {});
+      Object.entries(grouped).forEach(([dept, data]) => {
+        createSheetWithData(dept, data);
+      });
+      createDepartmentSummarySheet(grouped);
+      createCompanyByDepartmentSheet(reportData);
+      createCompleteSheet(reportData);
+      createAllCompaniesSheet(reportData);
     }
+
+    const buffer = await workbook.xlsx.writeBuffer();
+    const blob = new Blob([buffer], {
+      type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    });
+    const date = new Date().toISOString().split("T")[0];
+    saveAs(blob, `Placement_Report_${date}.xlsx`);
   };
-};
-
-
-  if (filters.department) {
-    createSheetWithData(filters.department, reportData);
-  } else {
-    const grouped = reportData.reduce((acc, item) => {
-      const dept = item.branch || "Unknown";
-      if (!acc[dept]) acc[dept] = [];
-      acc[dept].push(item);
-      return acc;
-    }, {});
-    Object.entries(grouped).forEach(([dept, data]) => {
-      createSheetWithData(dept, data);
-    });
-    createDepartmentSummarySheet(grouped);
-    createCompanyByDepartmentSheet(reportData);
-    createCompleteSheet(reportData);
-    createAllCompaniesSheet(reportData);
-  }
-
-  const buffer = await workbook.xlsx.writeBuffer();
-  const blob = new Blob([buffer], {
-    type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
-  });
-  const date = new Date().toISOString().split('T')[0];
-  saveAs(blob, `Placement_Report_${date}.xlsx`);
-};
-
 
   const indexOfLastRow = currentPage * rowsPerPage;
   const indexOfFirstRow = indexOfLastRow - rowsPerPage;
@@ -933,11 +995,17 @@ const createAllCompaniesSheet = (data) => {
 
   return (
     <div className="font-sans p-1 min-h-screen">
-      {loading && <div className="flex justify-center py-10"><FaSpinner className="animate-spin text-custom-blue text-4xl" /></div>}
+      {loading && (
+        <div className="flex justify-center py-10">
+          <FaSpinner className="animate-spin text-custom-blue text-4xl" />
+        </div>
+      )}
 
       <div className="bg-white rounded-lg shadow-lg p-6">
         <div className="flex flex-col md:flex-row justify-between items-center mb-6 border-b border-gray-200 pb-4">
-          <h2 className="text-3xl font-bold mb-4 md:mb-0">Placement <span className='text-custom-blue'>Reports</span></h2>
+          <h2 className="text-3xl font-bold mb-4 md:mb-0">
+            Placement <span className="text-custom-blue">Reports</span>
+          </h2>
           <button
             onClick={exportToExcel}
             className="flex items-center gap-2 bg-green-600 text-white px-5 py-2.5 rounded-lg hover:bg-green-700 transition-all transform hover:-translate-y-0.5 hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed"
@@ -957,13 +1025,19 @@ const createAllCompaniesSheet = (data) => {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             {/* Type */}
             <div>
-              <label className="block text-gray-700 font-medium mb-2">Type</label>
+              <label className="block text-gray-700 font-medium mb-2">
+                Type
+              </label>
               <select
                 name="type"
                 value={filters.type}
                 onChange={handleFilterChange}
                 className="w-full border border-gray-300 rounded-lg p-2.5 focus:ring-2 focus:ring-[#204080] focus:border-[#204080] appearance-none bg-white pl-4 pr-10 bg-no-repeat bg-right"
-                style={{backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='6' fill='none' viewBox='0 0 12 6'%3E%3Cpath fill='%23204080' d='M0 0L6 6L12 0H0Z'/%3E%3C/svg%3E")`, backgroundPosition: 'right 0.75rem center', backgroundSize: '12px 6px'}}
+                style={{
+                  backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='6' fill='none' viewBox='0 0 12 6'%3E%3Cpath fill='%23204080' d='M0 0L6 6L12 0H0Z'/%3E%3C/svg%3E")`,
+                  backgroundPosition: "right 0.75rem center",
+                  backgroundSize: "12px 6px",
+                }}
               >
                 <option value="">Select Type</option>
                 <option value="placement">Placement (Internship + Job)</option>
@@ -972,50 +1046,74 @@ const createAllCompaniesSheet = (data) => {
             </div>
             {/* Batch */}
             <div>
-              <label className="block text-gray-700 font-medium mb-2">Batch</label>
+              <label className="block text-gray-700 font-medium mb-2">
+                Batch
+              </label>
               <select
                 name="batch"
                 value={filters.batch}
                 onChange={handleFilterChange}
                 className="w-full border border-gray-300 rounded-lg p-2.5 focus:ring-2 focus:ring-[#204080] focus:border-[#204080] appearance-none bg-white pl-4 pr-10 bg-no-repeat bg-right"
-                style={{backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='6' fill='none' viewBox='0 0 12 6'%3E%3Cpath fill='%23204080' d='M0 0L6 6L12 0H0Z'/%3E%3C/svg%3E")`, backgroundPosition: 'right 0.75rem center', backgroundSize: '12px 6px'}}
+                style={{
+                  backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='6' fill='none' viewBox='0 0 12 6'%3E%3Cpath fill='%23204080' d='M0 0L6 6L12 0H0Z'/%3E%3C/svg%3E")`,
+                  backgroundPosition: "right 0.75rem center",
+                  backgroundSize: "12px 6px",
+                }}
               >
                 <option value="">Select Batch</option>
-                {filterOptions.batches.map(batch => (
-                  <option key={batch} value={batch}>{batch}</option>
+                {filterOptions.batches.map((batch) => (
+                  <option key={batch} value={batch}>
+                    {batch}
+                  </option>
                 ))}
               </select>
             </div>
             {/* Course*/}
             <div>
-              <label className="block text-gray-700 font-medium mb-2">Course</label>
+              <label className="block text-gray-700 font-medium mb-2">
+                Course
+              </label>
               <select
                 name="degree"
                 value={filters.degree}
                 onChange={handleFilterChange}
                 className="w-full border border-gray-300 rounded-lg p-2.5 focus:ring-2 focus:ring-[#204080] focus:border-[#204080] appearance-none bg-white pl-4 pr-10 bg-no-repeat bg-right"
-                style={{backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='6' fill='none' viewBox='0 0 12 6'%3E%3Cpath fill='%23204080' d='M0 0L6 6L12 0H0Z'/%3E%3C/svg%3E")`, backgroundPosition: 'right 0.75rem center', backgroundSize: '12px 6px'}}
+                style={{
+                  backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='6' fill='none' viewBox='0 0 12 6'%3E%3Cpath fill='%23204080' d='M0 0L6 6L12 0H0Z'/%3E%3C/svg%3E")`,
+                  backgroundPosition: "right 0.75rem center",
+                  backgroundSize: "12px 6px",
+                }}
               >
                 <option value="">Select Course</option>
-                {filterOptions.degrees.map(degree => (
-                  <option key={degree} value={degree}>{degree}</option>
+                {filterOptions.degrees.map((degree) => (
+                  <option key={degree} value={degree}>
+                    {degree}
+                  </option>
                 ))}
               </select>
             </div>
             {/* Department */}
             <div>
-              <label className="block text-gray-700 font-medium mb-2">Branch</label>
+              <label className="block text-gray-700 font-medium mb-2">
+                Branch
+              </label>
               <select
                 name="department"
                 value={filters.department}
                 onChange={handleFilterChange}
                 disabled={!filters.degree}
-                className={`w-full border border-gray-300 rounded-lg p-2.5 focus:ring-2 focus:ring-[#204080] focus:border-[#204080] appearance-none bg-white pl-4 pr-10 bg-no-repeat bg-right ${!filters.degree ? 'opacity-50 cursor-not-allowed' : ''}`}
-                style={{backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='6' fill='none' viewBox='0 0 12 6'%3E%3Cpath fill='%23204080' d='M0 0L6 6L12 0H0Z'/%3E%3C/svg%3E")`, backgroundPosition: 'right 0.75rem center', backgroundSize: '12px 6px'}}
+                className={`w-full border border-gray-300 rounded-lg p-2.5 focus:ring-2 focus:ring-[#204080] focus:border-[#204080] appearance-none bg-white pl-4 pr-10 bg-no-repeat bg-right ${!filters.degree ? "opacity-50 cursor-not-allowed" : ""}`}
+                style={{
+                  backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='6' fill='none' viewBox='0 0 12 6'%3E%3Cpath fill='%23204080' d='M0 0L6 6L12 0H0Z'/%3E%3C/svg%3E")`,
+                  backgroundPosition: "right 0.75rem center",
+                  backgroundSize: "12px 6px",
+                }}
               >
                 <option value="">Select Branch</option>
-                {filterOptions.departments.map(dept => (
-                  <option key={dept} value={dept}>{dept}</option>
+                {filterOptions.departments.map((dept) => (
+                  <option key={dept} value={dept}>
+                    {dept}
+                  </option>
                 ))}
               </select>
             </div>
@@ -1031,7 +1129,7 @@ const createAllCompaniesSheet = (data) => {
                   <FaSpinner className="animate-spin" /> Processing Snowden
                 </>
               ) : (
-                'Apply Filters'
+                "Apply Filters"
               )}
             </button>
             <button
@@ -1045,31 +1143,51 @@ const createAllCompaniesSheet = (data) => {
 
         {reportData.length > 0 && (
           <div className="mb-8">
-            <h3 className="text-xl font-semibold text-custom-blue mb-4">Placement Statistics</h3>
+            <h3 className="text-xl font-semibold text-custom-blue mb-4">
+              Placement Statistics
+            </h3>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
               <div className="bg-blue-50 p-4 rounded-lg shadow-sm border border-blue-200">
                 <h4 className="text-gray-700 font-medium">Total Offers</h4>
-                <p className="text-2xl font-bold text-custom-blue">{calculateStats().totalOffers}</p>
+                <p className="text-2xl font-bold text-custom-blue">
+                  {calculateStats().totalOffers}
+                </p>
               </div>
               <div className="bg-blue-50 p-4 rounded-lg shadow-sm border border-blue-200">
                 <h4 className="text-gray-700 font-medium">Double Offers</h4>
-                <p className="text-2xl font-bold text-custom-blue">{calculateStats().doubleOffers}</p>
+                <p className="text-2xl font-bold text-custom-blue">
+                  {calculateStats().doubleOffers}
+                </p>
               </div>
               <div className="bg-blue-50 p-4 rounded-lg shadow-sm border border-blue-200">
                 <h4 className="text-gray-700 font-medium">Student Placed</h4>
-                <p className="text-2xl font-bold text-custom-blue">{calculateStats().uniqueStudents}</p>
+                <p className="text-2xl font-bold text-custom-blue">
+                  {calculateStats().uniqueStudents}
+                </p>
               </div>
               <div className="bg-blue-50 p-4 rounded-lg shadow-sm border border-blue-200">
-                <h4 className="text-gray-700 font-medium">Average Package (LPA)</h4>
-                <p className="text-2xl font-bold text-custom-blue">{calculateStats().avgPackage}</p>
+                <h4 className="text-gray-700 font-medium">
+                  Average Package (LPA)
+                </h4>
+                <p className="text-2xl font-bold text-custom-blue">
+                  {calculateStats().avgPackage}
+                </p>
               </div>
               <div className="bg-blue-50 p-4 rounded-lg shadow-sm border border-blue-200">
-                <h4 className="text-gray-700 font-medium">Highest Package (LPA)</h4>
-                <p className="text-2xl font-bold text-custom-blue">{calculateStats().highestPackage}</p>
+                <h4 className="text-gray-700 font-medium">
+                  Highest Package (LPA)
+                </h4>
+                <p className="text-2xl font-bold text-custom-blue">
+                  {calculateStats().highestPackage}
+                </p>
               </div>
               <div className="bg-blue-50 p-4 rounded-lg shadow-sm border border-blue-200">
-                <h4 className="text-gray-700 font-medium">Lowest Package (LPA)</h4>
-                <p className="text-2xl font-bold text-custom-blue">{calculateStats().lowestPackage}</p>
+                <h4 className="text-gray-700 font-medium">
+                  Lowest Package (LPA)
+                </h4>
+                <p className="text-2xl font-bold text-custom-blue">
+                  {calculateStats().lowestPackage}
+                </p>
               </div>
             </div>
           </div>
@@ -1082,60 +1200,128 @@ const createAllCompaniesSheet = (data) => {
               <MdInfo size={18} />
             </div>
             <div className="flex flex-col">
-              <span className="text-custom-blue font-semibold">Double Placement Highlight</span>
-              <span className="text-gray-700 text-sm">Students with multiple placements/internships are highlighted in blue</span>
+              <span className="text-custom-blue font-semibold">
+                Double Placement Highlight
+              </span>
+              <span className="text-gray-700 text-sm">
+                Students with multiple placements/internships are highlighted in
+                blue
+              </span>
             </div>
           </div>
         )}
 
         {/* Table */}
-        <div className="overflow-x-auto rounded-lg shadow-sm" style={{scrollbarWidth: 'thin', scrollbarColor: '#204080 #f1f1f1'}}>
+        <div
+          className="overflow-x-auto rounded-lg shadow-sm"
+          style={{ scrollbarWidth: "thin", scrollbarColor: "#204080 #f1f1f1" }}
+        >
           <table className="w-full min-w-[1000px]">
             <thead>
               <tr className="bg-custom-blue text-white">
-                <th className="py-3 px-4 text-center font-semibold border-b-2 bg-custom-blue whitespace-nowrap w-[5%]">Sr No</th>
-                <th className="py-3 px-4 text-center font-semibold border-b-2 bg-custom-blue whitespace-nowrap w-[5%]">Roll No</th>
-                <th className="py-3 px-4 text-center font-semibold border-b-2 bg-custom-blue whitespace-nowrap w-[5%]">Name</th>
-                <th className="py-3 px-4 text-center font-semibold border-b-2 bg-custom-blue whitespace-nowrap w-[5%]">Branch</th>
-                <th className="py-3 px-4 text-center font-semibold border-b-2 bg-custom-blue whitespace-nowrap w-[5%]">Gender</th>
-                <th className="py-3 px-4 text-center font-semibold border-b-2 bg-custom-blue whitespace-nowrap w-[5%]">Category</th>
-                <th className="py-3 px-4 text-center font-semibold border-b-2 bg-custom-blue whitespace-nowrap w-[5%]">Date Result</th>
-                <th className="py-3 px-4 text-center font-semibold border-b-2 bg-custom-blue whitespace-nowrap w-[5%]">Profile</th>
-                <th className="py-3 px-4 text-center font-semibold border-b-2 bg-custom-blue whitespace-nowrap w-[5%]">Company</th>
-                <th className="py-3 px-4 text-center font-semibold border-b-2 bg-custom-blue whitespace-nowrap w-[5%]">Package(LPA)</th>
-                <th className="py-3 px-4 text-center font-semibold border-b-2 bg-custom-blue whitespace-nowrap w-[5%]">Status</th>
+                <th className="py-3 px-4 text-center font-semibold border-b-2 bg-custom-blue whitespace-nowrap w-[5%]">
+                  Sr No
+                </th>
+                <th className="py-3 px-4 text-center font-semibold border-b-2 bg-custom-blue whitespace-nowrap w-[5%]">
+                  Roll No
+                </th>
+                <th className="py-3 px-4 text-center font-semibold border-b-2 bg-custom-blue whitespace-nowrap w-[5%]">
+                  Name
+                </th>
+                <th className="py-3 px-4 text-center font-semibold border-b-2 bg-custom-blue whitespace-nowrap w-[5%]">
+                  Branch
+                </th>
+                <th className="py-3 px-4 text-center font-semibold border-b-2 bg-custom-blue whitespace-nowrap w-[5%]">
+                  Gender
+                </th>
+                <th className="py-3 px-4 text-center font-semibold border-b-2 bg-custom-blue whitespace-nowrap w-[5%]">
+                  Category
+                </th>
+                <th className="py-3 px-4 text-center font-semibold border-b-2 bg-custom-blue whitespace-nowrap w-[5%]">
+                  Date Result
+                </th>
+                <th className="py-3 px-4 text-center font-semibold border-b-2 bg-custom-blue whitespace-nowrap w-[5%]">
+                  Profile
+                </th>
+                <th className="py-3 px-4 text-center font-semibold border-b-2 bg-custom-blue whitespace-nowrap w-[5%]">
+                  Company
+                </th>
+                <th className="py-3 px-4 text-center font-semibold border-b-2 bg-custom-blue whitespace-nowrap w-[5%]">
+                  Package(LPA)
+                </th>
+                <th className="py-3 px-4 text-center font-semibold border-b-2 bg-custom-blue whitespace-nowrap w-[5%]">
+                  Status
+                </th>
               </tr>
             </thead>
             <tbody>
               {currentRows.length > 0 ? (
                 currentRows.map((item, index) => (
-                  <tr 
-                    key={index} 
-                    className={`${item.isDoublePlaced ? doublePlacedClass : index % 2 === 0 ? 'bg-gray-50' : 'bg-white'}`}
-                    title={item.isDoublePlaced ? "Student with multiple placements/internships" : ""}
+                  <tr
+                    key={index}
+                    className={`${item.isDoublePlaced ? doublePlacedClass : index % 2 === 0 ? "bg-gray-50" : "bg-white"}`}
+                    title={
+                      item.isDoublePlaced
+                        ? "Student with multiple placements/internships"
+                        : ""
+                    }
                   >
-                    <td className="py-3 px-4 border-b border-gray-200 text-center">{indexOfFirstRow + index + 1}</td>
-                    <td className="py-3 px-4 border-b border-gray-200 text-center">{item.roll_no}</td>
-                    <td className="py-3 px-4 border-b border-gray-200 text-center">{item.name}</td>
-                    <td className="py-3 px-4 border-b border-gray-200 text-center">{item.branch}</td>
-                    <td className="py-3 px-4 border-b border-gray-200 text-center">{item.gender}</td>
-                    <td className="py-3 px-4 border-b border-gray-200 text-center">{item.category}</td>
-                    <td className="py-3 px-4 border-b border-gray-200 text-center">{item.date_result}</td>
-                    <td className="py-3 px-4 border-b border-gray-200 text-center">{item.profile}</td>
-                    <td className="py-3 px-4 border-b border-gray-200 text-center">{item.company}</td>
-                    <td className="py-3 px-4 border-b border-gray-200 text-center">{item.package}</td>
-                    <td className="py-3 px-4 border-b border-gray-200 text-center">{item.student_status}</td>
+                    <td className="py-3 px-4 border-b border-gray-200 text-center">
+                      {indexOfFirstRow + index + 1}
+                    </td>
+                    <td className="py-3 px-4 border-b border-gray-200 text-center">
+                      {item.roll_no}
+                    </td>
+                    <td className="py-3 px-4 border-b border-gray-200 text-center">
+                      {item.name}
+                    </td>
+                    <td className="py-3 px-4 border-b border-gray-200 text-center">
+                      {item.branch}
+                    </td>
+                    <td className="py-3 px-4 border-b border-gray-200 text-center">
+                      {item.gender}
+                    </td>
+                    <td className="py-3 px-4 border-b border-gray-200 text-center">
+                      {item.category}
+                    </td>
+                    <td className="py-3 px-4 border-b border-gray-200 text-center">
+                      {item.date_result}
+                    </td>
+                    <td className="py-3 px-4 border-b border-gray-200 text-center">
+                      {item.profile}
+                    </td>
+                    <td className="py-3 px-4 border-b border-gray-200 text-center">
+                      {item.company}
+                    </td>
+                    <td className="py-3 px-4 border-b border-gray-200 text-center">
+                      {item.package}
+                    </td>
+                    <td className="py-3 px-4 border-b border-gray-200 text-center">
+                      {item.student_status}
+                    </td>
                   </tr>
                 ))
               ) : (
                 <tr>
                   <td colSpan="11" className="text-center text-gray-500 py-8">
                     <div className="flex flex-col items-center">
-                      <svg className="w-12 h-12 text-gray-300 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+                      <svg
+                        className="w-12 h-12 text-gray-300 mb-2"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth="2"
+                          d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"
+                        ></path>
                       </svg>
                       <p>No records found</p>
-                      <p className="text-xs text-gray-400 mt-1">Apply filters to view data</p>
+                      <p className="text-xs text-gray-400 mt-1">
+                        Apply filters to view data
+                      </p>
                     </div>
                   </td>
                 </tr>
@@ -1147,20 +1333,22 @@ const createAllCompaniesSheet = (data) => {
         {/* Pagination */}
         <div className="flex justify-center items-center mt-8 gap-2">
           <button
-            onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+            onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
             disabled={currentPage === 1}
             className="flex items-center justify-center min-w-[40px] px-3 py-2 bg-[#204080] text-white rounded-lg hover:bg-blue-700 transition-all disabled:bg-gray-400 transform hover:-translate-y-0.5 disabled:hover:transform-none"
             aria-label="Previous page"
           >
             <MdKeyboardArrowLeft size={20} />
           </button>
-          
+
           <div className="bg-gray-100 px-4 py-2 rounded-lg font-semibold text-gray-700 border border-gray-200">
             Page {currentPage} of {totalPages}
           </div>
-          
+
           <button
-            onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+            onClick={() =>
+              setCurrentPage((prev) => Math.min(prev + 1, totalPages))
+            }
             disabled={currentPage === totalPages}
             className="flex items-center justify-center min-w-[40px] px-3 py-2 bg-custom-blue text-white rounded-lg hover:bg-blue-700 transition-all disabled:bg-gray-400 transform hover:-translate-y-0.5 disabled:hover:transform-none"
             aria-label="Next page"

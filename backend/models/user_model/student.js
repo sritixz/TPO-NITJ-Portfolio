@@ -81,9 +81,9 @@ const studentSchema = new mongoose.Schema({
     type:String
   },
   placementstatus: {
-        type: String,
-        default:'Not Placed',
-    },
+      type: String,
+      default:'Not Placed',
+  },
   internshipstatus: {
         type: String,
         default:'No Intern',
