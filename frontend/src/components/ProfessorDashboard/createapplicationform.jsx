@@ -103,7 +103,7 @@ const CreateApplicationForm = ({ jobId, onClose, onSubmit }) => {
     fieldName: '12th %',
     fieldType: 'number',
     isRequired: true,
-    isAutoFill: true,
+    isAutoFill: false,
     fieldStar: false,
     studentPropertyPath: 'XIIth',
     options: []
@@ -112,7 +112,7 @@ const CreateApplicationForm = ({ jobId, onClose, onSubmit }) => {
     fieldName: '10th %',
     fieldType: 'number',
     isRequired: true,
-    isAutoFill: true,
+    isAutoFill: false,
     fieldStar: false,
     studentPropertyPath: 'Xth',
     options: []
