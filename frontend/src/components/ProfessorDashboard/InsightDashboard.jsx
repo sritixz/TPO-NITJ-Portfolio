@@ -216,10 +216,10 @@ const mtechdepartmentOptions = [
   {
     label: "TEXTILE TECHNOLOGY",
     options: [
-      {
-        value: "TEXTILE TECHNOLOGY",
-        label: "TEXTILE TECHNOLOGY",
-      },
+      // {
+      //   value: "TEXTILE TECHNOLOGY",
+      //   label: "TEXTILE TECHNOLOGY",
+      // },
       {
         value: "TEXTILE ENGINEERING AND MANAGEMENT",
         label: "TEXTILE ENGINEERING AND MANAGEMENT",
@@ -272,14 +272,14 @@ const InsightDashboard = () => {
   const [selectedCourse, setSelectedCourse] = useState('B.Tech');
   const [selectedBatch, setSelectedBatch] = useState('2026');
   const [selectedDepartment, setSelectedDepartment] = useState('');
-  const courses = ['B.Tech', 'M.Tech', 'MBA', 'M.Sc'];
+  const courses = ['B.Tech', 'M.Tech', 'MBA', 'M.Sc.'];
   const batches = ['2025', '2026', '2027', '2028', '2029', '2030'];
   const getDeptOptions = (course) => {
     let groups;
     if (course === 'B.Tech') groups = btechdepartmentOptions;
     else if (course === 'M.Tech') groups = mtechdepartmentOptions;
     else if (course === 'MBA') groups = mbadepartmentOptions;
-    else if (course === 'M.Sc') groups = mscdepartmentOptions;
+    else if (course === 'M.Sc.') groups = mscdepartmentOptions;
     else return [];
     return groups.flatMap(g => g.options.map(o => o.label));
   };
@@ -499,10 +499,10 @@ const InsightDashboard = () => {
     },
   };
   const departmentBarData = {
-    labels: Object.keys(insights.placementsByDepartment || {}),
+    labels: Object.keys(insights.departmentStats || {}),
     datasets: [{
-      label: 'Placements',
-      data: Object.values(insights.placementsByDepartment || {}),
+      label: 'Placements Percentage',
+      data: Object.values(insights.departmentStats || {}).map((e) => e.placementPercentage) ,
       backgroundColor: [
         'rgba(99, 102, 241, 0.8)',
         'rgba(34, 197, 94, 0.8)',
@@ -857,7 +857,14 @@ const deptData = insights.departmentStats?.[selectedDepartment];
               icon={TrendingUp}
               title="Placement %"
               value={`${insights.overallPlacementPercentage || 0}%`}
-              subtitle="Overall"
+              subtitle={selectedCourse}
+              color="purple"
+            />
+          <StatCard
+              icon={TrendingUp}
+              title="Total Companies Visited"
+              value={`${insights.totalCompanies || 0}`}
+              subtitle={selectedCourse}
               color="purple"
             />
         </div>
