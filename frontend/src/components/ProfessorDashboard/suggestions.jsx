@@ -250,7 +250,7 @@ const [showToStudent, setShowToStudent] = useState(false);
               <div className="flex gap-2">
                 {/* Update / Mark Contacted */}
              {suggestion.status === "Not Contacted" && (
-  <button className=" px-3 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-700"onClick={() => {
+  <button className=" px-3 py-1 text-xs font-semibold rounded-lg bg-green-700 text-white hover:bg-green-100 hover:text-green-700"onClick={() => {
     setSelectedSuggestion(suggestion);
     setShowModal(true);
   }}>
