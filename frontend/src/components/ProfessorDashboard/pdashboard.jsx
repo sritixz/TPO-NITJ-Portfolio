@@ -23,7 +23,10 @@ import {
   faUserCheck,
   faCheckCircle,
   faTags,
-  faCalendarAlt
+  faCalendarAlt,
+  faFile,
+  faFileZipper,
+  faDownload
 } from "@fortawesome/free-solid-svg-icons";
 
 import { Menu, X, LogOut} from "lucide-react";
@@ -59,6 +62,8 @@ import InternshipsManagement from "./internshipManagement.jsx";
 import ManageEventAnnouncements from "./ManageEventAnnouncements.jsx";
 
 import Suggestions from "./suggestions.jsx";
+import BulkResumeUpload from "./resumeZip.jsx";
+import downloadResult from "./downloadResult.jsx";
 
 const Pdashboard = () => {
   const [isMobile, setIsMobile] = useState(false);
@@ -113,6 +118,7 @@ const Pdashboard = () => {
     { label: "CGPA Validator", icon: faCheckCircle, path: "/pdashboard/check-cgpa" },
     {label:"NOC",icon:faUser, path:"/pdashboard/noc-management"},
     { label: "Conversation Log", icon: faComment, path: "/pdashboard/conversation" },
+    {label:"Resume Zip",icon:faFileZipper, path:"/pdashboard/resumeZip"},
     { label: "Help Requests", icon: faQuestionCircle, path: "/pdashboard/help-requests" },
     { label: "Shared Experiences", icon: faShareAlt, path: "/pdashboard/experience-sharing" },
     { label: "User Requests", icon: faContactCard, path: "/pdashboard/contact-request" },
@@ -120,6 +126,7 @@ const Pdashboard = () => {
     { label: "Internships Management", icon: faContactCard, path: "/pdashboard/internshipsmanagement" },
     { label: "Make Announcements", icon: faCalendarAlt, path: "/pdashboard/manage-landing-page" },    
     {label:"Suggestions",icon:faEnvelope, path:"/pdashboard/suggestions"},
+    // {label:"Download Result",icon:faDownload, path:"/pdashboard/downloadResult"},
   ];
 
 
@@ -329,6 +336,8 @@ const Pdashboard = () => {
             <Route path="internshipsmanagement" element={<InternshipsManagement/>} />
             <Route path="manage-landing-page" element={<ManageEventAnnouncements />} />
             <Route path="suggestions" element={<Suggestions />} />
+            <Route path="resumeZip" element={<BulkResumeUpload/>} />
+            {/* <Route path="downloadResult" element={<downloadResult/>} /> */}
             {/* <Route path="uploads" element={<Upload />} /> */}
             </Routes>
         </div>

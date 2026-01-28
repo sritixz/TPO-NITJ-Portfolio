@@ -2,11 +2,11 @@ import JobProfile from "../models/jobprofile.js";
 import Student from "../models/user_model/student.js";
 import Professor from "../models/user_model/professor.js";
 import Recuiter from "../models/user_model/recuiter.js";
-import FormSubmission from '../models/FormSubmission.js';
-import FormTemplate from '../models/FormTemplate.js';
-import Placement from '../models/placement.js';
+import FormSubmission from "../models/FormSubmission.js";
+import FormTemplate from "../models/FormTemplate.js";
+import Placement from "../models/placement.js";
 import Internship from "../models/internship.js";
-import Notification from "../models/notification.js"; 
+import Notification from "../models/notification.js";
 import mongoose from "mongoose";
 import nodemailer from "nodemailer";
 import Feedback from "../models/Feedback.js";
@@ -21,24 +21,29 @@ import Recruiter from "../models/user_model/recuiter.js";
 import GuestHouseBooking from "../models/travel_planner/room.js";
 import VehicleRequisition from "../models/travel_planner/vehicle.js";
 import { encryptValue, decryptValue } from "../utils/security.js";
-import fs from 'fs';
-import path from 'path';
+import fs from "fs";
+import path from "path";
 
 export const getAllCompanies = async (req, res) => {
   try {
-    const companiesFromJobProfiles = await JobProfile.find().select('company_name -_id'); // Fetch only company_name, exclude _id
-    const companiesFromRecruiters = await Recuiter.find().distinct('company'); // Fetch unique company names from Recuiter model
+    const companiesFromJobProfiles =
+      await JobProfile.find().select("company_name -_id"); // Fetch only company_name, exclude _id
+    const companiesFromRecruiters = await Recuiter.find().distinct("company"); // Fetch unique company names from Recuiter model
 
     // Combine and send unique company names
-    const allCompanies = [...new Set([...companiesFromJobProfiles.map(company => company.company_name), ...companiesFromRecruiters])];
+    const allCompanies = [
+      ...new Set([
+        ...companiesFromJobProfiles.map((company) => company.company_name),
+        ...companiesFromRecruiters,
+      ]),
+    ];
 
     res.status(200).json(allCompanies);
   } catch (error) {
-    console.error('Error fetching companies:', error);
-    res.status(500).json({ message: 'Server error' });
+    console.error("Error fetching companies:", error);
+    res.status(500).json({ message: "Server error" });
   }
 };
-
 
 const transporter = nodemailer.createTransport({
   service: "gmail",
@@ -50,12 +55,15 @@ const transporter = nodemailer.createTransport({
 
 // Function to send email to a single student
 const sendEmailToStudent = async (student, jobProfile) => {
-    const deadlineDateTime = new Date(jobProfile.deadline).toLocaleString("en-IN", {
-    dateStyle: "medium",
-    timeStyle: "short", 
-    timeZone: "Asia/Kolkata", 
-  });
-// Determine salary details based on job_type
+  const deadlineDateTime = new Date(jobProfile.deadline).toLocaleString(
+    "en-IN",
+    {
+      dateStyle: "medium",
+      timeStyle: "short",
+      timeZone: "Asia/Kolkata",
+    },
+  );
+  // Determine salary details based on job_type
   let salaryDetails = "";
   if (jobProfile.job_type === "Intern") {
     salaryDetails = `<tr>
@@ -83,7 +91,7 @@ const sendEmailToStudent = async (student, jobProfile) => {
     from: process.env.EMAIL_USER,
     to: student.email,
     subject: `New Job Opportunity: ${jobProfile.job_role} at ${jobProfile.company_name}`,
-html: `
+    html: `
   <div style="font-family: Arial, sans-serif; color: #333; line-height: 1.6;">
     <div style="max-width: 650px; margin: auto; border: 1px solid #e0e0e0; border-radius: 10px; overflow: hidden; box-shadow: 0 4px 10px rgba(0,0,0,0.05);">
       
@@ -141,8 +149,7 @@ html: `
       
     </div>
   </div>
-`
-
+`,
   };
 
   try {
@@ -248,7 +255,7 @@ export const createJobProfilecopy = async (req, res) => {
 
     // Determine job_class based on CTC
     let job_class;
-    if (ctc > 20 || job_sector==='PSU') {
+    if (ctc > 20 || job_sector === "PSU") {
       job_class = "A";
     } else if (ctc > 12 && ctc <= 20) {
       job_class = "B";
@@ -256,10 +263,10 @@ export const createJobProfilecopy = async (req, res) => {
       job_class = "C";
     } else if (ctc <= 5) {
       job_class = "D";
-    }else {
+    } else {
       job_class = "D"; // Default for invalid/undefined CTC
     }
-   console.log(job_class);
+    console.log(job_class);
     // Create new JobProfile
     const jobProfile = new JobProfile({
       recruiter_id,
@@ -294,45 +301,50 @@ export const createJobProfilecopy = async (req, res) => {
     // Save JobProfile to database
     const savedProfile = await jobProfile.save();
 
-const courseDurations = {
-  "B.Tech": 4,
-  "M.Tech": 2,
-  "B.Sc.-B.Ed.": 4,
-  "MBA": 2,
-  "M.Sc.": 2,
-};
+    const courseDurations = {
+      "B.Tech": 4,
+      "M.Tech": 2,
+      "B.Sc.-B.Ed.": 4,
+      MBA: 2,
+      "M.Sc.": 2,
+    };
 
-// Generate unique (course, admissionYear) combinations
-const uniqueGroups = new Set();
-eligibility_criteria.forEach((criteria) => {
-  const course = criteria.course_allowed;
-  const passingYear = criteria.eligible_batch;
-  const duration = courseDurations[course] || 0;
-  const admissionYear = passingYear - duration;
-  const key = `${course.toLowerCase()}-${admissionYear}`;
-  uniqueGroups.add(key);
-});
+    // Generate unique (course, admissionYear) combinations
+    const uniqueGroups = new Set();
+    eligibility_criteria.forEach((criteria) => {
+      const course = criteria.course_allowed;
+      const passingYear = criteria.eligible_batch;
+      const duration = courseDurations[course] || 0;
+      const admissionYear = passingYear - duration;
+      const key = `${course.toLowerCase()}-${admissionYear}`;
+      uniqueGroups.add(key);
+    });
 
-// Mapping of course names to email prefixes
-const coursePrefixMap = {
-  "B.Tech": "btech",
-  "M.Tech": "mtech",
-  "B.Sc.-B.Ed.": "bscbed",
-  "MBA": "mba",
-  "M.Sc.": "msc",
-};
+    // Mapping of course names to email prefixes
+    const coursePrefixMap = {
+      "B.Tech": "btech",
+      "M.Tech": "mtech",
+      "B.Sc.-B.Ed.": "bscbed",
+      MBA: "mba",
+      "M.Sc.": "msc",
+    };
 
-// Send one email per unique (course, admissionYear) combination
-await Promise.all(
-  Array.from(uniqueGroups).map(async (key) => {
-    const [courseRaw, admissionYear] = key.split("-");
-    const prefix = coursePrefixMap[Object.keys(coursePrefixMap).find(c => c.toLowerCase() === courseRaw)] || courseRaw;
-    const email = `${prefix}${admissionYear}@nitj.ac.in`;
+    // Send one email per unique (course, admissionYear) combination
+    await Promise.all(
+      Array.from(uniqueGroups).map(async (key) => {
+        const [courseRaw, admissionYear] = key.split("-");
+        const prefix =
+          coursePrefixMap[
+            Object.keys(coursePrefixMap).find(
+              (c) => c.toLowerCase() === courseRaw,
+            )
+          ] || courseRaw;
+        const email = `${prefix}${admissionYear}@nitj.ac.in`;
 
-    const pseudoStudent = { email };
-    await sendEmailToStudent(pseudoStudent, savedProfile);
-  })
-);
+        const pseudoStudent = { email };
+        await sendEmailToStudent(pseudoStudent, savedProfile);
+      }),
+    );
 
     return res.status(201).json({
       message: "Job profile created successfully!",
@@ -350,7 +362,6 @@ await Promise.all(
   }
 };
 
-
 // Controller for uploading attachment
 export const uploadAttachment = async (req, res) => {
   console.log("hello from upload attachment");
@@ -360,7 +371,9 @@ export const uploadAttachment = async (req, res) => {
   console.log(file);
 
   if (!file) {
-    return res.status(400).json({ success: false, message: 'No file uploaded' });
+    return res
+      .status(400)
+      .json({ success: false, message: "No file uploaded" });
   }
 
   const attachmentUrl = `/uploads/job_attachments/${file.filename}`;
@@ -370,7 +383,7 @@ export const uploadAttachment = async (req, res) => {
     console.log(jobId);
     const job = await JobProfile.findById(jobId);
     if (!job) {
-      return res.status(404).json({ success: false, message: 'Job not found' });
+      return res.status(404).json({ success: false, message: "Job not found" });
     }
 
     console.log(job.attachments);
@@ -382,39 +395,48 @@ export const uploadAttachment = async (req, res) => {
     // Get the _id of the newly added attachment
     const addedAttachment = job.attachments[job.attachments.length - 1];
 
-    res.json({ success: true, attachment: { _id: addedAttachment._id, name: attachmentName, url: attachmentUrl } });
+    res.json({
+      success: true,
+      attachment: {
+        _id: addedAttachment._id,
+        name: attachmentName,
+        url: attachmentUrl,
+      },
+    });
   } catch (error) {
-    console.error('Error uploading attachment:', error);
-    res.status(500).json({ success: false, message: 'Server error' });
+    console.error("Error uploading attachment:", error);
+    res.status(500).json({ success: false, message: "Server error" });
   }
 };
 
 // Controller for deleting attachment
 export const deleteAttachment = async (req, res) => {
   const { jobId, attachmentId } = req.params;
-console.log(jobId,attachmentId);
+  console.log(jobId, attachmentId);
   try {
     const job = await JobProfile.findById(jobId);
     if (!job) {
-      return res.status(404).json({ success: false, message: 'Job not found' });
+      return res.status(404).json({ success: false, message: "Job not found" });
     }
 
     const attachmentIndex = job.attachments.findIndex(
-      (att) => att._id.toString() === attachmentId
+      (att) => att._id.toString() === attachmentId,
     );
 
     if (attachmentIndex === -1) {
-      return res.status(404).json({ success: false, message: 'Attachment not found' });
+      return res
+        .status(404)
+        .json({ success: false, message: "Attachment not found" });
     }
 
     const attachment = job.attachments[attachmentIndex];
 
     console.log(attachment);
 
-      const filePath = path.join(process.cwd(), attachment.url);
+    const filePath = path.join(process.cwd(), attachment.url);
     fs.unlink(filePath, (err) => {
       if (err) {
-        console.error('Error deleting file:', err);
+        console.error("Error deleting file:", err);
       }
     });
 
@@ -422,38 +444,39 @@ console.log(jobId,attachmentId);
     job.attachments.splice(attachmentIndex, 1);
     await job.save();
 
-    res.json({ success: true, message: 'Attachment deleted successfully' });
+    res.json({ success: true, message: "Attachment deleted successfully" });
   } catch (error) {
-    console.error('Error deleting attachment:', error);
-    res.status(500).json({ success: false, message: 'Server error' });
+    console.error("Error deleting attachment:", error);
+    res.status(500).json({ success: false, message: "Server error" });
   }
 };
 
-
 export const getJobsByRecruiter = async (req, res) => {
   try {
-/*     const recruiterId = req.user.userId; */
+    /*     const recruiterId = req.user.userId; */
     const company = req.params.company;
-    const jobs = await JobProfile.find({company_name: company });
+    const jobs = await JobProfile.find({ company_name: company });
     res.status(200).json({ success: true, jobs });
   } catch (error) {
-    console.error('Error fetching jobs:', error.message);
-    res.status(500).json({ success: false, error: 'Server Error' });
+    console.error("Error fetching jobs:", error.message);
+    res.status(500).json({ success: false, error: "Server Error" });
   }
 };
 
 export const toggleEditingAllowed = async (req, res) => {
   try {
-    const {_id}=req.body;
+    const { _id } = req.body;
     const job = await JobProfile.findById(_id);
     if (!job) {
-      return res.status(404).json({ success: false, message: "Job Profile not found" });
+      return res
+        .status(404)
+        .json({ success: false, message: "Job Profile not found" });
     }
     job.recruiter_editing_allowed = !job.recruiter_editing_allowed;
     await job.save();
-    res.status(200).json({ 
-      success: true, 
-      editing_allowed: job.recruiter_editing_allowed
+    res.status(200).json({
+      success: true,
+      editing_allowed: job.recruiter_editing_allowed,
     });
   } catch (error) {
     console.error(error);
@@ -463,12 +486,16 @@ export const toggleEditingAllowed = async (req, res) => {
 
 export const getEditingAllowedStatus = async (req, res) => {
   try {
-    const company=req.params.company;
+    const company = req.params.company;
     const recruiter = await Recuiter.findOne({ company });
     if (!recruiter) {
-      return res.status(404).json({ success: false, message: "Recruiter not found" });
+      return res
+        .status(404)
+        .json({ success: false, message: "Recruiter not found" });
     }
-    res.status(200).json({ success: true, editing_allowed: recruiter.editing_allowed  });
+    res
+      .status(200)
+      .json({ success: true, editing_allowed: recruiter.editing_allowed });
   } catch (error) {
     console.error(error);
     res.status(500).json({ success: false, message: "Server error" });
@@ -485,13 +512,13 @@ export const updateJob = async (req, res) => {
     const job = await JobProfile.findById(_id);
 
     if (!job) {
-      return res.status(404).json({ success: false, message: 'Job not found' });
+      return res.status(404).json({ success: false, message: "Job not found" });
     }
 
     const oldJob = job.toObject();
     const updateData = req.body;
 
-      if (updateData.Hiring_Workflow) {
+    if (updateData.Hiring_Workflow) {
       const newWorkflow = updateData.Hiring_Workflow;
       const oldWorkflow = oldJob.Hiring_Workflow || [];
 
@@ -506,7 +533,8 @@ export const updateJob = async (req, res) => {
           newStep.eligible_students = job.Applied_Students || [];
         } else {
           // Subsequent steps: use shortlisted_students from previous step
-          newStep.eligible_students = oldWorkflow[stepIndex - 1]?.shortlisted_students || [];
+          newStep.eligible_students =
+            oldWorkflow[stepIndex - 1]?.shortlisted_students || [];
         }
 
         // Ensure absent_students and shortlisted_students are initialized as empty arrays
@@ -526,16 +554,20 @@ export const updateJob = async (req, res) => {
 
     const detectNestedChanges = (oldObj, newObj) => {
       let diff = {};
-      Object.keys(newObj).forEach(key => {
+      Object.keys(newObj).forEach((key) => {
         const oldValue = oldObj ? oldObj[key] : undefined;
         const newValue = newObj[key];
         if (Array.isArray(newValue) && Array.isArray(oldValue)) {
-          const added = newValue.filter(item => !oldValue.includes(item));
-          const removed = oldValue.filter(item => !newValue.includes(item));
+          const added = newValue.filter((item) => !oldValue.includes(item));
+          const removed = oldValue.filter((item) => !newValue.includes(item));
           if (added.length > 0 || removed.length > 0) {
             diff[key] = { added, removed };
           }
-        } else if (newValue && typeof newValue === 'object' && !Array.isArray(newValue)) {
+        } else if (
+          newValue &&
+          typeof newValue === "object" &&
+          !Array.isArray(newValue)
+        ) {
           const nestedDiff = detectNestedChanges(oldValue, newValue);
           if (Object.keys(nestedDiff).length > 0) {
             diff[key] = nestedDiff;
@@ -551,45 +583,43 @@ export const updateJob = async (req, res) => {
     console.log(changes);
 
     // Handle CTC change
-    if (changes?.job_salary?.ctc|| changes?.job_sector) {
+    if (changes?.job_salary?.ctc || changes?.job_sector) {
       // const ctc = parseFloat(updateData?.job_salary?.ctc || oldJob?.job_salary?.ctc || 0);
- let ctc;
-if (updateData?.job_salary?.ctc === '') {
-  ctc = 0;
-} else if (updateData?.job_salary?.ctc !== undefined) {
-  ctc = parseFloat(updateData.job_salary.ctc);
-} else if (oldJob?.job_salary?.ctc !== undefined) {
-  ctc = parseFloat(oldJob.job_salary.ctc);
-} else {
-  ctc = 0;
-}
+      let ctc;
+      if (updateData?.job_salary?.ctc === "") {
+        ctc = 0;
+      } else if (updateData?.job_salary?.ctc !== undefined) {
+        ctc = parseFloat(updateData.job_salary.ctc);
+      } else if (oldJob?.job_salary?.ctc !== undefined) {
+        ctc = parseFloat(oldJob.job_salary.ctc);
+      } else {
+        ctc = 0;
+      }
 
       const sector = updateData?.job_sector || oldJob?.job_sector || "Private";
       console.log("CTC:", ctc, "Sector:", sector);
       let job_class;
 
-         if (ctc > 20 || sector==='PSU') {
-      job_class = "A";
-    } else if (ctc > 12 && ctc <= 20) {
-      job_class = "B";
-    } else if (ctc > 5 && ctc <= 12) {
-      job_class = "C";
-    } else if (ctc <= 5) {
-      job_class = "D";
-    }else {
-      job_class = "D"; // Default for invalid/undefined CTC
-    }
-   console.log(job_class);
+      if (ctc > 20 || sector === "PSU") {
+        job_class = "A";
+      } else if (ctc > 12 && ctc <= 20) {
+        job_class = "B";
+      } else if (ctc > 5 && ctc <= 12) {
+        job_class = "C";
+      } else if (ctc <= 5) {
+        job_class = "D";
+      } else {
+        job_class = "D"; // Default for invalid/undefined CTC
+      }
+      console.log(job_class);
 
       updateData.job_class = job_class;
     }
 
     if (Object.keys(changes).length > 0) {
-      const updatedJob = await JobProfile.findByIdAndUpdate(
-        _id,
-        updateData,
-        { new: true }
-      );
+      const updatedJob = await JobProfile.findByIdAndUpdate(_id, updateData, {
+        new: true,
+      });
 
       updatedJob.auditLogs.push({
         editedBy: user._id,
@@ -603,12 +633,12 @@ if (updateData?.job_salary?.ctc === '') {
 
     res.status(200).json({
       success: true,
-      message: 'Job updated successfully',
-      job: await JobProfile.findById(_id)
+      message: "Job updated successfully",
+      job: await JobProfile.findById(_id),
     });
   } catch (error) {
-    console.error('Error updating job:', error.message);
-    res.status(500).json({ success: false, error: 'Server Error' });
+    console.error("Error updating job:", error.message);
+    res.status(500).json({ success: false, error: "Server Error" });
   }
 };
 
@@ -686,10 +716,10 @@ if (updateData?.job_salary?.ctc === '') {
 //       await updatedJob.save();
 //     }
 
-//     res.status(200).json({ 
-//       success: true, 
-//       message: 'Job updated successfully', 
-//       job: await JobProfile.findById(_id) 
+//     res.status(200).json({
+//       success: true,
+//       message: 'Job updated successfully',
+//       job: await JobProfile.findById(_id)
 //     });
 //   } catch (error) {
 //     console.error('Error updating job:', error.message);
@@ -697,15 +727,16 @@ if (updateData?.job_salary?.ctc === '') {
 //   }
 // };
 
-
 export const deleteJob = async (req, res) => {
   try {
     const { _id } = req.params;
     await JobProfile.findByIdAndDelete(_id);
-    res.status(200).json({ success: true, message: 'Job deleted successfully' });
+    res
+      .status(200)
+      .json({ success: true, message: "Job deleted successfully" });
   } catch (error) {
-    console.error('Error deleting job:', error.message);
-    res.status(500).json({ success: false, error: 'Server Error' });
+    console.error("Error deleting job:", error.message);
+    res.status(500).json({ success: false, error: "Server Error" });
   }
 };
 // export const getJobProfiletostudent = async (req, res) => {
@@ -760,12 +791,13 @@ export const deleteJob = async (req, res) => {
 //   }
 // };
 
-
 export const getJobProfiletostudent = async (req, res) => {
   try {
     const studentId = req.user.userId;
     if (!studentId) {
-      return res.status(400).json({ message: "User ID is missing in the request." });
+      return res
+        .status(400)
+        .json({ message: "User ID is missing in the request." });
     }
 
     const student = await Student.findById({ _id: studentId });
@@ -773,10 +805,16 @@ export const getJobProfiletostudent = async (req, res) => {
 
     try {
       const rollNumbers = [student.rollno];
-      const payload = {rollNumbers, portalKey: process.env.ERP_IDENTITY_SECRET};
+      const payload = {
+        rollNumbers,
+        portalKey: process.env.ERP_IDENTITY_SECRET,
+      };
       const encryptedData = encryptValue(JSON.stringify(payload));
       const course = student.course;
-      const response = await axios.post(`${process.env.ERP_SERVER}`, encryptedData);
+      const response = await axios.post(
+        `${process.env.ERP_SERVER}`,
+        encryptedData,
+      );
       const erpStudents = response.data.data;
       const decryptedData = decryptValue(erpStudents);
       const erpData = JSON.parse(decryptedData)[0];
@@ -787,14 +825,17 @@ export const getJobProfiletostudent = async (req, res) => {
         "B.Tech": 4,
         "M.Tech": 2,
         "B.Sc.-B.Ed.": 4,
-        "MBA": 2,
+        MBA: 2,
         "M.Sc.": 2,
       };
       const adjustment = courseDurations[course] || 0;
       const adjustedBatch = String(Number(erpBatch) + adjustment);
       batch = adjustedBatch;
     } catch (erpError) {
-      console.error("ERP server error, falling back to database batch:", erpError);
+      console.error(
+        "ERP server error, falling back to database batch:",
+        erpError,
+      );
       batch = student.batch;
     }
 
@@ -808,7 +849,7 @@ export const getJobProfiletostudent = async (req, res) => {
           course_allowed: course,
         },
       },
-    }).sort({ createdAt: -1 });;
+    }).sort({ createdAt: -1 });
 
     const applied = [];
     const notApplied = [];
@@ -836,47 +877,59 @@ export const getJobProfiletostudent = async (req, res) => {
     });
   } catch (error) {
     console.error("Error fetching job status:", error);
-    return res.status(500).json({ message: "An error occurred while fetching job status." });
+    return res
+      .status(500)
+      .json({ message: "An error occurred while fetching job status." });
   }
 };
-
 
 export const getJobProfiledetails = async (req, res) => {
   try {
     const { _id } = req.params;
     const job = await JobProfile.findById(_id);
-    res.status(200).json({job});
+    res.status(200).json({ job });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
-}
+};
 
 export const getJobProfilesForProfessors = async (req, res) => {
   try {
-    const approvedJobs = await JobProfile.find({ Approved_Status: true, completed:false }).sort({ createdAt: -1 });
-    const notApprovedJobs = await JobProfile.find({ Approved_Status: false }).sort({ createdAt: -1 });
-    const completed= await JobProfile.find({completed:true}).sort({ updatedAt: -1 });
+    const approvedJobs = await JobProfile.find({
+      Approved_Status: true,
+      completed: false,
+    }).sort({ createdAt: -1 });
+    const notApprovedJobs = await JobProfile.find({
+      Approved_Status: false,
+    }).sort({ createdAt: -1 });
+    const completed = await JobProfile.find({ completed: true }).sort({
+      updatedAt: -1,
+    });
     const feedbacks = await Feedback.find({});
     const feedbackByCompany = feedbacks.reduce((acc, feedback) => {
       acc[feedback.company] = feedback;
       return acc;
     }, {});
 
-   const jafs = await JobAnnouncementForm.find({});
+    const jafs = await JobAnnouncementForm.find({});
     const jafByCompany = jafs.reduce((acc, jaf) => {
       acc[jaf.organizationName] = jaf;
       return acc;
     }, {});
-    const guestHouseBookings = await GuestHouseBooking.find({}).sort({ updatedAt: -1 });
-    const vehicleRequisitions = await VehicleRequisition.find({}).sort({ updatedAt: -1 });
+    const guestHouseBookings = await GuestHouseBooking.find({}).sort({
+      updatedAt: -1,
+    });
+    const vehicleRequisitions = await VehicleRequisition.find({}).sort({
+      updatedAt: -1,
+    });
     res.status(200).json({
       approved: approvedJobs,
       notApproved: notApprovedJobs,
-      completed:completed,
+      completed: completed,
       feedbackByCompany,
       jafByCompany,
       guestHouseBookings,
-      vehicleRequisitions
+      vehicleRequisitions,
     });
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -896,11 +949,11 @@ export const getspecificJobProfilesForProfessors = async (req, res) => {
 export const approveJobProfile = async (req, res) => {
   try {
     const { _id } = req.params;
- 
+
     const approvedJob = await JobProfile.findByIdAndUpdate(
       _id,
       { Approved_Status: true },
-      { new: true }
+      { new: true },
     );
     if (!approvedJob) return res.status(404).json({ message: "Job not found" });
     res.status(200).json({ message: "Job approved successfully", approvedJob });
@@ -914,10 +967,13 @@ export const completedJobProfile = async (req, res) => {
     const completedJob = await JobProfile.findByIdAndUpdate(
       _id,
       { completed: true },
-      { new: true }
+      { new: true },
     );
-    if (!completedJob) return res.status(404).json({ message: "Job not found" });
-    res.status(200).json({ message: "Job completed successfully", completedJob });
+    if (!completedJob)
+      return res.status(404).json({ message: "Job not found" });
+    res
+      .status(200)
+      .json({ message: "Job completed successfully", completedJob });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -928,26 +984,30 @@ export const incompletedJobProfile = async (req, res) => {
     const incompletedJob = await JobProfile.findByIdAndUpdate(
       _id,
       { completed: false },
-      { new: true }
+      { new: true },
     );
-    if (!incompletedJob) return res.status(404).json({ message: "Job not found" });
-    res.status(200).json({ message: "Job incompleted successfully", incompletedJob });
+    if (!incompletedJob)
+      return res.status(404).json({ message: "Job not found" });
+    res
+      .status(200)
+      .json({ message: "Job incompleted successfully", incompletedJob });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 };
 
-
 export const rejectJobProfile = async (req, res) => {
   try {
-    const {_id } = req.params;
+    const { _id } = req.params;
     const deletedJob = await JobProfile.findByIdAndDelete(_id);
 
     if (!deletedJob) {
       return res.status(404).json({ message: "Job not found" });
     }
 
-    res.status(200).json({ message: "Job application deleted successfully", deletedJob });
+    res
+      .status(200)
+      .json({ message: "Job application deleted successfully", deletedJob });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -960,27 +1020,40 @@ export const checkEligibility = async (req, res) => {
     const student = await Student.findById(studentId);
     const job = await JobProfile.findById(_id);
     if (!student || !job) {
-      return res.status(404).json({ message: "Student or Job Application not found" });
+      return res
+        .status(404)
+        .json({ message: "Student or Job Application not found" });
     }
 
-       const currentDate = new Date();
-       const hasApplied = job.Applied_Students.includes(studentId);
-       const isDeadlineOver = job.deadline && currentDate > job.deadline;
+    const currentDate = new Date();
+    const hasApplied = job.Applied_Students.includes(studentId);
+    const isDeadlineOver = job.deadline && currentDate > job.deadline;
 
-  // Check for isInterested only if the field exists
-  if (student.batch === '2026' && typeof student.isInterested !== 'undefined' && student.isInterested === false) {
-  return res.json({
-    eligible: false,
-    reason: "You were not interested during placement registration"
-  });}
+    // Check for isInterested only if the field exists
+    if (
+      student.batch === "2026" &&
+      typeof student.isInterested !== "undefined" &&
+      student.isInterested === false
+    ) {
+      return res.json({
+        eligible: false,
+        reason: "You were not interested during placement registration",
+      });
+    }
 
     let updatedStudent;
     try {
       const rollNumbers = [student.rollno];
-      const payload = {rollNumbers, portalKey: process.env.ERP_IDENTITY_SECRET};
+      const payload = {
+        rollNumbers,
+        portalKey: process.env.ERP_IDENTITY_SECRET,
+      };
       const encryptedData = encryptValue(JSON.stringify(payload));
       const course = student.course;
-      const response = await axios.post(`${process.env.ERP_SERVER}`, encryptedData);
+      const response = await axios.post(
+        `${process.env.ERP_SERVER}`,
+        encryptedData,
+      );
       const erpStudents = response.data.data;
       const decryptedData = decryptValue(erpStudents);
       const erpData = JSON.parse(decryptedData)[0];
@@ -989,8 +1062,8 @@ export const checkEligibility = async (req, res) => {
         "B.Tech": 4,
         "M.Tech": 2,
         "B.Sc.-B.Ed.": 4,
-        "MBA": 2,
-        "M.Sc.": 2
+        MBA: 2,
+        "M.Sc.": 2,
       };
       const adjustment = courseDurations[course] || 0;
       const adjustedBatch = String(Number(erpBatch) + adjustment);
@@ -998,17 +1071,28 @@ export const checkEligibility = async (req, res) => {
         ...student.toObject(),
         cgpa: erpData.cgpa,
         batch: adjustedBatch,
-        active_backlogs: erpData.active_backlogs === 'true',
-        backlogs_history: erpData.backlogs_history === 'true',
+        active_backlogs: erpData.active_backlogs === "true",
+        backlogs_history: erpData.backlogs_history === "true",
         activeBacklogCount: erpData.activeBacklogCount,
       };
     } catch (erpError) {
-      console.error("ERP server error, falling back to database data:", erpError);
+      console.error(
+        "ERP server error, falling back to database data:",
+        erpError,
+      );
       updatedStudent = student.toObject();
     }
 
-    if((job.job_type==='Intern'|| job.job_type==='Intern+FTE'|| job.job_type==='Intern+PPO') && updatedStudent.activeBacklogCount>3){
-      return res.json({eligible: false, reason: "You have more than 3 active backlogs"});
+    if (
+      (job.job_type === "Intern" ||
+        job.job_type === "Intern+FTE" ||
+        job.job_type === "Intern+PPO") &&
+      updatedStudent.activeBacklogCount > 3
+    ) {
+      return res.json({
+        eligible: false,
+        reason: "You have more than 3 active backlogs",
+      });
     }
 
     const eligibilityCriteria = job.eligibility_criteria;
@@ -1018,13 +1102,19 @@ export const checkEligibility = async (req, res) => {
 
     // Define the order of checks and their corresponding reasons
     const checkOrder = [
-      { key: 'batch', reason: 'Batch not eligible' },
-      { key: 'course', reason: 'Course not eligible' },
-      { key: 'department', reason: 'Department not eligible' },
-      { key: 'gender', reason: 'Gender not eligible' },
-      { key: 'cgpa', reason: 'CGPA below required minimum' },
-      { key: 'active_backlogs', reason: 'Active backlogs do not meet criteria' },
-      { key: 'history_backlogs', reason: 'Backlogs history do not meet criteria' }
+      { key: "batch", reason: "Batch not eligible" },
+      { key: "course", reason: "Course not eligible" },
+      { key: "department", reason: "Department not eligible" },
+      { key: "gender", reason: "Gender not eligible" },
+      { key: "cgpa", reason: "CGPA below required minimum" },
+      {
+        key: "active_backlogs",
+        reason: "Active backlogs do not meet criteria",
+      },
+      {
+        key: "history_backlogs",
+        reason: "Backlogs history do not meet criteria",
+      },
     ];
 
     for (const criteria of eligibilityCriteria) {
@@ -1035,15 +1125,18 @@ export const checkEligibility = async (req, res) => {
         eligible_batch,
         minimum_cgpa,
         active_backlogs,
-        history_backlogs
+        history_backlogs,
       } = criteria;
 
       let currentFailureDepth = -1;
-      let currentIneligibilityReason = '';
-      
+      let currentIneligibilityReason = "";
+
       // Check if student is debarred
-      if(updatedStudent.debarred){
-        return res.json({ eligible: false, reason: "You are debarred from Campus Placement" });
+      if (updatedStudent.debarred) {
+        return res.json({
+          eligible: false,
+          reason: "You are debarred from Campus Placement",
+        });
       }
 
       // Check eligibility in the defined order
@@ -1056,16 +1149,27 @@ export const checkEligibility = async (req, res) => {
       } else if (!department_allowed.includes(updatedStudent.department)) {
         currentFailureDepth = 2; // Department check failed
         currentIneligibilityReason = checkOrder[2].reason;
-      } else if (gender_allowed !== "Any" && gender_allowed !== updatedStudent.gender) {
+      } else if (
+        gender_allowed !== "Any" &&
+        gender_allowed !== updatedStudent.gender
+      ) {
         currentFailureDepth = 3; // Gender check failed
         currentIneligibilityReason = checkOrder[3].reason;
       } else if (minimum_cgpa && updatedStudent.cgpa < minimum_cgpa) {
         currentFailureDepth = 4; // CGPA check failed
         currentIneligibilityReason = checkOrder[4].reason;
-      } else if (active_backlogs !== undefined && active_backlogs === false && updatedStudent.active_backlogs !== false) {
+      } else if (
+        active_backlogs !== undefined &&
+        active_backlogs === false &&
+        updatedStudent.active_backlogs !== false
+      ) {
         currentFailureDepth = 5; // Active backlogs check failed
         currentIneligibilityReason = checkOrder[5].reason;
-      } else if (history_backlogs !== undefined && history_backlogs === false && updatedStudent.backlogs_history !== false) {
+      } else if (
+        history_backlogs !== undefined &&
+        history_backlogs === false &&
+        updatedStudent.backlogs_history !== false
+      ) {
         currentFailureDepth = 6; // History backlogs check failed
         currentIneligibilityReason = checkOrder[6].reason;
       } else {
@@ -1081,157 +1185,315 @@ export const checkEligibility = async (req, res) => {
     if (!isEligible) {
       return res.json({ eligible: false, reason: deepestIneligibilityReason });
     }
-   
+
     //now evaluating according to college placement policy
     const jobType = job.job_type;
     const jobSector = job.job_sector;
-    const jobCategory=job.job_class;
-    const jobctc= job.job_salary.ctc;
-
+    const jobCategory = job.job_class;
+    const jobctc = job.job_salary.ctc;
 
     // if student is 3rd year B.Tech student then checking for summer intern
-    if(updatedStudent.batch=='2027' && updatedStudent.course=='B.Tech'){
-    const SummerInternHistory=await SummerInternTracker.findOne({batch:'2027',course:'B.Tech'});
-    if(SummerInternHistory?.studentsId.includes(studentId)){
-      return res.json({ eligible: false, reason: "You have already Summer Intern" });
-    }}
-
-
-    // if student is not btech 3rd year student then we will deal with offer tracker
-    else{
-    if((jobType === "Intern+FTE" || jobType === "FTE") && (jobctc==0 || !jobctc)){
-       return res.json({ eligible: false, reason: "CTC is not mentioned, please inform TPO" });
-    }
-    const studentOfferHistory = await OfferTracker.findOne({ studentId });
-
-    // if any offer that student has, is PSU offer then he will not be eligible for any other job offer
-    if(studentOfferHistory?.offer?.some(o => o.offer_sector === 'PSU')){
-      return res.json({ eligible: false, reason: "You have already PSU Offer" });
-    }
-    
-    if(studentOfferHistory?.offer.length>=2){
-      return res.json({ eligible: false, reason: "You already have two or more offers" });
-    }
-    // now for courses 'M.Tech', 'M.Sc.', 'MBA', 'B.Sc.-B.Ed.' we have one person one job policy
-    if(updatedStudent.course==='M.Tech'|| updatedStudent.course==='M.Sc.' || updatedStudent.course==='MBA' || updatedStudent.course==='B.Sc.-B.Ed.'){
-      const currentCTC = +studentOfferHistory?.offer[0].offer_ctc || 0;
-      const jobCTC = +jobctc || 0;
-      if(studentOfferHistory?.offer.length==1){
-        if(studentOfferHistory?.offer[0].offer_type === 'Intern+FTE' || studentOfferHistory?.offer[0].offer_type === 'FTE'){
-          return res.json({ eligible: false, reason: "You have already one FTE Offer", applied: hasApplied  });
-        }
-        else if((studentOfferHistory?.offer[0].offer_type === 'Intern' || studentOfferHistory?.offer[0].offer_type === 'Intern+PPO') && studentOfferHistory?.offer[0].offer_intern_duration > 6){
-          return res.json({ eligible: false, reason: "You have already one Offer", applied: hasApplied  });
-        }
-        //I am assuming when ctc is not mentioned in intern+ppo by company then it is 0
-        else if((studentOfferHistory?.offer[0].offer_type === 'Intern' || studentOfferHistory?.offer[0].offer_type === 'Intern+PPO') && studentOfferHistory?.offer[0].offer_intern_duration <= 6){
-          if(jobCategory==='D'){
-            return res.json({ eligible: false, reason: "You have already one similar Offer", applied: hasApplied  });
-          }
-        else if(studentOfferHistory?.offer[0].offer_category === 'A'){
-            if(jobCategory === 'D' || jobCategory ==='A'){
-             return res.json({ eligible: false, reason: "You have already A category Offer", applied: hasApplied, });
-             }
-            if((jobCategory === 'C' || jobCategory === 'B') && (jobType==='Intern'|| jobType==='Intern+PPO' || jobType==='Intern+FTE')){
-              return res.json({ eligible: false, reason: "You have already A category Offer", applied: hasApplied });
-             }
-        }
-       else if(studentOfferHistory?.offer[0].offer_category === 'B' && (jobCategory==='D'|| jobCategory==='C' || jobCategory==='B' || (jobCategory==='A' && jobCTC<(currentCTC+5))) ){
-          return res.json({ eligible: false, reason: "You have already B category Offer or job ctc has less diff. than expected w.r.t current offer ctc", applied: hasApplied  });
-        }
-       else if(studentOfferHistory?.offer[0].offer_category === 'C' && (jobCategory==='D' || jobCategory==='C'|| (jobCategory==='A' && jobCTC<(currentCTC+3))) ){
-          return res.json({ eligible: false, reason: "You have already C category Offer or job ctc has less diff. than expected w.r.t current offer ctc", applied: hasApplied });
-        }
-      else if(studentOfferHistory.offer[0].offer_category === 'D' && (jobCategory==='D' || (jobCategory==='C' && jobCTC<(currentCTC+2) ))){
-          return res.json({ eligible: false, reason: "You have already D category Offer or job ctc has less diff. than expected w.r.t current offer ctc", applied: hasApplied  });
-        }
-        }
+    if (updatedStudent.batch == "2027" && updatedStudent.course == "B.Tech") {
+      const SummerInternHistory = await SummerInternTracker.findOne({
+        batch: "2027",
+        course: "B.Tech",
+      });
+      if (SummerInternHistory?.studentsId.includes(studentId)) {
+        return res.json({
+          eligible: false,
+          reason: "You have already Summer Intern",
+        });
       }
     }
 
-    // for B.Tech students we have two offers policy
-      else if(updatedStudent.course==='B.Tech'){
+    // if student is not btech 3rd year student then we will deal with offer tracker
+    else {
+      if (
+        (jobType === "Intern+FTE" || jobType === "FTE") &&
+        (jobctc == 0 || !jobctc)
+      ) {
+        return res.json({
+          eligible: false,
+          reason: "CTC is not mentioned, please inform TPO",
+        });
+      }
+      const studentOfferHistory = await OfferTracker.findOne({ studentId });
+
+      // if any offer that student has, is PSU offer then he will not be eligible for any other job offer
+      if (studentOfferHistory?.offer?.some((o) => o.offer_sector === "PSU")) {
+        return res.json({
+          eligible: false,
+          reason: "You have already PSU Offer",
+        });
+      }
+
+      if (studentOfferHistory?.offer.length >= 2) {
+        return res.json({
+          eligible: false,
+          reason: "You already have two or more offers",
+        });
+      }
+      // now for courses 'M.Tech', 'M.Sc.', 'MBA', 'B.Sc.-B.Ed.' we have one person one job policy
+      if (
+        updatedStudent.course === "M.Tech" ||
+        updatedStudent.course === "M.Sc." ||
+        updatedStudent.course === "MBA" ||
+        updatedStudent.course === "B.Sc.-B.Ed."
+      ) {
+        const currentCTC = +studentOfferHistory?.offer[0].offer_ctc || 0;
+        const jobCTC = +jobctc || 0;
+        if (studentOfferHistory?.offer.length == 1) {
+          if (
+            studentOfferHistory?.offer[0].offer_type === "Intern+FTE" ||
+            studentOfferHistory?.offer[0].offer_type === "FTE"
+          ) {
+            return res.json({
+              eligible: false,
+              reason: "You have already one FTE Offer",
+              applied: hasApplied,
+            });
+          } else if (
+            (studentOfferHistory?.offer[0].offer_type === "Intern" ||
+              studentOfferHistory?.offer[0].offer_type === "Intern+PPO") &&
+            studentOfferHistory?.offer[0].offer_intern_duration > 6
+          ) {
+            return res.json({
+              eligible: false,
+              reason: "You have already one Offer",
+              applied: hasApplied,
+            });
+          }
+          //I am assuming when ctc is not mentioned in intern+ppo by company then it is 0
+          else if (
+            (studentOfferHistory?.offer[0].offer_type === "Intern" ||
+              studentOfferHistory?.offer[0].offer_type === "Intern+PPO") &&
+            studentOfferHistory?.offer[0].offer_intern_duration <= 6
+          ) {
+            if (jobCategory === "D") {
+              return res.json({
+                eligible: false,
+                reason: "You have already one similar Offer",
+                applied: hasApplied,
+              });
+            } else if (studentOfferHistory?.offer[0].offer_category === "A") {
+              if (jobCategory === "D" || jobCategory === "A") {
+                return res.json({
+                  eligible: false,
+                  reason: "You have already A category Offer",
+                  applied: hasApplied,
+                });
+              }
+              if (
+                (jobCategory === "C" || jobCategory === "B") &&
+                (jobType === "Intern" ||
+                  jobType === "Intern+PPO" ||
+                  jobType === "Intern+FTE")
+              ) {
+                return res.json({
+                  eligible: false,
+                  reason: "You have already A category Offer",
+                  applied: hasApplied,
+                });
+              }
+            } else if (
+              studentOfferHistory?.offer[0].offer_category === "B" &&
+              (jobCategory === "D" ||
+                jobCategory === "C" ||
+                jobCategory === "B" ||
+                (jobCategory === "A" && jobCTC < currentCTC + 5))
+            ) {
+              return res.json({
+                eligible: false,
+                reason:
+                  "You have already B category Offer or job ctc has less diff. than expected w.r.t current offer ctc",
+                applied: hasApplied,
+              });
+            } else if (
+              studentOfferHistory?.offer[0].offer_category === "C" &&
+              (jobCategory === "D" ||
+                jobCategory === "C" ||
+                (jobCategory === "A" && jobCTC < currentCTC + 3))
+            ) {
+              return res.json({
+                eligible: false,
+                reason:
+                  "You have already C category Offer or job ctc has less diff. than expected w.r.t current offer ctc",
+                applied: hasApplied,
+              });
+            } else if (
+              studentOfferHistory.offer[0].offer_category === "D" &&
+              (jobCategory === "D" ||
+                (jobCategory === "C" && jobCTC < currentCTC + 2))
+            ) {
+              return res.json({
+                eligible: false,
+                reason:
+                  "You have already D category Offer or job ctc has less diff. than expected w.r.t current offer ctc",
+                applied: hasApplied,
+              });
+            }
+          }
+        }
+      }
+
+      // for B.Tech students we have two offers policy
+      else if (updatedStudent.course === "B.Tech") {
         // console.log("B.Tech student offer history", studentOfferHistory?.offer);
         // console.log("B.Tech student job category", jobCategory);
         // console.log("B.Tech student job type", jobType);
         // console.log("B.Tech student job ctc", jobctc);
 
-      if(studentOfferHistory?.offer.length==1){
-      const currentCTC = +studentOfferHistory?.offer[0].offer_ctc || 0;
-      const jobCTC = +jobctc || 0;
-         //if the offer is intern or (intern+ppo with ctc, not mentioned or 0) then he can apply a job_category A, B, C
-        // if(jobCategory==='D' && (studentOfferHistory?.offer[0].offer_type === 'Intern' || (studentOfferHistory?.offer[0].offer_type === 'Intern+PPO' && studentOfferHistory?.offer[0].offer_ctc <= 0))){
-        //     return res.json({ eligible: false, reason: "You have already D category Offer" });  
-        // }
-        //now if he will have a offer with category A then he will be not eligible for any offer
-      // if(studentOfferHistory?.offer[0].offer_type === 'Intern' || studentOfferHistory?.offer[0].offer_type === 'Intern+PPO'){
-      //   if((studentOfferHistory?.offer[0].offer_type === 'Intern+PPO' && studentOfferHistory?.offer[0].offer_ctc <= 0) || studentOfferHistory?.offer[0].offer_type === 'Intern'){
-      //       if(jobCategory === 'D' && (jobType==='Intern' || jobType==='Intern+PPO' || jobType==='Intern+FTE')){
-      //        return res.json({ eligible: false, reason: "You have already D category Offer" });
-      //       }
-      //   }
-      //   else if(studentOfferHistory?.offer[0].offer_type === 'Intern+PPO' && studentOfferHistory?.offer[0].offer_ctc > 0 ){
-      //       if(jobCategory === 'D' && studentOfferHistory?.offer[0].offer_category==='D' && (jobType==='Intern' || jobType==='Intern+PPO' || jobType==='Intern+FTE')){
-      //        return res.json({ eligible: false, reason: "You have already D category Inter+PPO Offer" });
-      //       }
-      //       if((jobCategory === 'D' || jobCategory ==='C') && studentOfferHistory?.offer[0].offer_category==='C' && (jobType==='Intern' || jobType==='Intern+PPO' || jobType==='Intern+FTE')){
-      //        return res.json({ eligible: false, reason: "You have already C category Inter+PPO Offer" });
-      //       }
-      //       if((jobCategory === 'D' || jobCategory === 'C' || jobCategory ==='B') && studentOfferHistory?.offer[0].offer_category==='B' && (jobType==='Intern' || jobType==='Intern+PPO' || jobType==='Intern+FTE')){
-      //        return res.json({ eligible: false, reason: "You have already B category Inter+PPO Offer" });
-      //       }
-      //       if((jobCategory === 'D' || jobCategory === 'C' || jobCategory ==='B' || jobCategory ==='A') && studentOfferHistory?.offer[0].offer_category==='A' && (jobType==='Intern' || jobType==='Intern+PPO' || jobType==='Intern+FTE')){
-      //        return res.json({ eligible: false, reason: "You have already A category Inter+PPO Offer" });
-      //       }
-      //   }
-      // }
+        if (studentOfferHistory?.offer.length == 1) {
+          const currentCTC = +studentOfferHistory?.offer[0].offer_ctc || 0;
+          const jobCTC = +jobctc || 0;
+          //if the offer is intern or (intern+ppo with ctc, not mentioned or 0) then he can apply a job_category A, B, C
+          // if(jobCategory==='D' && (studentOfferHistory?.offer[0].offer_type === 'Intern' || (studentOfferHistory?.offer[0].offer_type === 'Intern+PPO' && studentOfferHistory?.offer[0].offer_ctc <= 0))){
+          //     return res.json({ eligible: false, reason: "You have already D category Offer" });
+          // }
+          //now if he will have a offer with category A then he will be not eligible for any offer
+          // if(studentOfferHistory?.offer[0].offer_type === 'Intern' || studentOfferHistory?.offer[0].offer_type === 'Intern+PPO'){
+          //   if((studentOfferHistory?.offer[0].offer_type === 'Intern+PPO' && studentOfferHistory?.offer[0].offer_ctc <= 0) || studentOfferHistory?.offer[0].offer_type === 'Intern'){
+          //       if(jobCategory === 'D' && (jobType==='Intern' || jobType==='Intern+PPO' || jobType==='Intern+FTE')){
+          //        return res.json({ eligible: false, reason: "You have already D category Offer" });
+          //       }
+          //   }
+          //   else if(studentOfferHistory?.offer[0].offer_type === 'Intern+PPO' && studentOfferHistory?.offer[0].offer_ctc > 0 ){
+          //       if(jobCategory === 'D' && studentOfferHistory?.offer[0].offer_category==='D' && (jobType==='Intern' || jobType==='Intern+PPO' || jobType==='Intern+FTE')){
+          //        return res.json({ eligible: false, reason: "You have already D category Inter+PPO Offer" });
+          //       }
+          //       if((jobCategory === 'D' || jobCategory ==='C') && studentOfferHistory?.offer[0].offer_category==='C' && (jobType==='Intern' || jobType==='Intern+PPO' || jobType==='Intern+FTE')){
+          //        return res.json({ eligible: false, reason: "You have already C category Inter+PPO Offer" });
+          //       }
+          //       if((jobCategory === 'D' || jobCategory === 'C' || jobCategory ==='B') && studentOfferHistory?.offer[0].offer_category==='B' && (jobType==='Intern' || jobType==='Intern+PPO' || jobType==='Intern+FTE')){
+          //        return res.json({ eligible: false, reason: "You have already B category Inter+PPO Offer" });
+          //       }
+          //       if((jobCategory === 'D' || jobCategory === 'C' || jobCategory ==='B' || jobCategory ==='A') && studentOfferHistory?.offer[0].offer_category==='A' && (jobType==='Intern' || jobType==='Intern+PPO' || jobType==='Intern+FTE')){
+          //        return res.json({ eligible: false, reason: "You have already A category Inter+PPO Offer" });
+          //       }
+          //   }
+          // }
 
-      console.log(studentOfferHistory.offer[0].offer_category , jobCategory, jobCTC, currentCTC);
-    // if(studentOfferHistory?.offer[0].offer_type === 'Intern+FTE' || studentOfferHistory?.offer[0].offer_type === 'FTE'){
-       if(studentOfferHistory?.offer[0].offer_category === 'A'){
-        //  if(studentOfferHistory?.offer[0].offer_type==='Intern+FTE' || studentOfferHistory?.offer[0].offer_type==='FTE'){
-        //   return res.json({ eligible: false, reason: "You have already A category Offer" });
-        //  }
-        //  if(studentOfferHistory?.offer[0].offer_type==='Intern+PPO' || studentOfferHistory?.offer[0].offer_type==='Intern'){
-        //     if(jobCategory === 'D' || jobCategory ==='A'){
-        //      return res.json({ eligible: false, reason: "You have already A category Offer" });
-        //      }
-        //     if((jobCategory === 'C' || jobCategory === 'B') && (jobType==='Intern'|| jobType==='Intern+PPO' || jobType==='Intern+FTE')){
-        //       return res.json({ eligible: false, reason: "You have already A category Offer" });
-        //      }
-          return res.json({ eligible: false, reason: "You have already A category Offer", applied: hasApplied });
+          console.log(
+            studentOfferHistory.offer[0].offer_category,
+            jobCategory,
+            jobCTC,
+            currentCTC,
+          );
+          // if(studentOfferHistory?.offer[0].offer_type === 'Intern+FTE' || studentOfferHistory?.offer[0].offer_type === 'FTE'){
+
+          //to allow students having intern or intern + ppo in any category company for FTE so avoiding category check for them
+          const currentOffer = studentOfferHistory?.offer?.[0];
+          const currentOfferType = currentOffer?.offer_type;
+          const isInternLikeOffer =
+            (currentOfferType === "Intern" || currentOfferType === "Intern+PPO") && (jobType === "FTE" || jobType === "Intern+FTE");
+          console.log("LIKE", isInternLikeOffer)
+          if (!isInternLikeOffer) {
+            console.log("Checking ccategories")
+            if (studentOfferHistory?.offer[0].offer_category === "A") {
+              //  if(studentOfferHistory?.offer[0].offer_type==='Intern+FTE' || studentOfferHistory?.offer[0].offer_type==='FTE'){
+              //   return res.json({ eligible: false, reason: "You have already A category Offer" });
+              //  }
+              //  if(studentOfferHistory?.offer[0].offer_type==='Intern+PPO' || studentOfferHistory?.offer[0].offer_type==='Intern'){
+              //     if(jobCategory === 'D' || jobCategory ==='A'){
+              //      return res.json({ eligible: false, reason: "You have already A category Offer" });
+              //      }
+              //     if((jobCategory === 'C' || jobCategory === 'B') && (jobType==='Intern'|| jobType==='Intern+PPO' || jobType==='Intern+FTE')){
+              //       return res.json({ eligible: false, reason: "You have already A category Offer" });
+              //      }
+              return res.json({
+                eligible: false,
+                reason: "You have already A category Offer",
+                applied: hasApplied,
+              });
+            } else if (
+              studentOfferHistory?.offer[0].offer_category === "B" &&
+              (jobCategory === "D" ||
+                jobCategory === "C" ||
+                jobCategory === "B" ||
+                (jobCategory === "A" && jobCTC < currentCTC + 5))
+            ) {
+              return res.json({
+                eligible: false,
+                reason:
+                  "You have already B category Offer or job ctc has less diff. than expected w.r.t current offer ctc",
+                applied: hasApplied,
+              });
+            } else if (
+              studentOfferHistory?.offer[0].offer_category === "C" &&
+              (jobCategory === "D" ||
+                jobCategory === "C" ||
+                (jobCategory === "B" && jobCTC < currentCTC + 3) ||
+                (jobCategory === "A" && jobCTC < currentCTC + 3))
+            ) {
+              return res.json({
+                eligible: false,
+                reason:
+                  "You have already C category Offer or job ctc has less diff. than expected w.r.t current offer ctc",
+                applied: hasApplied,
+              });
+            } 
+            // else if (
+            //   (studentOfferHistory.offer[0].offer_category === "D" ||
+            //     studentOfferHistory?.offer[0].offer_type === "Intern" ||
+            //     (studentOfferHistory?.offer[0].offer_type === "Intern+PPO" &&
+            //       studentOfferHistory?.offer[0].offer_ctc <= 0)) &&
+            //   (jobCategory === "D" ||
+            //     (jobCategory === "C" && jobCTC < currentCTC + 2) ||
+            //     (jobCategory === "A" && jobCTC < currentCTC + 2) ||
+            //     (jobCategory === "B" && jobCTC < currentCTC + 2))
+            // ) {
+            //   return res.json({
+            //     eligible: false,
+            //     reason:
+            //       "You have already D category Offer or job ctc has less diff. than expected w.r.t current offer ctc",
+            //     applied: hasApplied,
+            //   });
+            // }
+             else if (
+              (studentOfferHistory.offer[0].offer_category === "D") &&
+              (jobCategory === "D" ||
+                (jobCategory === "C" && jobCTC < currentCTC + 2) ||
+                (jobCategory === "A" && jobCTC < currentCTC + 2) ||
+                (jobCategory === "B" && jobCTC < currentCTC + 2))
+            ) {
+              return res.json({
+                eligible: false,
+                reason:
+                  "You have already D category Offer or job ctc has less diff. than expected w.r.t current offer ctc",
+                applied: hasApplied,
+              });
+            }
+          }
         }
-       else if(studentOfferHistory?.offer[0].offer_category === 'B' && (jobCategory==='D'|| jobCategory==='C' || jobCategory==='B' || (jobCategory==='A' && jobCTC<(currentCTC+5))) ){
-          return res.json({ eligible: false, reason: "You have already B category Offer or job ctc has less diff. than expected w.r.t current offer ctc" , applied: hasApplied });
-        }
-       else if(studentOfferHistory?.offer[0].offer_category === 'C' && (jobCategory==='D' || jobCategory==='C'|| (jobCategory==='B' && jobCTC<(currentCTC+3)) || (jobCategory==='A' && jobCTC<(currentCTC+3))) ){
-          return res.json({ eligible: false, reason: "You have already C category Offer or job ctc has less diff. than expected w.r.t current offer ctc", applied: hasApplied  });
-        }
-      else if((studentOfferHistory.offer[0].offer_category === 'D' || studentOfferHistory?.offer[0].offer_type === 'Intern' || (studentOfferHistory?.offer[0].offer_type === 'Intern+PPO' && studentOfferHistory?.offer[0].offer_ctc <= 0)) && (jobCategory==='D' || (jobCategory==='C' && jobCTC<(currentCTC+2 )) || (jobCategory==='A' && jobCTC<(currentCTC+2)) || (jobCategory==='B' && jobCTC<(currentCTC+2)) )){
-          return res.json({ eligible: false, reason: "You have already D category Offer or job ctc has less diff. than expected w.r.t current offer ctc" , applied: hasApplied });
-        }
+        // }
       }
-    // }
-    }}
+    }
     // const currentDate = new Date();
     // const isDeadlineOver = job.deadline && currentDate > job.deadline;
     // const hasApplied = job.Applied_Students.includes(studentId);
 
-    const jobEligibility=await JobEligibility.findOne({ studentId, jobId: _id });
+    const jobEligibility = await JobEligibility.findOne({
+      studentId,
+      jobId: _id,
+    });
     if (jobEligibility) {
       jobEligibility.eligible = true;
       await jobEligibility.save();
-    }
-    else{
+    } else {
       const newJobEligibility = new JobEligibility({
         studentId,
         jobId: _id,
-        eligible: true
+        eligible: true,
       });
       await newJobEligibility.save();
     }
-    
-    return res.json({ eligible: true, reason: "Eligible to apply", applied: hasApplied, isDeadlineOver });
+
+    return res.json({
+      eligible: true,
+      reason: "Eligible to apply",
+      applied: hasApplied,
+      isDeadlineOver,
+    });
   } catch (error) {
     console.error(error);
     return res.status(500).json({ message: "Server error" });
@@ -1244,33 +1506,44 @@ export const addfinalshortlistStudent = async (req, res) => {
   try {
     // Validate jobId
     if (!mongoose.Types.ObjectId.isValid(jobId)) {
-      return res.status(400).json({ error: 'Invalid job ID' });
+      return res.status(400).json({ error: "Invalid job ID" });
     }
 
     // Validate job existence
     const job = await JobProfile.findById(jobId);
     if (!job) {
-      return res.status(404).json({ error: 'Job not found' });
+      return res.status(404).json({ error: "Job not found" });
     }
 
     // Validate input
     if (!Array.isArray(students) || students.length === 0) {
-      return res.status(400).json({ error: 'Students array is required and cannot be empty' });
+      return res
+        .status(400)
+        .json({ error: "Students array is required and cannot be empty" });
     }
 
     // Validate student IDs and group by batch, course, and action
     const groupedStudents = {};
     for (const student of students) {
-      if (!student.studentId || !mongoose.Types.ObjectId.isValid(student.studentId)) {
-        return res.status(400).json({ error: `Invalid or missing student ID: ${student.studentId || 'undefined'}` });
+      if (
+        !student.studentId ||
+        !mongoose.Types.ObjectId.isValid(student.studentId)
+      ) {
+        return res.status(400).json({
+          error: `Invalid or missing student ID: ${student.studentId || "undefined"}`,
+        });
       }
-      if (!['add', 'remove'].includes(student.action)) {
-        return res.status(400).json({ error: `Invalid action for student ${student.studentId}: ${student.action}` });
+      if (!["add", "remove"].includes(student.action)) {
+        return res.status(400).json({
+          error: `Invalid action for student ${student.studentId}: ${student.action}`,
+        });
       }
 
       const studentData = await Student.findById(student.studentId);
       if (!studentData) {
-        return res.status(404).json({ error: `Student with ID ${student.studentId} not found` });
+        return res
+          .status(404)
+          .json({ error: `Student with ID ${student.studentId} not found` });
       }
 
       const key = `${studentData.batch}-${studentData.course}-${student.action}`;
@@ -1283,7 +1556,7 @@ export const addfinalshortlistStudent = async (req, res) => {
         };
       }
 
-      if (student.action === 'add') {
+      if (student.action === "add") {
         groupedStudents[key].students.push({
           studentId: student.studentId,
           name: studentData.name,
@@ -1292,7 +1565,9 @@ export const addfinalshortlistStudent = async (req, res) => {
           category: studentData.category,
           job_type: student.jobtype || job.job_type,
           job_role: student.jobrole || job.job_role,
-          ctc: student.ctc || (job.job_salary?.ctc !== '0' ? job.job_salary.ctc : undefined),
+          ctc:
+            student.ctc ||
+            (job.job_salary?.ctc !== "0" ? job.job_salary.ctc : undefined),
           stipend: student.stipend || job.job_salary?.stipend,
           intern_duration: student.internduration || job.internship_duration,
         });
@@ -1308,7 +1583,9 @@ export const addfinalshortlistStudent = async (req, res) => {
       .filter((id) => {
         const isValid = mongoose.Types.ObjectId.isValid(id);
         if (!isValid) {
-          console.warn(`Invalid student ID found in JobProfile.final_shortlisted_students: ${id}`);
+          console.warn(
+            `Invalid student ID found in JobProfile.final_shortlisted_students: ${id}`,
+          );
         }
         return isValid;
       })
@@ -1318,19 +1595,22 @@ export const addfinalshortlistStudent = async (req, res) => {
     for (const [key, group] of Object.entries(groupedStudents)) {
       const { batch, course, action, students } = group;
 
-      if (course === 'B.Tech' && batch === '2027') {
+      if (course === "B.Tech" && batch === "2027") {
         let summerIntern = await SummerIntern.findOne({ jobId, batch, course });
-        let summerInternTracker = await SummerInternTracker.findOne({ batch, course });
+        let summerInternTracker = await SummerInternTracker.findOne({
+          batch,
+          course,
+        });
 
-        if (action === 'add') {
+        if (action === "add") {
           if (!summerIntern) {
             summerIntern = new SummerIntern({
               jobId,
               company_name: job.company_name,
               batch,
               course,
-              offer_mode: 'On-Campus',
-              offer_sector: job.job_sector || 'Private',
+              offer_mode: "On-Campus",
+              offer_sector: job.job_sector || "Private",
               result_date: new Date(),
               shortlisted_students: students,
               visibility: true,
@@ -1345,10 +1625,14 @@ export const addfinalshortlistStudent = async (req, res) => {
             summerInternTracker = new SummerInternTracker({
               batch,
               course,
-              studentsId: students.map((s) => mongoose.Types.ObjectId.createFromHexString(s.studentId)),
+              studentsId: students.map((s) =>
+                mongoose.Types.ObjectId.createFromHexString(s.studentId),
+              ),
             });
           } else {
-            const newStudentIds = students.map((s) => mongoose.Types.ObjectId.createFromHexString(s.studentId));
+            const newStudentIds = students.map((s) =>
+              mongoose.Types.ObjectId.createFromHexString(s.studentId),
+            );
             summerInternTracker.studentsId = [
               ...new Set([
                 ...summerInternTracker.studentsId.map((id) => id.toString()),
@@ -1357,11 +1641,15 @@ export const addfinalshortlistStudent = async (req, res) => {
             ].map((id) => mongoose.Types.ObjectId.createFromHexString(id));
           }
           await summerInternTracker.save();
-        } else if (action === 'remove') {
+        } else if (action === "remove") {
           if (summerIntern) {
-            summerIntern.shortlisted_students = summerIntern.shortlisted_students.filter(
-              (s) => !students.some((student) => student.studentId === s.studentId.toString())
-            );
+            summerIntern.shortlisted_students =
+              summerIntern.shortlisted_students.filter(
+                (s) =>
+                  !students.some(
+                    (student) => student.studentId === s.studentId.toString(),
+                  ),
+              );
             if (summerIntern.shortlisted_students.length === 0) {
               await SummerIntern.deleteOne({ _id: summerIntern._id });
             } else {
@@ -1370,11 +1658,14 @@ export const addfinalshortlistStudent = async (req, res) => {
           }
           if (summerInternTracker) {
             const removeStudentIds = students.map((s) => s.studentId);
-            summerInternTracker.studentsId = summerInternTracker.studentsId.filter(
-              (id) => !removeStudentIds.includes(id.toString())
-            );
+            summerInternTracker.studentsId =
+              summerInternTracker.studentsId.filter(
+                (id) => !removeStudentIds.includes(id.toString()),
+              );
             if (summerInternTracker.studentsId.length === 0) {
-              await SummerInternTracker.deleteOne({ _id: summerInternTracker._id });
+              await SummerInternTracker.deleteOne({
+                _id: summerInternTracker._id,
+              });
             } else {
               await summerInternTracker.save();
             }
@@ -1383,15 +1674,15 @@ export const addfinalshortlistStudent = async (req, res) => {
       } else {
         let offer = await Offer.findOne({ jobId, batch, course });
 
-        if (action === 'add') {
+        if (action === "add") {
           if (!offer) {
             offer = new Offer({
               jobId,
               company_name: job.company_name,
               batch,
               course,
-              offer_mode:'On-Campus',
-              offer_sector: job.job_sector || 'Private',
+              offer_mode: "On-Campus",
+              offer_sector: job.job_sector || "Private",
               result_date: new Date(),
               shortlisted_students: students,
               visibility: true,
@@ -1404,30 +1695,34 @@ export const addfinalshortlistStudent = async (req, res) => {
           // Update OfferTracker for each student
           for (const student of students) {
             let offer_category;
-             if (student.ctc > 20 || job.job_sector==='PSU') {
-      offer_category = "A";
-    } else if (student.ctc > 12 && student.ctc <= 20) {
-      offer_category= "B";
-    } else if (student.ctc > 5 && student.ctc <= 12) {
-      offer_category= "C";
-    } else if (student.ctc <= 5) {
-      offer_category = "D";
-    }else {
-      offer_category= "D"; // Default for invalid/undefined CTC
-    }
+            if (student.ctc > 20 || job.job_sector === "PSU") {
+              offer_category = "A";
+            } else if (student.ctc > 12 && student.ctc <= 20) {
+              offer_category = "B";
+            } else if (student.ctc > 5 && student.ctc <= 12) {
+              offer_category = "C";
+            } else if (student.ctc <= 5) {
+              offer_category = "D";
+            } else {
+              offer_category = "D"; // Default for invalid/undefined CTC
+            }
 
             const offerDetails = {
               offer_type: student.job_type,
-              offer_category:offer_category,
-              offer_sector: job.job_sector || 'Private',
+              offer_category: offer_category,
+              offer_sector: job.job_sector || "Private",
               offer_ctc: student.ctc,
               offer_intern_duration: student.intern_duration,
             };
 
-            let offerTracker = await OfferTracker.findOne({ studentId: student.studentId });
+            let offerTracker = await OfferTracker.findOne({
+              studentId: student.studentId,
+            });
             if (!offerTracker) {
               offerTracker = new OfferTracker({
-                studentId: mongoose.Types.ObjectId.createFromHexString(student.studentId),
+                studentId: mongoose.Types.ObjectId.createFromHexString(
+                  student.studentId,
+                ),
                 offer: [offerDetails],
               });
             } else {
@@ -1435,10 +1730,13 @@ export const addfinalshortlistStudent = async (req, res) => {
             }
             await offerTracker.save();
           }
-        } else if (action === 'remove') {
+        } else if (action === "remove") {
           if (offer) {
             offer.shortlisted_students = offer.shortlisted_students.filter(
-              (s) => !students.some((student) => student.studentId === s.studentId.toString())
+              (s) =>
+                !students.some(
+                  (student) => student.studentId === s.studentId.toString(),
+                ),
             );
             if (offer.shortlisted_students.length === 0) {
               await Offer.deleteOne({ _id: offer._id });
@@ -1449,11 +1747,16 @@ export const addfinalshortlistStudent = async (req, res) => {
 
           // Remove from OfferTracker
           for (const student of students) {
-            const offerTracker = await OfferTracker.findOne({ studentId: student.studentId });
+            const offerTracker = await OfferTracker.findOne({
+              studentId: student.studentId,
+            });
             if (offerTracker) {
               // Remove the offer matching the jobId (assuming one offer per jobId for simplicity)
               offerTracker.offer = offerTracker.offer.filter(
-                (o) => o.offer_type !== students.find((s) => s.studentId === student.studentId)?.job_type
+                (o) =>
+                  o.offer_type !==
+                  students.find((s) => s.studentId === student.studentId)
+                    ?.job_type,
               );
               if (offerTracker.offer.length === 0) {
                 await OfferTracker.deleteOne({ _id: offerTracker._id });
@@ -1466,12 +1769,12 @@ export const addfinalshortlistStudent = async (req, res) => {
       }
 
       // Update JobProfile's final_shortlisted_students
-      if (action === 'add') {
+      if (action === "add") {
         const newStudentIds = students.map((s) => s.studentId);
         job.final_shortlisted_students = [
           ...new Set([...validStudentIds, ...newStudentIds]),
         ].map((id) => mongoose.Types.ObjectId.createFromHexString(id));
-      } else if (action === 'remove') {
+      } else if (action === "remove") {
         const removeStudentIds = students.map((s) => s.studentId);
         job.final_shortlisted_students = validStudentIds
           .filter((id) => !removeStudentIds.includes(id))
@@ -1481,10 +1784,12 @@ export const addfinalshortlistStudent = async (req, res) => {
 
     await job.save();
 
-    return res.status(200).json({ message: 'Shortlist updated successfully' });
+    return res.status(200).json({ message: "Shortlist updated successfully" });
   } catch (error) {
-    console.error('Error in addfinalshortlistStudent:', error);
-    return res.status(500).json({ error: 'Server error', details: error.message });
+    console.error("Error in addfinalshortlistStudent:", error);
+    return res
+      .status(500)
+      .json({ error: "Server error", details: error.message });
   }
 };
 
@@ -1493,21 +1798,21 @@ export const addshortlistStudents = async (req, res) => {
     const { jobId, stepIndex, students } = req.body;
 
     if (!mongoose.Types.ObjectId.isValid(jobId)) {
-      return res.status(400).json({ error: 'Invalid job ID' });
+      return res.status(400).json({ error: "Invalid job ID" });
     }
 
     const job = await JobProfile.findById(jobId);
     if (!job) {
-      return res.status(404).json({ error: 'Job not found' });
+      return res.status(404).json({ error: "Job not found" });
     }
 
     if (stepIndex < 0 || stepIndex >= job.Hiring_Workflow.length) {
-      return res.status(400).json({ error: 'Invalid step index' });
+      return res.status(400).json({ error: "Invalid step index" });
     }
 
     const step = job.Hiring_Workflow[stepIndex];
     if (!step) {
-      return res.status(400).json({ error: 'Step not found' });
+      return res.status(400).json({ error: "Step not found" });
     }
 
     const studentIds = [];
@@ -1519,7 +1824,7 @@ export const addshortlistStudents = async (req, res) => {
       if (student.absent) {
         if (step.shortlisted_students.includes(studentId)) {
           step.shortlisted_students = step.shortlisted_students.filter(
-            (id) => id.toString() !== studentId.toString()
+            (id) => id.toString() !== studentId.toString(),
           );
         }
         if (!step.absent_students.includes(studentId)) {
@@ -1528,19 +1833,19 @@ export const addshortlistStudents = async (req, res) => {
         for (let i = stepIndex + 1; i < job.Hiring_Workflow.length; i++) {
           const nextStep = job.Hiring_Workflow[i];
           nextStep.eligible_students = nextStep.eligible_students.filter(
-            (id) => id.toString() !== studentId.toString()
+            (id) => id.toString() !== studentId.toString(),
           );
           nextStep.shortlisted_students = nextStep.shortlisted_students.filter(
-            (id) => id.toString() !== studentId.toString()
+            (id) => id.toString() !== studentId.toString(),
           );
           nextStep.absent_students = nextStep.absent_students.filter(
-            (id) => id.toString() !== studentId.toString()
+            (id) => id.toString() !== studentId.toString(),
           );
         }
       } else if (student.shortlisted) {
         if (step.absent_students.includes(studentId)) {
           step.absent_students = step.absent_students.filter(
-            (id) => id.toString() !== studentId.toString()
+            (id) => id.toString() !== studentId.toString(),
           );
         }
         if (!step.shortlisted_students.includes(studentId)) {
@@ -1549,24 +1854,24 @@ export const addshortlistStudents = async (req, res) => {
       } else {
         if (step.shortlisted_students.includes(studentId)) {
           step.shortlisted_students = step.shortlisted_students.filter(
-            (id) => id.toString() !== studentId.toString()
+            (id) => id.toString() !== studentId.toString(),
           );
         }
         if (step.absent_students.includes(studentId)) {
           step.absent_students = step.absent_students.filter(
-            (id) => id.toString() !== studentId.toString()
+            (id) => id.toString() !== studentId.toString(),
           );
         }
         for (let i = stepIndex + 1; i < job.Hiring_Workflow.length; i++) {
           const nextStep = job.Hiring_Workflow[i];
           nextStep.eligible_students = nextStep.eligible_students.filter(
-            (id) => id.toString() !== studentId.toString()
+            (id) => id.toString() !== studentId.toString(),
           );
           nextStep.shortlisted_students = nextStep.shortlisted_students.filter(
-            (id) => id.toString() !== studentId.toString()
+            (id) => id.toString() !== studentId.toString(),
           );
           nextStep.absent_students = nextStep.absent_students.filter(
-            (id) => id.toString() !== studentId.toString()
+            (id) => id.toString() !== studentId.toString(),
           );
         }
       }
@@ -1599,7 +1904,6 @@ export const addshortlistStudents = async (req, res) => {
     //     const studentId = student.studentId;
     //     const dbStudent = await Student.findById(studentId);
 
-
     //     if (dbStudent) {
     //       const key = `${dbStudent.batch}-${dbStudent.course}`;
 
@@ -1630,10 +1934,10 @@ export const addshortlistStudents = async (req, res) => {
     //         else{
     //           if (job.job_salary.ctc >= 20) {
     //             jobClassIndex = 3;
-    //           } 
+    //           }
     //           else if (job.job_salary.ctc < 4.5) {
     //             jobClassIndex = 0;
-    //           } 
+    //           }
     //           else if ((dbStudent.course === "B.Tech" || dbStudent.course === "M.Tech") && (dbStudent.department === "COMPUTER SCIENCE AND ENGINEERING" || dbStudent.department === "INFORMATION TECHNOLOGY"|| dbStudent.department ==="COMPUTER SCIENCE AND ENGINEERING (INFORMATION SECURITY)" || dbStudent.department ==="DATA SCIENCE AND ENGINEERING" || dbStudent.department ==="ARTIFICIAL INTELLIGENCE"|| dbStudent.department==="DATA ANALYTICS")) {
     //             if (job.job_salary.ctc >= 10 && job.job_salary.ctc < 20) {
     //               jobClassIndex = 2;
@@ -1641,10 +1945,10 @@ export const addshortlistStudents = async (req, res) => {
     //               jobClassIndex = 1;
     //             }
     //           }
-    //           else if ((dbStudent.course === "B.Tech" || dbStudent.course === "M.Tech") && 
-    //                      (dbStudent.department === "ELECTRONICS AND COMMUNICATION ENGINEERING" || 
-    //                       dbStudent.department === "INSTRUMENTATION AND CONTROL ENGINEERING" || 
-    //                       dbStudent.department === "ELECTRONICS AND VLSI ENGINEERING" || 
+    //           else if ((dbStudent.course === "B.Tech" || dbStudent.course === "M.Tech") &&
+    //                      (dbStudent.department === "ELECTRONICS AND COMMUNICATION ENGINEERING" ||
+    //                       dbStudent.department === "INSTRUMENTATION AND CONTROL ENGINEERING" ||
+    //                       dbStudent.department === "ELECTRONICS AND VLSI ENGINEERING" ||
     //                       dbStudent.department === "ELECTRICAL ENGINEERING"||
     //                       dbStudent.department === "CONTROL AND INSTRUMENTATION ENGINEERING")) {
     //             if (job.job_salary.ctc >= 8 && job.job_salary.ctc < 20) {
@@ -1686,10 +1990,10 @@ export const addshortlistStudents = async (req, res) => {
     //           offerTracker = new OfferTracker({ studentId, offer: [] });
     //         }
 
-    //         const offerCategory = jobClassIndex === 0 ? 'Not Considered' : 
-    //                             jobClassIndex === 1 ? 'Below Dream' : 
+    //         const offerCategory = jobClassIndex === 0 ? 'Not Considered' :
+    //                             jobClassIndex === 1 ? 'Below Dream' :
     //                             jobClassIndex === 2 ? 'Dream' : 'Super Dream';
-            
+
     //         const offerExists = offerTracker.offer.some(
     //           offer => offer.jobId.toString() === jobId.toString()
     //         );
@@ -1706,7 +2010,7 @@ export const addshortlistStudents = async (req, res) => {
     //       } else {
     //         // Track students to remove and remove from OfferTracker
     //         studentsToRemove.add(`${key}-${studentId}`);
-            
+
     //         let offerTracker = await OfferTracker.findOne({ studentId });
     //         if (offerTracker) {
     //           offerTracker.offer = offerTracker.offer.filter(
@@ -1741,17 +2045,17 @@ export const addshortlistStudents = async (req, res) => {
     //         const existingStudentIds = new Set(
     //           internship.shortlisted_students.map(s => s.studentId.toString())
     //         );
-            
+
     //         const newStudents = placementData.filter(
     //           student => !existingStudentIds.has(student.studentId.toString())
     //         );
-            
+
     //         if (studentsToRemove.size > 0) {
     //           internship.shortlisted_students = internship.shortlisted_students.filter(
     //             student => !studentsToRemove.has(`${key}-${student.studentId.toString()}`)
     //           );
     //         }
-            
+
     //         internship.shortlisted_students.push(...newStudents);
     //         internship.result_date = new Date();
     //         await internship.save();
@@ -1789,17 +2093,17 @@ export const addshortlistStudents = async (req, res) => {
     //         const existingStudentIds = new Set(
     //           placement.shortlisted_students.map(s => s.studentId.toString())
     //         );
-            
+
     //         const newStudents = placementData.filter(
     //           student => !existingStudentIds.has(student.studentId.toString())
     //         );
-            
+
     //         if (studentsToRemove.size > 0) {
     //           placement.shortlisted_students = placement.shortlisted_students.filter(
     //             student => !studentsToRemove.has(`${key}-${student.studentId.toString()}`)
     //           );
     //         }
-            
+
     //         placement.shortlisted_students.push(...newStudents);
     //         placement.result_date = new Date();
     //         await placement.save();
@@ -1827,17 +2131,17 @@ export const addshortlistStudents = async (req, res) => {
     // }
 
     await job.save();
-    res.status(200).json({ message: 'Students processed successfully.' });
+    res.status(200).json({ message: "Students processed successfully." });
   } catch (error) {
-    console.error('Error shortlisting students:', error);
-    res.status(500).json({ error: 'Internal server error' });
+    console.error("Error shortlisting students:", error);
+    res.status(500).json({ error: "Internal server error" });
   }
 };
 
 // export const finalshortlisteligible = async (req, res) => {
 //   try {
 //     const { jobId } = req.body;
-    
+
 //     // Find job profile
 //     const jobProfile = await JobProfile.findById(jobId);
 //     if (!jobProfile) {
@@ -1856,7 +2160,7 @@ export const addshortlistStudents = async (req, res) => {
 //     }
 
 //     if (!eligible_studentsid.length) {
-//       return res.status(200).json({ 
+//       return res.status(200).json({
 //         eligibleStudents: [],
 //         starredFields: []
 //       });
@@ -1878,14 +2182,14 @@ export const addshortlistStudents = async (req, res) => {
 
 //     // Fetch student details and form submissions
 //     const students = await Student.find(
-//       { _id: { $in: eligible_studentsid } }, 
+//       { _id: { $in: eligible_studentsid } },
 //       'name'
 //     );
-    
+
 //     const submissions = await FormSubmission.find(
-//       { 
-//         studentId: { $in: eligible_studentsid }, 
-//         jobId 
+//       {
+//         studentId: { $in: eligible_studentsid },
+//         jobId
 //       },
 //       'studentId fields'
 //     );
@@ -1918,7 +2222,7 @@ export const addshortlistStudents = async (req, res) => {
 //       return studentData;
 //     });
 
-//     res.status(200).json({ 
+//     res.status(200).json({
 //       eligibleStudents,
 //       starredFields
 //     });
@@ -1928,26 +2232,26 @@ export const addshortlistStudents = async (req, res) => {
 //   }
 // };
 
-
 export const finalshortlisteligible = async (req, res) => {
   try {
     const { jobId } = req.body;
 
     // Validate jobId
     if (!mongoose.Types.ObjectId.isValid(jobId)) {
-      return res.status(400).json({ error: 'Invalid job ID' });
+      return res.status(400).json({ error: "Invalid job ID" });
     }
 
     // Find job profile
     const jobProfile = await JobProfile.findById(jobId);
     if (!jobProfile) {
-      return res.status(404).json({ error: 'Job profile not found' });
+      return res.status(404).json({ error: "Job profile not found" });
     }
 
     // Determine eligible students based on hiring workflow
     let eligible_studentsid;
     if (jobProfile.Hiring_Workflow && jobProfile.Hiring_Workflow.length > 0) {
-      const lastStep = jobProfile.Hiring_Workflow[jobProfile.Hiring_Workflow.length - 1];
+      const lastStep =
+        jobProfile.Hiring_Workflow[jobProfile.Hiring_Workflow.length - 1];
       eligible_studentsid = lastStep.shortlisted_students || [];
     } else {
       eligible_studentsid = jobProfile.Applied_Students || [];
@@ -1963,7 +2267,7 @@ export const finalshortlisteligible = async (req, res) => {
     // Fetch the form template to get starred fields
     const formTemplate = await FormTemplate.findOne({ jobId });
     if (!formTemplate) {
-      return res.status(404).json({ error: 'Form template not found' });
+      return res.status(404).json({ error: "Form template not found" });
     }
 
     // Get fieldNames of starred fields
@@ -1977,7 +2281,7 @@ export const finalshortlisteligible = async (req, res) => {
     // Fetch student details
     const students = await Student.find(
       { _id: { $in: eligible_studentsid } },
-      'name batch course'
+      "name batch course",
     );
 
     // Fetch form submissions
@@ -1986,7 +2290,7 @@ export const finalshortlisteligible = async (req, res) => {
         studentId: { $in: eligible_studentsid },
         jobId,
       },
-      'studentId fields'
+      "studentId fields",
     );
 
     // Map submissions to include values of starred fields
@@ -1995,17 +2299,26 @@ export const finalshortlisteligible = async (req, res) => {
       const studentId = submission.studentId.toString();
       fieldValuesMap[studentId] = {};
       starredFields.forEach((starredField) => {
-        const field = submission.fields.find((f) => f.fieldName === starredField.fieldName);
-        fieldValuesMap[studentId][starredField.fieldName] = field ? field.value : '';
+        const field = submission.fields.find(
+          (f) => f.fieldName === starredField.fieldName,
+        );
+        fieldValuesMap[studentId][starredField.fieldName] = field
+          ? field.value
+          : "";
       });
     });
 
     // Fetch offer and summer intern data for shortlisted students
-    const finalShortlistedIds = jobProfile.final_shortlisted_students.map((id) => id.toString());
-    const offers = await Offer.find({ jobId, 'shortlisted_students.studentId': { $in: finalShortlistedIds } });
+    const finalShortlistedIds = jobProfile.final_shortlisted_students.map(
+      (id) => id.toString(),
+    );
+    const offers = await Offer.find({
+      jobId,
+      "shortlisted_students.studentId": { $in: finalShortlistedIds },
+    });
     const summerInterns = await SummerIntern.find({
       jobId,
-      'shortlisted_students.studentId': { $in: finalShortlistedIds },
+      "shortlisted_students.studentId": { $in: finalShortlistedIds },
     });
 
     // Create a map for offer/summer intern data
@@ -2050,23 +2363,27 @@ export const finalshortlisteligible = async (req, res) => {
 
       // Add starred field values
       starredFields.forEach((starredField) => {
-        studentData[starredField.fieldName] = fieldValuesMap[studentId]?.[starredField.fieldName] || '';
+        studentData[starredField.fieldName] =
+          fieldValuesMap[studentId]?.[starredField.fieldName] || "";
       });
 
       // Add job-related fields
       if (isShortlisted) {
         const offerData = offerDataMap[studentId] || {};
-        studentData.job_type = offerData.job_type || '';
-        studentData.job_role = offerData.job_role || '';
-        studentData.ctc = offerData.ctc || '';
-        studentData.stipend = offerData.stipend || '';
-        studentData.intern_duration = offerData.intern_duration || '';
+        studentData.job_type = offerData.job_type || "";
+        studentData.job_role = offerData.job_role || "";
+        studentData.ctc = offerData.ctc || "";
+        studentData.stipend = offerData.stipend || "";
+        studentData.intern_duration = offerData.intern_duration || "";
       } else {
-        studentData.job_type = jobProfile.job_type || '';
-        studentData.job_role = jobProfile.job_role || '';
-        studentData.ctc = jobProfile.job_salary?.ctc && jobProfile.job_salary.ctc !== '0' ? jobProfile.job_salary.ctc : '';
-        studentData.stipend = jobProfile.job_salary?.stipend || '';
-        studentData.intern_duration = jobProfile.internship_duration || '';
+        studentData.job_type = jobProfile.job_type || "";
+        studentData.job_role = jobProfile.job_role || "";
+        studentData.ctc =
+          jobProfile.job_salary?.ctc && jobProfile.job_salary.ctc !== "0"
+            ? jobProfile.job_salary.ctc
+            : "";
+        studentData.stipend = jobProfile.job_salary?.stipend || "";
+        studentData.intern_duration = jobProfile.internship_duration || "";
       }
 
       return studentData;
@@ -2077,8 +2394,10 @@ export const finalshortlisteligible = async (req, res) => {
       starredFields,
     });
   } catch (error) {
-    console.error('Error in finalshortlisteligible:', error);
-    res.status(500).json({ error: 'Internal server error', details: error.message });
+    console.error("Error in finalshortlisteligible:", error);
+    res
+      .status(500)
+      .json({ error: "Internal server error", details: error.message });
   }
 };
 export const eligibleinthis = async (req, res) => {
@@ -2086,12 +2405,12 @@ export const eligibleinthis = async (req, res) => {
     const { jobId, stepIndex } = req.body;
     const jobProfile = await JobProfile.findById(jobId);
     if (!jobProfile) {
-      return res.status(404).json({ error: 'Job profile not found' });
+      return res.status(404).json({ error: "Job profile not found" });
     }
 
     const step = jobProfile.Hiring_Workflow[stepIndex];
     if (!step) {
-      return res.status(404).json({ error: 'Step not found' });
+      return res.status(404).json({ error: "Step not found" });
     }
 
     const eligible_studentsid = step.eligible_students;
@@ -2101,35 +2420,42 @@ export const eligibleinthis = async (req, res) => {
     // Fetch the form template to get starred fields
     const formTemplate = await FormTemplate.findOne({ jobId });
     if (!formTemplate) {
-      return res.status(404).json({ error: 'Form template not found' });
+      return res.status(404).json({ error: "Form template not found" });
     }
 
     // Get fieldNames of starred fields
     const starredFields = formTemplate.fields
-      .filter(field => field.fieldStar)
-      .map(field => ({
+      .filter((field) => field.fieldStar)
+      .map((field) => ({
         fieldName: field.fieldName,
-        fieldType: field.fieldType
+        fieldType: field.fieldType,
       }));
 
-    const students = await Student.find({ _id: { $in: eligible_studentsid } }, 'name');
+    const students = await Student.find(
+      { _id: { $in: eligible_studentsid } },
+      "name",
+    );
     const submissions = await FormSubmission.find(
       { studentId: { $in: eligible_studentsid }, jobId },
-      'studentId fields'
+      "studentId fields",
     );
 
     // Map submissions to include values of starred fields
     const fieldValuesMap = {};
-    submissions.forEach(submission => {
+    submissions.forEach((submission) => {
       const studentId = submission.studentId.toString();
       fieldValuesMap[studentId] = {};
-      starredFields.forEach(starredField => {
-        const field = submission.fields.find(f => f.fieldName === starredField.fieldName);
-        fieldValuesMap[studentId][starredField.fieldName] = field ? field.value : '';
+      starredFields.forEach((starredField) => {
+        const field = submission.fields.find(
+          (f) => f.fieldName === starredField.fieldName,
+        );
+        fieldValuesMap[studentId][starredField.fieldName] = field
+          ? field.value
+          : "";
       });
     });
 
-    const eligibleStudents = students.map(student => {
+    const eligibleStudents = students.map((student) => {
       const studentId = student._id.toString();
       const studentData = {
         studentId,
@@ -2139,35 +2465,35 @@ export const eligibleinthis = async (req, res) => {
       };
 
       // Add starred field values
-      starredFields.forEach(starredField => {
-        studentData[starredField.fieldName] = fieldValuesMap[studentId]?.[starredField.fieldName] || '';
+      starredFields.forEach((starredField) => {
+        studentData[starredField.fieldName] =
+          fieldValuesMap[studentId]?.[starredField.fieldName] || "";
       });
 
       return studentData;
     });
 
-    res.status(200).json({ 
+    res.status(200).json({
       eligibleStudents,
-      starredFields
+      starredFields,
     });
   } catch (error) {
-    console.error('Error in eligibleinthis:', error);
-    res.status(500).json({ error: 'Internal server error' });
+    console.error("Error in eligibleinthis:", error);
+    res.status(500).json({ error: "Internal server error" });
   }
 };
-
 
 export const viewshortlisting = async (req, res) => {
   try {
     const { jobId, stepIndex } = req.body;
     const jobProfile = await JobProfile.findById(jobId);
     if (!jobProfile) {
-      return res.status(404).json({ error: 'Job profile not found' });
+      return res.status(404).json({ error: "Job profile not found" });
     }
 
     const step = jobProfile.Hiring_Workflow[stepIndex];
     if (!step) {
-      return res.status(404).json({ error: 'Step not found' });
+      return res.status(404).json({ error: "Step not found" });
     }
 
     const shortlisted_studentsid = step.shortlisted_students || [];
@@ -2175,38 +2501,42 @@ export const viewshortlisting = async (req, res) => {
     // Fetch the form template to get starred fields
     const formTemplate = await FormTemplate.findOne({ jobId });
     if (!formTemplate) {
-      return res.status(404).json({ error: 'Form template not found' });
+      return res.status(404).json({ error: "Form template not found" });
     }
 
     // Get fieldNames of starred fields
     const starredFields = formTemplate.fields
-      .filter(field => field.fieldStar)
-      .map(field => ({
+      .filter((field) => field.fieldStar)
+      .map((field) => ({
         fieldName: field.fieldName,
-        fieldType: field.fieldType
+        fieldType: field.fieldType,
       }));
 
     const students = await Student.find(
       { _id: { $in: shortlisted_studentsid } },
-      'name'
+      "name",
     );
     const submissions = await FormSubmission.find(
       { studentId: { $in: shortlisted_studentsid }, jobId },
-      'studentId fields'
+      "studentId fields",
     );
 
     // Map submissions to include values of starred fields
     const fieldValuesMap = {};
-    submissions.forEach(submission => {
+    submissions.forEach((submission) => {
       const studentId = submission.studentId.toString();
       fieldValuesMap[studentId] = {};
-      starredFields.forEach(starredField => {
-        const field = submission.fields.find(f => f.fieldName === starredField.fieldName);
-        fieldValuesMap[studentId][starredField.fieldName] = field ? field.value : '';
+      starredFields.forEach((starredField) => {
+        const field = submission.fields.find(
+          (f) => f.fieldName === starredField.fieldName,
+        );
+        fieldValuesMap[studentId][starredField.fieldName] = field
+          ? field.value
+          : "";
       });
     });
 
-    const shortlistedStudents = students.map(student => {
+    const shortlistedStudents = students.map((student) => {
       const studentId = student._id.toString();
       const studentData = {
         studentId,
@@ -2214,20 +2544,21 @@ export const viewshortlisting = async (req, res) => {
       };
 
       // Add starred field values
-      starredFields.forEach(starredField => {
-        studentData[starredField.fieldName] = fieldValuesMap[studentId]?.[starredField.fieldName] || '';
+      starredFields.forEach((starredField) => {
+        studentData[starredField.fieldName] =
+          fieldValuesMap[studentId]?.[starredField.fieldName] || "";
       });
 
       return studentData;
     });
 
-    res.status(200).json({ 
+    res.status(200).json({
       shortlistedStudents,
-      starredFields // Include starred fields in response for dynamic rendering
+      starredFields, // Include starred fields in response for dynamic rendering
     });
   } catch (error) {
-    console.error('Error in viewshortlisting:', error);
-    res.status(500).json({ error: 'Internal server error' });
+    console.error("Error in viewshortlisting:", error);
+    res.status(500).json({ error: "Internal server error" });
   }
 };
 
@@ -2240,7 +2571,9 @@ export const updateInterviewLink = async (req, res) => {
     }
     const step = jobProfile.Hiring_Workflow[stepIndex];
     if (!step) {
-      return res.status(404).json({ message: "Step not found in the hiring workflow" });
+      return res
+        .status(404)
+        .json({ message: "Step not found in the hiring workflow" });
     }
     if (!step.details.interview_link) {
       step.details.interview_link = [];
@@ -2248,22 +2581,23 @@ export const updateInterviewLink = async (req, res) => {
     const updatePromises = students.map(async (student) => {
       const { studentId, interviewLink, visibility } = student;
       const existingLinkIndex = step.details.interview_link.findIndex(
-        (link) => link.studentId.toString() === studentId.toString()
+        (link) => link.studentId.toString() === studentId.toString(),
       );
       if (existingLinkIndex !== -1) {
-        step.details.interview_link[existingLinkIndex].interviewLink = interviewLink;
+        step.details.interview_link[existingLinkIndex].interviewLink =
+          interviewLink;
         step.details.interview_link[existingLinkIndex].visibility = visibility; // Update visibility
       } else {
         step.details.interview_link.push({
           studentId,
           interviewLink,
-          visibility: visibility // Add visibility field
+          visibility: visibility, // Add visibility field
         });
       }
 
       return {
-        status: 'success',
-        message: 'Interview link updated successfully'
+        status: "success",
+        message: "Interview link updated successfully",
       };
     });
     const results = await Promise.all(updatePromises);
@@ -2272,18 +2606,16 @@ export const updateInterviewLink = async (req, res) => {
     return res.status(200).json({
       message: "Interview links processing completed",
       results,
-      data: step.details.interview_link
+      data: step.details.interview_link,
     });
-
   } catch (error) {
     console.error("Error updating interview links:", error);
     return res.status(500).json({
       message: "Failed to update interview links.",
-      error: error.message
+      error: error.message,
     });
   }
 };
-
 
 export const updategdLink = async (req, res) => {
   try {
@@ -2294,7 +2626,9 @@ export const updategdLink = async (req, res) => {
     }
     const step = jobProfile.Hiring_Workflow[stepIndex];
     if (!step) {
-      return res.status(404).json({ message: "Step not found in the hiring workflow" });
+      return res
+        .status(404)
+        .json({ message: "Step not found in the hiring workflow" });
     }
     if (!step.details.gd_link) {
       step.details.gd_link = [];
@@ -2302,7 +2636,7 @@ export const updategdLink = async (req, res) => {
     const updatePromises = students.map(async (student) => {
       const { studentId, gdLink, visibility } = student;
       const existingLinkIndex = step.details.gd_link.findIndex(
-        (link) => link.studentId.toString() === studentId.toString()
+        (link) => link.studentId.toString() === studentId.toString(),
       );
       if (existingLinkIndex !== -1) {
         step.details.gd_link[existingLinkIndex].gdLink = gdLink;
@@ -2311,13 +2645,13 @@ export const updategdLink = async (req, res) => {
         step.details.gd_link.push({
           studentId,
           gdLink,
-          visibility
+          visibility,
         });
       }
 
       return {
-        status: 'success',
-        message: 'GD link updated successfully'
+        status: "success",
+        message: "GD link updated successfully",
       };
     });
     const results = await Promise.all(updatePromises);
@@ -2326,18 +2660,16 @@ export const updategdLink = async (req, res) => {
     return res.status(200).json({
       message: "GD links processing completed",
       results,
-      data: step.details.gd_link
+      data: step.details.gd_link,
     });
-
   } catch (error) {
     console.error("Error updating gd links:", error);
     return res.status(500).json({
       message: "Failed to update gd links.",
-      error: error.message
+      error: error.message,
     });
   }
 };
-
 
 export const updateoaLink = async (req, res) => {
   try {
@@ -2348,7 +2680,9 @@ export const updateoaLink = async (req, res) => {
     }
     const step = jobProfile.Hiring_Workflow[stepIndex];
     if (!step) {
-      return res.status(404).json({ message: "Step not found in the hiring workflow" });
+      return res
+        .status(404)
+        .json({ message: "Step not found in the hiring workflow" });
     }
     if (!step.details.oa_link) {
       step.details.oa_link = [];
@@ -2356,7 +2690,7 @@ export const updateoaLink = async (req, res) => {
     const updatePromises = students.map(async (student) => {
       const { studentId, oaLink, visibility } = student;
       const existingLinkIndex = step.details.oa_link.findIndex(
-        (link) => link.studentId.toString() === studentId.toString()
+        (link) => link.studentId.toString() === studentId.toString(),
       );
       if (existingLinkIndex !== -1) {
         step.details.oa_link[existingLinkIndex].oaLink = oaLink;
@@ -2365,12 +2699,12 @@ export const updateoaLink = async (req, res) => {
         step.details.oa_link.push({
           studentId,
           oaLink,
-          visibility
+          visibility,
         });
       }
-       return {
-        status: 'success',
-        message: 'OA link updated successfully'
+      return {
+        status: "success",
+        message: "OA link updated successfully",
       };
     });
     const results = await Promise.all(updatePromises);
@@ -2379,13 +2713,13 @@ export const updateoaLink = async (req, res) => {
     return res.status(200).json({
       message: "OA links processing completed",
       results,
-      data: step.details.oa_link
+      data: step.details.oa_link,
     });
-   } catch (error) {
+  } catch (error) {
     console.error("Error updating oa links:", error);
     return res.status(500).json({
       message: "Failed to update oa links.",
-      error: error.message
+      error: error.message,
     });
   }
 };
@@ -2399,7 +2733,9 @@ export const updateOthersLink = async (req, res) => {
     }
     const step = jobProfile.Hiring_Workflow[stepIndex];
     if (!step) {
-      return res.status(404).json({ message: "Step not found in the hiring workflow" });
+      return res
+        .status(404)
+        .json({ message: "Step not found in the hiring workflow" });
     }
     if (!step.details.others_link) {
       step.details.others_link = [];
@@ -2407,7 +2743,7 @@ export const updateOthersLink = async (req, res) => {
     const updatePromises = students.map(async (student) => {
       const { studentId, othersLink, visibility } = student;
       const existingLinkIndex = step.details.others_link.findIndex(
-        (link) => link.studentId.toString() === studentId.toString()
+        (link) => link.studentId.toString() === studentId.toString(),
       );
       if (existingLinkIndex !== -1) {
         step.details.others_link[existingLinkIndex].othersLink = othersLink;
@@ -2416,12 +2752,12 @@ export const updateOthersLink = async (req, res) => {
         step.details.others_link.push({
           studentId,
           othersLink,
-          visibility
+          visibility,
         });
       }
-       return {
-        status: 'success',
-        message: 'Others link updated successfully'
+      return {
+        status: "success",
+        message: "Others link updated successfully",
       };
     });
     const results = await Promise.all(updatePromises);
@@ -2430,13 +2766,13 @@ export const updateOthersLink = async (req, res) => {
     return res.status(200).json({
       message: "Others links processing completed",
       results,
-      data: step.details.others_link
+      data: step.details.others_link,
     });
-   } catch (error) {
+  } catch (error) {
     console.error("Error updating others links:", error);
     return res.status(500).json({
       message: "Failed to update others links.",
-      error: error.message
+      error: error.message,
     });
   }
 };
