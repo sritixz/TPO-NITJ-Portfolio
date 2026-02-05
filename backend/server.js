@@ -158,7 +158,7 @@ app.use('/add-recruiter', authenticate,restrictTo('Professor'),logMiddleware, ad
 app.use('/cgpa-checker',authenticate, restrictTo('Professor'),logMiddleware, cgpaCheckerRoutes);
 app.use('/insight',authenticate, restrictTo('Professor','Student'),logMiddleware, insightRoutes);
 app.use('/psuggestions',authenticate,restrictTo('Professor'),logMiddleware,professorsuggestionroute);
-app.use("/api/resumes",authenticate,restrictTo('Professor'),logMiddleware,resumeRoutes);
+app.use("/api/resumes", authenticate,restrictTo('Professor'),logMiddleware, resumeRoutes);
 app.use("/hardRefreshERPData",authenticate,restrictTo('Professor'),logMiddleware, hardRefreshERPDataRoutes)
 //Admin routes
 app.use('/admin',authenticate,restrictTo('Admin'),logMiddleware,adminRoutes);

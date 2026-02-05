@@ -1,16 +1,43 @@
-import React, { useState, useEffect } from 'react';
-import axios from 'axios';
-import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
-import { Input } from '../ui/input';
-import Select from 'react-select';
-import { Button } from '../ui/button';
-import { X, Pencil, Save, Search, Filter, UserCog, GraduationCap, User, Loader2, Briefcase, Download } from 'lucide-react';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '../ui/dialog';
-import { toast } from 'react-hot-toast';
+import React, { useState, useEffect } from "react";
+import axios from "axios";
+import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
+import { Input } from "../ui/input";
+import Select from "react-select";
+import { Button } from "../ui/button";
+import {
+  X,
+  Pencil,
+  Save,
+  Search,
+  Filter,
+  UserCog,
+  GraduationCap,
+  User,
+  Loader2,
+  Briefcase,
+  Download,
+} from "lucide-react";
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+} from "recharts";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "../ui/dialog";
+import { toast } from "react-hot-toast";
 import Notification from "./Notification";
-import * as XLSX from 'xlsx';
+import * as XLSX from "xlsx";
 import { Linkedin } from "lucide-react";
+import { RefreshCw } from "lucide-react";
 
 const StudentAnalyticsDashboard = () => {
   const [filters, setFilters] = useState({
@@ -49,7 +76,8 @@ const StudentAnalyticsDashboard = () => {
     setOfferEditMode(true);
     setEditedOfferTracker({
       studentId: student._id,
-      offer: student?.offers.map(o => ({ ...o, jobId: o.jobId || null })) || []
+      offer:
+        student?.offers.map((o) => ({ ...o, jobId: o.jobId || null })) || [],
     });
   };
 
@@ -65,12 +93,30 @@ const StudentAnalyticsDashboard = () => {
 
       const response = await axios.get(
         `${import.meta.env.REACT_APP_BASE_URL}/student-analysis/get?${queryParams.toString()}`,
-        { withCredentials: true }
+        { withCredentials: true },
       );
       console.log(response.data.data);
       setData(response.data.data || []);
     } catch (err) {
       setError(err.response?.data?.error || "Failed to fetch students.");
+    } finally {
+      setLoading(false);
+    }
+  };
+  const handleHardRefresh = async () => {
+    try {
+      setLoading(true);
+      await axios.get(
+        `${import.meta.env.REACT_APP_BASE_URL}/hardRefreshERPData/`,
+        { withCredentials: true },
+      );
+
+      toast.success("ERP data refreshed successfully");
+
+      // Re-fetch students after hard refresh
+      await handleApplyFilters();
+    } catch (err) {
+      toast.error(err.response?.data?.error || "Hard refresh failed");
     } finally {
       setLoading(false);
     }
@@ -99,16 +145,18 @@ const StudentAnalyticsDashboard = () => {
       await axios.put(
         `${import.meta.env.REACT_APP_BASE_URL}/student-analysis/profile-update/${editedStudent._id}`,
         editedStudent,
-        { withCredentials: true }
+        { withCredentials: true },
       );
       setData((prevData) =>
         prevData.map((student) =>
-          student._id === editedStudent._id ? { ...editedStudent } : student
-        )
+          student._id === editedStudent._id ? { ...editedStudent } : student,
+        ),
       );
       setEditMode(false);
     } catch (err) {
-      setError(err.response?.data?.error || "Failed to update student details.");
+      setError(
+        err.response?.data?.error || "Failed to update student details.",
+      );
     }
   };
 
@@ -117,14 +165,14 @@ const StudentAnalyticsDashboard = () => {
       await axios.put(
         `${import.meta.env.REACT_APP_BASE_URL}/student-analysis/offer-tracker-update/${editedOfferTracker.studentId}`,
         editedOfferTracker,
-        { withCredentials: true }
+        { withCredentials: true },
       );
       setData((prevData) =>
         prevData.map((student) =>
           student._id === editedOfferTracker.studentId
             ? { ...student, offers: editedOfferTracker.offer }
-            : student
-        )
+            : student,
+        ),
       );
       setOfferEditMode(false);
     } catch (err) {
@@ -148,7 +196,10 @@ const StudentAnalyticsDashboard = () => {
   const handleOfferChange = (index, field, value) => {
     if (!editedOfferTracker) return;
     const newOffers = [...editedOfferTracker.offer];
-    newOffers[index] = { ...newOffers[index], [field]: value === '' ? null : value };
+    newOffers[index] = {
+      ...newOffers[index],
+      [field]: value === "" ? null : value,
+    };
     setEditedOfferTracker((prev) => ({
       ...prev,
       offer: newOffers,
@@ -162,24 +213,28 @@ const StudentAnalyticsDashboard = () => {
       offer_sector: null,
       offer_ctc: null,
       offer_intern_duration: null,
-      jobId: null
+      jobId: null,
     };
 
-    if (!newOffer.offer_type || !newOffer.offer_category || !newOffer.offer_sector) {
+    if (
+      !newOffer.offer_type ||
+      !newOffer.offer_category ||
+      !newOffer.offer_sector
+    ) {
       toast.error("Please select Offer Type, Offer Category, and Offer Sector");
       return;
     }
 
     setEditedOfferTracker((prev) => ({
       ...prev,
-      offer: [...prev.offer, newOffer]
+      offer: [...prev.offer, newOffer],
     }));
   };
 
   const removeOffer = (index) => {
     setEditedOfferTracker((prev) => ({
       ...prev,
-      offer: prev.offer.filter((_, i) => i !== index)
+      offer: prev.offer.filter((_, i) => i !== index),
     }));
   };
 
@@ -190,7 +245,7 @@ const StudentAnalyticsDashboard = () => {
     }
 
     const exportData = sortedStudents.map((student) => ({
-     "Roll No": student.rollno,
+      "Roll No": student.rollno,
       Name: student.name,
       Category: student.category,
       Gender: student.gender,
@@ -349,7 +404,9 @@ const StudentAnalyticsDashboard = () => {
     },
     {
       label: "CHEMICAL ENGINEERING",
-      options: [{ value: "CHEMICAL ENGINEERING", label: "CHEMICAL ENGINEERING" }],
+      options: [
+        { value: "CHEMICAL ENGINEERING", label: "CHEMICAL ENGINEERING" },
+      ],
     },
     {
       label: "CIVIL ENGINEERING",
@@ -439,7 +496,9 @@ const StudentAnalyticsDashboard = () => {
     },
     {
       label: "CHEMICAL ENGINEERING",
-      options: [{ value: "CHEMICAL ENGINEERING", label: "CHEMICAL ENGINEERING" }],
+      options: [
+        { value: "CHEMICAL ENGINEERING", label: "CHEMICAL ENGINEERING" },
+      ],
     },
     {
       label: "CIVIL ENGINEERING",
@@ -461,7 +520,10 @@ const StudentAnalyticsDashboard = () => {
           value: "COMPUTER SCIENCE AND ENGINEERING",
           label: "COMPUTER SCIENCE AND ENGINEERING",
         },
-        { value: "COMPUTER SCIENCE AND ENGINEERING (INFORMATION SECURITY)", label: "COMPUTER SCIENCE AND ENGINEERING (INFORMATION SECURITY)" },
+        {
+          value: "COMPUTER SCIENCE AND ENGINEERING (INFORMATION SECURITY)",
+          label: "COMPUTER SCIENCE AND ENGINEERING (INFORMATION SECURITY)",
+        },
         {
           value: "DATA SCIENCE AND ENGINEERING",
           label: "DATA SCIENCE AND ENGINEERING",
@@ -490,7 +552,7 @@ const StudentAnalyticsDashboard = () => {
         {
           value: "INDUSTRIAL ENGINEERING AND DATA ANALYTICS",
           label: "INDUSTRIAL ENGINEERING AND DATA ANALYTICS",
-        }
+        },
       ],
     },
     {
@@ -566,7 +628,12 @@ const StudentAnalyticsDashboard = () => {
   const mbadepartmentOptions = [
     {
       label: "HUMANITIES AND MANAGEMENT",
-      options: [{ value: "HUMANITIES AND MANAGEMENT", label: "HUMANITIES AND MANAGEMENT" }],
+      options: [
+        {
+          value: "HUMANITIES AND MANAGEMENT",
+          label: "HUMANITIES AND MANAGEMENT",
+        },
+      ],
     },
   ];
 
@@ -599,24 +666,28 @@ const StudentAnalyticsDashboard = () => {
   const customSelectStyles = {
     groupHeading: (provided) => ({
       ...provided,
-      fontWeight: 'bold',
-      fontSize: '14px',
-      color: '#1f2937', // gray-800
-      padding: '8px 12px',
+      fontWeight: "bold",
+      fontSize: "14px",
+      color: "#1f2937", // gray-800
+      padding: "8px 12px",
     }),
     option: (provided, state) => ({
       ...provided,
-      fontWeight: 'normal', // All options in normal weight
-      paddingLeft: state.isNested ? '24px' : '12px', // Indent nested options
-      backgroundColor: state.isSelected ? '#3b82f6' : state.isFocused ? '#f3f4f6' : 'white',
-      color: state.isSelected ? 'white' : '#1f2937',
+      fontWeight: "normal", // All options in normal weight
+      paddingLeft: state.isNested ? "24px" : "12px", // Indent nested options
+      backgroundColor: state.isSelected
+        ? "#3b82f6"
+        : state.isFocused
+          ? "#f3f4f6"
+          : "white",
+      color: state.isSelected ? "white" : "#1f2937",
     }),
     control: (provided) => ({
       ...provided,
-      borderColor: '#d1d5db',
-      boxShadow: 'none',
-      '&:hover': {
-        borderColor: '#3b82f6',
+      borderColor: "#d1d5db",
+      boxShadow: "none",
+      "&:hover": {
+        borderColor: "#3b82f6",
       },
     }),
   };
@@ -629,9 +700,9 @@ const StudentAnalyticsDashboard = () => {
 
     // Format department options to mark nested options
     const formatDepartmentOptions = (departments) => {
-      return departments.map(group => ({
+      return departments.map((group) => ({
         label: group.label,
-        options: group.options.map(opt => ({
+        options: group.options.map((opt) => ({
           ...opt,
           isNested: opt.value !== group.label, // Mark options that are not the main department as nested
         })),
@@ -665,11 +736,11 @@ const StudentAnalyticsDashboard = () => {
       try {
         const response = await axios.get(
           `${import.meta.env.REACT_APP_BASE_URL}/job-profiles`,
-          { withCredentials: true }
+          { withCredentials: true },
         );
         setJobProfiles(response.data.data || []);
       } catch (err) {
-        console.error('Failed to fetch job profiles:', err);
+        console.error("Failed to fetch job profiles:", err);
       }
     };
     fetchJobProfiles();
@@ -756,16 +827,24 @@ const StudentAnalyticsDashboard = () => {
     return <div className="p-6 text-red-500">Error: {error}</div>;
   }
 
+  const getCgpa = (v) => {
+    const n = Number(v);
+    return Number.isFinite(n) ? n : -1;
+  };
+
   const sortedStudents = [...filteredStudents].sort((a, b) => {
     if (sortField === "name") {
       return sortDirection === "asc"
         ? a.name.localeCompare(b.name)
         : b.name.localeCompare(a.name);
-    } else if (sortField === "cgpa") {
-      return sortDirection === "asc"
-        ? parseFloat(a.cgpa) - parseFloat(b.cgpa)
-        : parseFloat(b.cgpa) - parseFloat(a.cgpa);
     }
+
+    if (sortField === "cgpa") {
+      return sortDirection === "asc"
+        ? getCgpa(a.cgpa) - getCgpa(b.cgpa)
+        : getCgpa(b.cgpa) - getCgpa(a.cgpa);
+    }
+
     return 0;
   });
 
@@ -805,7 +884,9 @@ const StudentAnalyticsDashboard = () => {
               </div>
             ) : (
               <>
-                <div className="text-2xl font-bold text-custom-blue">{filteredStudents.length}</div>
+                <div className="text-2xl font-bold text-custom-blue">
+                  {filteredStudents.length}
+                </div>
                 <div className="text-sm text-gray-600">Total Students</div>
               </>
             )}
@@ -823,21 +904,39 @@ const StudentAnalyticsDashboard = () => {
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4">
             <div className="space-y-2">
-              <label className="text-sm font-medium text-gray-700">Course</label>
+              <label className="text-sm font-medium text-gray-700">
+                Course
+              </label>
               <Select
                 options={courseOptions}
-                value={courseOptions.find(opt => opt.value === filters.course) || null}
-                onChange={(option) => setFilters({ ...filters, course: option ? option.value : "" })}
+                value={
+                  courseOptions.find((opt) => opt.value === filters.course) ||
+                  null
+                }
+                onChange={(option) =>
+                  setFilters({ ...filters, course: option ? option.value : "" })
+                }
                 className="w-full"
                 placeholder="Select Course"
               />
             </div>
             <div className="space-y-2">
-              <label className="text-sm font-medium text-gray-700">Department</label>
+              <label className="text-sm font-medium text-gray-700">
+                Department
+              </label>
               <Select
                 options={departmentOptions}
-                value={departmentOptions.flatMap(group => group.options).find(opt => opt.value === filters.department) || null}
-                onChange={(option) => setFilters({ ...filters, department: option ? option.value : "" })}
+                value={
+                  departmentOptions
+                    .flatMap((group) => group.options)
+                    .find((opt) => opt.value === filters.department) || null
+                }
+                onChange={(option) =>
+                  setFilters({
+                    ...filters,
+                    department: option ? option.value : "",
+                  })
+                }
                 styles={customSelectStyles}
                 className="w-full"
                 placeholder="Select Department"
@@ -847,8 +946,13 @@ const StudentAnalyticsDashboard = () => {
               <label className="text-sm font-medium text-gray-700">Batch</label>
               <Select
                 options={batchOptions}
-                value={batchOptions.find(opt => opt.value === filters.batch) || null}
-                onChange={(option) => setFilters({ ...filters, batch: option ? option.value : "" })}
+                value={
+                  batchOptions.find((opt) => opt.value === filters.batch) ||
+                  null
+                }
+                onChange={(option) =>
+                  setFilters({ ...filters, batch: option ? option.value : "" })
+                }
                 className="w-full"
                 placeholder="Select Batch"
               />
@@ -857,82 +961,145 @@ const StudentAnalyticsDashboard = () => {
               <label className="text-sm font-medium text-gray-700">CGPA</label>
               <Select
                 options={cgpaOptions}
-                value={cgpaOptions.find(opt => opt.value === filters.cgpa) || null}
-                onChange={(option) => setFilters({ ...filters, cgpa: option ? option.value : "" })}
+                value={
+                  cgpaOptions.find((opt) => opt.value === filters.cgpa) || null
+                }
+                onChange={(option) =>
+                  setFilters({ ...filters, cgpa: option ? option.value : "" })
+                }
                 className="w-full"
                 placeholder="Select CGPA"
               />
             </div>
             <div className="space-y-2">
-              <label className="text-sm font-medium text-gray-700">Debarred</label>
+              <label className="text-sm font-medium text-gray-700">
+                Debarred
+              </label>
               <Select
                 options={backlogOptions}
-                value={backlogOptions.find(opt => opt.value === filters.debarred) || null}
-                onChange={(option) => setFilters({ ...filters, debarred: option ? option.value : "" })}
+                value={
+                  backlogOptions.find(
+                    (opt) => opt.value === filters.debarred,
+                  ) || null
+                }
+                onChange={(option) =>
+                  setFilters({
+                    ...filters,
+                    debarred: option ? option.value : "",
+                  })
+                }
                 className="w-full"
                 placeholder="Select Debarred Status"
               />
             </div>
             <div className="space-y-2">
-              <label className="text-sm font-medium text-gray-700">Active Backlogs</label>
+              <label className="text-sm font-medium text-gray-700">
+                Active Backlogs
+              </label>
               <Select
                 options={backlogOptions}
-                value={backlogOptions.find(opt => opt.value === filters.active_backlogs) || null}
-                onChange={(option) => setFilters({ ...filters, active_backlogs: option ? option.value : "" })}
+                value={
+                  backlogOptions.find(
+                    (opt) => opt.value === filters.active_backlogs,
+                  ) || null
+                }
+                onChange={(option) =>
+                  setFilters({
+                    ...filters,
+                    active_backlogs: option ? option.value : "",
+                  })
+                }
                 className="w-full"
                 placeholder="Select Active Backlogs"
               />
             </div>
             <div className="space-y-2">
-              <label className="text-sm font-medium text-gray-700">Backlogs History</label>
+              <label className="text-sm font-medium text-gray-700">
+                Backlogs History
+              </label>
               <Select
                 options={backlogOptions}
-                value={backlogOptions.find(opt => opt.value === filters.backlogs_history) || null}
-                onChange={(option) => setFilters({ ...filters, backlogs_history: option ? option.value : "" })}
+                value={
+                  backlogOptions.find(
+                    (opt) => opt.value === filters.backlogs_history,
+                  ) || null
+                }
+                onChange={(option) =>
+                  setFilters({
+                    ...filters,
+                    backlogs_history: option ? option.value : "",
+                  })
+                }
                 className="w-full"
                 placeholder="Select Backlogs History"
               />
             </div>
             <div className="space-y-2">
-              <label className="text-sm font-medium text-gray-700">Gender</label>
+              <label className="text-sm font-medium text-gray-700">
+                Gender
+              </label>
               <Select
                 options={genderOptions}
-                value={genderOptions.find(opt => opt.value === filters.gender) || null}
-                onChange={(option) => setFilters({ ...filters, gender: option ? option.value : "" })}
+                value={
+                  genderOptions.find((opt) => opt.value === filters.gender) ||
+                  null
+                }
+                onChange={(option) =>
+                  setFilters({ ...filters, gender: option ? option.value : "" })
+                }
                 className="w-full"
                 placeholder="Select Gender"
               />
             </div>
             <div className="space-y-2">
-              <label className="text-sm font-medium text-gray-700">Category</label>
+              <label className="text-sm font-medium text-gray-700">
+                Category
+              </label>
               <Select
                 options={categoryOptions}
-                value={categoryOptions.find(opt => opt.value === filters.category) || null}
-                onChange={(option) => setFilters({ ...filters, category: option ? option.value : "" })}
+                value={
+                  categoryOptions.find(
+                    (opt) => opt.value === filters.category,
+                  ) || null
+                }
+                onChange={(option) =>
+                  setFilters({
+                    ...filters,
+                    category: option ? option.value : "",
+                  })
+                }
                 className="w-full"
                 placeholder="Select Category"
               />
             </div>
             <div className="space-y-2">
-              <label className="text-sm font-medium text-gray-700">Search Name</label>
+              <label className="text-sm font-medium text-gray-700">
+                Search Name
+              </label>
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
                 <Input
                   placeholder="Search by name..."
                   value={filters.name}
-                  onChange={(e) => setFilters({ ...filters, name: e.target.value })}
+                  onChange={(e) =>
+                    setFilters({ ...filters, name: e.target.value })
+                  }
                   className="pl-10"
                 />
               </div>
             </div>
             <div className="space-y-2">
-              <label className="text-sm font-medium text-gray-700">Roll Number</label>
+              <label className="text-sm font-medium text-gray-700">
+                Roll Number
+              </label>
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
                 <Input
                   placeholder="Search by roll no..."
                   value={filters.rollno}
-                  onChange={(e) => setFilters({ ...filters, rollno: e.target.value })}
+                  onChange={(e) =>
+                    setFilters({ ...filters, rollno: e.target.value })
+                  }
                   className="pl-10"
                 />
               </div>
@@ -968,6 +1135,19 @@ const StudentAnalyticsDashboard = () => {
                 Download Excel
               </Button>
             )}
+            {/* <Button
+              variant="destructive"
+              className="flex items-center gap-2"
+              onClick={handleHardRefresh}
+              disabled={loading}
+            >
+              {loading ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <RefreshCw className="h-4 w-4" />
+              )}
+              Hard Refresh
+            </Button> */}
           </div>
         </CardContent>
       </Card>
@@ -1006,75 +1186,25 @@ const StudentAnalyticsDashboard = () => {
               }
             }}
           >
-           <DialogTrigger asChild>
-  <Card className="cursor-pointer hover:shadow-lg transition-all duration-300 border-2 hover:border-custom-blue hover:scale-105 hover:bg-white">
-    <CardContent className="p-6 relative">
-      <div className="flex items-start justify-between">
-        <div>
-          <div className="flex items-center gap-2">
-            <UserCog className="h-5 w-5 text-gray-400" />
-            <h3 className="font-bold text-lg text-gray-900">{student.name}</h3>
-          </div>
-          <p className="text-sm text-gray-700 mt-1">{student.rollno}</p>
-          <span className="text-sm text-gray-700">{student.course}</span>
-        </div>
-        {student.linkedin ? (
-          <a
-            href={student.linkedin}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex items-center justify-center text-custom-blue hover:text-custom-blue-dark"
-            title="View LinkedIn Profile"
-          >
-            <Linkedin size={20} />
-          </a>
-        ) : (
-          <GraduationCap className="h-6 w-6 text-custom-blue" />
-        )}
-      </div>
-      <div className="mt-2 space-y-2">
-        <div className="flex items-center gap-2">
-          <span className="text-sm text-gray-700">{student.department}</span>
-        </div>
-        <div className="flex items-center gap-2">
-          <span className="text-sm text-gray-700">Batch: {student.batch}</span>
-        </div>
-        <div className="flex items-center gap-2">
-          <span className="text-sm text-gray-700">CGPA: {student.cgpa}</span>
-        </div>
-        {/* SMALL IMAGE AT BOTTOM-RIGHT */}
-        <div className="absolute bottom-3 right-3">
-          {student.image ? (
-            <img
-              src={`${import.meta.env.REACT_APP_BASE_URL}${student.image}`}
-              alt={student.name}
-              className="w-12 h-12 rounded-full object-cover border border-gray-300 shadow-sm"
-            />
-          ) : (
-            <div className="w-12 h-12 rounded-full flex items-center justify-center bg-gray-200 text-gray-600 text-lg font-semibold border border-gray-300">
-              {(student.name || '?')
-                .split(' ')
-                .map((n) => n[0]?.toUpperCase())
-                .slice(0, 2)
-                .join('')}
-            </div>
-          )}
-        </div>
-      </div>
-      <div className="mt-2">
-        <span className="text-sm font-medium text-gray-800">
-          Offers: {student.offers?.length || 0}
-        </span>
-      </div>
-    </CardContent>
-  </Card>
-</DialogTrigger>
-            <DialogContent className="max-w-6xl max-h-[90vh] p-0">
-              <div className="overflow-y-auto max-h-[90vh] px-6">
-                <DialogHeader className="sticky top-0 bg-white py-4 z-10">
-                  <div className="flex flex-col gap-4 sm:flex-row sm:justify-between">
-                    <DialogTitle className="text-2xl font-bold flex items-center gap-2 justify-center lg:items-center lg:justify-center">
-                      {student.linkedin ? (
+            <DialogTrigger asChild>
+              <Card className="cursor-pointer hover:shadow-lg transition-all duration-300 border-2 hover:border-custom-blue hover:scale-105 hover:bg-white">
+                <CardContent className="p-6 relative">
+                  <div className="flex items-start justify-between">
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <UserCog className="h-5 w-5 text-gray-400" />
+                        <h3 className="font-bold text-lg text-gray-900">
+                          {student.name}
+                        </h3>
+                      </div>
+                      <p className="text-sm text-gray-700 mt-1">
+                        {student.rollno}
+                      </p>
+                      <span className="text-sm text-gray-700">
+                        {student.course}
+                      </span>
+                    </div>
+                    {student.linkedin ? (
                       <a
                         href={student.linkedin}
                         target="_blank"
@@ -1085,15 +1215,81 @@ const StudentAnalyticsDashboard = () => {
                         <Linkedin size={20} />
                       </a>
                     ) : (
-                      <User className="h-6 w-6 text-custom-blue" />
-                    )
-                  }{student.name} 
+                      <GraduationCap className="h-6 w-6 text-custom-blue" />
+                    )}
+                  </div>
+                  <div className="mt-2 space-y-2">
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm text-gray-700">
+                        {student.department}
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm text-gray-700">
+                        Batch: {student.batch}
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm text-gray-700">
+                        CGPA: {student.cgpa}
+                      </span>
+                    </div>
+                    {/* SMALL IMAGE AT BOTTOM-RIGHT */}
+                    <div className="absolute bottom-3 right-3">
+                      {student.image ? (
+                        <img
+                          src={`${import.meta.env.REACT_APP_BASE_URL}${student.image}`}
+                          alt={student.name}
+                          className="w-12 h-12 rounded-full object-cover border border-gray-300 shadow-sm"
+                        />
+                      ) : (
+                        <div className="w-12 h-12 rounded-full flex items-center justify-center bg-gray-200 text-gray-600 text-lg font-semibold border border-gray-300">
+                          {(student.name || "?")
+                            .split(" ")
+                            .map((n) => n[0]?.toUpperCase())
+                            .slice(0, 2)
+                            .join("")}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                  <div className="mt-2">
+                    <span className="text-sm font-medium text-gray-800">
+                      Offers: {student.offers?.length || 0}
+                    </span>
+                  </div>
+                </CardContent>
+              </Card>
+            </DialogTrigger>
+            <DialogContent className="max-w-6xl max-h-[90vh] p-0">
+              <div className="overflow-y-auto max-h-[90vh] px-6">
+                <DialogHeader className="sticky top-0 bg-white py-4 z-10">
+                  <div className="flex flex-col gap-4 sm:flex-row sm:justify-between">
+                    <DialogTitle className="text-2xl font-bold flex items-center gap-2 justify-center lg:items-center lg:justify-center">
+                      {student.linkedin ? (
+                        <a
+                          href={student.linkedin}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="flex items-center justify-center text-custom-blue hover:text-custom-blue-dark"
+                          title="View LinkedIn Profile"
+                        >
+                          <Linkedin size={20} />
+                        </a>
+                      ) : (
+                        <User className="h-6 w-6 text-custom-blue" />
+                      )}
+                      {student.name}
                     </DialogTitle>
                     <div className="flex gap-2 justify-center">
                       <Button
                         variant="outline"
                         className="flex items-center gap-2 hover:scale-105 focus:outline-none mr-4"
-                        onClick={() => editMode ? handleSaveClick() : handleEditClick(student)}
+                        onClick={() =>
+                          editMode
+                            ? handleSaveClick()
+                            : handleEditClick(student)
+                        }
                       >
                         {editMode ? (
                           <>
@@ -1115,28 +1311,48 @@ const StudentAnalyticsDashboard = () => {
                     <div className="space-y-6">
                       <Card className="border-0 shadow-sm">
                         <CardHeader>
-                          <CardTitle className="text-lg">Personal Information</CardTitle>
+                          <CardTitle className="text-lg">
+                            Personal Information
+                          </CardTitle>
                         </CardHeader>
                         <CardContent className="space-y-4">
                           <div>
-                            <label className="text-sm font-medium text-gray-700">Name</label>
-                              <p className="mt-1 text-gray-900">{student.name}</p>
+                            <label className="text-sm font-medium text-gray-700">
+                              Name
+                            </label>
+                            <p className="mt-1 text-gray-900">{student.name}</p>
                           </div>
                           <div>
-                            <label className="text-sm font-medium text-gray-700">Email</label>
-                              <p className="mt-1 text-gray-900">{student.email}</p>
-                          </div>
-                           <div>
-                            <label className="text-sm font-medium text-gray-700">Roll Number</label>
-                              <p className="mt-1 text-gray-900">{student.rollno}</p>
-                          </div>
-                          <div>
-                            <label className="text-sm font-medium text-gray-700">Category</label>
-                              <p className="mt-1 text-gray-900">{student.category}</p>
+                            <label className="text-sm font-medium text-gray-700">
+                              Email
+                            </label>
+                            <p className="mt-1 text-gray-900">
+                              {student.email}
+                            </p>
                           </div>
                           <div>
-                            <label className="text-sm font-medium text-gray-700">Disability</label>
-                              <p className="mt-1 text-gray-900">{student.disability?"Yes":"No"}</p>
+                            <label className="text-sm font-medium text-gray-700">
+                              Roll Number
+                            </label>
+                            <p className="mt-1 text-gray-900">
+                              {student.rollno}
+                            </p>
+                          </div>
+                          <div>
+                            <label className="text-sm font-medium text-gray-700">
+                              Category
+                            </label>
+                            <p className="mt-1 text-gray-900">
+                              {student.category}
+                            </p>
+                          </div>
+                          <div>
+                            <label className="text-sm font-medium text-gray-700">
+                              Disability
+                            </label>
+                            <p className="mt-1 text-gray-900">
+                              {student.disability ? "Yes" : "No"}
+                            </p>
                           </div>
                         </CardContent>
                       </Card>
@@ -1144,28 +1360,57 @@ const StudentAnalyticsDashboard = () => {
                     <div className="space-y-6">
                       <Card className="border-0 shadow-sm">
                         <CardHeader>
-                          <CardTitle className="text-lg">Placement Details</CardTitle>
+                          <CardTitle className="text-lg">
+                            Placement Details
+                          </CardTitle>
                         </CardHeader>
                         <CardContent className="space-y-4">
                           <div>
-                            <label className="text-sm font-medium text-gray-700">Placement Status</label>
-                            <p className={`mt-1 ${student.offers?.length > 0 ? "text-green-600" : "text-red-600"}`}>{student.offers?.length > 0 ? "Placed" : "Not Placed"}</p>
+                            <label className="text-sm font-medium text-gray-700">
+                              Placement Status
+                            </label>
+                            <p
+                              className={`mt-1 ${student.offers?.length > 0 ? "text-green-600" : "text-red-600"}`}
+                            >
+                              {student.offers?.length > 0
+                                ? "Placed"
+                                : "Not Placed"}
+                            </p>
                           </div>
                           <div>
-                            <label className="text-sm font-medium text-gray-700">No. of Offer</label>
-                              <p className="mt-1 text-gray-900"> {student.offers?.length || 0}</p>
+                            <label className="text-sm font-medium text-gray-700">
+                              No. of Offer
+                            </label>
+                            <p className="mt-1 text-gray-900">
+                              {" "}
+                              {student.offers?.length || 0}
+                            </p>
                           </div>
                           <div>
-                            <label className="text-sm font-medium text-gray-700">Debarred</label>
+                            <label className="text-sm font-medium text-gray-700">
+                              Debarred
+                            </label>
                             {editMode ? (
                               <Select
                                 options={backlogOptions}
-                                value={backlogOptions.find(opt => opt.value === editedStudent.debarred) || null}
-                                onChange={(option) => handleChange("debarred", option ? option.value : "")}
+                                value={
+                                  backlogOptions.find(
+                                    (opt) =>
+                                      opt.value === editedStudent.debarred,
+                                  ) || null
+                                }
+                                onChange={(option) =>
+                                  handleChange(
+                                    "debarred",
+                                    option ? option.value : "",
+                                  )
+                                }
                                 className="mt-1"
                               />
                             ) : (
-                              <p className="mt-1 text-gray-900">{student.debarred? "Yes" : "No"}</p>
+                              <p className="mt-1 text-gray-900">
+                                {student.debarred ? "Yes" : "No"}
+                              </p>
                             )}
                           </div>
                         </CardContent>
@@ -1174,102 +1419,146 @@ const StudentAnalyticsDashboard = () => {
                     <div className="space-y-6">
                       <Card className="border-0 shadow-sm mt-6">
                         <CardContent className="space-y-4">
-<div className="top-10 right-20 w-40 h-40 border-2 border-white shadow-md overflow-hidden">
-  {student.image ? (
-    <img
-      src={`${import.meta.env.REACT_APP_BASE_URL}${student.image}`}
-      alt={student.name}
-      className="w-full h-full object-cover"
-    />
-  ) : (
-    <div className="flex h-full w-full items-center justify-center bg-gray-200 text-gray-600 text-4xl font-semibold">
-      {student.name
-        .split(' ')
-        .map((n) => n[0]?.toUpperCase())
-        .slice(0, 2)
-        .join('') || '?'}
-    </div>
-  )}
-</div>
+                          <div className="top-10 right-20 w-40 h-40 border-2 border-white shadow-md overflow-hidden">
+                            {student.image ? (
+                              <img
+                                src={`${import.meta.env.REACT_APP_BASE_URL}${student.image}`}
+                                alt={student.name}
+                                className="w-full h-full object-cover"
+                              />
+                            ) : (
+                              <div className="flex h-full w-full items-center justify-center bg-gray-200 text-gray-600 text-4xl font-semibold">
+                                {student.name
+                                  .split(" ")
+                                  .map((n) => n[0]?.toUpperCase())
+                                  .slice(0, 2)
+                                  .join("") || "?"}
+                              </div>
+                            )}
+                          </div>
                         </CardContent>
                       </Card>
                     </div>
                   </div>
                   <Card className="mt-6 border-0 shadow-sm">
                     <CardHeader>
-                      <CardTitle className="text-lg">Additional Details</CardTitle>
+                      <CardTitle className="text-lg">
+                        Additional Details
+                      </CardTitle>
                     </CardHeader>
                     <CardContent>
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
-                          <label className="text-sm font-medium text-gray-700">DOB</label>
-                         <p className="mt-1 text-gray-900">
-  {student.dob && new Date(student.dob).toLocaleDateString("en-GB", {
-    day: "numeric",
-    month: "short",
-    year: "numeric",
-  })}
-</p>
-
+                          <label className="text-sm font-medium text-gray-700">
+                            DOB
+                          </label>
+                          <p className="mt-1 text-gray-900">
+                            {student.dob &&
+                              new Date(student.dob).toLocaleDateString(
+                                "en-GB",
+                                {
+                                  day: "numeric",
+                                  month: "short",
+                                  year: "numeric",
+                                },
+                              )}
+                          </p>
                         </div>
                         <div>
-                          <label className="text-sm font-medium text-gray-700">Personal Email</label>
-                          <p className="mt-1 text-gray-900">{student.personalEmail}</p>
+                          <label className="text-sm font-medium text-gray-700">
+                            Personal Email
+                          </label>
+                          <p className="mt-1 text-gray-900">
+                            {student.personalEmail}
+                          </p>
                         </div>
                         <div>
-                          <label className="text-sm font-medium text-gray-700">Mobile No.</label>
+                          <label className="text-sm font-medium text-gray-700">
+                            Mobile No.
+                          </label>
                           <p className="mt-1 text-gray-900">{student.phone}</p>
                         </div>
                         <div>
-                          <label className="text-sm font-medium text-gray-700">Address</label>
-                          <p className="mt-1 text-gray-900">{student.address}</p>
+                          <label className="text-sm font-medium text-gray-700">
+                            Address
+                          </label>
+                          <p className="mt-1 text-gray-900">
+                            {student.address}
+                          </p>
                         </div>
                       </div>
                     </CardContent>
                   </Card>
                   <Card className="mt-6 border-0 shadow-sm">
                     <CardHeader>
-                      <CardTitle className="text-lg">Academic Details</CardTitle>
+                      <CardTitle className="text-lg">
+                        Academic Details
+                      </CardTitle>
                     </CardHeader>
                     <CardContent>
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
-                          <label className="text-sm font-medium text-gray-700">Department</label>
-                          <p className="mt-1 text-gray-900">{student.department}</p>
+                          <label className="text-sm font-medium text-gray-700">
+                            Department
+                          </label>
+                          <p className="mt-1 text-gray-900">
+                            {student.department}
+                          </p>
                         </div>
                         <div>
-                          <label className="text-sm font-medium text-gray-700">Course</label>
+                          <label className="text-sm font-medium text-gray-700">
+                            Course
+                          </label>
                           <p className="mt-1 text-gray-900">{student.course}</p>
                         </div>
                         <div>
-                          <label className="text-sm font-medium text-gray-700">CGPA</label>
+                          <label className="text-sm font-medium text-gray-700">
+                            CGPA
+                          </label>
                           <p className="mt-1 text-gray-900">{student.cgpa}</p>
                         </div>
                         <div>
-                          <label className="text-sm font-medium text-gray-700">Batch</label>
+                          <label className="text-sm font-medium text-gray-700">
+                            Batch
+                          </label>
                           <p className="mt-1 text-gray-900">{student.batch}</p>
                         </div>
                         <div>
-                          <label className="text-sm font-medium text-gray-700">Active Backlog</label>
-                          <p className="mt-1 text-gray-900">{student.active_backlogs ? "Yes" : "No"}</p>
+                          <label className="text-sm font-medium text-gray-700">
+                            Active Backlog
+                          </label>
+                          <p className="mt-1 text-gray-900">
+                            {student.active_backlogs ? "Yes" : "No"}
+                          </p>
                         </div>
                         <div>
-                          <label className="text-sm font-medium text-gray-700">Backlogs History</label>
-                          <p className="mt-1 text-gray-900">{student.backlogs_history ? "Yes" : "No"}</p>
+                          <label className="text-sm font-medium text-gray-700">
+                            Backlogs History
+                          </label>
+                          <p className="mt-1 text-gray-900">
+                            {student.backlogs_history ? "Yes" : "No"}
+                          </p>
                         </div>
                         <div>
-                          <label className="text-sm font-medium text-gray-700">Active Backlog Count</label>
-                          <p className="mt-1 text-gray-900">{student.activeBacklogCount}</p>
+                          <label className="text-sm font-medium text-gray-700">
+                            Active Backlog Count
+                          </label>
+                          <p className="mt-1 text-gray-900">
+                            {student.activeBacklogCount}
+                          </p>
                         </div>
                         <div>
-                          <label className="text-sm font-medium text-gray-700">10th Percentage</label>
+                          <label className="text-sm font-medium text-gray-700">
+                            10th Percentage
+                          </label>
                           <p className="mt-1 text-gray-900">{student.Xth}</p>
                         </div>
                         <div>
-                          <label className="text-sm font-medium text-gray-700">12th Percentage</label>
+                          <label className="text-sm font-medium text-gray-700">
+                            12th Percentage
+                          </label>
                           <p className="mt-1 text-gray-900">{student.XIIth}</p>
                         </div>
-
                       </div>
                     </CardContent>
                   </Card>
@@ -1293,272 +1582,492 @@ const StudentAnalyticsDashboard = () => {
                       </CardTitle>
                     </CardHeader>
                     <CardContent>
-  {offerEditMode ? (
-    <div className="space-y-6">
-      {editedOfferTracker?.offer.map((offer, index) => (
-        <div key={index} className="border p-4 rounded-lg space-y-4">
-          <div className="flex justify-between items-center">
-            <h4 className="font-semibold">Offer {index + 1}</h4>
-            <Button
-              variant="destructive"
-              size="sm"
-              className="text-red-600"
-              onClick={() => removeOffer(index)}
-            >
-              Remove
-            </Button>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div>
-              <label className="text-sm font-medium">
-                Offer Type {["Intern", "Intern+FTE", "FTE", "Intern+PPO"].includes(offer.offer_type) && "*"}
-              </label>
-              <Select
-                options={offerTypeOptions}
-                value={offerTypeOptions.find((opt) => opt.value === offer.offer_type) || null}
-                onChange={(option) => handleOfferChange(index, "offer_type", option ? option.value : "")}
-                className="mt-1"
-              />
-            </div>
-            <div>
-              <label className="text-sm font-medium">Offer Category *</label>
-              <Select
-                options={offerCategoryOptions}
-                value={offerCategoryOptions.find((opt) => opt.value === offer.offer_category) || null}
-                onChange={(option) => handleOfferChange(index, "offer_category", option ? option.value : "")}
-                className="mt-1"
-              />
-            </div>
-            <div>
-              <label className="text-sm font-medium">Offer Sector *</label>
-              <Select
-                options={offerSectorOptions}
-                value={offerSectorOptions.find((opt) => opt.value === offer.offer_sector) || null}
-                onChange={(option) => handleOfferChange(index, "offer_sector", option ? option.value : "")}
-                className="mt-1"
-              />
-            </div>
-            <div>
-              <label className="text-sm font-medium">
-                Offer CTC {["Intern", "Intern+FTE", "FTE"].includes(offer.offer_type) && "*"}
-              </label>
-              <Input
-                value={offer.offer_ctc || ""}
-                onChange={(e) => handleOfferChange(index, "offer_ctc", e.target.value)}
-                className="mt-1"
-                placeholder="Enter CTC (e.g., 10 LPA)"
-              />
-            </div>
-            <div>
-              <label className="text-sm font-medium">
-                Internship Duration {["Intern", "Intern+FTE", "Intern+PPO"].includes(offer.offer_type) && "*"}
-              </label>
-              <Input
-                value={offer.offer_intern_duration || ""}
-                onChange={(e) => handleOfferChange(index, "offer_intern_duration", e.target.value)}
-                className="mt-1"
-                placeholder="Enter duration (e.g., 6 months)"
-              />
-            </div>
-          </div>
-        </div>
-      ))}
-      <div className="space-y-4">
-        <div className="border p-4 rounded-lg space-y-4">
-          <h4 className="font-semibold">New Offer</h4>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div>
-              <label className="text-sm font-medium">Offer Type *</label>
-              <Select
-                options={offerTypeOptions}
-                value={offerTypeOptions.find((opt) => opt.value === editedOfferTracker?.newOffer?.offer_type) || null}
-                onChange={(option) =>
-                  setEditedOfferTracker((prev) => ({
-                    ...prev,
-                    newOffer: { ...prev.newOffer, offer_type: option ? option.value : null },
-                  }))
-                }
-                className="mt-1"
-              />
-            </div>
-            <div>
-              <label className="text-sm font-medium">Offer Category *</label>
-              <Select
-                options={offerCategoryOptions}
-                value={offerCategoryOptions.find((opt) => opt.value === editedOfferTracker?.newOffer?.offer_category) || null}
-                onChange={(option) =>
-                  setEditedOfferTracker((prev) => ({
-                    ...prev,
-                    newOffer: { ...prev.newOffer, offer_category: option ? option.value : null },
-                  }))
-                }
-                className="mt-1"
-              />
-            </div>
-            <div>
-              <label className="text-sm font-medium">Offer Sector *</label>
-              <Select
-                options={offerSectorOptions}
-                value={offerSectorOptions.find((opt) => opt.value === editedOfferTracker?.newOffer?.offer_sector) || null}
-                onChange={(option) =>
-                  setEditedOfferTracker((prev) => ({
-                    ...prev,
-                    newOffer: { ...prev.newOffer, offer_sector: option ? option.value : null },
-                  }))
-                }
-                className="mt-1"
-              />
-            </div>
-            <div>
-              <label className="text-sm font-medium">
-                Offer CTC {["Intern", "Intern+FTE", "FTE"].includes(editedOfferTracker?.newOffer?.offer_type) && "*"}
-              </label>
-              <Input
-                value={editedOfferTracker?.newOffer?.offer_ctc || ""}
-                onChange={(e) =>
-                  setEditedOfferTracker((prev) => ({
-                    ...prev,
-                    newOffer: { ...prev.newOffer, offer_ctc: e.target.value },
-                  }))
-                }
-                className="mt-1"
-                placeholder="Enter CTC (e.g., 10 LPA)"
-              />
-            </div>
-            <div>
-              <label className="text-sm font-medium">
-                Internship Duration {["Intern", "Intern+FTE", "Intern+PPO"].includes(editedOfferTracker?.newOffer?.offer_type) && "*"}
-              </label>
-              <Input
-                value={editedOfferTracker?.newOffer?.offer_intern_duration || ""}
-                onChange={(e) =>
-                  setEditedOfferTracker((prev) => ({
-                    ...prev,
-                    newOffer: { ...prev.newOffer, offer_intern_duration: e.target.value },
-                  }))
-                }
-                className="mt-1"
-                placeholder="Enter duration (e.g., 6 months)"
-              />
-            </div>
-          </div>
-        </div>
-        <div className="flex gap-4">
-          <Button
-            className="bg-custom-blue text-white"
-            onClick={() => {
-              const newOffer = editedOfferTracker?.newOffer;
-              if (!newOffer?.offer_type || !newOffer?.offer_category || !newOffer?.offer_sector) {
-                toast.error("Please select Offer Type, Offer Category, and Offer Sector");
-                return;
-              }
-              if (["Intern", "Intern+FTE", "FTE"].includes(newOffer.offer_type) && !newOffer.offer_ctc) {
-                toast.error("Offer CTC is required for this offer type");
-                return;
-              }
-              if (["Intern", "Intern+FTE", "Intern+PPO"].includes(newOffer.offer_type) && !newOffer.offer_intern_duration) {
-                toast.error("Internship Duration is required for this offer type");
-                return;
-              }
-              setEditedOfferTracker((prev) => ({
-                ...prev,
-                offer: [
-                  ...prev.offer,
-                  {
-                    offer_type: newOffer.offer_type,
-                    offer_category: newOffer.offer_category,
-                    offer_sector: newOffer.offer_sector,
-                    offer_ctc: newOffer.offer_type === "Intern+PPO" && !newOffer.offer_ctc ? "0" : newOffer.offer_ctc || null,
-                    offer_intern_duration: newOffer.offer_intern_duration || null,
-                    jobId: null,
-                  },
-                ],
-                newOffer: {
-                  offer_type: null,
-                  offer_category: null,
-                  offer_sector: null,
-                  offer_ctc: null,
-                  offer_intern_duration: null,
-                  jobId: null,
-                },
-              }));
-            }}
-          >
-            Add New Offer
-          </Button>
-          <Button
-            className="bg-green-500 text-white"
-            onClick={() => {
-              const invalidOffer = editedOfferTracker.offer.find((offer) => {
-                if (["Intern", "Intern+FTE", "FTE"].includes(offer.offer_type) && !offer.offer_ctc) {
-                  return true;
-                }
-                if (["Intern", "Intern+FTE", "Intern+PPO"].includes(offer.offer_type) && !offer.offer_intern_duration) {
-                  return true;
-                }
-                return false;
-              });
-              if (invalidOffer) {
-                toast.error("Please fill all required fields for all offers");
-                return;
-              }
-              const updatedOffers = editedOfferTracker.offer.map((offer) => ({
-                ...offer,
-                offer_ctc: offer.offer_type === "Intern+PPO" && !offer.offer_ctc ? "0" : offer.offer_ctc || null,
-              }));
-              setEditedOfferTracker((prev) => ({ ...prev, offer: updatedOffers }));
-              handleOfferSaveClick();
-            }}
-          >
-            Save
-          </Button>
-          <Button variant="outline" onClick={handleOfferCancelClick}>
-            Cancel
-          </Button>
-        </div>
-      </div>
-    </div>
-  ) : (
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-      {student?.offers?.length > 0 ? (
-        student.offers.map((offer, index) => (
-          <Card key={index} className="p-4 border border-gray-100">
-            <h4 className="font-semibold">Offer {index + 1}</h4>
-            <p className="text-gray-600 mt-1">Type: {offer.offer_type}</p>
-            <p className="text-gray-600">Category: {offer.offer_category}</p>
-            <p className="text-gray-600">Sector: {offer.offer_sector}</p>
-            <p className="text-gray-600">CTC: {offer.offer_ctc || "N/A"}</p>
-            <p className="text-gray-600">Internship Duration: {offer.offer_intern_duration || "N/A"}</p>
-            {offer.jobId ? (
-              <p className="text-gray-600">
-                Job: {jobProfiles.find((job) => job._id === offer.jobId)?.company_name || "N/A"} -{" "}
-                {jobProfiles.find((job) => job._id === offer.jobId)?.job_role || "N/A"}
-              </p>
-            ) : (
-              <p className="text-gray-600">Job: None</p>
-            )}
-          </Card>
-        ))
-      ) : (
-        <p className="text-gray-600">No offers recorded</p>
-      )}
-    </div>
-  )}
-</CardContent>
+                      {offerEditMode ? (
+                        <div className="space-y-6">
+                          {editedOfferTracker?.offer.map((offer, index) => (
+                            <div
+                              key={index}
+                              className="border p-4 rounded-lg space-y-4"
+                            >
+                              <div className="flex justify-between items-center">
+                                <h4 className="font-semibold">
+                                  Offer {index + 1}
+                                </h4>
+                                <Button
+                                  variant="destructive"
+                                  size="sm"
+                                  className="text-red-600"
+                                  onClick={() => removeOffer(index)}
+                                >
+                                  Remove
+                                </Button>
+                              </div>
+                              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                <div>
+                                  <label className="text-sm font-medium">
+                                    Offer Type{" "}
+                                    {[
+                                      "Intern",
+                                      "Intern+FTE",
+                                      "FTE",
+                                      "Intern+PPO",
+                                    ].includes(offer.offer_type) && "*"}
+                                  </label>
+                                  <Select
+                                    options={offerTypeOptions}
+                                    value={
+                                      offerTypeOptions.find(
+                                        (opt) => opt.value === offer.offer_type,
+                                      ) || null
+                                    }
+                                    onChange={(option) =>
+                                      handleOfferChange(
+                                        index,
+                                        "offer_type",
+                                        option ? option.value : "",
+                                      )
+                                    }
+                                    className="mt-1"
+                                  />
+                                </div>
+                                <div>
+                                  <label className="text-sm font-medium">
+                                    Offer Category *
+                                  </label>
+                                  <Select
+                                    options={offerCategoryOptions}
+                                    value={
+                                      offerCategoryOptions.find(
+                                        (opt) =>
+                                          opt.value === offer.offer_category,
+                                      ) || null
+                                    }
+                                    onChange={(option) =>
+                                      handleOfferChange(
+                                        index,
+                                        "offer_category",
+                                        option ? option.value : "",
+                                      )
+                                    }
+                                    className="mt-1"
+                                  />
+                                </div>
+                                <div>
+                                  <label className="text-sm font-medium">
+                                    Offer Sector *
+                                  </label>
+                                  <Select
+                                    options={offerSectorOptions}
+                                    value={
+                                      offerSectorOptions.find(
+                                        (opt) =>
+                                          opt.value === offer.offer_sector,
+                                      ) || null
+                                    }
+                                    onChange={(option) =>
+                                      handleOfferChange(
+                                        index,
+                                        "offer_sector",
+                                        option ? option.value : "",
+                                      )
+                                    }
+                                    className="mt-1"
+                                  />
+                                </div>
+                                <div>
+                                  <label className="text-sm font-medium">
+                                    Offer CTC{" "}
+                                    {["Intern", "Intern+FTE", "FTE"].includes(
+                                      offer.offer_type,
+                                    ) && "*"}
+                                  </label>
+                                  <Input
+                                    value={offer.offer_ctc || ""}
+                                    onChange={(e) =>
+                                      handleOfferChange(
+                                        index,
+                                        "offer_ctc",
+                                        e.target.value,
+                                      )
+                                    }
+                                    className="mt-1"
+                                    placeholder="Enter CTC (e.g., 10 LPA)"
+                                  />
+                                </div>
+                                <div>
+                                  <label className="text-sm font-medium">
+                                    Internship Duration{" "}
+                                    {[
+                                      "Intern",
+                                      "Intern+FTE",
+                                      "Intern+PPO",
+                                    ].includes(offer.offer_type) && "*"}
+                                  </label>
+                                  <Input
+                                    value={offer.offer_intern_duration || ""}
+                                    onChange={(e) =>
+                                      handleOfferChange(
+                                        index,
+                                        "offer_intern_duration",
+                                        e.target.value,
+                                      )
+                                    }
+                                    className="mt-1"
+                                    placeholder="Enter duration (e.g., 6 months)"
+                                  />
+                                </div>
+                              </div>
+                            </div>
+                          ))}
+                          <div className="space-y-4">
+                            <div className="border p-4 rounded-lg space-y-4">
+                              <h4 className="font-semibold">New Offer</h4>
+                              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                <div>
+                                  <label className="text-sm font-medium">
+                                    Offer Type *
+                                  </label>
+                                  <Select
+                                    options={offerTypeOptions}
+                                    value={
+                                      offerTypeOptions.find(
+                                        (opt) =>
+                                          opt.value ===
+                                          editedOfferTracker?.newOffer
+                                            ?.offer_type,
+                                      ) || null
+                                    }
+                                    onChange={(option) =>
+                                      setEditedOfferTracker((prev) => ({
+                                        ...prev,
+                                        newOffer: {
+                                          ...prev.newOffer,
+                                          offer_type: option
+                                            ? option.value
+                                            : null,
+                                        },
+                                      }))
+                                    }
+                                    className="mt-1"
+                                  />
+                                </div>
+                                <div>
+                                  <label className="text-sm font-medium">
+                                    Offer Category *
+                                  </label>
+                                  <Select
+                                    options={offerCategoryOptions}
+                                    value={
+                                      offerCategoryOptions.find(
+                                        (opt) =>
+                                          opt.value ===
+                                          editedOfferTracker?.newOffer
+                                            ?.offer_category,
+                                      ) || null
+                                    }
+                                    onChange={(option) =>
+                                      setEditedOfferTracker((prev) => ({
+                                        ...prev,
+                                        newOffer: {
+                                          ...prev.newOffer,
+                                          offer_category: option
+                                            ? option.value
+                                            : null,
+                                        },
+                                      }))
+                                    }
+                                    className="mt-1"
+                                  />
+                                </div>
+                                <div>
+                                  <label className="text-sm font-medium">
+                                    Offer Sector *
+                                  </label>
+                                  <Select
+                                    options={offerSectorOptions}
+                                    value={
+                                      offerSectorOptions.find(
+                                        (opt) =>
+                                          opt.value ===
+                                          editedOfferTracker?.newOffer
+                                            ?.offer_sector,
+                                      ) || null
+                                    }
+                                    onChange={(option) =>
+                                      setEditedOfferTracker((prev) => ({
+                                        ...prev,
+                                        newOffer: {
+                                          ...prev.newOffer,
+                                          offer_sector: option
+                                            ? option.value
+                                            : null,
+                                        },
+                                      }))
+                                    }
+                                    className="mt-1"
+                                  />
+                                </div>
+                                <div>
+                                  <label className="text-sm font-medium">
+                                    Offer CTC{" "}
+                                    {["Intern", "Intern+FTE", "FTE"].includes(
+                                      editedOfferTracker?.newOffer?.offer_type,
+                                    ) && "*"}
+                                  </label>
+                                  <Input
+                                    value={
+                                      editedOfferTracker?.newOffer?.offer_ctc ||
+                                      ""
+                                    }
+                                    onChange={(e) =>
+                                      setEditedOfferTracker((prev) => ({
+                                        ...prev,
+                                        newOffer: {
+                                          ...prev.newOffer,
+                                          offer_ctc: e.target.value,
+                                        },
+                                      }))
+                                    }
+                                    className="mt-1"
+                                    placeholder="Enter CTC (e.g., 10 LPA)"
+                                  />
+                                </div>
+                                <div>
+                                  <label className="text-sm font-medium">
+                                    Internship Duration{" "}
+                                    {[
+                                      "Intern",
+                                      "Intern+FTE",
+                                      "Intern+PPO",
+                                    ].includes(
+                                      editedOfferTracker?.newOffer?.offer_type,
+                                    ) && "*"}
+                                  </label>
+                                  <Input
+                                    value={
+                                      editedOfferTracker?.newOffer
+                                        ?.offer_intern_duration || ""
+                                    }
+                                    onChange={(e) =>
+                                      setEditedOfferTracker((prev) => ({
+                                        ...prev,
+                                        newOffer: {
+                                          ...prev.newOffer,
+                                          offer_intern_duration: e.target.value,
+                                        },
+                                      }))
+                                    }
+                                    className="mt-1"
+                                    placeholder="Enter duration (e.g., 6 months)"
+                                  />
+                                </div>
+                              </div>
+                            </div>
+                            <div className="flex gap-4">
+                              <Button
+                                className="bg-custom-blue text-white"
+                                onClick={() => {
+                                  const newOffer = editedOfferTracker?.newOffer;
+                                  if (
+                                    !newOffer?.offer_type ||
+                                    !newOffer?.offer_category ||
+                                    !newOffer?.offer_sector
+                                  ) {
+                                    toast.error(
+                                      "Please select Offer Type, Offer Category, and Offer Sector",
+                                    );
+                                    return;
+                                  }
+                                  if (
+                                    ["Intern", "Intern+FTE", "FTE"].includes(
+                                      newOffer.offer_type,
+                                    ) &&
+                                    !newOffer.offer_ctc
+                                  ) {
+                                    toast.error(
+                                      "Offer CTC is required for this offer type",
+                                    );
+                                    return;
+                                  }
+                                  if (
+                                    [
+                                      "Intern",
+                                      "Intern+FTE",
+                                      "Intern+PPO",
+                                    ].includes(newOffer.offer_type) &&
+                                    !newOffer.offer_intern_duration
+                                  ) {
+                                    toast.error(
+                                      "Internship Duration is required for this offer type",
+                                    );
+                                    return;
+                                  }
+                                  setEditedOfferTracker((prev) => ({
+                                    ...prev,
+                                    offer: [
+                                      ...prev.offer,
+                                      {
+                                        offer_type: newOffer.offer_type,
+                                        offer_category: newOffer.offer_category,
+                                        offer_sector: newOffer.offer_sector,
+                                        offer_ctc:
+                                          newOffer.offer_type ===
+                                            "Intern+PPO" && !newOffer.offer_ctc
+                                            ? "0"
+                                            : newOffer.offer_ctc || null,
+                                        offer_intern_duration:
+                                          newOffer.offer_intern_duration ||
+                                          null,
+                                        jobId: null,
+                                      },
+                                    ],
+                                    newOffer: {
+                                      offer_type: null,
+                                      offer_category: null,
+                                      offer_sector: null,
+                                      offer_ctc: null,
+                                      offer_intern_duration: null,
+                                      jobId: null,
+                                    },
+                                  }));
+                                }}
+                              >
+                                Add New Offer
+                              </Button>
+                              <Button
+                                className="bg-green-500 text-white"
+                                onClick={() => {
+                                  const invalidOffer =
+                                    editedOfferTracker.offer.find((offer) => {
+                                      if (
+                                        [
+                                          "Intern",
+                                          "Intern+FTE",
+                                          "FTE",
+                                        ].includes(offer.offer_type) &&
+                                        !offer.offer_ctc
+                                      ) {
+                                        return true;
+                                      }
+                                      if (
+                                        [
+                                          "Intern",
+                                          "Intern+FTE",
+                                          "Intern+PPO",
+                                        ].includes(offer.offer_type) &&
+                                        !offer.offer_intern_duration
+                                      ) {
+                                        return true;
+                                      }
+                                      return false;
+                                    });
+                                  if (invalidOffer) {
+                                    toast.error(
+                                      "Please fill all required fields for all offers",
+                                    );
+                                    return;
+                                  }
+                                  const updatedOffers =
+                                    editedOfferTracker.offer.map((offer) => ({
+                                      ...offer,
+                                      offer_ctc:
+                                        offer.offer_type === "Intern+PPO" &&
+                                        !offer.offer_ctc
+                                          ? "0"
+                                          : offer.offer_ctc || null,
+                                    }));
+                                  setEditedOfferTracker((prev) => ({
+                                    ...prev,
+                                    offer: updatedOffers,
+                                  }));
+                                  handleOfferSaveClick();
+                                }}
+                              >
+                                Save
+                              </Button>
+                              <Button
+                                variant="outline"
+                                onClick={handleOfferCancelClick}
+                              >
+                                Cancel
+                              </Button>
+                            </div>
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          {student?.offers?.length > 0 ? (
+                            student.offers.map((offer, index) => (
+                              <Card
+                                key={index}
+                                className="p-4 border border-gray-100"
+                              >
+                                <h4 className="font-semibold">
+                                  Offer {index + 1}
+                                </h4>
+                                <p className="text-gray-600 mt-1">
+                                  Type: {offer.offer_type}
+                                </p>
+                                <p className="text-gray-600">
+                                  Category: {offer.offer_category}
+                                </p>
+                                <p className="text-gray-600">
+                                  Sector: {offer.offer_sector}
+                                </p>
+                                <p className="text-gray-600">
+                                  CTC: {offer.offer_ctc || "N/A"}
+                                </p>
+                                <p className="text-gray-600">
+                                  Internship Duration:{" "}
+                                  {offer.offer_intern_duration || "N/A"}
+                                </p>
+                                {offer.jobId ? (
+                                  <p className="text-gray-600">
+                                    Job:{" "}
+                                    {jobProfiles.find(
+                                      (job) => job._id === offer.jobId,
+                                    )?.company_name || "N/A"}{" "}
+                                    -{" "}
+                                    {jobProfiles.find(
+                                      (job) => job._id === offer.jobId,
+                                    )?.job_role || "N/A"}
+                                  </p>
+                                ) : (
+                                  <p className="text-gray-600">Job: None</p>
+                                )}
+                              </Card>
+                            ))
+                          ) : (
+                            <p className="text-gray-600">No offers recorded</p>
+                          )}
+                        </div>
+                      )}
+                    </CardContent>
                   </Card>
                   <Card className="mt-6 border-0 shadow-sm">
                     <CardHeader>
-                      <CardTitle className="text-lg">Applied Jobs ({student.applications.total})</CardTitle>
+                      <CardTitle className="text-lg">
+                        Applied Jobs ({student.applications.total})
+                      </CardTitle>
                     </CardHeader>
                     <CardContent>
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         {student.applications.jobProfiles.map((job, index) => (
-                          <Card key={index} className="p-4 border border-gray-100">
-                            <h4 className="font-semibold text-gray-900">{job.company_name}</h4>
+                          <Card
+                            key={index}
+                            className="p-4 border border-gray-100"
+                          >
+                            <h4 className="font-semibold text-gray-900">
+                              {job.company_name}
+                            </h4>
                             <p className="text-gray-600 mt-1">{job.job_role}</p>
                             <div className="flex gap-2 mt-2">
-                              <span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full">{job.job_type}</span>
-                              <span className="text-xs bg-purple-100 text-purple-800 px-2 py-1 rounded-full">{job.job_class}</span>
+                              <span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full">
+                                {job.job_type}
+                              </span>
+                              <span className="text-xs bg-purple-100 text-purple-800 px-2 py-1 rounded-full">
+                                {job.job_class}
+                              </span>
                             </div>
                           </Card>
                         ))}
