@@ -1,32 +1,34 @@
-import Student from '../models/user_model/student.js';
-import Offer from '../models/offer.js';
-import OfferTracker from '../models/offertracker.js';
+import Student from "../models/user_model/student.js";
+import Offer from "../models/offer.js";
+import OfferTracker from "../models/offertracker.js";
+import SummerIntern from "../models/summer_internship.js";
+import SummerInternTracker from "../models/summer_intern_tracker.js";
+import mongoose from "mongoose";
 
-export const getStudentByRoll = async(req, res) =>{
-try {
-const { roll } = req.params;
-if (!roll) return res.status(400).json({ error: 'roll parameter required' });
+export const getStudentByRoll = async (req, res) => {
+  try {
+    const { roll } = req.params;
+    if (!roll)
+      return res.status(400).json({ error: "roll parameter required" });
 
+    const student = await Student.findOne({ rollno: roll })
+      .select("_id name gender department category course rollno")
+      .lean();
 
-const student = await Student.findOne({ rollno: roll })
-.select('_id name gender department category course rollno')
-.lean();
+    if (!student) return res.status(404).json({ error: "Student not found" });
 
-
-if (!student) return res.status(404).json({ error: 'Student not found' });
-
-return res.json(student);
-} catch (err) {
-console.error('getStudentByRoll error:', err);
-return res.status(500).json({ error: 'Server error' });
-}
-}
-
+    return res.json(student);
+  } catch (err) {
+    console.error("getStudentByRoll error:", err);
+    return res.status(500).json({ error: "Server error" });
+  }
+};
 
 export const addOffer = async (req, res) => {
-    console.log("reached server");
+  console.log("reached server");
   try {
     const {
+      type,
       company_name,
       batch,
       course,
@@ -34,84 +36,136 @@ export const addOffer = async (req, res) => {
       offer_mode,
       offer_sector,
       offer_category,
-      shortlisted_students
+      shortlisted_students,
     } = req.body;
 
     // Basic validation
     if (!company_name || !batch || !course || !offer_mode) {
-      return res.status(400).json({ error: 'Missing required fields: company_name, batch, course, offer_mode' });
+      return res.status(400).json({
+        error:
+          "Missing required fields: company_name, batch, course, offer_mode",
+      });
     }
 
-    if (!Array.isArray(shortlisted_students) || shortlisted_students.length === 0) {
-      return res.status(400).json({ error: 'shortlisted_students array is required and must not be empty' });
+    if (
+      !Array.isArray(shortlisted_students) ||
+      shortlisted_students.length === 0
+    ) {
+      return res.status(400).json({
+        error: "shortlisted_students array is required and must not be empty",
+      });
     }
 
     // Optional: Validate each shortlisted student has required fields
-    const validStudents = shortlisted_students.filter(student => 
-      student.name && (student.job_type || student.job_role)
+    const validStudents = shortlisted_students.filter(
+      (student) => student.name && (student.job_type || student.job_role),
     );
     if (validStudents.length !== shortlisted_students.length) {
-      return res.status(400).json({ error: 'Each shortlisted student must have name and at least job_type or job_role' });
+      return res.status(400).json({
+        error:
+          "Each shortlisted student must have name and at least job_type or job_role",
+      });
     }
 
     // Optional: Verify studentIds exist in Student model (if studentId is provided)
     const studentIds = shortlisted_students
-      .filter(s => s.studentId)
-      .map(s => s.studentId);
+      .filter((s) => s.studentId)
+      .map((s) => s.studentId);
     if (studentIds.length > 0) {
       const existingStudents = await Student.find({ _id: { $in: studentIds } });
-      const existingIds = existingStudents.map(s => s._id.toString());
-      const invalidIds = studentIds.filter(id => !existingIds.includes(id.toString()));
+      const existingIds = existingStudents.map((s) => s._id.toString());
+      const invalidIds = studentIds.filter(
+        (id) => !existingIds.includes(id.toString()),
+      );
       if (invalidIds.length > 0) {
-        return res.status(400).json({ 
-          error: `Invalid studentId(s): ${invalidIds.join(', ')}` 
+        return res.status(400).json({
+          error: `Invalid studentId(s): ${invalidIds.join(", ")}`,
         });
       }
     }
 
-    // Create the offer
-    const newOffer = new Offer({
-      company_name,
-      batch,
-      course,
-      offer_mode,
-      offer_sector,
-      result_date,
-      shortlisted_students,
-      added: "Manually"
+    if (type === "Summer Internship") {
+      let summerInternTracker = await SummerInternTracker.findOne({
+        batch,
+        course,
+      });
+      const summerIntern = new SummerIntern({
+        company_name,
+        batch,
+        course,
+        result_date,
+        offer_mode,
+        offer_sector,
+        offer_category,
+        shortlisted_students,
+        added: "Manually",
+      });
+      await summerIntern.save();
 
-    });
-
-    await newOffer.save();
-
-     for (const student of shortlisted_students) {
-      if (student.studentId) {
-        await OfferTracker.findOneAndUpdate(
-          { studentId: student.studentId },
-          {
-            $push: {
-              offer: {
-                offer_type: student.job_type || "",   // from shortlisted_students
-                offer_category: offer_category || "",
-                offer_sector: offer_sector || "Private",
-                offer_ctc: student.ctc || "0",
-                offer_intern_duration: student.intern_duration || ""
-              }
-            }
-          },
-          { upsert: true, new: true } // create new tracker if not exists
+      if (!summerInternTracker) {
+        summerInternTracker = new SummerInternTracker({
+          batch,
+          course,
+          studentsId: shortlisted_students.map((s) =>
+            mongoose.Types.ObjectId.createFromHexString(s.studentId),
+          ),
+        });
+      } else {
+        const newStudentIds = shortlisted_students.map((s) =>
+          mongoose.Types.ObjectId.createFromHexString(s.studentId),
         );
+        summerInternTracker.studentsId = [
+          ...new Set([
+            ...summerInternTracker.studentsId.map((id) => id.toString()),
+            ...newStudentIds.map((id) => id.toString()),
+          ]),
+        ].map((id) => mongoose.Types.ObjectId.createFromHexString(id));
       }
+      await summerInternTracker.save();
+      res.status(201).json(summerIntern);
     }
+    // Create the offer
+    else {
+      const newOffer = new Offer({
+        company_name,
+        batch,
+        course,
+        offer_mode,
+        offer_sector,
+        result_date,
+        shortlisted_students,
+        added: "Manually",
+      });
 
+      await newOffer.save();
 
-    res.status(201).json(newOffer);
+      for (const student of shortlisted_students) {
+        if (student.studentId) {
+          await OfferTracker.findOneAndUpdate(
+            { studentId: student.studentId },
+            {
+              $push: {
+                offer: {
+                  offer_type: student.job_type || "", // from shortlisted_students
+                  offer_category: offer_category || "",
+                  offer_sector: offer_sector || "Private",
+                  offer_ctc: student.ctc || "0",
+                  offer_intern_duration: student.intern_duration || "",
+                },
+              },
+            },
+            { upsert: true, new: true }, // create new tracker if not exists
+          );
+        }
+      }
+
+      res.status(201).json(newOffer);
+    }
   } catch (error) {
-    console.error('Error adding offer:', error);
-    res.status(500).json({ error: 'Failed to add offer: ' + error.message });
+    console.error("Error adding offer:", error);
+    res.status(500).json({ error: "Failed to add offer: " + error.message });
   }
 };
-
 
 export const getManualOffers = async (req, res) => {
   try {
@@ -122,16 +176,23 @@ export const getManualOffers = async (req, res) => {
   }
 };
 
-
+export const getManualSummerIntern = async(req, res) => {
+  try {
+    const summerIntern = await SummerIntern.find({ added: "Manually" });
+    res.status(200).json(summerIntern);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+}
 export const updateOffer = async (req, res) => {
   try {
     const { id } = req.params; // Offer ID from route
-    const payload = req.body;  // Payload from frontend
+    const payload = req.body; // Payload from frontend
 
     const updatedOffer = await Offer.findByIdAndUpdate(
       id,
       { $set: payload },
-      { new: true }
+      { new: true },
     );
 
     if (!updatedOffer) {
@@ -145,6 +206,27 @@ export const updateOffer = async (req, res) => {
 };
 
 
+export const updateSummerIntern = async(req, res) => {
+  try {
+    const {id} = req.params;
+    const payload = req.body;
+
+    const updateSummerIntern = await SummerIntern.findByIdAndUpdate(
+      id,
+      {$set: payload},
+      {new : true}
+    )
+
+    if (!updateSummerIntern) {
+      return res.status(404).json({ message: "Offer not found" });
+    }
+
+    res.status(200).json(updateSummerIntern);
+
+  } catch (error) {
+    res.status(500).json({ message: err.message });
+  }
+}
 // export const updateOffer = async (req, res) => {
 //   try {
 //     const { id } = req.params; // Offer ID from route
@@ -169,7 +251,7 @@ export const updateOffer = async (req, res) => {
 //     }
 
 //     // Validate each shortlisted student has required fields
-//     const validStudents = shortlisted_students.filter(student => 
+//     const validStudents = shortlisted_students.filter(student =>
 //       student.name && (student.job_type || student.job_role)
 //     );
 //     if (validStudents.length !== shortlisted_students.length) {
@@ -185,8 +267,8 @@ export const updateOffer = async (req, res) => {
 //       const existingIds = existingStudents.map(s => s._id.toString());
 //       const invalidIds = studentIds.filter(id => !existingIds.includes(id.toString()));
 //       if (invalidIds.length > 0) {
-//         return res.status(400).json({ 
-//           error: `Invalid studentId(s): ${invalidIds.join(', ')}` 
+//         return res.status(400).json({
+//           error: `Invalid studentId(s): ${invalidIds.join(', ')}`
 //         });
 //       }
 //     }
@@ -242,9 +324,9 @@ export const updateOffer = async (req, res) => {
 //     const newStudentIds = shortlisted_students
 //       .filter(s => s.studentId)
 //       .map(s => s.studentId.toString());
-    
+
 //     const removedStudentIds = existingStudentIds.filter(id => !newStudentIds.includes(id));
-    
+
 //     if (removedStudentIds.length > 0) {
 //       await OfferTracker.updateMany(
 //         { studentId: { $in: removedStudentIds } },

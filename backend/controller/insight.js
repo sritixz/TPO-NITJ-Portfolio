@@ -382,11 +382,36 @@ const chunkArray = (array, chunkSize) => {
 
 export const getOfferInsights = async (req, res) => {
   try {
-    const { course, batch } = req.query;
+    const { course, batch, companyFilter } = req.query;
     let query = { visibility: true };
     if (course) query.course = course;
     if (batch) query.batch = batch;
     const offers = await Offer.find(query).sort({ result_date: 1 });
+
+    const companyQuery = { visibility: true };
+    if (batch) companyQuery.batch = batch;
+
+    // companyFilter applies ONLY here
+    if (companyFilter && companyFilter !== "All") {
+      companyQuery.course = companyFilter;
+    }
+
+    const normalizeCompany = (name = "") =>
+      name.toLowerCase().trim().replace(/\s+/g, " ").replace(/\.$/, "");
+    const companyData = await Offer.find(companyQuery);
+    const normalizedCompanies = new Set(
+      companyData.map((o) => normalizeCompany(o.company_name)),
+    );
+
+    const offCampusCompanies = new Set(
+      companyData
+        .filter((o) => o.offer_mode === "Off-Campus")
+        .map((o) => normalizeCompany(o.company_name)),
+    );
+
+    const totalCompanies = normalizedCompanies.size;
+const offCampusCount = offCampusCompanies.size;
+const onCampusCount = totalCompanies - offCampusCount;
     if (!offers.length) {
       return res.status(404).json({ message: "No offers found" });
     }
@@ -399,12 +424,6 @@ export const getOfferInsights = async (req, res) => {
     );
     //get total visited companies
     const jobProfile = await JobProfile.find();
-    const courseWiseCompanyArray = jobProfile.filter((e) =>
-      e.eligibility_criteria?.some(
-        (el) => el.course_allowed === course && el.eligible_batch === batch,
-      ),
-    );
-    const totalCompanies = courseWiseCompanyArray.length;
     // 🔹 Fetch interested (eligible) students
     const interestedQuery = { interested: true };
     if (course) interestedQuery.course = course;
@@ -815,6 +834,8 @@ export const getOfferInsights = async (req, res) => {
       topCompaniesByCTC,
       totalOffers: offers.length,
       totalCompanies: totalCompanies,
+      offCampusCompanies: offCampusCount,
+      onCampusCompanies: onCampusCount,
       totalEligibleStudents, // ✅ overall eligible students
       overallPlacementPercentage, // ✅ overall placement percentage
       filterApplied: course && course !== "ALL" ? course : "All Courses",
