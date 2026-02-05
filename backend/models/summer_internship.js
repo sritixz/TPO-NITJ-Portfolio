@@ -68,6 +68,10 @@ const SummerInternSchema = new mongoose.Schema(
       type: Boolean,
       default: true,
     },
+    added:{
+      type:String,
+      default:'Automatically'
+    }
   },
   { timestamps: true }
 );

@@ -492,7 +492,7 @@ import axios from "axios";
 function validateFetchedStudentCourses(
   selectedCourse,
   students,
-  setCourseError
+  setCourseError,
 ) {
   const fetchedStudents = students.filter((s) => s.found && s.student?.course);
 
@@ -502,7 +502,7 @@ function validateFetchedStudentCourses(
   }
 
   const mismatch = fetchedStudents.some(
-    (s) => s.student.course !== selectedCourse
+    (s) => s.student.course !== selectedCourse,
   );
 
   if (mismatch) {
@@ -516,14 +516,16 @@ function validateFetchedStudentCourses(
 
 const OfferEditor = ({ onClose }) => {
   const [offers, setOffers] = useState([]);
+  const [summerIntern, setSummerIntern] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedId, setSelectedId] = useState(null);
   const [loading, setLoading] = useState(true);
   const [msg, setMsg] = useState(null);
   const [courseError, setCourseError] = useState(null); // kept as-is
-
+  const [filter, setFilter] = useState("Offers");
   useEffect(() => {
     fetchOffers();
+    fetchSummerInterns();
   }, []);
 
   async function fetchOffers() {
@@ -532,7 +534,7 @@ const OfferEditor = ({ onClose }) => {
     try {
       const res = await axios.get(
         `${import.meta.env.REACT_APP_BASE_URL}/offer-add/get-all`,
-        { withCredentials: true }
+        { withCredentials: true },
       );
       setOffers(res.data);
     } catch (error) {
@@ -541,13 +543,31 @@ const OfferEditor = ({ onClose }) => {
     setLoading(false);
   }
 
+  async function fetchSummerInterns() {
+    setLoading(true);
+    setMsg(null);
+    try {
+      const res = await axios.get(
+        `${import.meta.env.REACT_APP_BASE_URL}/offer-add/get-all-summerIntern`,
+        { withCredentials: true },
+      );
+      setSummerIntern(res.data);
+    } catch (error) {
+      setMsg("Failed to load Summer Intern");
+    }
+    setLoading(false);
+  }
+
   const filteredOffers = offers.filter(
     (o) =>
       o.company_name &&
-      o.company_name.toLowerCase().includes(searchTerm.toLowerCase())
+      o.company_name.toLowerCase().includes(searchTerm.toLowerCase()),
   );
 
-  const selected = offers.find((o) => o._id === selectedId);
+  const selected =
+    filter === "Summer Intern"
+      ? summerIntern.find((o) => o._id === selectedId)
+      : offers.find((o) => o._id === selectedId);
 
   if (loading) {
     return <div className="text-center py-8">Loading offers...</div>;
@@ -557,8 +577,10 @@ const OfferEditor = ({ onClose }) => {
     return (
       <EditForm
         offer={selected}
+        type={filter === "Summer Intern" ? "Summer Internship" : "Placement"}
         onSave={() => {
           fetchOffers();
+          fetchSummerInterns();
           setSelectedId(null);
         }}
         onCancel={() => setSelectedId(null)}
@@ -575,6 +597,30 @@ const OfferEditor = ({ onClose }) => {
               Existing Offers
             </h2>
             <button
+              onClick={() => setFilter("Offers")}
+              className={`px-4 py-2 font-medium rounded-md border transition-colors
+    ${
+      filter === "Offers"
+        ? "bg-blue-600 text-white border-blue-600"
+        : "bg-gray-100 text-gray-700 border-gray-300 hover:bg-gray-200"
+    }`}
+            >
+              Offers
+            </button>
+
+            <button
+              onClick={() => setFilter("Summer Intern")}
+              className={`px-4 py-2 font-medium rounded-md border transition-colors
+    ${
+      filter === "Summer Intern"
+        ? "bg-blue-600 text-white border-blue-600"
+        : "bg-gray-100 text-gray-700 border-gray-300 hover:bg-gray-200"
+    }`}
+            >
+              Summer Intern
+            </button>
+
+            <button
               onClick={onClose}
               className="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium rounded-md border border-gray-300 transition-colors"
             >
@@ -588,21 +634,7 @@ const OfferEditor = ({ onClose }) => {
             </div>
           )}
 
-          <div className="mb-4">
-            <input
-              type="text"
-              placeholder="Search offers by company name"
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-            />
-          </div>
-
-          {filteredOffers.length === 0 ? (
-            <p className="text-gray-500">
-              {searchTerm ? "No offers match the search." : "No offers found."}
-            </p>
-          ) : (
+          {filter === "Summer Intern" ? (
             <div className="overflow-x-auto">
               <table className="min-w-full divide-y divide-gray-200">
                 <thead className="bg-gray-50">
@@ -637,33 +669,21 @@ const OfferEditor = ({ onClose }) => {
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
-                  {filteredOffers.map((o) => (
+                  {summerIntern.map((o) => (
                     <tr key={o._id}>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                        {o.batch}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                        {o.course}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                        {o.company_name}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                        {o.offer_mode}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                        {o.offer_sector}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                        {o.offer_category}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                      <td className="px-6 py-4 text-sm">{o.batch}</td>
+                      <td className="px-6 py-4 text-sm">{o.course}</td>
+                      <td className="px-6 py-4 text-sm">{o.company_name}</td>
+                      <td className="px-6 py-4 text-sm">{o.offer_mode}</td>
+                      <td className="px-6 py-4 text-sm">{o.offer_sector}</td>
+                      <td className="px-6 py-4 text-sm">{o.offer_category}</td>
+                      <td className="px-6 py-4 text-sm">
                         {o.result_date || "-"}
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                      <td className="px-6 py-4 text-sm">
                         {o.shortlisted_students?.length || 0}
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm">
+                      <td className="px-6 py-4 text-sm">
                         <button
                           onClick={() => setSelectedId(o._id)}
                           className="text-blue-600 hover:text-blue-900 font-medium"
@@ -676,6 +696,94 @@ const OfferEditor = ({ onClose }) => {
                 </tbody>
               </table>
             </div>
+          ) : (
+            <>
+              <div className="mb-4">
+                <input
+                  type="text"
+                  placeholder="Search offers by company name"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                />
+              </div>
+
+              {filteredOffers.length === 0 ? (
+                <p className="text-gray-500">
+                  {searchTerm
+                    ? "No offers match the search."
+                    : "No offers found."}
+                </p>
+              ) : (
+                <div className="overflow-x-auto">
+                  <table className="min-w-full divide-y divide-gray-200">
+                    <thead className="bg-gray-50">
+                      <tr>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                          Batch
+                        </th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                          Course
+                        </th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                          Company
+                        </th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                          Mode
+                        </th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                          Sector
+                        </th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                          Category
+                        </th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                          Result Date
+                        </th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                          Students
+                        </th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                          Actions
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody className="bg-white divide-y divide-gray-200">
+                      {filteredOffers.map((o) => (
+                        <tr key={o._id}>
+                          <td className="px-6 py-4 text-sm">{o.batch}</td>
+                          <td className="px-6 py-4 text-sm">{o.course}</td>
+                          <td className="px-6 py-4 text-sm">
+                            {o.company_name}
+                          </td>
+                          <td className="px-6 py-4 text-sm">{o.offer_mode}</td>
+                          <td className="px-6 py-4 text-sm">
+                            {o.offer_sector}
+                          </td>
+                          <td className="px-6 py-4 text-sm">
+                            {o.offer_category}
+                          </td>
+                          <td className="px-6 py-4 text-sm">
+                            {o.result_date || "-"}
+                          </td>
+                          <td className="px-6 py-4 text-sm">
+                            {o.shortlisted_students?.length || 0}
+                          </td>
+                          <td className="px-6 py-4 text-sm">
+                            <button
+                              onClick={() => setSelectedId(o._id)}
+                              className="text-blue-600 hover:text-blue-900 font-medium"
+                            >
+                              Edit
+                            </button>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </>
           )}
         </div>
       </div>
@@ -683,20 +791,21 @@ const OfferEditor = ({ onClose }) => {
   );
 };
 
-const EditForm = ({ offer, onSave, onCancel }) => {
+const EditForm = ({ offer, type, onSave, onCancel }) => {
+  const [offerType] = useState(type);
   const [company, setCompany] = useState(offer.company_name || "");
   console.log("in edit form section", offer);
   const [batch, setBatch] = useState(offer.batch || "2026");
   const [course, setCourse] = useState(offer.course || "B.Tech");
   const [resultDate, setResultDate] = useState(
-    offer.result_date ? offer.result_date.split("T")[0] : ""
+    offer.result_date ? offer.result_date.split("T")[0] : "",
   );
   const [offerMode, setOfferMode] = useState(offer.offer_mode || "PPO");
   const [offerSector, setOfferSector] = useState(
-    offer.offer_sector || "Private"
+    offer.offer_sector || "Private",
   );
   const [offerCategory, setOfferCategory] = useState(
-    offer.offer_category || "A"
+    offer.offer_category || "A",
   );
   const [rollText, setRollText] = useState("");
   const [sList, setSList] = useState(
@@ -719,7 +828,7 @@ const EditForm = ({ offer, onSave, onCancel }) => {
         intern_duration: s.intern_duration,
       },
       loading: false,
-    }))
+    })),
   );
   const [g, setG] = useState({
     job_type: "FTE",
@@ -739,8 +848,8 @@ const EditForm = ({ offer, onSave, onCancel }) => {
         txt
           .split(/[,\n\s]+/)
           .map((s) => s.trim())
-          .filter(Boolean)
-      )
+          .filter(Boolean),
+      ),
     );
   }
 
@@ -748,9 +857,9 @@ const EditForm = ({ offer, onSave, onCancel }) => {
     try {
       const res = await axios.get(
         `${import.meta.env.REACT_APP_BASE_URL}/offer-add/get/${encodeURIComponent(
-          roll
+          roll,
         )}`,
-        { withCredentials: true }
+        { withCredentials: true },
       );
       return { roll, found: true, student: res.data };
     } catch (error) {
@@ -759,10 +868,10 @@ const EditForm = ({ offer, onSave, onCancel }) => {
   }
 
   async function handleFetch() {
-    const newRolls = parseRolls(rollText).filter((r) => {
-      !sList.some((x) => x.roll === r);
-      console.log("Fetched student:", r.student);
-    });
+    const newRolls = parseRolls(rollText).filter(
+      (r) => !sList.some((x) => x.roll === r),
+    );
+
     if (!newRolls.length) return setMsg("No new roll numbers or duplicates.");
     setLoading(true);
     setMsg(null);
@@ -826,6 +935,12 @@ const EditForm = ({ offer, onSave, onCancel }) => {
     setSList((s) => s.filter((_, idx) => idx !== i));
   }
 
+  useEffect(() => {
+    if (offerType === "Summer Internship") {
+      setG((s) => ({ ...s, job_type: "Intern" }));
+    }
+  }, [offerType]);
+
   async function handleUpdate() {
     if (!validateFetchedStudentCourses(course, sList, setCourseError)) return;
 
@@ -844,7 +959,11 @@ const EditForm = ({ offer, onSave, onCancel }) => {
       offer_category: offerCategory,
       offer_sector: offerSector,
       shortlisted_students: sList.map((x) => {
-        const studentJobType = x.override.job_type || g.job_type;
+        const studentJobType =
+          offerType === "Summer Internship"
+            ? "Intern"
+            : x.override.job_type || g.job_type;
+
         return {
           studentId: x.student?._id || null,
           roll: x.roll,
@@ -857,20 +976,21 @@ const EditForm = ({ offer, onSave, onCancel }) => {
           ctc: x.override.ctc || g.ctc,
           stipend: x.override.stipend || g.stipend,
           intern_duration:
-            studentJobType === "FTE"
-              ? undefined
-              : x.override.intern_duration || g.intern_duration,
+            studentJobType === "Intern"
+              ? x.override.intern_duration || g.intern_duration
+              : undefined,
         };
       }),
     };
 
+    const updateUrl =
+      offerType === "Summer Internship"
+        ? `${import.meta.env.REACT_APP_BASE_URL}/offer-add/update-summerIntern/${offer._id}`
+        : `${import.meta.env.REACT_APP_BASE_URL}/offer-add/update/${offer._id}`;
+
     setLoading(true);
     try {
-      await axios.put(
-        `${import.meta.env.REACT_APP_BASE_URL}/offer-add/update/${offer._id}`,
-        payload,
-        { withCredentials: true }
-      );
+      await axios.put(updateUrl, payload, { withCredentials: true });
       setMsg("Updated successfully");
       if (onSave) onSave();
     } catch (error) {
@@ -1019,15 +1139,21 @@ const EditForm = ({ offer, onSave, onCancel }) => {
               </label>
               <select
                 value={g.job_type}
+                disabled={offerType === "Summer Internship"}
                 onChange={(e) =>
                   setG((s) => ({ ...s, job_type: e.target.value }))
                 }
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               >
-                <option value="Intern">Intern</option>
-                <option value="Intern+FTE">Intern+FTE</option>
-                <option value="FTE">FTE</option>
-                <option value="Intern+PPO">Intern+PPO</option>
+                {offerType === "Summer Internship" ? (
+                  <option value="Intern">Intern</option>
+                ) : (
+                  <>
+                    <option value="Intern">Intern</option>
+                    <option value="Intern+FTE">Intern+FTE</option>
+                    <option value="FTE">FTE</option>
+                    <option value="Intern+PPO">Intern+PPO</option>
+                  </>
+                )}
               </select>
             </div>
             <div>
@@ -1266,7 +1392,7 @@ const EditForm = ({ offer, onSave, onCancel }) => {
                               setStudentField(
                                 i,
                                 "intern_duration",
-                                e.target.value
+                                e.target.value,
                               )
                             }
                             className="flex-1 px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-500"
@@ -1369,7 +1495,7 @@ const OfferAdder = ({ onDone }) => {
   const [rollText, setRollText] = useState("");
   const [sList, setSList] = useState([]);
   const [courseError, setCourseError] = useState(null);
-
+  const [type, setType] = useState("Placement (Internship + Job)");
   const [g, setG] = useState({
     job_type: "FTE",
     job_role: "",
@@ -1388,8 +1514,8 @@ const OfferAdder = ({ onDone }) => {
         txt
           .split(/[,\n\s]+/)
           .map((s) => s.trim())
-          .filter(Boolean)
-      )
+          .filter(Boolean),
+      ),
     );
   }
 
@@ -1397,9 +1523,9 @@ const OfferAdder = ({ onDone }) => {
     try {
       const res = await axios.get(
         `${import.meta.env.REACT_APP_BASE_URL}/offer-add/get/${encodeURIComponent(
-          roll
+          roll,
         )}`,
-        { withCredentials: true }
+        { withCredentials: true },
       );
       return { roll, found: true, student: res.data };
     } catch (error) {
@@ -1485,6 +1611,7 @@ const OfferAdder = ({ onDone }) => {
     if (!sList.length) return setMsg("No students added");
 
     const payload = {
+      type: type,
       company_name: company,
       batch,
       course,
@@ -1518,7 +1645,7 @@ const OfferAdder = ({ onDone }) => {
       const res = await axios.post(
         `${import.meta.env.REACT_APP_BASE_URL}/offer-add/add`,
         payload,
-        { withCredentials: true }
+        { withCredentials: true },
       );
       setMsg("Saved successfully");
       setCompany("");
@@ -1568,6 +1695,21 @@ const OfferAdder = ({ onDone }) => {
               Offer Details
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Type
+                </label>
+                <select
+                  value={type}
+                  onChange={(e) => setType(e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                >
+                  <option value="Placement (Internship + Job)">
+                    Placement (Internship + Job)
+                  </option>
+                  <option value="Summer Internship">Summer Internship</option>
+                </select>
+              </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Company Name
@@ -1952,7 +2094,7 @@ const OfferAdder = ({ onDone }) => {
                                 setStudentField(
                                   i,
                                   "intern_duration",
-                                  e.target.value
+                                  e.target.value,
                                 )
                               }
                               className="flex-1 px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-500"
