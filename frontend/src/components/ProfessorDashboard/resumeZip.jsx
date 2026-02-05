@@ -57,9 +57,10 @@ const ResumeZipGenerator = () => {
       setLoading(true);
 
       const res = await axios.post(
-        "http://localhost:7000/api/resumes/generate-zip",
+        `${import.meta.env.REACT_APP_BASE_URL}/api/resumes/generate-zip`,
         formData,
         {
+          withCredentials: true,
           responseType: "blob",
           headers: {
             "Content-Type": "multipart/form-data",
