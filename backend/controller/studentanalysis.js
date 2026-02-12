@@ -241,7 +241,6 @@ export const getStudentAnalytics = async (req, res) => {
             linkedin: student.linkedin || "",
             address: student.address || "",
             offers: offers?.offer || [],
-            summerIntern: summerIntern?
             isInterested: student.isInterested || false,
             applications: { total: 0, jobProfiles: [] },
             assessments: {
