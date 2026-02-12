@@ -22,8 +22,12 @@ import {
   FormControlLabel,
   Switch,
   Box,
-  Typography
+  Typography,
 } from "@mui/material";
+
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+
 import { Delete, Edit, Visibility, VisibilityOff, Add, Download } from "@mui/icons-material";
 
 const AdminJobProfileManager = () => {
@@ -49,7 +53,7 @@ const AdminJobProfileManager = () => {
     job_category: "",
     job_salary: {
       ctc: "",
-      base_salary: ""
+      base_salary: "",
     },
     deadline: new Date(),
     eligibility_criteria: {
@@ -59,22 +63,32 @@ const AdminJobProfileManager = () => {
       minimum_cgpa: 0.0,
       active_backlogs: false,
       history_backlogs: false,
-      course_allowed: ""
+      course_allowed: "",
     },
     job_class: "",
     visibility: true,
     Approved_Status: false,
     completed: false,
-    recruiter_editing_allowed: false
+    recruiter_editing_allowed: false,
   };
 
   useEffect(() => {
     fetchJobProfiles();
   }, []);
 
+  const [openApplied, setOpenApplied] = useState(false);
+  const [openFinal, setOpenFinal] = useState(false);
+  const [openEligibleDialog, setOpenEligibleDialog] = useState(false);
+  const [newStudentId, setNewStudentId] = useState("");
+  const [activeJob, setActiveJob] = useState(null);
+
   const fetchJobProfiles = async () => {
     try {
-      const response = await axios.get(`${import.meta.env.REACT_APP_BASE_URL}/admin/jobprofiles`, { withCredentials: true });
+      const response = await axios.get(
+        `${import.meta.env.REACT_APP_BASE_URL}/admin/jobprofiles`,
+        { withCredentials: true }
+      );
+    
       setJobProfiles(response.data);
       setFilteredProfiles(response.data);
     } catch (error) {
@@ -91,13 +105,19 @@ const AdminJobProfileManager = () => {
   const filterProfiles = (filters) => {
     let filtered = jobProfiles;
     if (filters.job_type) {
-      filtered = filtered.filter((profile) => profile.job_type === filters.job_type);
+      filtered = filtered.filter(
+        (profile) => profile.job_type === filters.job_type
+      );
     }
     if (filters.job_category) {
-      filtered = filtered.filter((profile) => profile.job_category === filters.job_category);
+      filtered = filtered.filter(
+        (profile) => profile.job_category === filters.job_category
+      );
     }
     if (filters.job_class) {
-      filtered = filtered.filter((profile) => profile.job_class === filters.job_class);
+      filtered = filtered.filter(
+        (profile) => profile.job_class === filters.job_class
+      );
     }
     setFilteredProfiles(filtered);
   };
@@ -114,17 +134,163 @@ const AdminJobProfileManager = () => {
     setOpenEditDialog(true);
   };
 
+  const addAppliedStudent = async (jobId, studentId) => {
+    try {
+      await axios.post(
+        `${import.meta.env.REACT_APP_BASE_URL}/admin/jobprofiles/${jobId}/applied/add`,
+        { studentId },
+        { withCredentials: true }
+      );
+      openAppliedDialog(jobId);
+      fetchJobProfiles();
+    } catch (err) {
+      console.error("Add applied student failed:", err);
+      const msg =
+        err.response?.data?.error ||
+        err.response?.data?.message ||
+        "Something went wrong";
+      toast.error(msg);
+      // seterrormsg(msg);
+    }
+  };
+  const bypassToFinal = async (studentId) => {
+
+   try {await axios.post(
+      `${import.meta.env.REACT_APP_BASE_URL}/admin/jobprofiles/move-forward`,
+     { jobId: activeJob._id,
+        studentId,
+       
+      },
+      { withCredentials: true }
+    );
+  }
+catch (error) {
+  const message =
+    error.response?.data?.error ||
+    error.response?.data?.message ||
+    "Something went wrong";
+console.log("Error in bypass to final:", message);
+  toast.error(message);
+}
+   
+    // refresh UI
+    await openAppliedDialog(activeJob._id);
+    fetchJobProfiles();
+  };
+
+  const removeAppliedStudent = async (jobId, studentId) => {
+    try {
+      await axios.delete(
+        `${import.meta.env.REACT_APP_BASE_URL}/admin/jobprofiles/${jobId}/applied/remove`,
+        {
+          data: { studentId },
+          withCredentials: true,
+        }
+      );
+      openAppliedDialog(jobId);
+      fetchJobProfiles();
+    } catch (err) {
+      console.error("Remove applied failed:", err.response?.data || err);
+    }
+  };
+
+  const removeFinalShortlisted = async (jobId, studentId) => {
+    try {
+      await axios.delete(
+        `${import.meta.env.REACT_APP_BASE_URL}/admin/jobprofiles/${jobId}/final/remove`,
+        {
+          data: { studentId },
+          withCredentials: true,
+        }
+      );
+      openFinalDialog(jobId);
+      fetchJobProfiles();
+    } catch (err) {
+      console.error(
+        "Remove final shortlist failed:",
+        err.response?.data || err
+      );
+    }
+  };
+  const openAppliedDialog = async (jobId) => {
+   
+    try {
+      const res = await axios.get(
+        `${import.meta.env.REACT_APP_BASE_URL}/admin/jobprofiles/${jobId}/details`,
+        { withCredentials: true }
+      );
+
+      setActiveJob(res.data.job);
+      setOpenApplied(true);
+    } catch (err) {
+      console.error("Failed to fetch job details", err);
+    }
+  };
+  const openElgiblehiringDialog = async (jobId) => {
+    try {
+      const res = await axios.get(
+        `${import.meta.env.REACT_APP_BASE_URL}/admin/jobprofiles/${jobId}/details`,
+        { withCredentials: true }
+      );
+
+      setActiveJob(res.data.job);
+      setOpenEligibleDialog(true);
+    } catch (err) {
+      console.error("Failed to fetch job details", err);
+    }
+  };
+  const getMoveLabel = (job) =>
+    job.Hiring_Workflow.length === 0 ? "Move to Final" : "Move to Next Stage";
+
+  const moveStudent = async (studentId, stepIndex) => {
+    if (!activeJob) return;
+
+   try {await axios.post(
+      `${import.meta.env.REACT_APP_BASE_URL}/admin/jobprofiles/move-forward`,
+    {
+        jobId: activeJob._id,
+        studentId,
+        stepIndex,
+      },
+      { withCredentials: true }
+    );
+  }
+catch (error) {
+  const message =
+    error.response?.data?.error ||
+    error.response?.data?.message ||
+    "Something went wrong";
+console.log("Error in move student:", message);
+  toast.error(message);
+}
+   
+    openElgiblehiringDialog(activeJob._id);
+    fetchJobProfiles();
+  };
+
+  const openFinalDialog = async (jobId) => {
+    try {
+      const res = await axios.get(
+        `${import.meta.env.REACT_APP_BASE_URL}/admin/jobprofiles/${jobId}/details`,
+        { withCredentials: true }
+      );
+      setActiveJob(res.data.job);
+      setOpenFinal(true);
+    } catch (err) {
+      console.error("Failed to fetch job details", err);
+    }
+  };
   const handleSave = async () => {
     try {
       if (isAddMode) {
         await axios.post(
-          `${import.meta.env.REACT_APP_BASE_URL}/admin/jobprofiles`, 
+          `${import.meta.env.REACT_APP_BASE_URL}/admin/jobprofiles`,
           editProfile,
           { withCredentials: true }
         );
       } else {
         await axios.put(
-          `${import.meta.env.REACT_APP_BASE_URL}/admin/jobprofiles/${editProfile._id}`, 
+          `${import.meta.env.REACT_APP_BASE_URL}/admin/jobprofiles/${editProfile._id}`,
           editProfile,
           { withCredentials: true }
         );
@@ -138,7 +304,10 @@ const AdminJobProfileManager = () => {
 
   const handleDelete = async (id) => {
     try {
-      await axios.delete(`${import.meta.env.REACT_APP_BASE_URL}/admin/jobprofiles/${id}`, { withCredentials: true });
+      await axios.delete(
+        `${import.meta.env.REACT_APP_BASE_URL}/admin/jobprofiles/${id}`,
+        { withCredentials: true }
+      );
       fetchJobProfiles();
     } catch (error) {
       console.error("Error deleting job profile:", error);
@@ -148,7 +317,7 @@ const AdminJobProfileManager = () => {
   const handleBulkDelete = async () => {
     try {
       await axios.post(
-        `${import.meta.env.REACT_APP_BASE_URL}/admin/jobprofiles/bulk-delete`, 
+        `${import.meta.env.REACT_APP_BASE_URL}/admin/jobprofiles/bulk-delete`,
         { ids: selectedProfiles },
         { withCredentials: true }
       );
@@ -225,7 +394,7 @@ const AdminJobProfileManager = () => {
   const handleToggleVisibility = async (id, visibility) => {
     try {
       await axios.put(
-        `${import.meta.env.REACT_APP_BASE_URL}/admin/jobprofiles/${id}`, 
+        `${import.meta.env.REACT_APP_BASE_URL}/admin/jobprofiles/${id}`,
         { visibility: !visibility },
         { withCredentials: true }
       );
@@ -237,21 +406,23 @@ const AdminJobProfileManager = () => {
 
   const handleSelectProfile = (id) => {
     if (selectedProfiles.includes(id)) {
-      setSelectedProfiles(selectedProfiles.filter((profileId) => profileId !== id));
+      setSelectedProfiles(
+        selectedProfiles.filter((profileId) => profileId !== id)
+      );
     } else {
       setSelectedProfiles([...selectedProfiles, id]);
     }
   };
 
   const handleChange = (field, value) => {
-    if (field.includes('.')) {
-      const [parentField, childField] = field.split('.');
+    if (field.includes(".")) {
+      const [parentField, childField] = field.split(".");
       setEditProfile({
         ...editProfile,
         [parentField]: {
           ...editProfile[parentField],
-          [childField]: value
-        }
+          [childField]: value,
+        },
       });
     } else {
       setEditProfile({ ...editProfile, [field]: value });
@@ -263,15 +434,15 @@ const AdminJobProfileManager = () => {
       ...editProfile,
       eligibility_criteria: {
         ...editProfile.eligibility_criteria,
-        [field]: value
-      }
+        [field]: value,
+      },
     });
   };
 
   const departments = [
-    "COMPUTER SCIENCE AND ENGINEERING", 
-    "INFORMATION TECHNOLOGY", 
-    "ELECTRICAL ENGINEERING", 
+    "COMPUTER SCIENCE AND ENGINEERING",
+    "INFORMATION TECHNOLOGY",
+    "ELECTRICAL ENGINEERING",
     "MECHANICAL ENGINEERING",
     "CIVIL ENGINEERING",
     "ELECTRONICS AND COMMUNICATION ENGINEERING",
@@ -282,14 +453,21 @@ const AdminJobProfileManager = () => {
     "TEXTILE TECHNOLOGY",
     "DATA SCIENCE AND ENGINEERING",
     "ELECTRONICS AND VLSI ENGINEERING",
-    "MATHEMATICS AND COMPUTING"
+    "MATHEMATICS AND COMPUTING",
   ];
 
   const courses = ["B.Tech", "M.Tech", "MBA", "M.Sc.", "PHD", "B.Sc.-B.Ed."];
 
   return (
     <Paper sx={{ p: 3 }}>
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          mb: 3,
+        }}
+      >
         <Typography variant="h5" component="h1" fontWeight="bold">
           Manage Job Profiles
         </Typography>
@@ -313,10 +491,14 @@ const AdminJobProfileManager = () => {
         </Box>
       </Box>
 
-      <Box sx={{ display: 'flex', gap: 2, mb: 3, flexWrap: 'wrap' }}>
+      <Box sx={{ display: "flex", gap: 2, mb: 3, flexWrap: "wrap" }}>
         <FormControl sx={{ minWidth: 150 }}>
           <InputLabel>Job Type</InputLabel>
-          <Select name="job_type" value={filters.job_type} onChange={handleFilterChange}>
+          <Select
+            name="job_type"
+            value={filters.job_type}
+            onChange={handleFilterChange}
+          >
             <MenuItem value="">All</MenuItem>
             <MenuItem value="2m Intern">2m Intern</MenuItem>
             <MenuItem value="6m Intern">6m Intern</MenuItem>
@@ -328,7 +510,11 @@ const AdminJobProfileManager = () => {
         </FormControl>
         <FormControl sx={{ minWidth: 150 }}>
           <InputLabel>Job Category</InputLabel>
-          <Select name="job_category" value={filters.job_category} onChange={handleFilterChange}>
+          <Select
+            name="job_category"
+            value={filters.job_category}
+            onChange={handleFilterChange}
+          >
             <MenuItem value="">All</MenuItem>
             <MenuItem value="Tech">Tech</MenuItem>
             <MenuItem value="Non-Tech">Non-Tech</MenuItem>
@@ -337,7 +523,11 @@ const AdminJobProfileManager = () => {
         </FormControl>
         <FormControl sx={{ minWidth: 150 }}>
           <InputLabel>Job Class</InputLabel>
-          <Select name="job_class" value={filters.job_class} onChange={handleFilterChange}>
+          <Select
+            name="job_class"
+            value={filters.job_class}
+            onChange={handleFilterChange}
+          >
             <MenuItem value="">All</MenuItem>
             <MenuItem value="Below Dream">Below Dream</MenuItem>
             <MenuItem value="Dream">Dream</MenuItem>
@@ -363,23 +553,38 @@ const AdminJobProfileManager = () => {
             <TableRow>
               <TableCell padding="checkbox">
                 <Checkbox
-                  indeterminate={selectedProfiles.length > 0 && selectedProfiles.length < filteredProfiles.length}
-                  checked={filteredProfiles.length > 0 && selectedProfiles.length === filteredProfiles.length}
+                  indeterminate={
+                    selectedProfiles.length > 0 &&
+                    selectedProfiles.length < filteredProfiles.length
+                  }
+                  checked={
+                    filteredProfiles.length > 0 &&
+                    selectedProfiles.length === filteredProfiles.length
+                  }
                   onChange={() => {
                     if (selectedProfiles.length === filteredProfiles.length) {
                       setSelectedProfiles([]);
                     } else {
-                      setSelectedProfiles(filteredProfiles.map(profile => profile._id));
+                      setSelectedProfiles(
+                        filteredProfiles.map((profile) => profile._id)
+                      );
                     }
                   }}
                 />
               </TableCell>
+              <TableCell>Job id</TableCell>
               <TableCell>Job Role</TableCell>
               <TableCell>Company Name</TableCell>
               <TableCell>Job Type</TableCell>
               <TableCell>Job Category</TableCell>
               <TableCell>Job Class</TableCell>
+              <TableCell>Job Description</TableCell>
+              <TableCell>Job Location</TableCell>
+              <TableCell>Job Sector</TableCell>
               <TableCell>Approved</TableCell>
+              <TableCell>Final Shortlisted</TableCell>
+              <TableCell>Applied Students</TableCell>
+
               <TableCell>Actions</TableCell>
             </TableRow>
           </TableHead>
@@ -392,25 +597,64 @@ const AdminJobProfileManager = () => {
                     onChange={() => handleSelectProfile(profile._id)}
                   />
                 </TableCell>
+                <TableCell>{profile._id}</TableCell>
                 <TableCell>{profile.job_role}</TableCell>
                 <TableCell>{profile.company_name}</TableCell>
                 <TableCell>{profile.job_type}</TableCell>
                 <TableCell>{profile.job_category}</TableCell>
                 <TableCell>{profile.job_class}</TableCell>
+                <TableCell>{profile.jobdescription}</TableCell>
+                <TableCell>{profile.joblocation}</TableCell>
+                <TableCell>{profile.job_sector}</TableCell>
                 <TableCell>{profile.Approved_Status ? "Yes" : "No"}</TableCell>
                 <TableCell>
-                  <Button onClick={() => handleEdit(profile)} color="primary" title="Edit">
+                  {profile.final_shortlisted_students?.length || 0}
+                </TableCell>
+
+                <TableCell>{profile.Applied_Students?.length || 0}</TableCell>
+                <TableCell>
+                  <Button
+                    onClick={() => handleEdit(profile)}
+                    color="primary"
+                    title="Edit"
+                  >
                     <Edit />
                   </Button>
-                  <Button onClick={() => handleDelete(profile._id)} color="error" title="Delete">
+                  <Button
+                    onClick={() => handleDelete(profile._id)}
+                    color="error"
+                    title="Delete"
+                  >
                     <Delete />
                   </Button>
-                  <Button 
-                    onClick={() => handleToggleVisibility(profile._id, profile.visibility)} 
+                  <Button
+                    onClick={() =>
+                      handleToggleVisibility(profile._id, profile.visibility)
+                    }
                     color={profile.visibility ? "success" : "warning"}
                     title={profile.visibility ? "Visible" : "Hidden"}
                   >
                     {profile.visibility ? <Visibility /> : <VisibilityOff />}
+                  </Button>
+
+                  <Button
+                    size="small"
+                    onClick={() => openAppliedDialog(profile._id)}
+                  >
+                    Applied
+                  </Button>
+                  <Button
+                    size="small"
+                    onClick={() => openElgiblehiringDialog(profile._id)}
+                  >
+                    Eligible Students
+                  </Button>
+
+                  <Button
+                    size="small"
+                    onClick={() => openFinalDialog(profile._id)}
+                  >
+                    Final
                   </Button>
                 </TableCell>
               </TableRow>
@@ -419,8 +663,209 @@ const AdminJobProfileManager = () => {
         </Table>
       </TableContainer>
 
-      <Dialog 
-        open={openEditDialog} 
+      <Dialog
+        open={openApplied}
+        onClose={() => setOpenApplied(false)}
+        fullWidth
+      >
+        <ToastContainer position="top-right" autoClose={3000} />
+        <DialogTitle>Applied Students</DialogTitle>
+        <DialogContent>
+          {/* ➕ Add student */}
+          <Box display="flex" gap={2} mb={2}>
+            <TextField
+              label="Student ID"
+              value={newStudentId}
+              onChange={(e) => setNewStudentId(e.target.value)}
+              fullWidth
+              size="small"
+            />
+
+            <Button
+              variant="contained"
+              onClick={() => {
+                if (!newStudentId || !activeJob) return;
+                addAppliedStudent(activeJob._id, newStudentId);
+
+                setNewStudentId("");
+              }}
+            >
+              Add
+            </Button>
+          </Box>
+
+          <Table>
+            <TableBody>
+              {activeJob?.Applied_Students?.length === 0 && (
+                <TableRow>
+                  <TableCell colSpan={2} align="center">
+                    No applied students yet
+                  </TableCell>
+                </TableRow>
+              )}
+
+              {activeJob?.Applied_Students?.map((student, index) => {
+                const studentId =
+                  typeof student === "string" ? student : student._id;
+
+                return (
+                  <TableRow key={studentId || index}>
+                    <TableCell>{studentId}</TableCell>
+                    <TableCell>{student.name}</TableCell>
+                    <TableCell>{student.rollno}</TableCell>
+                    <TableCell>{student.email}</TableCell>
+                    <TableCell>{student.department}</TableCell>
+                    <TableCell>
+                      <Button
+                        size="small"
+                        variant="contained"
+                        onClick={() => moveStudent(studentId, -1)}
+                      >
+                        {getMoveLabel(activeJob)}
+                      </Button>
+
+                      <Button
+                        size="small"
+                        color="error"
+                        onClick={() =>
+                          removeAppliedStudent(activeJob._id, studentId)
+                        }
+                      >
+                        Remove
+                      </Button>
+                      <Button
+                        color="warning"
+                        onClick={() => bypassToFinal(studentId)}
+                      >
+                        Move to Final
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                );
+              })}
+            </TableBody>
+          </Table>
+          <Button onClick={() => setOpenApplied(false)} color="inherit">
+            Cancel
+          </Button>
+        </DialogContent>
+      </Dialog>
+      {/* shirtklisted */}
+
+      <Dialog
+        open={openEligibleDialog}
+        onClose={() => setOpenEligibleDialog(false)}
+        fullWidth
+      >
+        <DialogTitle>Eligible Students</DialogTitle>
+        <DialogContent>
+          <Table>
+            <TableBody>
+              {activeJob?.Hiring_Workflow?.length === 0 && (
+                <TableRow>
+                  <TableCell align="center">No eligible students</TableCell>
+                </TableRow>
+              )}
+
+              {activeJob?.Hiring_Workflow?.map((step, stepIndex) =>
+                step.eligible_students?.length === 0 ? (
+                  <TableRow key={step._id || stepIndex}>
+                     <TableCell>{step.step_type}</TableCell>
+                    <TableCell align="center" colSpan={5}>
+                      No eligible students
+                    </TableCell>
+                  </TableRow>
+                ) : (
+                  step.eligible_students.map((student, index) => {
+                    const studentId =
+                      typeof student === "string" ? student : student._id;
+
+                    return (
+                      <TableRow key={studentId || index}>
+                        <TableCell>{step.step_type}</TableCell>
+                        <TableCell>{studentId}</TableCell>
+                        <TableCell>{student.name}</TableCell>
+                        <TableCell>{student.rollno}</TableCell>
+                        <TableCell>{student.email}</TableCell>
+                        <TableCell>{student.department}</TableCell>
+                        <TableCell>
+                          <Button
+                            size="small"
+                            variant="contained"
+                            onClick={() => moveStudent(studentId, stepIndex)}
+                          >
+                            {getMoveLabel(activeJob)}
+                          </Button>
+                          <Button
+                            color="warning"
+                            onClick={() => bypassToFinal(studentId)}
+                          >
+                            Move to Final
+                          </Button>
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })
+                )
+              )}
+            </TableBody>
+          </Table>
+          <Button onClick={() => setOpenEligibleDialog(false)} color="inherit">
+            Cancel
+          </Button>
+        </DialogContent>
+      </Dialog>
+      {/* Final shortlisted students */}
+      <Dialog open={openFinal} onClose={() => setOpenFinal(false)} fullWidth>
+        <DialogTitle>Final Shortlisted Students</DialogTitle>
+
+        <DialogContent>
+          <Table>
+            <TableBody>
+              {activeJob?.final_shortlisted_students?.length === 0 && (
+                <TableRow>
+                  <TableCell align="center">
+                    No final shortlisted students
+                  </TableCell>
+                </TableRow>
+              )}
+
+              {activeJob?.final_shortlisted_students?.map((student, index) => {
+                const studentId =
+                  typeof student === "string" ? student : student._id;
+
+                return (
+                  <TableRow key={studentId || index}>
+                    <TableCell>{studentId}</TableCell>
+                    <TableCell>{student.name}</TableCell>
+                    <TableCell>{student.rollno}</TableCell>
+                    <TableCell>{student.email}</TableCell>
+                    <TableCell>{student.department}</TableCell>
+
+                    <TableCell>
+                      <Button
+                        size="small"
+                        color="error"
+                        onClick={() =>
+                          removeFinalShortlisted(activeJob._id, studentId)
+                        }
+                      >
+                        Remove
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                );
+              })}
+            </TableBody>
+          </Table>{" "}
+          <Button onClick={() => setOpenFinal(false)} color="inherit">
+            Cancel
+          </Button>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog
+        open={openEditDialog}
         onClose={() => setOpenEditDialog(false)}
         maxWidth="md"
         fullWidth
@@ -429,32 +874,40 @@ const AdminJobProfileManager = () => {
           {isAddMode ? "Add New Job Profile" : "Edit Job Profile"}
         </DialogTitle>
         <DialogContent dividers>
-          <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' }, gap: 2 }}>
+          <Box
+            sx={{
+              display: "grid",
+              gridTemplateColumns: { xs: "1fr", sm: "1fr 1fr" },
+              gap: 2,
+            }}
+          >
             <TextField
               label="Job Role"
               value={editProfile?.job_role || ""}
-              onChange={(e) => handleChange('job_role', e.target.value)}
+              onChange={(e) => {
+                handleChange("job_role", e.target.value);
+              }}
               fullWidth
               margin="normal"
             />
             <TextField
               label="Company Name"
               value={editProfile?.company_name || ""}
-              onChange={(e) => handleChange('company_name', e.target.value)}
+              onChange={(e) => handleChange("company_name", e.target.value)}
               fullWidth
               margin="normal"
             />
             <TextField
               label="Company Logo URL"
               value={editProfile?.company_logo || ""}
-              onChange={(e) => handleChange('company_logo', e.target.value)}
+              onChange={(e) => handleChange("company_logo", e.target.value)}
               fullWidth
               margin="normal"
             />
             <TextField
               label="Job Location"
               value={editProfile?.joblocation || ""}
-              onChange={(e) => handleChange('joblocation', e.target.value)}
+              onChange={(e) => handleChange("joblocation", e.target.value)}
               fullWidth
               margin="normal"
             />
@@ -464,9 +917,11 @@ const AdminJobProfileManager = () => {
                 value={editProfile?.job_type || ""}
                 onChange={(e) => handleChange('job_type', e.target.value)}
               >
-                <MenuItem value="2m Intern">2m Intern</MenuItem>
-                <MenuItem value="6m Intern">6m Intern</MenuItem>
-                <MenuItem value="11m Intern">11m Intern</MenuItem>
+                            
+            <MenuItem value="2m Intern">2m Intern</MenuItem>
+            <MenuItem value="6m Intern">6m Intern</MenuItem>
+            <MenuItem value="11m Intern">11m Intern</MenuItem>
+
                 <MenuItem value="Intern+PPO">Intern+PPO</MenuItem>
                 <MenuItem value="Intern+FTE">Intern+FTE</MenuItem>
                 <MenuItem value="FTE">FTE</MenuItem>
@@ -476,7 +931,7 @@ const AdminJobProfileManager = () => {
               <InputLabel>Job Category</InputLabel>
               <Select
                 value={editProfile?.job_category || ""}
-                onChange={(e) => handleChange('job_category', e.target.value)}
+                onChange={(e) => handleChange("job_category", e.target.value)}
               >
                 <MenuItem value="Tech">Tech</MenuItem>
                 <MenuItem value="Non-Tech">Non-Tech</MenuItem>
@@ -487,7 +942,7 @@ const AdminJobProfileManager = () => {
               <InputLabel>Job Class</InputLabel>
               <Select
                 value={editProfile?.job_class || ""}
-                onChange={(e) => handleChange('job_class', e.target.value)}
+                onChange={(e) => handleChange("job_class", e.target.value)}
               >
                 <MenuItem value="Below Dream">Below Dream</MenuItem>
                 <MenuItem value="Dream">Dream</MenuItem>
@@ -497,12 +952,20 @@ const AdminJobProfileManager = () => {
           </Box>
 
           <Box sx={{ mt: 2 }}>
-            <Typography variant="h6" gutterBottom>Salary Details</Typography>
-            <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' }, gap: 2 }}>
+            <Typography variant="h6" gutterBottom>
+              Salary Details
+            </Typography>
+            <Box
+              sx={{
+                display: "grid",
+                gridTemplateColumns: { xs: "1fr", sm: "1fr 1fr" },
+                gap: 2,
+              }}
+            >
               <TextField
                 label="CTC"
                 value={editProfile?.job_salary?.ctc || ""}
-                onChange={(e) => handleChange('job_salary.ctc', e.target.value)}
+                onChange={(e) => handleChange("job_salary.ctc", e.target.value)}
                 fullWidth
                 margin="normal"
               />
@@ -515,26 +978,43 @@ const AdminJobProfileManager = () => {
               />
             </Box>
           </Box>
-
           <Box sx={{ mt: 2 }}>
-            <Typography variant="h6" gutterBottom>Eligibility Criteria</Typography>
-            <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' }, gap: 2 }}>
+            <Typography variant="h6" gutterBottom>
+              Eligibility Criteria
+            </Typography>
+            <Box
+              sx={{
+                display: "grid",
+                gridTemplateColumns: { xs: "1fr", sm: "1fr 1fr" },
+                gap: 2,
+              }}
+            >
               <FormControl fullWidth margin="normal">
                 <InputLabel>Course Allowed</InputLabel>
                 <Select
-                  value={editProfile?.eligibility_criteria?.course_allowed || ""}
-                  onChange={(e) => handleEligibilityChange('course_allowed', e.target.value)}
+                  value={
+                    editProfile?.eligibility_criteria?.course_allowed || ""
+                  }
+                  onChange={(e) =>
+                    handleEligibilityChange("course_allowed", e.target.value)
+                  }
                 >
-                  {courses.map(course => (
-                    <MenuItem key={course} value={course}>{course}</MenuItem>
+                  {courses.map((course) => (
+                    <MenuItem key={course} value={course}>
+                      {course}
+                    </MenuItem>
                   ))}
                 </Select>
               </FormControl>
               <FormControl fullWidth margin="normal">
                 <InputLabel>Gender Allowed</InputLabel>
                 <Select
-                  value={editProfile?.eligibility_criteria?.gender_allowed || "Any"}
-                  onChange={(e) => handleEligibilityChange('gender_allowed', e.target.value)}
+                  value={
+                    editProfile?.eligibility_criteria?.gender_allowed || "Any"
+                  }
+                  onChange={(e) =>
+                    handleEligibilityChange("gender_allowed", e.target.value)
+                  }
                 >
                   <MenuItem value="Male">Male</MenuItem>
                   <MenuItem value="Female">Female</MenuItem>
@@ -545,7 +1025,9 @@ const AdminJobProfileManager = () => {
               <TextField
                 label="Eligible Batch"
                 value={editProfile?.eligibility_criteria?.eligible_batch || ""}
-                onChange={(e) => handleEligibilityChange('eligible_batch', e.target.value)}
+                onChange={(e) =>
+                  handleEligibilityChange("eligible_batch", e.target.value)
+                }
                 placeholder="e.g., 2023, 2024"
                 fullWidth
                 margin="normal"
@@ -555,15 +1037,28 @@ const AdminJobProfileManager = () => {
                 type="number"
                 inputProps={{ min: 0, max: 10, step: 0.1 }}
                 value={editProfile?.eligibility_criteria?.minimum_cgpa || 0}
-                onChange={(e) => handleEligibilityChange('minimum_cgpa', parseFloat(e.target.value))}
+                onChange={(e) =>
+                  handleEligibilityChange(
+                    "minimum_cgpa",
+                    parseFloat(e.target.value)
+                  )
+                }
                 fullWidth
                 margin="normal"
               />
               <FormControlLabel
                 control={
                   <Switch
-                    checked={editProfile?.eligibility_criteria?.active_backlogs || false}
-                    onChange={(e) => handleEligibilityChange('active_backlogs', e.target.checked)}
+                    checked={
+                      editProfile?.eligibility_criteria?.active_backlogs ||
+                      false
+                    }
+                    onChange={(e) =>
+                      handleEligibilityChange(
+                        "active_backlogs",
+                        e.target.checked
+                      )
+                    }
                   />
                 }
                 label="Allow Active Backlogs"
@@ -571,8 +1066,16 @@ const AdminJobProfileManager = () => {
               <FormControlLabel
                 control={
                   <Switch
-                    checked={editProfile?.eligibility_criteria?.history_backlogs || false}
-                    onChange={(e) => handleEligibilityChange('history_backlogs', e.target.checked)}
+                    checked={
+                      editProfile?.eligibility_criteria?.history_backlogs ||
+                      false
+                    }
+                    onChange={(e) =>
+                      handleEligibilityChange(
+                        "history_backlogs",
+                        e.target.checked
+                      )
+                    }
                   />
                 }
                 label="Allow History Backlogs"
@@ -581,11 +1084,13 @@ const AdminJobProfileManager = () => {
           </Box>
 
           <Box sx={{ mt: 2 }}>
-            <Typography variant="h6" gutterBottom>Job Description</Typography>
+            <Typography variant="h6" gutterBottom>
+              Job Description
+            </Typography>
             <TextField
               label="Job Description"
               value={editProfile?.jobdescription || ""}
-              onChange={(e) => handleChange('jobdescription', e.target.value)}
+              onChange={(e) => handleChange("jobdescription", e.target.value)}
               fullWidth
               margin="normal"
               multiline
@@ -594,13 +1099,23 @@ const AdminJobProfileManager = () => {
           </Box>
 
           <Box sx={{ mt: 2 }}>
-            <Typography variant="h6" gutterBottom>Administrative Settings</Typography>
-            <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' }, gap: 2 }}>
+            <Typography variant="h6" gutterBottom>
+              Administrative Settings
+            </Typography>
+            <Box
+              sx={{
+                display: "grid",
+                gridTemplateColumns: { xs: "1fr", sm: "1fr 1fr" },
+                gap: 2,
+              }}
+            >
               <FormControlLabel
                 control={
                   <Switch
                     checked={editProfile?.visibility || false}
-                    onChange={(e) => handleChange('visibility', e.target.checked)}
+                    onChange={(e) =>
+                      handleChange("visibility", e.target.checked)
+                    }
                   />
                 }
                 label="Visible to Students"
@@ -609,7 +1124,9 @@ const AdminJobProfileManager = () => {
                 control={
                   <Switch
                     checked={editProfile?.Approved_Status || false}
-                    onChange={(e) => handleChange('Approved_Status', e.target.checked)}
+                    onChange={(e) =>
+                      handleChange("Approved_Status", e.target.checked)
+                    }
                   />
                 }
                 label="Approved"
@@ -618,7 +1135,9 @@ const AdminJobProfileManager = () => {
                 control={
                   <Switch
                     checked={editProfile?.completed || false}
-                    onChange={(e) => handleChange('completed', e.target.checked)}
+                    onChange={(e) =>
+                      handleChange("completed", e.target.checked)
+                    }
                   />
                 }
                 label="Process Completed"
@@ -627,7 +1146,12 @@ const AdminJobProfileManager = () => {
                 control={
                   <Switch
                     checked={editProfile?.recruiter_editing_allowed || false}
-                    onChange={(e) => handleChange('recruiter_editing_allowed', e.target.checked)}
+                    onChange={(e) =>
+                      handleChange(
+                        "recruiter_editing_allowed",
+                        e.target.checked
+                      )
+                    }
                   />
                 }
                 label="Allow Recruiter Editing"
