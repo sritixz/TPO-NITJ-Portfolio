@@ -249,15 +249,43 @@ const ProfessorManager = () => {
     try {
       const dataToExport = applyFilters();
       
+      // Format data with MongoDB Extended JSON format for _id and dates
+      const formatExtendedJSON = (data) => {
+        return data.map(item => ({
+          _id: {
+            $oid: item._id
+          },
+          name: item.name,
+          email: item.email,
+          password: item.password,
+          createdAt: {
+            $date: item.createdAt
+          },
+          updatedAt: {
+            $date: item.updatedAt
+          },
+          __v: item.__v
+        }));
+      };
+      
       // If no data, export empty array with model structure as template
       const exportData = dataToExport.length > 0 
-        ? dataToExport 
+        ? formatExtendedJSON(dataToExport) 
         : [
             {
+              _id: {
+                $oid: ""
+              },
               name: "",
               email: "",
               password: "",
-              otp: ""
+              createdAt: {
+                $date: ""
+              },
+              updatedAt: {
+                $date: ""
+              },
+              __v: 0
             }
           ];
       
