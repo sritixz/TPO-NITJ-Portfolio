@@ -33,6 +33,7 @@ import {
   addFinalShortlisted,
   removeFinalShortlisted,
   moveStudentForward,
+  bulkUpdatePlacementInterest,
 // } from "../controller/admin.js";
 // =======
 } from "../../controller/admin.js";
@@ -164,6 +165,7 @@ router.post(
 );
 
 router.put("/students/excel/update-existing", updateExistingStudents);
+router.put("/students/placementInterest/update", bulkUpdatePlacementInterest);
 
 //recruiter profile routes
 router.get("/recruiters", getAllRecruiters);
