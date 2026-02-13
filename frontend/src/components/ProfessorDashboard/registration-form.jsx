@@ -554,7 +554,11 @@ const saveDeadline = async () => {
       { header: 'Personal Email', key: 'emailPersonal', width: 20 },
       { header: 'Aadhar No.', key: 'aadharCardNo', width: 15 },
       { header: 'Interested', key: 'interested', width: 10 },
-      { header: 'Description', key: 'description', width: 30 }
+      { header: 'Description', key: 'description', width: 30 },
+      { header: 'Training Required', key: 'trainingRequired', width: 30 },
+      { header: 'Preferred Sector', key: 'preferredSector', width: 30 },
+      { header: 'Private Type', key: 'privateType', width: 30 },
+      { header: 'Training Platform', key: 'trainingPlatform', width: 30 },
     ];
 
     sheetData.forEach((item, idx) => {
@@ -577,7 +581,11 @@ const saveDeadline = async () => {
         emailPersonal: item.emailPersonal,
         aadharCardNo: item.aadharCardNo,
         interested: item.interested ? 'Yes' : 'No',
-        description: item.description
+        description: item.description,
+        trainingRequired: item.trainingRequired? 'Yes' : 'No',
+        preferredSector: item.preferredSector,
+        privateType: item.privateType,
+        trainingPlatform: item.trainingPlatform
       });
     });
 
