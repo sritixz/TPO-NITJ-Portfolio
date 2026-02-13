@@ -1140,7 +1140,7 @@
 
 import React, { useState, useEffect, useCallback } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faUsers } from "@fortawesome/free-solid-svg-icons";
+import { faGlasses, faUsers } from "@fortawesome/free-solid-svg-icons";
 import axios from "axios";
 import toast from "react-hot-toast";
 import {
@@ -1289,6 +1289,54 @@ const StudentManager = () => {
   ];
   const genders = ["Male", "Female", "Other"];
   const categories = ["General", "GEN-EWS", "SC", "ST", "OBC-NCL", "OBC"];
+  const [filterInterestedPlacementBatch, setFilterInterestedPlacementBatch] =
+    useState("");
+  const [filterInterestedPlacementCourse, setFilterInterestedPlacementCourse] =
+    useState("");
+  const [interestedValue, setInterestedValue] = useState(true);
+  const [bulkInterestLoading, setBulkInterestLoading] = useState(false);
+
+  const handleBulkPlacementInterest = async () => {
+    if (!filterInterestedPlacementBatch) {
+      toast.error("Please select a batch first");
+      return;
+    }
+    if (!filterInterestedPlacementCourse) {
+      toast.error("Please select a course first");
+      return;
+    }
+
+    const confirmAction = window.confirm(
+      `Are you sure you want to mark all ${filterInterestedPlacementBatch} students as ${
+        interestedValue ? "Interested" : "Not Interested"
+      }?`,
+    );
+
+    if (!confirmAction) return;
+
+    try {
+      setBulkInterestLoading(true);
+
+      const res = await axios.put(
+        `${import.meta.env.REACT_APP_BASE_URL}/admin/students/placementInterest/update`,
+        {
+          batch: filterInterestedPlacementBatch,
+          isInterested: interestedValue,
+          course: filterInterestedPlacementCourse
+        },
+        { withCredentials: true },
+      );
+
+      toast.success(`Updated ${res.data.modifiedCount} students successfully`);
+
+      // refresh list
+      await fetchStudents();
+    } catch (error) {
+      toast.error(error.response?.data?.message || "Failed to update interest");
+    } finally {
+      setBulkInterestLoading(false);
+    }
+  };
 
   useEffect(() => {
     fetchStudents();
@@ -1299,7 +1347,7 @@ const StudentManager = () => {
       setLoading(true);
       const response = await axios.get(
         `${import.meta.env.REACT_APP_BASE_URL}/admin/students`,
-        { withCredentials: true }
+        { withCredentials: true },
       );
       setStudents(response.data);
       setLoading(false);
@@ -1327,7 +1375,7 @@ const StudentManager = () => {
       toast.success(
         editProfile._id
           ? "Student updated successfully"
-          : "Student added successfully"
+          : "Student added successfully",
       );
     } catch (error) {
       toast.error(`Failed to ${editProfile._id ? "update" : "add"} student`);
@@ -1387,11 +1435,11 @@ const StudentManager = () => {
         {
           data: { studentIds: idsToDelete },
           withCredentials: true,
-        }
+        },
       );
 
       setStudents(
-        students.filter((student) => !idsToDelete.includes(student._id))
+        students.filter((student) => !idsToDelete.includes(student._id)),
       );
       setSelectedStudents([]);
 
@@ -1418,7 +1466,7 @@ const StudentManager = () => {
       await axios.patch(
         `${import.meta.env.REACT_APP_BASE_URL}/admin/students/deactivate/${studentId}`,
         { deactivate: newStatus },
-        { withCredentials: true }
+        { withCredentials: true },
       );
 
       // Update local state
@@ -1426,8 +1474,8 @@ const StudentManager = () => {
         students.map((student) =>
           student._id === studentId
             ? { ...student, account_deactivate: newStatus }
-            : student
-        )
+            : student,
+        ),
       );
 
       setDeactivateConfirmModal((prev) => ({
@@ -1438,11 +1486,11 @@ const StudentManager = () => {
       }));
 
       toast.success(
-        `Student account ${newStatus ? "deactivated" : "activated"} successfully`
+        `Student account ${newStatus ? "deactivated" : "activated"} successfully`,
       );
     } catch (error) {
       toast.error(
-        `Failed to ${deactivateConfirmModal.currentStatus ? "activate" : "deactivate"} student account`
+        `Failed to ${deactivateConfirmModal.currentStatus ? "activate" : "deactivate"} student account`,
       );
     }
   };
@@ -1545,7 +1593,7 @@ const StudentManager = () => {
     if (!deactivateConfirmModal.isOpen) return null;
 
     const studentToDeactivate = students.find(
-      (s) => s._id === deactivateConfirmModal.studentId
+      (s) => s._id === deactivateConfirmModal.studentId,
     );
     const actionText = studentToDeactivate?.account_deactivate
       ? "activate"
@@ -1637,7 +1685,7 @@ const StudentManager = () => {
     setSelectedStudents((prev) =>
       prev.includes(studentId)
         ? prev.filter((id) => id !== studentId)
-        : [...prev, studentId]
+        : [...prev, studentId],
     );
   };
 
@@ -1707,7 +1755,7 @@ const StudentManager = () => {
       const res = await axios.post(
         `${import.meta.env.REACT_APP_BASE_URL}/admin/students/excel/upload-excel`,
         formData,
-        { withCredentials: true }
+        { withCredentials: true },
       );
 
       toast.success(`${res.data.insertedCount} students added`);
@@ -1745,7 +1793,7 @@ const StudentManager = () => {
           headers: {
             "Content-Type": "application/json",
           },
-        }
+        },
       );
 
       toast.success("Existing students updated");
@@ -1801,7 +1849,7 @@ const StudentManager = () => {
         account_deactivate: false,
         isInterested: false,
         linkedin: "",
-      }
+      },
     );
     setOpenEditDialog(true);
     setShowPassword(false);
@@ -1883,7 +1931,7 @@ const StudentManager = () => {
   const indexOfFirstStudent = indexOfLastStudent - studentsPerPage;
   const currentStudents = filteredStudents.slice(
     indexOfFirstStudent,
-    indexOfLastStudent
+    indexOfLastStudent,
   );
 
   const paginate = (pageNumber) => setCurrentPage(pageNumber);
@@ -1892,6 +1940,7 @@ const StudentManager = () => {
     try {
       const dataToExport = applyFilters();
 
+<<<<<<< HEAD
       const dateKeys = new Set(["createdAt", "updatedAt", "dob", "erpLastUpdated"]);
 
       const formatExtendedJSON = (value, key = "") => {
@@ -1963,18 +2012,62 @@ const StudentManager = () => {
             }
           ];
       
+=======
+      // If no data, export empty array with model structure as template
+      const exportData =
+        dataToExport.length > 0
+          ? dataToExport
+          : [
+              {
+                name: "",
+                email: "",
+                personalEmail: "",
+                phone: "",
+                password: "",
+                rollno: "",
+                dob: "",
+                department: "",
+                batch: "",
+                course: "",
+                address: "",
+                cgpa: "",
+                Xth: "",
+                XIIth: "",
+                gender: "",
+                category: "",
+                active_backlogs: false,
+                activeBacklogCount: "",
+                backlogs_history: false,
+                debarred: false,
+                disability: false,
+                image: "",
+                offerLetter: "",
+                placementstatus: "",
+                internshipstatus: "",
+                account_deactivate: false,
+                isInterested: false,
+                linkedin: "",
+                otp: "",
+                erpLastUpdated: null,
+              },
+            ];
+
+>>>>>>> 3116b5ededb01a3835c4942bd0fa9ff3280af6a8
       const jsonString = JSON.stringify(exportData, null, 2);
-      const blob = new Blob([jsonString], { type: 'application/json' });
+      const blob = new Blob([jsonString], { type: "application/json" });
       const url = URL.createObjectURL(blob);
-      const link = document.createElement('a');
+      const link = document.createElement("a");
       link.href = url;
-      const timestamp = new Date().toISOString().replace(/[:.]/g, '-').split('T')[0];
+      const timestamp = new Date()
+        .toISOString()
+        .replace(/[:.]/g, "-")
+        .split("T")[0];
       link.download = `students_${timestamp}.json`;
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
       URL.revokeObjectURL(url);
-      
+
       if (dataToExport.length === 0) {
         toast.success("Exported empty JSON file with model template");
       } else {
@@ -2350,6 +2443,128 @@ const StudentManager = () => {
         </select>
       </div>
 
+      <div className="mt-6 bg-white border border-gray-200 rounded-xl shadow-sm p-6">
+        <h3 className="text-lg font-semibold text-gray-800 mb-4">
+          Bulk Update Placement Interest
+        </h3>
+
+        <div className="flex flex-col md:flex-row md:items-end gap-6">
+          {/* Batch Selector */}
+          <div className="flex flex-col min-w-[180px]">
+            <label className="text-sm font-medium text-gray-600 mb-1">
+              Select Batch
+            </label>
+            <select
+              value={filterInterestedPlacementBatch}
+              onChange={(e) =>
+                setFilterInterestedPlacementBatch(e.target.value)
+              }
+              className="border border-gray-300 px-4 py-2 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
+            >
+              <option value="">Select Batch</option>
+              {[2026, 2027, 2028, 2029, 2030].map((year) => (
+                <option key={year} value={year}>
+                  {year}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div className="flex flex-col min-w-[180px]">
+            <label className="text-sm font-medium text-gray-600 mb-1">
+              Select Course
+            </label>
+            <select
+              value={filterInterestedPlacementCourse}
+              onChange={(e) =>
+                setFilterInterestedPlacementCourse(e.target.value)
+              }
+              className="border border-gray-300 px-4 py-2 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
+            >
+              <option value="">Select Course</option>
+              {["B.Tech", "M.Tech", "MBA", "M.Sc.", "PHD", "B.Sc.-B.Ed."].map((course) => (
+                <option key={course} value={course}>
+                  {course}
+                </option>
+              ))}
+            </select>
+          </div>  
+
+          {/* Toggle */}
+          <div className="flex flex-col">
+            <label className="text-sm font-medium text-gray-600 mb-1">
+              Placement Interest
+            </label>
+
+            <div className="flex bg-gray-100 rounded-lg p-1">
+              <button
+                type="button"
+                onClick={() => setInterestedValue(true)}
+                className={`px-5 py-2 rounded-md text-sm font-medium transition-all duration-200 ${
+                  interestedValue
+                    ? "bg-green-600 text-white shadow"
+                    : "text-gray-600 hover:bg-gray-200"
+                }`}
+              >
+                Interested
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setInterestedValue(false)}
+                className={`px-5 py-2 rounded-md text-sm font-medium transition-all duration-200 ${
+                  !interestedValue
+                    ? "bg-red-600 text-white shadow"
+                    : "text-gray-600 hover:bg-gray-200"
+                }`}
+              >
+                Not Interested
+              </button>
+            </div>
+          </div>
+
+          {/* Apply Button */}
+          <div className="flex">
+            <button
+              onClick={handleBulkPlacementInterest}
+              disabled={(!filterInterestedPlacementBatch && !filterInterestedPlacementCourse) ||bulkInterestLoading}
+              className={`px-6 py-2 rounded-lg text-white font-medium transition-all duration-200 flex items-center justify-center gap-2 ${
+                filterInterestedPlacementBatch && !bulkInterestLoading
+                  ? "bg-blue-600 hover:bg-blue-700 shadow"
+                  : "bg-gray-400 cursor-not-allowed"
+              }`}
+            >
+              {bulkInterestLoading ? (
+                <>
+                  <svg
+                    className="animate-spin h-4 w-4 text-white"
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                  >
+                    <circle
+                      className="opacity-25"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      strokeWidth="4"
+                    />
+                    <path
+                      className="opacity-75"
+                      fill="currentColor"
+                      d="M4 12a8 8 0 018-8v8H4z"
+                    />
+                  </svg>
+                  Updating...
+                </>
+              ) : (
+                "Apply to All Students"
+              )}
+            </button>
+          </div>
+        </div>
+      </div>
+
       {/* Student Table */}
       {loading ? (
         <div>Loading...</div>
@@ -2370,7 +2585,7 @@ const StudentManager = () => {
                         setSelectedStudents(
                           selectedStudents.length === currentStudents.length
                             ? []
-                            : currentStudents.map((student) => student._id)
+                            : currentStudents.map((student) => student._id),
                         )
                       }
                     />
@@ -2994,7 +3209,7 @@ const StudentManager = () => {
                   {excelPreviewData.map((row, idx) => {
                     const isDuplicate =
                       excelPreviewData.filter(
-                        (r) => String(r.rollno) === String(row.rollno)
+                        (r) => String(r.rollno) === String(row.rollno),
                       ).length > 1;
 
                     return (
