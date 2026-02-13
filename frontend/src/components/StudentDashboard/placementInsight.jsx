@@ -43,11 +43,81 @@ const DEPT_ABBREVIATIONS = {
   'ELECTRICAL ENGINEERING': 'EE',
   'INSTRUMENTATION AND CONTROL ENGINEERING': 'IC',
   'INDUSTRIAL AND PRODUCTION ENGINEERING': 'IP',
+  'INDUSTRIAL ENGINEERING AND DATA ANALYTICS': 'IE',
   'INFORMATION TECHNOLOGY': 'IT',
+  'DATA ANALYTICS': 'DA',
   'MATHEMATICS AND COMPUTING': 'MC',
   'MECHANICAL ENGINEERING': 'ME',
   'TEXTILE TECHNOLOGY': 'TT',
   'ELECTRONICS AND VLSI ENGINEERING': 'VL',
+  'CONTROL AND INSTRUMENTATION ENGINEERING': 'CI',
+  'MACHINE INTELLIGENCE AND AUTOMATION': 'MI',
+};
+
+// Helper function to create abbreviation for unlisted departments
+// Keeps track of used abbreviations to avoid duplicates
+const usedAbbreviations = new Map();
+
+const getAbbreviation = (deptName) => {
+  // Check if abbreviation exists in predefined list
+  if (DEPT_ABBREVIATIONS[deptName]) {
+    return DEPT_ABBREVIATIONS[deptName];
+  }
+  
+  // Check if we've already generated one for this department
+  if (usedAbbreviations.has(deptName)) {
+    return usedAbbreviations.get(deptName);
+  }
+  
+  // Auto-generate abbreviation for unlisted departments
+  const words = deptName.split(' ').filter(word => 
+    word && !['AND', 'OF', 'THE', 'IN', 'FOR'].includes(word.toUpperCase())
+  );
+  
+  let abbreviation;
+  
+  if (words.length === 0) {
+    // Fallback - first 2-3 letters
+    abbreviation = deptName.substring(0, 3).toUpperCase();
+  } else if (words.length === 1) {
+    // Single word - take first 2-3 letters
+    abbreviation = words[0].substring(0, 3).toUpperCase();
+  } else {
+    // Multiple words - take first letter of each significant word (max 4)
+    abbreviation = words.slice(0, 4).map(w => w[0]).join('').toUpperCase();
+  }
+  
+  // Check for collision with existing abbreviations
+  const allExistingAbbreviations = [
+    ...Object.values(DEPT_ABBREVIATIONS),
+    ...Array.from(usedAbbreviations.values())
+  ];
+  
+  let finalAbbreviation = abbreviation;
+  let counter = 1;
+  
+  // If collision exists, add a number suffix
+  while (allExistingAbbreviations.includes(finalAbbreviation)) {
+    if (words.length >= 2) {
+      // Try adding more letters from first word
+      finalAbbreviation = abbreviation + words[0].substring(1, 1 + counter).toUpperCase();
+    } else {
+      // Add numeric suffix
+      finalAbbreviation = abbreviation + counter;
+    }
+    counter++;
+    
+    // Safety limit to prevent infinite loop
+    if (counter > 10) {
+      finalAbbreviation = abbreviation + Math.random().toString(36).substring(2, 4).toUpperCase();
+      break;
+    }
+  }
+  
+  // Store for future use
+  usedAbbreviations.set(deptName, finalAbbreviation);
+  
+  return finalAbbreviation;
 };
 
 const btechdepartmentOptions = [
@@ -525,7 +595,7 @@ const PlacementInsights = () => {
             // Find full name from the original data
             const fullNames = Object.keys(insights.placementsByDepartment || {});
             const fullName = fullNames.find(name => 
-              (DEPT_ABBREVIATIONS[name] || name) === abbreviation
+              getAbbreviation(name) === abbreviation
             );
             return fullName || abbreviation;
           },
@@ -540,7 +610,7 @@ const PlacementInsights = () => {
         color: '#374151',
         font: {
           weight: 'bold',
-          size: 11,
+          size: window.innerWidth < 768 ? 9 : 11,
         },
         formatter: (value) => value,
         padding: 2,
@@ -553,12 +623,12 @@ const PlacementInsights = () => {
         },
         ticks: {
           font: {
-            size: 11,
+            size: window.innerWidth < 640 ? 8 : window.innerWidth < 768 ? 9 : 11,
             weight: '500',
           },
           autoSkip: false,
-          maxRotation: 0,
-          minRotation: 0,
+          maxRotation: window.innerWidth < 768 ? 45 : 0,
+          minRotation: window.innerWidth < 768 ? 45 : 0,
         },
       },
       y: {
@@ -568,7 +638,7 @@ const PlacementInsights = () => {
         },
         ticks: {
           font: {
-            size: 11,
+            size: window.innerWidth < 768 ? 9 : 11,
           },
         },
       },
@@ -629,7 +699,7 @@ const PlacementInsights = () => {
 
   const departmentBarData = {
     labels: Object.keys(insights.placementsByDepartment || {}).map(
-      dept => DEPT_ABBREVIATIONS[dept] || dept
+      dept => getAbbreviation(dept)
     ),
     datasets: [{
       label: 'Placements',
