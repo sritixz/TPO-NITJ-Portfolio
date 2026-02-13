@@ -3,6 +3,7 @@ import JobProfile from "../models/jobprofile.js";
 import Student from "../models/user_model/student.js";
 import Recuiter from "../models/user_model/recuiter.js";
 import Professor from "../models/user_model/professor.js";
+import { error } from "console";
 
 //for the job profile management
 export const getAllJobProfiles = async (req, res) => {
@@ -427,6 +428,50 @@ export const addNewStudent = async (req, res) => {
   }
 };
 
+export const bulkUpdatePlacementInterest = async (req, res) => {
+  try {
+    const {course, batch, isInterested } = req.body;
+
+    if (!batch) {
+      return res.status(400).json({
+        success: false,
+        message: "Batch is required",
+      });
+    }
+    if (!course) {
+      return res.status(400).json({
+        success: false,
+        message: "Course is required",
+      });
+    }
+
+    if (typeof isInterested !== "boolean") {
+      return res.status(400).json({
+        success: false,
+        message: "isInterested must be true or false",
+      });
+    }
+
+    const result = await Student.updateMany(
+      { batch, course },
+      { $set: { isInterested } }
+    );
+    return res.status(200).json({
+      success: true,
+      message: "Placement interest updated successfully",
+      matchedCount: result.matchedCount,
+      modifiedCount: result.modifiedCount,
+    });
+
+  } catch (error) {
+    console.error("Bulk placement update error:", error);
+
+    return res.status(500).json({
+      success: false,
+      message: "Internal server error",
+    });
+  }
+};
 
 //for recruiter management
 export const getAllRecruiters = async (req, res) => {
