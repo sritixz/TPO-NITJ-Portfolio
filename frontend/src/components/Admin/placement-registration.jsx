@@ -178,38 +178,65 @@ const PlacementRegistrationAdmin = () => {
   const handleExportJSON = () => {
     try {
       const dataToExport = registrations;
+      const dateKeys = new Set(["createdAt", "updatedAt", "dob", "dateOfJoining"]); 
+    
+      const formatExtendedJSON = (value, key = "") => {
+        if (Array.isArray(value)) {
+          return value.map((item) => formatExtendedJSON(item));
+        }
+        if (value && typeof value === "object") {
+          if (value instanceof Date) {
+            return { $date: value.toISOString() };
+          }
+          return Object.keys(value).reduce((acc, k) => {
+            acc[k] = formatExtendedJSON(value[k], k);
+            return acc;
+          }, {});
+        }
+        if (key === "_id" && typeof value === "string") {
+          return { $oid: value };
+        }
+        if (dateKeys.has(key) && typeof value === "string") {
+          return { $date: value };
+        }
+        return value;
+      };
 
+      // If no data, export empty array with model structure as template
       const exportData = dataToExport.length > 0
-        ? dataToExport
-        : [
-            {
-              _id: "",
-              studentId: "",
-              name: "",
-              rollno: "",
-              department: "",
-              course: "",
-              batch: "",
-              fatherName: "",
-              motherName: "",
-              category: "",
-              gender: "",
-              dateOfBirth: "",
-              physicallyDisabled: false,
-              disabilityType: "",
-              permanentAddress: "",
-              mobileNo: "",
-              emailNitj: "",
-              emailPersonal: "",
-              aadharCardNo: "",
-              interested: true,
-              description: "",
-              preferredSector: "",
-              privateType: "",
-              trainingRequired: false,
-              trainingPlatform: "",
-            },
-          ];
+      ? formatExtendedJSON(dataToExport)
+      : [
+          {
+            _id: { $oid: "" },
+            studentId: { $oid: "" },  
+            name: "",
+            rollno: "",
+            department: "",
+            course: "",
+            batch: "",
+            fatherName: "",
+            motherName: "",
+            category: "",
+            gender: "",
+            dateOfBirth: { $date: "" },
+            physicallyDisabled: false,
+            disabilityType: "",
+            permanentAddress: "",
+            mobileNo: "",
+            emailNitj: "",
+            emailPersonal: "",
+            aadharCardNo: "",
+            interested: false,
+            description: "",
+            trainingRequired: false,
+            privateType: "",
+            trainingPlatform: "",
+            preferredSector: "",
+            createdAt: { $date: "" },
+            updatedAt: { $date: "" },
+            __v: 0
+          }
+        ];
 
       const jsonString = JSON.stringify(exportData, null, 2);
       const blob = new Blob([jsonString], { type: "application/json" });

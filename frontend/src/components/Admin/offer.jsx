@@ -188,38 +188,64 @@ export default function Offer() {
     const handleExportJSON = () => {
     try {
       const dataToExport = offers;
+      const dateKeys = new Set(["createdAt", "updatedAt", "dob", "dateOfJoining"]); 
+    
+      const formatExtendedJSON = (value, key = "") => {
+        if (Array.isArray(value)) {
+          return value.map((item) => formatExtendedJSON(item));
+        }
+        if (value && typeof value === "object") {
+          if (value instanceof Date) {
+            return { $date: value.toISOString() };
+          }
+          return Object.keys(value).reduce((acc, k) => {
+            acc[k] = formatExtendedJSON(value[k], k);
+            return acc;
+          }, {});
+        }
+        if (key === "_id" && typeof value === "string") {
+          return { $oid: value };
+        }
+        if (dateKeys.has(key) && typeof value === "string") {
+          return { $date: value };
+        }
+        return value;
+      };
 
       // If no data, export empty array with model structure as template
-      const exportData = dataToExport.length > 0 
-        ? dataToExport 
-        : [
-            {
-              _id: "",
-              jobId: "",
-              company_name: "",
-              batch: "",
-              course: "",
-              offer_mode: "On-Campus",
-              offer_sector: "Private",
-              result_date: "",
-              shortlisted_students: [
-                {
-                  studentId: "",
-                  name: "",
-                  gender: "",
-                  department: "",
-                  category: "",
-                  job_type: "",
-                  job_role: "",
-                  ctc: "",
-                  stipend: "",
-                  intern_duration: ""
-                }
-              ],
-              visibility: true,
-              added: "Automatically"
-            }
-          ];
+      const exportData = dataToExport.length > 0
+      ? formatExtendedJSON(dataToExport)
+      : [
+          {
+            _id: { $oid: "" },
+            jobId: { $oid: "" },  
+            company_name: "",
+            batch: "",
+            course: "",
+            offer_mode: "On-Campus",
+            offer_sector: "Private",
+            result_date: { $date: "" },
+            shortlisted_students: [
+              {
+                studentId: { $oid: "" }, 
+                name: "",
+                gender: "",
+                department: "",
+                category: "",
+                job_type: "",
+                job_role: "",
+                ctc: "",
+                stipend: "",
+                intern_duration: ""
+              }
+            ],
+            visibility: true,
+            added: "Automatically",
+            createdAt: { $date: "" },
+            updatedAt: { $date: "" },
+            __v: 0
+          }
+        ];
 
       const jsonString = JSON.stringify(exportData, null, 2);
       const blob = new Blob([jsonString], { type: 'application/json' });
