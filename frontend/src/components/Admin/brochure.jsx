@@ -237,15 +237,48 @@ const BrochureManager = () => {
   const handleExportJSON = () => {
     try {
       const dataToExport = applyFilters();
+
+      const dateKeys = new Set(["createdAt", "updatedAt"]);
+
+      const formatExtendedJSON = (value, key = "") => {
+        if (Array.isArray(value)) {
+          return value.map((item) => formatExtendedJSON(item));
+        }
+
+        if (value && typeof value === "object") {
+          if (value instanceof Date) {
+            return { $date: value.toISOString() };
+          }
+
+          return Object.keys(value).reduce((acc, k) => {
+            acc[k] = formatExtendedJSON(value[k], k);
+            return acc;
+          }, {});
+        }
+
+        if (key === "_id" && typeof value === "string") {
+          return { $oid: value };
+        }
+
+        if (dateKeys.has(key) && typeof value === "string") {
+          return { $date: value };
+        }
+
+        return value;
+      };
       
       // If no data, export empty array with model structure as template
       const exportData = dataToExport.length > 0 
-        ? dataToExport 
+        ? formatExtendedJSON(dataToExport) 
         : [
             {
+              _id: { $oid: "" },
               department_name: "",
               department_link: "",
-              brochure_link: ""
+              brochure_link: "",
+              createdAt: { $date: "" },
+              updatedAt: { $date: "" },
+              __v: 0
             }
           ];
       

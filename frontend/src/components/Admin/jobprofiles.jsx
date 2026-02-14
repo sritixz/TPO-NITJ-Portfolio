@@ -331,12 +331,42 @@ console.log("Error in move student:", message);
   const handleExportJSON = () => {
     try {
       const dataToExport = filteredProfiles;
+
+      const dateKeys = new Set(["createdAt", "updatedAt", "deadline"]);
+
+      const formatExtendedJSON = (value, key = "") => {
+        if (Array.isArray(value)) {
+          return value.map((item) => formatExtendedJSON(item));
+        }
+
+        if (value && typeof value === "object") {
+          if (value instanceof Date) {
+            return { $date: value.toISOString() };
+          }
+
+          return Object.keys(value).reduce((acc, k) => {
+            acc[k] = formatExtendedJSON(value[k], k);
+            return acc;
+          }, {});
+        }
+
+        if (key === "_id" && typeof value === "string") {
+          return { $oid: value };
+        }
+
+        if (dateKeys.has(key) && typeof value === "string") {
+          return { $date: value };
+        }
+
+        return value;
+      };
       
       // If no data, export empty array with model structure as template
       const exportData = dataToExport.length > 0 
-        ? dataToExport 
+        ? formatExtendedJSON(dataToExport) 
         : [
             {
+              _id: { $oid: "" },
               recruiter_id: "",
               job_id: "",
               job_type: "",
@@ -351,13 +381,30 @@ console.log("Error in move student:", message);
               job_salary: {
                 ctc: "",
                 base_salary: "",
-                stipend: ""
+                stipend: "",
+                _id: { $oid: "" }
               },
-              deadline: "",
+              deadline: { $date: "" },
               Hiring_Workflow: [],
-              eligibility_criteria: [],
+              eligibility_criteria: [
+                {
+                  department_allowed: [],
+                  gender_allowed: "",
+                  eligible_batch: "",
+                  minimum_cgpa: "",
+                  active_backlogs: false,
+                  history_backlogs: false,
+                  course_allowed: "",
+                  _id: { $oid: "" }
+                }
+              ],
               job_class: "",
-              Applied_Students: [],
+              Applied_Students: [
+                {
+                  _id: { $oid: "" },
+                  updatedAt: { $date: "" }
+                }
+              ],
               final_shortlisted_students: [],
               Approved_Status: false,
               completed: false,
@@ -365,7 +412,10 @@ console.log("Error in move student:", message);
               recruiter_editing_allowed: false,
               attachments: [],
               data_Sent: false,
-              auditLogs: []
+              auditLogs: [],
+              createdAt: { $date: "" },
+              updatedAt: { $date: "" },
+              __v: 0
             }
           ];
       
