@@ -1940,6 +1940,79 @@ const StudentManager = () => {
     try {
       const dataToExport = applyFilters();
 
+<<<<<<< HEAD
+      const dateKeys = new Set(["createdAt", "updatedAt", "dob", "erpLastUpdated"]);
+
+      const formatExtendedJSON = (value, key = "") => {
+        if (Array.isArray(value)) {
+          return value.map((item) => formatExtendedJSON(item));
+        }
+
+        if (value && typeof value === "object") {
+          if (value instanceof Date) {
+            return { $date: value.toISOString() };
+          }
+
+          return Object.keys(value).reduce((acc, k) => {
+            acc[k] = formatExtendedJSON(value[k], k);
+            return acc;
+          }, {});
+        }
+
+        if (key === "_id" && typeof value === "string") {
+          return { $oid: value };
+        }
+
+        if (dateKeys.has(key) && typeof value === "string") {
+          return { $date: value };
+        }
+
+        return value;
+      };
+      
+      // If no data, export empty array with model structure as template
+      const exportData = dataToExport.length > 0 
+        ? formatExtendedJSON(dataToExport) 
+        : [
+            {
+              _id: { $oid: "" },
+              name: "",
+              email: "",
+              personalEmail: "",
+              phone: "",
+              password: "",
+              rollno: "",
+              dob: { $date: "" },
+              department: "",
+              batch: "",
+              course: "",
+              address: "",
+              cgpa: "",
+              Xth: "",
+              XIIth: "",
+              gender: "",
+              category: "",
+              active_backlogs: false,
+              activeBacklogCount: "",
+              backlogs_history: false,
+              debarred: false,
+              disability: false,
+              image: "",
+              offerLetter: "",
+              placementstatus: "",
+              internshipstatus: "",
+              account_deactivate: false,
+              isInterested: false,
+              linkedin: "",
+              otp: "",
+              erpLastUpdated: { $date: "" },
+              createdAt: { $date: "" },
+              updatedAt: { $date: "" },
+              __v: 0
+            }
+          ];
+      
+=======
       // If no data, export empty array with model structure as template
       const exportData =
         dataToExport.length > 0
@@ -1979,6 +2052,7 @@ const StudentManager = () => {
               },
             ];
 
+>>>>>>> 3116b5ededb01a3835c4942bd0fa9ff3280af6a8
       const jsonString = JSON.stringify(exportData, null, 2);
       const blob = new Blob([jsonString], { type: "application/json" });
       const url = URL.createObjectURL(blob);
