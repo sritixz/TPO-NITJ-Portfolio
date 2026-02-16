@@ -1940,7 +1940,7 @@ const StudentManager = () => {
     try {
       const dataToExport = applyFilters();
 
-<<<<<<< HEAD
+
       const dateKeys = new Set(["createdAt", "updatedAt", "dob", "erpLastUpdated"]);
 
       const formatExtendedJSON = (value, key = "") => {
@@ -2012,47 +2012,11 @@ const StudentManager = () => {
             }
           ];
       
-=======
-      // If no data, export empty array with model structure as template
-      const exportData =
-        dataToExport.length > 0
-          ? dataToExport
-          : [
-              {
-                name: "",
-                email: "",
-                personalEmail: "",
-                phone: "",
-                password: "",
-                rollno: "",
-                dob: "",
-                department: "",
-                batch: "",
-                course: "",
-                address: "",
-                cgpa: "",
-                Xth: "",
-                XIIth: "",
-                gender: "",
-                category: "",
-                active_backlogs: false,
-                activeBacklogCount: "",
-                backlogs_history: false,
-                debarred: false,
-                disability: false,
-                image: "",
-                offerLetter: "",
-                placementstatus: "",
-                internshipstatus: "",
-                account_deactivate: false,
-                isInterested: false,
-                linkedin: "",
-                otp: "",
-                erpLastUpdated: null,
-              },
-            ];
 
->>>>>>> 3116b5ededb01a3835c4942bd0fa9ff3280af6a8
+     
+
+
+
       const jsonString = JSON.stringify(exportData, null, 2);
       const blob = new Blob([jsonString], { type: "application/json" });
       const url = URL.createObjectURL(blob);

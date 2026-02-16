@@ -26,18 +26,7 @@ import {
   deleteProfessorProfiles,
   addNewProfessor,
   getProfessorById,
-// <<<<<<< HEAD:backend/routes/admin.js
-   getJobProfileDetails,
-  addAppliedStudent,
-  removeAppliedStudent,
-  addFinalShortlisted,
-  removeFinalShortlisted,
-  moveStudentForward,
-  bulkUpdatePlacementInterest,
-// } from "../controller/admin.js";
-// =======
 } from "../../controller/admin.js";
-// >>>>>>> upstream/main:backend/routes/admin/admin.js
 
 import {
   getAllDepartments,
@@ -46,7 +35,12 @@ import {
   addNewDepartment,
   getDepartmentById,
 } from "../../controller/Admin/Department.js";
-
+import { 
+  getAllFaculties, 
+  addNewFaculty, 
+  updateFacultyProfile, 
+  deleteFacultyProfiles 
+} from "../../controller/Admin/Faculty.js";
 import {
   getAllDevelopers,
   updateDeveloperProfile,
@@ -119,6 +113,7 @@ import {
 
 import { uploadExcel } from "../../utils/adminMulter.js";
 import { uploadStudentsExcel, updateExistingStudents } from "../../controller/Admin/studentExcelUpload.js";
+import { uploadFacultiesExcel, updateExistingFaculties } from "../../controller/Admin/Faculty.js";
 import { getERPData } from "../../controller/Admin/erpData.js";
 
 const storage = multer.diskStorage({
@@ -136,6 +131,10 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage });
 
+const excelMemoryStorage = multer.memoryStorage();
+const uploadExcelMemory = multer({ storage: excelMemoryStorage });
+
+
 //job profile routes
 router.post("/jobprofiles", addJobProfile);
 router.get("/jobprofiles", getAllJobProfiles);
@@ -144,15 +143,7 @@ router.delete("/jobprofiles/:id", deleteJobProfile);
 router.post("/jobprofiles/bulk-delete", bulkDeleteJobProfiles);
 router.put("/jobprofiles/:id/toggle-visibility", toggleJobProfileVisibility);
 
-router.get("/jobprofiles/:id/details",  getJobProfileDetails);
-router.post("/jobprofiles/:id/applied/add",  addAppliedStudent);
-router.delete("/jobprofiles/:id/applied/remove",  removeAppliedStudent);
-router.post("/jobprofiles/:id/final/add",  addFinalShortlisted);
-router.delete("/jobprofiles/:id/final/remove",  removeFinalShortlisted);
-router.post("/jobprofiles/move-forward",  moveStudentForward);
-
 //student profile routes
-
 router.get("/students", getAllStudents);
 router.put("/students/:id", updateStudentProfile);
 router.post("/students", addNewStudent);
@@ -165,7 +156,6 @@ router.post(
 );
 
 router.put("/students/excel/update-existing", updateExistingStudents);
-router.put("/students/placementInterest/update", bulkUpdatePlacementInterest);
 
 //recruiter profile routes
 router.get("/recruiters", getAllRecruiters);
@@ -178,6 +168,17 @@ router.put("/professors/:id", updateProfessorProfile);
 router.post("/professors", addNewProfessor);
 router.delete("/professors", deleteProfessorProfiles);
 router.get("/professors/:id", getProfessorById);
+// Faculty Management Routes
+router.get("/faculties", getAllFaculties);           // GET
+router.post("/faculties", addNewFaculty);             // POST
+router.put("/faculties/:id", updateFacultyProfile);  // UPDATE
+router.delete("/faculties", deleteFacultyProfiles);   // DELETEgit add .
+router.post(
+  "/faculties/excel/upload-excel", 
+  uploadExcelMemory.single("file"), // Change 'upload' to 'uploadExcelMemory'
+  uploadFacultiesExcel
+);
+router.put("/faculties/excel/update-existing", updateExistingFaculties);
 //department profile routes
 router.get("/departments", getAllDepartments);
 router.put("/departments/:id", updateDepartmentProfile);
