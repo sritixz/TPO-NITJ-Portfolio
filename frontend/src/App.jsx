@@ -18,6 +18,7 @@ import Recruiter from "./Pages/Recruiter";
 import Sdashboard from "./Pages/Sdashboard";
 import Rdashboard from "./Pages/Rdashboard";
 import Pdashboard from "./Pages/Pdashboard";
+import Fdashboard from "./Pages/Fdashboard"; // 1. ADDED FACULTY DASHBOARD IMPORT
 import AdminDashboard from "./Pages/Admindashboard";
 import Ddashboard from "./Pages/Ddashboard";
 import Brochure from "./Pages/Brochure";
@@ -54,6 +55,8 @@ const AppContent = () => {
           return "/sdashboard/home";
         case "Professor":
           return "/pdashboard/home";
+        case "Faculty": // 2. ADDED REDIRECTION CASE
+          return "/fdashboard/home";
         case "Recuiter":
           return "/rdashboard/home";
         case "Admin":
@@ -121,6 +124,16 @@ const AppContent = () => {
           element={
             authUser && userType === "Recuiter" ? (
               <Rdashboard />
+            ) : (
+              <Navigate to={getDashboardPath()} />
+            )
+          }
+        />
+        <Route
+          path="/fdashboard/*"
+          element={
+            authUser && userType === "Faculty" ? (
+              <Fdashboard />
             ) : (
               <Navigate to={getDashboardPath()} />
             )
