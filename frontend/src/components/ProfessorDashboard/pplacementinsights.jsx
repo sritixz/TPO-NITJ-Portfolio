@@ -268,7 +268,7 @@ const PPlacementReport = () => {
   const [reportData, setReportData] = useState([]);
   const [filterOptions, setFilterOptions] = useState({
     batches: ["2025", "2026", "2027", "2028", "2029", "2030"],
-    degrees: ["B.Tech", "M.Tech", "MBA", "M.Sc", "PHD"],
+    degrees: ["B.Tech", "M.Tech", "MBA", "M.Sc.", "PHD"],
     departments: [],
   });
   const [filters, setFilters] = useState({
@@ -299,7 +299,7 @@ const PPlacementReport = () => {
         case "MBA":
           departments = mbadepartmentOptions.map((opt) => opt.value);
           break;
-        case "M.Sc":
+        case "M.Sc.":
           departments = mscdepartmentOptions.map((opt) => opt.value);
           break;
         case "PHD":
