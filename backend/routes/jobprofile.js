@@ -7,7 +7,7 @@ import { existsSync, mkdirSync } from 'fs';
 
 import { restrictTo } from "../utils/restrict.js";
 
-import {addfinalshortlistStudent,finalshortlisteligible,toggleEditingAllowed,getEditingAllowedStatus,incompletedJobProfile,updateInterviewLink,updategdLink,updateOthersLink, updateoaLink , checkEligibility, getJobProfiletostudent,getJobProfiledetails, getJobsByRecruiter,createJobProfilecopy, uploadAttachment,deleteAttachment,updateJob,deleteJob,getJobProfilesForProfessors,approveJobProfile,rejectJobProfile,addshortlistStudents,eligibleinthis,viewshortlisting,getspecificJobProfilesForProfessors, completedJobProfile, getAllCompanies } from "../controller/jobprofile.js";
+import {addfinalshortlistStudent,finalshortlisteligible,toggleEditingAllowed,getEditingAllowedStatus,incompletedJobProfile,updateInterviewLink,updategdLink,updateOthersLink, updateoaLink , checkEligibility, getJobProfiletostudent,getJobProfiledetails, getJobsByRecruiter,createJobProfilecopy, uploadAttachment,deleteAttachment,updateJob,deleteJob,getJobProfilesForProfessors,approveJobProfile,rejectJobProfile,addshortlistStudents,eligibleinthis,viewshortlisting,getspecificJobProfilesForProfessors, completedJobProfile, getAllCompanies, sendStepEmail } from "../controller/jobprofile.js";
 
 
 const uploadDir = path.join(process.cwd(), 'uploads', 'job_attachments');
@@ -32,6 +32,7 @@ router.get("/getjobs", restrictTo('Student'), getJobProfiletostudent);
 
 router.post("/createjobcopy", restrictTo('Professor','Recuiter'), createJobProfilecopy);
 router.post("/upload-attachment/:jobId", restrictTo('Professor','Recuiter'), upload.single('attachment') , uploadAttachment);
+router.post("/send-step-email/:jobId/:stepIndex", restrictTo('Professor'), upload.single('attachment'), sendStepEmail);
 router.delete("/delete-attachment/:jobId/:attachmentId", restrictTo('Professor','Recuiter'), deleteAttachment);
 router.put("/updatejob/:_id", restrictTo('Professor','Recuiter'), updateJob);
 router.delete("/deletejob/:_id", restrictTo('Professor','Recuiter'), deleteJob);
