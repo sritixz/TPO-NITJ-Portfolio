@@ -1322,7 +1322,7 @@ const StudentManager = () => {
         {
           batch: filterInterestedPlacementBatch,
           isInterested: interestedValue,
-          course: filterInterestedPlacementCourse
+          course: filterInterestedPlacementCourse,
         },
         { withCredentials: true },
       );
@@ -2373,7 +2373,6 @@ const StudentManager = () => {
         <h3 className="text-lg font-semibold text-gray-800 mb-4">
           Bulk Update Placement Interest
         </h3>
-
         <div className="flex flex-col md:flex-row md:items-end gap-6">
           {/* Batch Selector */}
           <div className="flex flex-col min-w-[180px]">
@@ -2407,13 +2406,15 @@ const StudentManager = () => {
               className="border border-gray-300 px-4 py-2 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
             >
               <option value="">Select Course</option>
-              {["B.Tech", "M.Tech", "MBA", "M.Sc.", "PHD", "B.Sc.-B.Ed."].map((course) => (
-                <option key={course} value={course}>
-                  {course}
-                </option>
-              ))}
+              {["B.Tech", "M.Tech", "MBA", "M.Sc.", "PHD", "B.Sc.-B.Ed."].map(
+                (course) => (
+                  <option key={course} value={course}>
+                    {course}
+                  </option>
+                ),
+              )}
             </select>
-          </div>  
+          </div>
 
           {/* Toggle */}
           <div className="flex flex-col">
@@ -2452,7 +2453,11 @@ const StudentManager = () => {
           <div className="flex">
             <button
               onClick={handleBulkPlacementInterest}
-              disabled={(!filterInterestedPlacementBatch && !filterInterestedPlacementCourse) ||bulkInterestLoading}
+              disabled={
+                (!filterInterestedPlacementBatch &&
+                  !filterInterestedPlacementCourse) ||
+                bulkInterestLoading
+              }
               className={`px-6 py-2 rounded-lg text-white font-medium transition-all duration-200 flex items-center justify-center gap-2 ${
                 filterInterestedPlacementBatch && !bulkInterestLoading
                   ? "bg-blue-600 hover:bg-blue-700 shadow"

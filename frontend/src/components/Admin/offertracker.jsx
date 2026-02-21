@@ -685,25 +685,51 @@ export default function OfferTracker() {
   const handleExportJSON = () => {
     try {
       const dataToExport = data;
+      const dateKeys = new Set(["createdAt", "updatedAt", "dob", "dateOfJoining"]); 
+    
+      const formatExtendedJSON = (value, key = "") => {
+        if (Array.isArray(value)) {
+          return value.map((item) => formatExtendedJSON(item));
+        }
+        if (value && typeof value === "object") {
+          if (value instanceof Date) {
+            return { $date: value.toISOString() };
+          }
+          return Object.keys(value).reduce((acc, k) => {
+            acc[k] = formatExtendedJSON(value[k], k);
+            return acc;
+          }, {});
+        }
+        if (key === "_id" && typeof value === "string") {
+          return { $oid: value };
+        }
+        if (dateKeys.has(key) && typeof value === "string") {
+          return { $date: value };
+        }
+        return value;
+      };
 
       // If no data, export empty array with model structure as template
-      const exportData = dataToExport.length > 0 
-        ? dataToExport 
-        : [
-            {
-              _id: "",
-              studentId: "",
-              offer: [
-                {
-                  offer_type: "",
-                  offer_category: "",
-                  offer_sector: "Private",
-                  offer_ctc: "0",
-                  offer_intern_duration: ""
-                }
-              ]
-            }
-          ];
+      const exportData = dataToExport.length > 0
+      ? formatExtendedJSON(dataToExport)
+      : [
+          {
+            _id: { $oid: "" },
+            studentId: { $oid: "" }, // Reference to Student
+            offer: [
+              {
+                offer_type: "",
+                offer_category: "",
+                offer_sector: "Private",
+                offer_ctc: "0",
+                offer_intern_duration: ""
+              }
+            ],
+            createdAt: { $date: "" },
+            updatedAt: { $date: "" },
+            __v: 0
+          }
+        ];
 
       const jsonString = JSON.stringify(exportData, null, 2);
       const blob = new Blob([jsonString], { type: 'application/json' });

@@ -574,7 +574,28 @@ export const addNewRecruiter = async (req, res) => {
 export const getAllProfessors = async (req, res) => {
   try {
     const professorProfiles = await Professor.find();
-    res.status(200).json(professorProfiles);
+    
+    // Format the response with MongoDB Extended JSON format for _id
+    const formattedProfiles = professorProfiles.map(profile => {
+      const profileObj = profile.toObject ? profile.toObject() : profile;
+      return {
+        _id: {
+          $oid: profileObj._id.toString()
+        },
+        name: profileObj.name,
+        email: profileObj.email,
+        password: profileObj.password,
+        createdAt: {
+          $date: profileObj.createdAt ? profileObj.createdAt.toISOString() : null
+        },
+        updatedAt: {
+          $date: profileObj.updatedAt ? profileObj.updatedAt.toISOString() : null
+        },
+        __v: profileObj.__v
+      };
+    });
+    
+    res.status(200).json(formattedProfiles);
   } catch (error) {
     res.status(500).json({ message: "Error fetching professor profiles", error });
   }
