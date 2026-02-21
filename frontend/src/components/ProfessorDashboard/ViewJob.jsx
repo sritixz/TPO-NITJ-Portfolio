@@ -1942,14 +1942,17 @@ const ViewJobDetails = ({ job, onClose, oneditingAllowedUpdate }) => {
   const [addingFinalShortlist, setAddingFinalShortlist] = useState(false);
 
   const [addingStep, setAddingStep] = useState(false);
-const [newStep, setNewStep] = useState({
-  step_type: "",
-  details: {},
-});
+  const [newStep, setNewStep] = useState({
+    step_type: "",
+    details: {},
+  });
+  const [stepEmailMessages, setStepEmailMessages] = useState({});
+  const [stepEmailAttachments, setStepEmailAttachments] = useState({});
+  const [sendingStepEmailIndex, setSendingStepEmailIndex] = useState(null);
+  const [isSavingStep, setIsSavingStep] = useState(false);
 
-
-// Add this useEffect after your state declarations (e.g., after const [addingFinalShortlist, setAddingFinalShortlist] = useState(false);)
-useEffect(() => {
+  // Add this useEffect after your state declarations (e.g., after const [addingFinalShortlist, setAddingFinalShortlist] = useState(false);)
+  useEffect(() => {
   if (editedJob.job_type === "FTE" && editingSection === "basic") {
     setEditedJob((prev) => ({
       ...prev,
@@ -1960,19 +1963,17 @@ useEffect(() => {
       },
     }));
   }
-}, [editedJob.job_type, editingSection]); // Re-run only when job_type or editing section changes
+  }, [editedJob.job_type, editingSection]); // Re-run only when job_type or editing section changes
 
-
-
-const stepTypeOptions = [
+  const stepTypeOptions = [
   { value: "Resume Shortlisting", label: "Resume Shortlisting" },
   { value: "OA", label: "Online Assessment (OA)" },
   { value: "Interview", label: "Interview" },
   { value: "GD", label: "Group Discussion (GD)" },
   { value: "Others", label: "Others" },
-];
+  ];
 
-const handleAddStepChange = (field, value) => {
+  const handleAddStepChange = (field, value) => {
   if (field === "step_type") {
     let details = {};
     switch (value) {
@@ -2003,30 +2004,72 @@ const handleAddStepChange = (field, value) => {
   }
 };
 
-const handleAddStepSubmit = async () => {
-  try {
-    const updatedWorkflow = [...editedWorkflow, { ...newStep, eligible_students: [], shortlisted_students: [], absent_students: [] }];
-    const response = await axios.put(
-      `${import.meta.env.REACT_APP_BASE_URL}/jobprofile/updatejob/${job._id}`,
-      { Hiring_Workflow: updatedWorkflow },
-      { withCredentials: true }
-    );
-    if (response.data.success) {
-      setEditedWorkflow(updatedWorkflow);
-      setAddingStep(false);
-      setNewStep({ step_type: "", details: {} });
-      toast.success("Hiring step added successfully!");
+  const handleAddStepSubmit = async () => {
+    try {
+      setIsSavingStep(true);
+      const updatedWorkflow = [
+        ...editedWorkflow,
+        {
+          ...newStep,
+          eligible_students: [],
+          shortlisted_students: [],
+          absent_students: [],
+        },
+      ];
+      const response = await axios.put(
+        `${import.meta.env.REACT_APP_BASE_URL}/jobprofile/updatejob/${job._id}`,
+        { Hiring_Workflow: updatedWorkflow },
+        { withCredentials: true },
+      );
+      if (response.data.success) {
+        setEditedWorkflow(updatedWorkflow);
+        setAddingStep(false);
+        setNewStep({ step_type: "", details: {} });
+        toast.success("Hiring step added successfully!");
+      }
+    } catch (error) {
+      console.error("Error adding hiring step:", error);
+      toast.error("Failed to add hiring step");
+    } finally {
+      setIsSavingStep(false);
     }
-  } catch (error) {
-    console.error("Error adding hiring step:", error);
-    toast.error("Failed to add hiring step");
-  }
-};
+  };
 
-const handleAddStepCancel = () => {
-  setAddingStep(false);
-  setNewStep({ step_type: "", details: {} });
-};
+  const handleAddStepCancel = () => {
+    setAddingStep(false);
+    setNewStep({ step_type: "", details: {} });
+  };
+
+  const handleSendStepEmail = async (stepIndex) => {
+    const message = stepEmailMessages[stepIndex] ?? "";
+    const file = stepEmailAttachments[stepIndex];
+    if (!message.trim() && !file) {
+      toast.error("Add a message and/or attachment to send email.");
+      return;
+    }
+    setSendingStepEmailIndex(stepIndex);
+    try {
+      const formData = new FormData();
+      formData.append("message", message);
+      if (file) formData.append("attachment", file);
+      await axios.post(
+        `${import.meta.env.REACT_APP_BASE_URL}/jobprofile/send-step-email/${job._id}/${stepIndex}`,
+        formData,
+        {
+          withCredentials: true,
+          headers: { "Content-Type": "multipart/form-data" },
+        },
+      );
+      toast.success("Email sent to eligible students for this step");
+    } catch (emailError) {
+      console.error("Error sending step email:", emailError);
+      toast.error(
+        emailError.response?.data?.message || "Failed to send email for this step",
+      );
+    } finally {
+      setSendingStepEmailIndex(null);
+    }
+  };
 
   const handleToggleEditing = async () => {
     try {
@@ -3496,26 +3539,6 @@ const handleAddStepCancel = () => {
   );
 
   function renderHiringWorkflow() {
-   const handleAddStepSubmit = async () => {
-    try {
-      const updatedWorkflow = [...editedWorkflow, { ...newStep, eligible_students: [], shortlisted_students: [], absent_students: [] }];
-      const response = await axios.put(
-        `${import.meta.env.REACT_APP_BASE_URL}/jobprofile/updatejob/${job._id}`,
-        { Hiring_Workflow: updatedWorkflow },
-        { withCredentials: true }
-      );
-      if (response.data.success) {
-        setEditedWorkflow(updatedWorkflow);
-        Object.assign(job, { Hiring_Workflow: updatedWorkflow }); // Update job prop
-        setAddingStep(false);
-        setNewStep({ step_type: "", details: {} });
-        toast.success("Hiring step added successfully!");
-      }
-    } catch (error) {
-      console.error("Error adding hiring step:", error);
-      toast.error("Failed to add hiring step");
-    }
-  };
    if (addingStep) {
     return (
       <div className="p-8 bg-white border border-gray-200 rounded-2xl shadow-lg hover:shadow-xl transition-shadow duration-300 mt-8">
@@ -3626,9 +3649,9 @@ const handleAddStepCancel = () => {
             <button
               className="bg-gradient-to-r from-blue-500 to-blue-600 text-white px-8 py-3 rounded-2xl hover:from-blue-600 hover:to-blue-700 focus:outline-none focus:ring-4 focus:ring-blue-500 focus:ring-offset-2 transition-all duration-300"
               onClick={handleAddStepSubmit}
-              disabled={!newStep.step_type}
+              disabled={!newStep.step_type || isSavingStep}
             >
-              Save
+              {isSavingStep ? "Saving..." : "Save"}
             </button>
             <button
               className="bg-gradient-to-r from-gray-500 to-gray-600 text-white px-8 py-3 rounded-2xl hover:from-gray-600 hover:to-gray-700 focus:outline-none focus:ring-4 focus:ring-gray-500 focus:ring-offset-2 transition-all duration-300"
@@ -3781,6 +3804,61 @@ const handleAddStepCancel = () => {
                 );
               })}
             </ul>
+            <div className="mt-6 p-4 bg-gray-50 rounded-xl border border-gray-200">
+              <h4 className="text-lg font-semibold text-custom-blue mb-3">
+                Send email to eligible students for this step
+              </h4>
+              <div className="flex flex-col space-y-3">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Message (optional)
+                  </label>
+                  <textarea
+                    value={stepEmailMessages[index] ?? ""}
+                    onChange={(e) =>
+                      setStepEmailMessages((prev) => ({
+                        ...prev,
+                        [index]: e.target.value,
+                      }))
+                    }
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    rows={2}
+                    placeholder="Message to include in the email..."
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Attachment (optional, PDF / Excel / Image)
+                  </label>
+                  <input
+                    type="file"
+                    accept=".pdf,.xls,.xlsx,.csv,image/*"
+                    onChange={(e) =>
+                      setStepEmailAttachments((prev) => ({
+                        ...prev,
+                        [index]: e.target.files?.[0] ?? null,
+                      }))
+                    }
+                    className="w-full text-sm text-gray-700 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+                  />
+                  {stepEmailAttachments[index] && (
+                    <span className="text-xs text-gray-500 mt-1 block">
+                      Selected: {stepEmailAttachments[index].name}
+                    </span>
+                  )}
+                </div>
+                <button
+                  type="button"
+                  className="bg-gradient-to-r from-indigo-500 to-indigo-600 text-white px-6 py-2.5 rounded-xl hover:from-indigo-600 hover:to-indigo-700 focus:outline-none focus:ring-4 focus:ring-indigo-500 focus:ring-offset-2 transition-all duration-300 disabled:opacity-60"
+                  onClick={() => handleSendStepEmail(index)}
+                  disabled={sendingStepEmailIndex === index}
+                >
+                  {sendingStepEmailIndex === index
+                    ? "Sending..."
+                    : "Send email to eligible students"}
+                </button>
+              </div>
+            </div>
             <div className="mt-8 flex sm:flex-row flex-col sm:space-x-4 sm:space-y-0 space-y-4">
               {step.step_type === "Others" && (
                 <button
