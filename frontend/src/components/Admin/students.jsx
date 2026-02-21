@@ -1322,7 +1322,7 @@ const StudentManager = () => {
         {
           batch: filterInterestedPlacementBatch,
           isInterested: interestedValue,
-          course: filterInterestedPlacementCourse
+          course: filterInterestedPlacementCourse,
         },
         { withCredentials: true },
       );
@@ -1940,79 +1940,6 @@ const StudentManager = () => {
     try {
       const dataToExport = applyFilters();
 
-<<<<<<< HEAD
-      const dateKeys = new Set(["createdAt", "updatedAt", "dob", "erpLastUpdated"]);
-
-      const formatExtendedJSON = (value, key = "") => {
-        if (Array.isArray(value)) {
-          return value.map((item) => formatExtendedJSON(item));
-        }
-
-        if (value && typeof value === "object") {
-          if (value instanceof Date) {
-            return { $date: value.toISOString() };
-          }
-
-          return Object.keys(value).reduce((acc, k) => {
-            acc[k] = formatExtendedJSON(value[k], k);
-            return acc;
-          }, {});
-        }
-
-        if (key === "_id" && typeof value === "string") {
-          return { $oid: value };
-        }
-
-        if (dateKeys.has(key) && typeof value === "string") {
-          return { $date: value };
-        }
-
-        return value;
-      };
-      
-      // If no data, export empty array with model structure as template
-      const exportData = dataToExport.length > 0 
-        ? formatExtendedJSON(dataToExport) 
-        : [
-            {
-              _id: { $oid: "" },
-              name: "",
-              email: "",
-              personalEmail: "",
-              phone: "",
-              password: "",
-              rollno: "",
-              dob: { $date: "" },
-              department: "",
-              batch: "",
-              course: "",
-              address: "",
-              cgpa: "",
-              Xth: "",
-              XIIth: "",
-              gender: "",
-              category: "",
-              active_backlogs: false,
-              activeBacklogCount: "",
-              backlogs_history: false,
-              debarred: false,
-              disability: false,
-              image: "",
-              offerLetter: "",
-              placementstatus: "",
-              internshipstatus: "",
-              account_deactivate: false,
-              isInterested: false,
-              linkedin: "",
-              otp: "",
-              erpLastUpdated: { $date: "" },
-              createdAt: { $date: "" },
-              updatedAt: { $date: "" },
-              __v: 0
-            }
-          ];
-      
-=======
       // If no data, export empty array with model structure as template
       const exportData =
         dataToExport.length > 0
@@ -2052,7 +1979,6 @@ const StudentManager = () => {
               },
             ];
 
->>>>>>> 3116b5ededb01a3835c4942bd0fa9ff3280af6a8
       const jsonString = JSON.stringify(exportData, null, 2);
       const blob = new Blob([jsonString], { type: "application/json" });
       const url = URL.createObjectURL(blob);
@@ -2447,7 +2373,6 @@ const StudentManager = () => {
         <h3 className="text-lg font-semibold text-gray-800 mb-4">
           Bulk Update Placement Interest
         </h3>
-
         <div className="flex flex-col md:flex-row md:items-end gap-6">
           {/* Batch Selector */}
           <div className="flex flex-col min-w-[180px]">
@@ -2481,13 +2406,15 @@ const StudentManager = () => {
               className="border border-gray-300 px-4 py-2 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
             >
               <option value="">Select Course</option>
-              {["B.Tech", "M.Tech", "MBA", "M.Sc.", "PHD", "B.Sc.-B.Ed."].map((course) => (
-                <option key={course} value={course}>
-                  {course}
-                </option>
-              ))}
+              {["B.Tech", "M.Tech", "MBA", "M.Sc.", "PHD", "B.Sc.-B.Ed."].map(
+                (course) => (
+                  <option key={course} value={course}>
+                    {course}
+                  </option>
+                ),
+              )}
             </select>
-          </div>  
+          </div>
 
           {/* Toggle */}
           <div className="flex flex-col">
@@ -2526,7 +2453,11 @@ const StudentManager = () => {
           <div className="flex">
             <button
               onClick={handleBulkPlacementInterest}
-              disabled={(!filterInterestedPlacementBatch && !filterInterestedPlacementCourse) ||bulkInterestLoading}
+              disabled={
+                (!filterInterestedPlacementBatch &&
+                  !filterInterestedPlacementCourse) ||
+                bulkInterestLoading
+              }
               className={`px-6 py-2 rounded-lg text-white font-medium transition-all duration-200 flex items-center justify-center gap-2 ${
                 filterInterestedPlacementBatch && !bulkInterestLoading
                   ? "bg-blue-600 hover:bg-blue-700 shadow"
