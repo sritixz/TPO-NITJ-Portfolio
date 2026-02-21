@@ -3,6 +3,7 @@ import JobProfile from "../models/jobprofile.js";
 import Student from "../models/user_model/student.js";
 import Recuiter from "../models/user_model/recuiter.js";
 import Professor from "../models/user_model/professor.js";
+import { error } from "console";
 
 //for the job profile management
 export const getAllJobProfiles = async (req, res) => {
@@ -427,6 +428,50 @@ export const addNewStudent = async (req, res) => {
   }
 };
 
+export const bulkUpdatePlacementInterest = async (req, res) => {
+  try {
+    const {course, batch, isInterested } = req.body;
+
+    if (!batch) {
+      return res.status(400).json({
+        success: false,
+        message: "Batch is required",
+      });
+    }
+    if (!course) {
+      return res.status(400).json({
+        success: false,
+        message: "Course is required",
+      });
+    }
+
+    if (typeof isInterested !== "boolean") {
+      return res.status(400).json({
+        success: false,
+        message: "isInterested must be true or false",
+      });
+    }
+
+    const result = await Student.updateMany(
+      { batch, course },
+      { $set: { isInterested } }
+    );
+    return res.status(200).json({
+      success: true,
+      message: "Placement interest updated successfully",
+      matchedCount: result.matchedCount,
+      modifiedCount: result.modifiedCount,
+    });
+
+  } catch (error) {
+    console.error("Bulk placement update error:", error);
+
+    return res.status(500).json({
+      success: false,
+      message: "Internal server error",
+    });
+  }
+};
 
 //for recruiter management
 export const getAllRecruiters = async (req, res) => {
@@ -529,7 +574,28 @@ export const addNewRecruiter = async (req, res) => {
 export const getAllProfessors = async (req, res) => {
   try {
     const professorProfiles = await Professor.find();
-    res.status(200).json(professorProfiles);
+    
+    // Format the response with MongoDB Extended JSON format for _id
+    const formattedProfiles = professorProfiles.map(profile => {
+      const profileObj = profile.toObject ? profile.toObject() : profile;
+      return {
+        _id: {
+          $oid: profileObj._id.toString()
+        },
+        name: profileObj.name,
+        email: profileObj.email,
+        password: profileObj.password,
+        createdAt: {
+          $date: profileObj.createdAt ? profileObj.createdAt.toISOString() : null
+        },
+        updatedAt: {
+          $date: profileObj.updatedAt ? profileObj.updatedAt.toISOString() : null
+        },
+        __v: profileObj.__v
+      };
+    });
+    
+    res.status(200).json(formattedProfiles);
   } catch (error) {
     res.status(500).json({ message: "Error fetching professor profiles", error });
   }
