@@ -32,7 +32,7 @@ router.get("/getjobs", restrictTo('Student'), getJobProfiletostudent);
 
 router.post("/createjobcopy", restrictTo('Professor','Recuiter'), createJobProfilecopy);
 router.post("/upload-attachment/:jobId", restrictTo('Professor','Recuiter'), upload.single('attachment') , uploadAttachment);
-router.post("/send-step-email/:jobId/:stepIndex", restrictTo('Professor'), upload.single('attachment'), sendStepEmail);
+router.post("/send-step-email/:jobId/:stepIndex", restrictTo('Professor'), upload.array('files'), sendStepEmail);
 router.delete("/delete-attachment/:jobId/:attachmentId", restrictTo('Professor','Recuiter'), deleteAttachment);
 router.put("/updatejob/:_id", restrictTo('Professor','Recuiter'), updateJob);
 router.delete("/deletejob/:_id", restrictTo('Professor','Recuiter'), deleteJob);

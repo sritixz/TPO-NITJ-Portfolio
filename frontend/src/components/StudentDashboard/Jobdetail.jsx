@@ -921,7 +921,7 @@ const Jobdetail = () => {
   const [isdeadlineOver, setIsdeadlineOver] = useState(false);
   const [timeLeft, setTimeLeft] = useState("");
   const [description, setDescription] = useState(false);
-  const [showAttachments, setShowAttachments] = useState(false);
+  // const [showAttachments, setShowAttachments] = useState(false);
   const { job_id } = useParams();
 
    const [showOTP, setShowOTP] = useState(false);
@@ -1241,14 +1241,14 @@ const Jobdetail = () => {
           ))}
         </div>
 
-        <div className="flex justify-center mt-6">
+        {/* <div className="flex justify-center mt-6">
           <button
             className="text-custom-blue p-2 border border-custom-blue rounded-lg text-sm font-semibold hover:bg-custom-blue hover:text-white transition duration-200"
             onClick={() => setShowAttachments(true)}
           >
             Attachments
           </button>
-        </div>
+        </div> */}
 
        {description && (
   <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-40 z-50">
@@ -1277,54 +1277,7 @@ const Jobdetail = () => {
   </div>
 )}
 
-        {showAttachments && (
-          <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-40">
-            <div className="relative p-6 bg-white rounded-lg shadow-lg w-80 sm:w-96 max-h-[80vh] overflow-y-auto">
-              <button
-                onClick={() => setShowAttachments(false)}
-                className="absolute top-2 right-2 text-gray-600 hover:text-gray-800 text-xl"
-              >
-                ×
-              </button>
-              <h2 className="text-lg text-custom-blue text-center font-semibold mb-4">Attachments</h2>
-             {jobDetails.attachments?.length > 0 ? (
-  <div className="grid gap-4 sm:grid-cols-1 lg:grid-cols-1">
-    {jobDetails.attachments.map((attachment, index) => {
-      // Extract file extension
-      const fileExt = attachment.name.split('.').pop()?.toUpperCase();
-      
-      return (
-        <a
-          key={index}
-          href={`${import.meta.env.REACT_APP_BASE_URL}${attachment.url}`}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="flex items-center p-4 bg-white shadow-sm rounded-2xl border border-gray-200 hover:shadow-md transition-all duration-200 group"
-        >
-          {/* Icon placeholder */}
-          <div className="flex-shrink-0 w-10 h-10 flex items-center justify-center rounded-xl bg-blue-50 text-custom-blue font-bold group-hover:bg-custom-blue group-hover:text-white transition-colors">
-            {fileExt || "📎"}
-          </div>
-
-          {/* File details */}
-          <div className="ml-3 truncate">
-            <p className="font-medium text-gray-800 truncate group-hover:text-custom-blue">
-              {attachment.name}
-            </p>
-          </div>
-        </a>
-      );
-    })}
-  </div>
-) : (
-  <p className="text-center text-gray-500 italic py-6">
-    📭 No attachments available for this job
-  </p>
-)}
-
-            </div>
-          </div>
-        )}
+    
       </div>
     ),
 
@@ -1628,8 +1581,52 @@ const Jobdetail = () => {
                     )}
                   </div>
                 </div>
+                {/*  Step Announcements */}
+{step.step_announcements && step.step_announcements.length > 0 && (
+  <div className="mt-6 space-y-4">
+    <h4 className="text-lg font-semibold text-blue-700">
+      Announcements
+    </h4>
+
+    {step.step_announcements.map((announcement, i) => (
+      <div
+        key={i}
+        className="p-4 bg-blue-50 border border-blue-200 rounded-xl shadow-sm"
+      >
+        {/* Message */}
+        {announcement.message && (
+          <p className="text-gray-800 text-sm whitespace-pre-line">
+            {announcement.message}
+          </p>
+        )}
+
+        {/* Attachments */}
+        {announcement.attachments &&
+          announcement.attachments.length > 0 && (
+            <div className="mt-3 space-y-2">
+              {announcement.attachments.map((file, idx) => (
+                <a
+                  key={idx}
+                  href={file.file_url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center text-blue-600 hover:text-blue-800 text-sm underline"
+                >
+                  📎 {file.file_name}
+                </a>
+              ))}
+            </div>
+          )}
+
+     
+      </div>
+    ))}
+  </div>
+)}
               </div>
+              
             );
+            
           })}
         </div>
       )}

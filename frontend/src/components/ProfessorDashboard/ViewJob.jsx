@@ -1940,7 +1940,7 @@ const ViewJobDetails = ({ job, onClose, oneditingAllowedUpdate }) => {
   const [currentCriteriaIndex, setCurrentCriteriaIndex] = useState(0);
   const [editingCriteriaIndex, setEditingCriteriaIndex] = useState(null);
   const [addingFinalShortlist, setAddingFinalShortlist] = useState(false);
-
+  const [openEmailStepIndex, setOpenEmailStepIndex] = useState(null);
   const [addingStep, setAddingStep] = useState(false);
   const [newStep, setNewStep] = useState({
     step_type: "",
@@ -2042,8 +2042,8 @@ const ViewJobDetails = ({ job, onClose, oneditingAllowedUpdate }) => {
 
   const handleSendStepEmail = async (stepIndex) => {
     const message = stepEmailMessages[stepIndex] ?? "";
-    const file = stepEmailAttachments[stepIndex];
-    if (!message.trim() && !file) {
+    const files = stepEmailAttachments[stepIndex];
+    if (!message.trim() && !files) {
       toast.error("Add a message and/or attachment to send email.");
       return;
     }
@@ -2051,7 +2051,11 @@ const ViewJobDetails = ({ job, onClose, oneditingAllowedUpdate }) => {
     try {
       const formData = new FormData();
       formData.append("message", message);
-      if (file) formData.append("attachment", file);
+      if (files && files.length > 0) {
+        files.forEach((file) => {
+          formData.append("files", file);
+        });
+      }
       await axios.post(
         `${import.meta.env.REACT_APP_BASE_URL}/jobprofile/send-step-email/${job._id}/${stepIndex}`,
         formData,
@@ -2929,67 +2933,7 @@ const ViewJobDetails = ({ job, onClose, oneditingAllowedUpdate }) => {
     );
   };
 
-  const renderAttachments = () => {
-    return (
-      <div className="space-y-6">
-        {editedJob.attachments.length > 0 ? (
-          <ul className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {editedJob.attachments.map((attachment, index) => (
-              <li
-                key={index}
-                className="p-4 bg-gray-50 border border-gray-200 rounded-xl shadow-sm hover:shadow-md transition-shadow duration-300 flex items-center justify-between"
-              >
-                <div className="flex items-center space-x-3">
-                  <FileText className="h-6 w-6 text-custom-blue" />
-                  <a
-                    href={`${import.meta.env.REACT_APP_BASE_URL}${attachment.url}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-gray-700 hover:text-gray-900 font-medium truncate max-w-xs"
-                  >
-                    {attachment.name || `Attachment ${index + 1}`}
-                  </a>
-                </div>
-                <TooltipProvider>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <button
-                        onClick={() => handleRemoveAttachment(index)}
-                        className="p-2 text-red-600 hover:text-red-800 hover:bg-red-100 rounded-full transition-colors"
-                      >
-                        <Trash2 className="h-5 w-5" />
-                      </button>
-                    </TooltipTrigger>
-                    <TooltipContent>
-                      <p>Remove attachment</p>
-                    </TooltipContent>
-                  </Tooltip>
-                </TooltipProvider>
-              </li>
-            ))}
-          </ul>
-        ) : (
-          <p className="text-gray-500 text-center">No attachments uploaded yet.</p>
-        )}
-        <div className="flex justify-center mt-6">
-          <label
-            htmlFor="attachment-upload"
-            className="bg-gradient-to-r from-blue-900 to-blue-700 text-white px-6 py-3 rounded-2xl hover:from-blue-600 hover:to-blue-700 focus:outline-none focus:ring-4 focus:ring-blue-500 focus:ring-offset-2 transition-all duration-300 transform hover:scale-105 active:scale-95 shadow-lg hover:shadow-xl cursor-pointer flex items-center space-x-2"
-          >
-            <Upload className="h-5 w-5" />
-            <span>Upload Attachments</span>
-          </label>
-          <input
-            id="attachment-upload"
-            type="file"
-            multiple
-            onChange={handleUploadAttachment}
-            className="hidden"
-          />
-        </div>
-      </div>
-    );
-  };
+
 
   const renderEditableCard = (title, content, section) => (
     <div className="p-8 bg-white border border-gray-200 rounded-2xl shadow-lg hover:shadow-xl transition-shadow duration-300 relative mt-8">
@@ -3466,10 +3410,10 @@ const ViewJobDetails = ({ job, onClose, oneditingAllowedUpdate }) => {
           </div>
         </div>
         {renderEditableCard("Basic Details", renderBasicDetails(), "basic")}
-        <div className="p-8 bg-white border border-gray-200 rounded-2xl shadow-lg hover:shadow-xl transition-shadow duration-300 relative mt-8">
+        {/* <div className="p-8 bg-white border border-gray-200 rounded-2xl shadow-lg hover:shadow-xl transition-shadow duration-300 relative mt-8">
           <h3 className="text-2xl font-semibold text-custom-blue mb-6">Attachments</h3>
           {renderAttachments()}
-        </div>
+        </div> */}
         {renderEditableCard("Salary Details", renderSalaryDetails(), "salary")}
         {renderEditableCard(
           "Eligibility Criteria",
@@ -3804,61 +3748,165 @@ const ViewJobDetails = ({ job, onClose, oneditingAllowedUpdate }) => {
                 );
               })}
             </ul>
-            <div className="mt-6 p-4 bg-gray-50 rounded-xl border border-gray-200">
-              <h4 className="text-lg font-semibold text-custom-blue mb-3">
-                Send email to eligible students for this step
-              </h4>
-              <div className="flex flex-col space-y-3">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Message (optional)
-                  </label>
-                  <textarea
-                    value={stepEmailMessages[index] ?? ""}
-                    onChange={(e) =>
-                      setStepEmailMessages((prev) => ({
-                        ...prev,
-                        [index]: e.target.value,
-                      }))
-                    }
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                    rows={2}
-                    placeholder="Message to include in the email..."
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Attachment (optional, PDF / Excel / Image)
-                  </label>
-                  <input
-                    type="file"
-                    accept=".pdf,.xls,.xlsx,.csv,image/*"
-                    onChange={(e) =>
-                      setStepEmailAttachments((prev) => ({
-                        ...prev,
-                        [index]: e.target.files?.[0] ?? null,
-                      }))
-                    }
-                    className="w-full text-sm text-gray-700 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
-                  />
-                  {stepEmailAttachments[index] && (
-                    <span className="text-xs text-gray-500 mt-1 block">
-                      Selected: {stepEmailAttachments[index].name}
-                    </span>
-                  )}
-                </div>
-                <button
-                  type="button"
-                  className="bg-gradient-to-r from-indigo-500 to-indigo-600 text-white px-6 py-2.5 rounded-xl hover:from-indigo-600 hover:to-indigo-700 focus:outline-none focus:ring-4 focus:ring-indigo-500 focus:ring-offset-2 transition-all duration-300 disabled:opacity-60"
-                  onClick={() => handleSendStepEmail(index)}
-                  disabled={sendingStepEmailIndex === index}
+           
+{/* Toggle Button */}
+<button
+  type="button"
+  onClick={() =>
+    setOpenEmailStepIndex(
+      openEmailStepIndex === index ? null : index
+    )
+  }
+  className="mt-4 bg-gradient-to-r from-blue-500 to-indigo-600 text-white px-5 py-2.5 rounded-xl hover:from-blue-600 hover:to-indigo-700 transition-all duration-300 shadow-md"
+>
+  Add Attachments 
+</button>
+
+{/* Modal Popup */}
+{openEmailStepIndex === index && (
+  <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
+    <div className="bg-white w-full max-w-xl p-6 rounded-2xl shadow-2xl relative animate-fadeIn">
+
+      {/* Close Button */}
+      <button
+        className="absolute top-3 right-4 text-gray-500 hover:text-gray-800 text-lg"
+        onClick={() => setOpenEmailStepIndex(null)}
+      >
+        ✕
+      </button>
+
+      <h4 className="text-xl font-semibold text-custom-blue mb-4">
+        Send Email to Eligible Students
+      </h4>
+
+      <div className="flex flex-col space-y-4">
+
+        {/* Message Box */}
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">
+            Message (optional)
+          </label>
+          <textarea
+            value={stepEmailMessages[index] ?? ""}
+            onChange={(e) =>
+              setStepEmailMessages((prev) => ({
+                ...prev,
+                [index]: e.target.value,
+              }))
+            }
+            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            rows={3}
+            placeholder="Message to include in the email..."
+          />
+        </div>
+
+        {/* Attachment Section */}
+        <div
+          onPaste={(e) => {
+            const items = Array.from(e.clipboardData.items);
+            items.forEach((item) => {
+              if (item.type.startsWith("image/")) {
+                const blob = item.getAsFile();
+                if (blob) {
+                  setStepEmailAttachments((prev) => ({
+                    ...prev,
+                    [index]: [...(prev[index] || []), blob],
+                  }));
+                }
+              }
+            });
+            e.preventDefault();
+          }}
+        >
+          <label className="block text-sm font-medium text-gray-700 mb-1">
+            Attachments
+          </label>
+
+          <input
+            type="file"
+            multiple
+            accept=".pdf,.xls,.xlsx,.csv,image/*"
+            onChange={(e) => {
+              const filesArray = Array.from(e.target.files || []);
+              setStepEmailAttachments((prev) => ({
+                ...prev,
+                [index]: [...(prev[index] || []), ...filesArray],
+              }));
+            }}
+            className="w-full text-sm text-gray-700 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+          />
+
+          {/* Selected Files List */}
+          {(stepEmailAttachments[index] || []).length > 0 && (
+            <div className="mt-3 space-y-2">
+              {(stepEmailAttachments[index] || []).map((file, fileIndex) => (
+                <div
+                  key={fileIndex}
+                  className="flex items-center justify-between bg-gray-100 rounded-lg p-2"
                 >
-                  {sendingStepEmailIndex === index
-                    ? "Sending..."
-                    : "Send email to eligible students"}
-                </button>
-              </div>
+                  <span className="text-sm text-gray-700 truncate max-w-xs">
+                    {file.name || `Pasted Screenshot ${fileIndex + 1}`}
+                  </span>
+
+                  <div className="flex space-x-3">
+                    {/* Remove */}
+                    <button
+                      type="button"
+                      className="text-red-500 hover:text-red-700 text-sm"
+                      onClick={() => {
+                        setStepEmailAttachments((prev) => ({
+                          ...prev,
+                          [index]: prev[index].filter(
+                            (_, i) => i !== fileIndex
+                          ),
+                        }));
+                      }}
+                    >
+                      Remove
+                    </button>
+
+                    {/* Replace */}
+                    <label className="text-blue-500 hover:text-blue-700 text-sm cursor-pointer">
+                      Replace
+                      <input
+                        type="file"
+                        className="hidden"
+                        accept=".pdf,.xls,.xlsx,.csv,image/*"
+                        onChange={(e) => {
+                          const newFile = e.target.files?.[0];
+                          if (newFile) {
+                            setStepEmailAttachments((prev) => ({
+                              ...prev,
+                              [index]: prev[index].map((f, i) =>
+                                i === fileIndex ? newFile : f
+                              ),
+                            }));
+                          }
+                        }}
+                      />
+                    </label>
+                  </div>
+                </div>
+              ))}
             </div>
+          )}
+        </div>
+
+        {/* Send Button */}
+        <button
+          type="button"
+          className="bg-gradient-to-r from-indigo-500 to-indigo-600 text-white px-6 py-2.5 rounded-xl hover:from-indigo-600 hover:to-indigo-700 focus:outline-none focus:ring-4 focus:ring-indigo-500 focus:ring-offset-2 transition-all duration-300 disabled:opacity-60"
+          onClick={() => handleSendStepEmail(index)}
+          disabled={sendingStepEmailIndex === index}
+        >
+          {sendingStepEmailIndex === index
+            ? "Sending..."
+            : "Send Email"}
+        </button>
+      </div>
+    </div>
+  </div>
+)}
             <div className="mt-8 flex sm:flex-row flex-col sm:space-x-4 sm:space-y-0 space-y-4">
               {step.step_type === "Others" && (
                 <button

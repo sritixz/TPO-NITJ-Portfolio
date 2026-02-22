@@ -262,8 +262,36 @@ const JobProfileSchema = new mongoose.Schema(
               ref: "Student",
             }],
             default: []
-          }
-        },
+          },
+           step_announcements: {
+        type: [
+          {
+            message: {
+              type: String,
+              default: "",
+            },
+ attachments: [
+      {
+        file_name: String,
+        file_url: String,
+      },
+    ],
+
+            // sent_by: {
+            //   type: mongoose.Schema.Types.ObjectId,
+            //   ref: "Professor", // or User if you have common model
+            // },
+
+            // sent_at: {
+            //   type: Date,
+            //   default: Date.now,
+            // },
+          },
+        ],
+        default: [],
+      },
+    
+    },
       ],
       default: [],
     },
