@@ -54,13 +54,13 @@ export const getAllCompanies = async (req, res) => {
 };
 
 //commented
-// const transporter = nodemailer.createTransport({
-//   service: "gmail",
-//   auth: {
-//     user: process.env.EMAIL_USER,
-//     pass: process.env.EMAIL_PASS,
-//   },
-// });
+const transporter = nodemailer.createTransport({
+  service: "gmail",
+  auth: {
+    user: process.env.EMAIL_USER,
+    pass: process.env.EMAIL_PASS,
+  },
+});
 
 // Function to send email to a single student
 const sendEmailToStudent = async (student, jobProfile) => {
@@ -161,11 +161,11 @@ const sendEmailToStudent = async (student, jobProfile) => {
 `,
   };
 // commented
-  // try {
-  //   await transporter.sendMail(mailOptions);
-  // } catch (error) {
-  //   console.error(`Failed to send email to ${student.email}:`, error);
-  // }
+  try {
+    await transporter.sendMail(mailOptions);
+  } catch (error) {
+    console.error(`Failed to send email to ${student.email}:`, error);
+  }
 };
 export const createJobProfilecopy = async (req, res) => {
   try {
@@ -351,7 +351,7 @@ export const createJobProfilecopy = async (req, res) => {
         const email = `${prefix}${admissionYear}@nitj.ac.in`;
 
         const pseudoStudent = { email };
-        // await sendEmailToStudent(pseudoStudent, savedProfile); commented
+        await sendEmailToStudent(pseudoStudent, savedProfile); //commented
       }),
     );
 
@@ -385,7 +385,8 @@ export const uploadAttachment = async (req, res) => {
       .json({ success: false, message: "No file uploaded" });
   }
 
-  const attachmentUrl = `/uploads/job_attachments/${file.filename}`;
+  // const attachmentUrl = `/uploads/job_attachments/${file.filename}`;
+const attachmentUrl = `http://localhost:7000/uploads/job_attachments/${file.filename}`;
   const attachmentName = file.originalname;
 
   try {
@@ -396,6 +397,7 @@ export const uploadAttachment = async (req, res) => {
     }
 
     console.log(job.attachments);
+    console.log(attachmentUrl);
 
     const newAttachment = { name: attachmentName, url: attachmentUrl };
     job.attachments.push(newAttachment);
@@ -2790,7 +2792,22 @@ export const sendStepEmail = async (req, res) => {
   try {
     const { jobId, stepIndex } = req.params;
     const { message } = req.body;
-    const file = req.file;
+    const files = req.files || [];
+    // const file = req.file;
+    const emailAttachments = [];
+const dbAttachments = [];
+
+for (const file of files) {
+  emailAttachments.push({
+    filename: file.originalname,
+    path: file.path,
+  });
+
+  dbAttachments.push({
+    file_name: file.originalname,
+   file_url: `http://localhost:7000/uploads/job_attachments/${file.filename}`
+  });
+}
 
     if (!mongoose.Types.ObjectId.isValid(jobId)) {
       return res.status(400).json({ message: "Invalid job ID" });
@@ -2842,8 +2859,8 @@ export const sendStepEmail = async (req, res) => {
     const textBody = [
       "Dear Student,",
       "",
-      message || "This is a Test Email.Please Ignore it.",
-      // message || "You have a new hiring process step scheduled.",
+      // message || "This is a Test Email.Please Ignore it.",
+      message || "You have a new hiring process step scheduled.",
       "",
       `Job: ${job.job_role} at ${job.company_name}`,
       `Step: ${step.step_type}`,
@@ -2898,27 +2915,36 @@ export const sendStepEmail = async (req, res) => {
       </div>
     `;
 
-    const attachments = [];
-    if (file) {
-      attachments.push({
-        filename: file.originalname,
-        path: file.path,
-      });
-    }
+    // const attachments = [];
+    // if (files) {
+    //   attachments.push({
+    //     filename: file.originalname,
+    //     path: file.path,
+    //   });
+    // }
 
     // commented latest - send email to students
-    await stepEmailTransporter.sendMail({
-      from: process.env.EMAIL_USER,
-      to: emails,
-      subject,
-      text: textBody,
-      html: htmlBody,
-      attachments,
-    });
+ 
 
+     stepEmailTransporter.sendMail({
+  from: process.env.EMAIL_USER,
+  to: emails,
+  subject,
+  text: textBody,
+  html: htmlBody,
+  attachments: emailAttachments,
+});
+
+step.step_announcements.push({
+  message: message || "",
+  attachments: dbAttachments,
+
+});
+
+await job.save();
     return res
       .status(200)
-      .json({ message: "Emails sent to eligible students successfully" });
+      .json({ message: "Emails being sent to eligible students " });
   } catch (error) {
     console.error("Error sending step email:", error);
     return res.status(500).json({
