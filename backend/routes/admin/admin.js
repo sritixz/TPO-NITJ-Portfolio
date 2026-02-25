@@ -36,6 +36,7 @@ import {
   bulkUpdatePlacementInterest,
 // } from "../controller/admin.js";
 // =======
+  getDatabaseRecords,
 } from "../../controller/admin.js";
 // >>>>>>> upstream/main:backend/routes/admin/admin.js
 
@@ -255,6 +256,7 @@ router.delete(
   deleteManyPlacementRegistrations
 );
 
+router.get("/database/:collectionName/", getDatabaseRecords);
 
 //erpData
 router.get("/erp/student", getERPData)
