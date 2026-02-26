@@ -45,6 +45,7 @@ import PlacementCalendarManager from "./placement-calendar";
 import PlacementRegistrationAdmin from "./placement-registration";
 import OutsiderDocumentManager from "./documentOutsider";
 import ERPStudentDashboard from "./erpDataStudent";
+import Database from "./database";
 
 const Admindashboard = () => {
   const [isMobile, setIsMobile] = useState(false);
@@ -101,6 +102,7 @@ const Admindashboard = () => {
     { label: "Student Documents", icon: faBriefcase, path: "/admindashboard/student-documents" },
     { label: "Outsider Documents", icon: faBriefcase, path: "/admindashboard/outsider-documents" },
     { label: "Placement Registration", icon: faBriefcase, path: "/admindashboard/placement-registration" },
+    { label: "Database", icon : faDatabase, path: "/admindashboard/database" },
     { label: "Alerts", icon: faBriefcase, path: "/admindashboard/alerts" },
     {label: "Logs", icon: faCode, path:"/admindashboard/logs"},
     {label: "Login Attempts", icon: faRightToBracket, path:"/admindashboard/login-attempt"},
@@ -303,6 +305,7 @@ const Admindashboard = () => {
             <Route path="/offer-tracker" element={<OfferTracker />} />
             <Route path="/placement-calendar" element={<PlacementCalendarManager />} />
             <Route path="/erpData" element={<ERPStudentDashboard/>} />
+            <Route path="/database" element={<Database/>}/>
             </Routes>
         </div>
 
