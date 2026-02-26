@@ -4,6 +4,13 @@ import Student from "../models/user_model/student.js";
 import Recuiter from "../models/user_model/recuiter.js";
 import Professor from "../models/user_model/professor.js";
 import { error } from "console";
+import SummerInternship from "../models/summer_internship.js";
+import SummerInternTracker from "../models/summer_intern_tracker.js";
+import Suggestion from "../models/suggestion.js";
+import SharedExperience from "../models/sharedexperience.js";
+import Noc from "../models/noc.js";
+import Suggestions from "../models/suggestion.js";
+import { json } from "express";
 
 //for the job profile management
 export const getAllJobProfiles = async (req, res) => {
@@ -701,3 +708,36 @@ export const getProfessorById = async (req, res) => {
     res.status(500).json({ message: "Error fetching professor profile", error });
   }
 };
+
+// Helper function to get model by collection name
+const getModelByCollectionName = (collectionName) => {
+  const modelMap = {
+    summerinterns: SummerInternship,
+    summerinterntrackers: SummerInternTracker,
+    suggestions: Suggestion,
+    sharedexperiences: SharedExperience,
+    nocs: Noc
+  };
+  
+  return modelMap[collectionName] || null;
+};
+
+export const getDatabaseRecords = async (req, res) => {
+  const { collectionName } = req.params;
+  try {
+    const Model = getModelByCollectionName(collectionName);
+    if (!Model) {
+      return res.status(400).json({ message: "Invalid collection name" });
+    }
+    const schema = Model.schema.obj;
+    const records = await Model.find();
+    res.status(200).json({
+      records: records,
+      schema: Object.keys(schema)
+    });
+  }
+  catch (error) {
+    console.log("Error fetching database records:", error);
+    res.status(500).json({ message: "Error fetching database records", error });
+  }
+}

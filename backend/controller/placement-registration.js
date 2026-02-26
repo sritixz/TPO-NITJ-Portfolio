@@ -2,11 +2,9 @@ import PlacementRegistration from "../models/placement-registration.js";
 import Student from "../models/user_model/student.js";
 import PlacementRegistrationDeadline from "../models/placement-registration-deadline.js";
 
-
 const toBoolean = (v) => {
   return v === true || v === "true" || v === 1 || v === "1";
 };
-
 
 const pickPlacementFields = (body) => {
   const {
@@ -31,6 +29,8 @@ const pickPlacementFields = (body) => {
     description,
     preferredSector,
     privateType,
+    nonTechType,
+    otherNonTechRole,
     trainingRequired,
     trainingPlatform,
   } = body;
@@ -61,6 +61,10 @@ const pickPlacementFields = (body) => {
     ...(description !== undefined && { description }),
     ...(preferredSector !== undefined && { preferredSector }),
     ...(privateType !== undefined && { privateType }),
+    ...(nonTechType !== undefined && {
+      nonTechType: Array.isArray(nonTechType) ? nonTechType : [],
+    }),
+    ...(otherNonTechRole !== undefined && { otherNonTechRole }),
     ...(trainingRequired !== undefined && {
       trainingRequired: toBoolean(trainingRequired),
     }),
@@ -68,19 +72,16 @@ const pickPlacementFields = (body) => {
   };
 };
 
-
 export const createPlacementRegistration = async (req, res) => {
   try {
     const d = await PlacementRegistrationDeadline.findOne().sort({
       createdAt: -1,
     });
     if (!d || !d.allowed) {
-      return res
-        .status(403)
-        .json({
-          success: false,
-          message: "Placement registration is currently closed",
-        });
+      return res.status(403).json({
+        success: false,
+        message: "Placement registration is currently closed",
+      });
     }
 
     const studentId = req.user.userId;
@@ -89,46 +90,102 @@ export const createPlacementRegistration = async (req, res) => {
       studentId,
     });
     if (existingRegistration) {
-      return res
-        .status(400)
-        .json({
-          success: false,
-          message: "You have already registered for placement",
-        });
+      return res.status(400).json({
+        success: false,
+        message: "You have already registered for placement",
+      });
     }
 
     const placementData = pickPlacementFields(req.body);
 
     const interested = placementData.interested;
+    if (interested === undefined || interested === null) {
+      return res.status(400).json({
+        success: false,
+        message: "Interested field is mandatory",
+      });
+    }
     if (interested === true) {
       if (!placementData.preferredSector) {
-        return res
-          .status(400)
-          .json({ success: false, message: "Preferred sector is required" });
+        return res.status(400).json({
+          success: false,
+          message: "Preferred sector is required",
+        });
       }
 
       if (
-        (placementData.preferredSector === "Private" || placementData.preferredSector === "Both") &&
+        ["Private", "Both"].includes(placementData.preferredSector) &&
         !placementData.privateType
       ) {
-        return res
-          .status(400)
-          .json({ success: false, message: "Private type is required" });
+        return res.status(400).json({
+          success: false,
+          message: "Private type is required",
+        });
       }
 
-      if (
-        placementData.trainingRequired === true &&
-        !placementData.trainingPlatform
-      ) {
-        return res
-          .status(400)
-          .json({ success: false, message: "Training platform is required" });
+      if (placementData.privateType === "Non-Tech") {
+        if (
+          !placementData.nonTechType ||
+          placementData.nonTechType.length === 0
+        ) {
+          return res.status(400).json({
+            success: false,
+            message: "At least one Non-Tech role is required",
+          });
+        }
+
+        if (
+          placementData.nonTechType.includes("Other") &&
+          (!placementData.otherNonTechRole ||
+            placementData.otherNonTechRole.trim() === "")
+        ) {
+          return res.status(400).json({
+            success: false,
+            message: "Other Non-Tech role must be specified",
+          });
+        }
       }
-    } else if (interested === false) {
+      
+      if (!["Private", "Both"].includes(placementData.preferredSector)) {
+        placementData.privateType = null;
+        placementData.nonTechType = [];
+        placementData.otherNonTechRole = "";
+      }
+
+      if (placementData.privateType !== "Non-Tech") {
+        placementData.nonTechType = [];
+        placementData.otherNonTechRole = "";
+      }
+    }
+
+    /* TRAINING ALWAYS REQUIRED */
+    if (
+      placementData.trainingRequired === undefined ||
+      placementData.trainingRequired === null
+    ) {
+      return res.status(400).json({
+        success: false,
+        message: "Training required field is mandatory",
+      });
+    }
+
+    if (
+      placementData.trainingRequired === true &&
+      (!placementData.trainingPlatform ||
+        placementData.trainingPlatform.trim() === "")
+    ) {
+      return res.status(400).json({
+        success: false,
+        message: "Training platform is required",
+      });
+    }
+
+    /* Cleanup when not interested */
+    if (interested === false) {
       placementData.preferredSector = null;
       placementData.privateType = null;
-      placementData.trainingRequired = null;
-      placementData.trainingPlatform = "";
+      placementData.nonTechType = [];
+      placementData.otherNonTechRole = "";
     }
 
     placementData.studentId = studentId;
@@ -152,12 +209,10 @@ export const createPlacementRegistration = async (req, res) => {
     });
   } catch (error) {
     if (error.code === 11000) {
-      return res
-        .status(409)
-        .json({
-          success: false,
-          message: "Registration already exists (race detected)",
-        });
+      return res.status(409).json({
+        success: false,
+        message: "Registration already exists (race detected)",
+      });
     }
 
     return res.status(400).json({
@@ -168,19 +223,16 @@ export const createPlacementRegistration = async (req, res) => {
   }
 };
 
-
 export const editPlacementRegistration = async (req, res) => {
   try {
     const deadline = await PlacementRegistrationDeadline.findOne().sort({
       createdAt: -1,
     });
     if (!deadline || !deadline.allowed) {
-      return res
-        .status(403)
-        .json({
-          success: false,
-          message: "Placement registration is currently closed",
-        });
+      return res.status(403).json({
+        success: false,
+        message: "Placement registration is currently closed",
+      });
     }
 
     const studentId = req.user.userId;
@@ -189,12 +241,10 @@ export const editPlacementRegistration = async (req, res) => {
       studentId,
     });
     if (!existingRegistration) {
-      return res
-        .status(404)
-        .json({
-          success: false,
-          message: "No existing placement registration found",
-        });
+      return res.status(404).json({
+        success: false,
+        message: "No existing placement registration found",
+      });
     }
 
     const updatePayload = pickPlacementFields(req.body);
@@ -204,49 +254,104 @@ export const editPlacementRegistration = async (req, res) => {
         ? updatePayload.interested
         : existingRegistration.interested;
 
+    if (interested === undefined || interested === null) {
+      return res.status(400).json({
+        success: false,
+        message: "Interested field is mandatory",
+      });
+    }
+    const prefSector =
+      updatePayload.preferredSector ?? existingRegistration.preferredSector;
+
+    const privateType =
+      updatePayload.privateType ?? existingRegistration.privateType;
     if (interested === true) {
-      if (
-        !updatePayload.preferredSector &&
-        !existingRegistration.preferredSector
-      ) {
-        return res
-          .status(400)
-          .json({ success: false, message: "Preferred sector is required" });
+      if (!prefSector) {
+        return res.status(400).json({
+          success: false,
+          message: "Preferred sector is required",
+        });
       }
 
-      const prefSector =
-        updatePayload.preferredSector || existingRegistration.preferredSector;
-      const privateType =
-        updatePayload.privateType || existingRegistration.privateType;
-
-      if ((prefSector === "Private" || prefSector === "Both") && !privateType) {
-        return res
-          .status(400)
-          .json({ success: false, message: "Private type is required" });
+      if (["Private", "Both"].includes(prefSector) && !privateType) {
+        return res.status(400).json({
+          success: false,
+          message: "Private type is required",
+        });
       }
 
-      const trainingReq =
-        updatePayload.trainingRequired !== undefined
-          ? updatePayload.trainingRequired
-          : existingRegistration.trainingRequired;
-      const trainingPlatform =
-        updatePayload.trainingPlatform !== undefined
-          ? updatePayload.trainingPlatform
-          : existingRegistration.trainingPlatform;
+      if (privateType === "Non-Tech") {
+        const roles =
+          updatePayload.nonTechType ?? existingRegistration.nonTechType;
 
-      if (
-        trainingReq === true &&
-        (!trainingPlatform || String(trainingPlatform).trim() === "")
-      ) {
-        return res
-          .status(400)
-          .json({ success: false, message: "Training platform is required" });
+        if (!roles || roles.length === 0) {
+          return res.status(400).json({
+            success: false,
+            message: "At least one Non-Tech role is required",
+          });
+        }
+
+        const otherRole =
+          updatePayload.otherNonTechRole ??
+          existingRegistration.otherNonTechRole;
+
+        if (
+          roles.includes("Other") &&
+          (!otherRole || otherRole.trim() === "")
+        ) {
+          return res.status(400).json({
+            success: false,
+            message: "Other Non-Tech role must be specified",
+          });
+        }
       }
-    } else if (interested === false) {
+    }
+
+    /* TRAINING ALWAYS REQUIRED */
+    const trainingReq =
+      updatePayload.trainingRequired !== undefined
+        ? updatePayload.trainingRequired
+        : existingRegistration.trainingRequired;
+
+    const trainingPlatform =
+      updatePayload.trainingPlatform !== undefined
+        ? updatePayload.trainingPlatform
+        : existingRegistration.trainingPlatform;
+
+    if (trainingReq === undefined || trainingReq === null) {
+      return res.status(400).json({
+        success: false,
+        message: "Training required field is mandatory",
+      });
+    }
+
+    if (
+      trainingReq === true &&
+      (!trainingPlatform || trainingPlatform.trim() === "")
+    ) {
+      return res.status(400).json({
+        success: false,
+        message: "Training platform is required",
+      });
+    }
+
+    /* Cleanup if switched to not interested */
+    if (interested === false) {
       updatePayload.preferredSector = null;
       updatePayload.privateType = null;
-      updatePayload.trainingRequired = null;
-      updatePayload.trainingPlatform = "";
+      updatePayload.nonTechType = [];
+      updatePayload.otherNonTechRole = "";
+    }
+
+    if (!["Private", "Both"].includes(prefSector)) {
+      updatePayload.privateType = null;
+      updatePayload.nonTechType = [];
+      updatePayload.otherNonTechRole = "";
+    }
+
+    if (privateType !== "Non-Tech") {
+      updatePayload.nonTechType = [];
+      updatePayload.otherNonTechRole = "";
     }
 
     updatePayload.studentId = studentId;
@@ -278,7 +383,6 @@ export const editPlacementRegistration = async (req, res) => {
   }
 };
 
-
 export const checkStudentPlacementRegistration = async (req, res) => {
   try {
     const studentId = req.user.userId;
@@ -306,7 +410,6 @@ export const checkStudentPlacementRegistration = async (req, res) => {
     });
   }
 };
-
 
 export const getPlacementRegistrationExportData = async (req, res) => {
   try {
@@ -341,7 +444,9 @@ export const createDeadline = async (req, res) => {
 
     const dt = deadlinetoshow ? new Date(deadlinetoshow) : null;
     if (deadlinetoshow && isNaN(dt.getTime())) {
-      return res.status(400).json({ success: false, message: "Invalid deadlinetoshow format" });
+      return res
+        .status(400)
+        .json({ success: false, message: "Invalid deadlinetoshow format" });
     }
 
     // If deadline provided and it's in the past, force allowed = false (autoclose)
@@ -350,7 +455,7 @@ export const createDeadline = async (req, res) => {
 
     const d = await PlacementRegistrationDeadline.create({
       allowed: effectiveAllowed,
-      deadlinetoshow: dt
+      deadlinetoshow: dt,
     });
 
     // if created with a past deadline (shouldn't normally happen because effectiveAllowed would be false),
@@ -372,7 +477,9 @@ export const editDeadline = async (req, res) => {
 
     const dt = deadlinetoshow ? new Date(deadlinetoshow) : null;
     if (deadlinetoshow && isNaN(dt.getTime())) {
-      return res.status(400).json({ success: false, message: "Invalid deadlinetoshow format" });
+      return res
+        .status(400)
+        .json({ success: false, message: "Invalid deadlinetoshow format" });
     }
 
     // If new deadline is in the past, autoclose regardless of requested `allowed`.
@@ -382,10 +489,13 @@ export const editDeadline = async (req, res) => {
     const d = await PlacementRegistrationDeadline.findByIdAndUpdate(
       id,
       { allowed: effectiveAllowed, deadlinetoshow: dt },
-      { new: true }
+      { new: true },
     );
 
-    if (!d) return res.status(404).json({ success: false, message: "Deadline not found" });
+    if (!d)
+      return res
+        .status(404)
+        .json({ success: false, message: "Deadline not found" });
 
     return res.status(200).json({ success: true, data: d });
   } catch (e) {
@@ -399,7 +509,9 @@ export const editDeadline = async (req, res) => {
  */
 export const checkopen = async (req, res) => {
   try {
-    const d = await PlacementRegistrationDeadline.findOne().sort({ createdAt: -1 });
+    const d = await PlacementRegistrationDeadline.findOne().sort({
+      createdAt: -1,
+    });
 
     if (!d) {
       return res.status(200).json({
