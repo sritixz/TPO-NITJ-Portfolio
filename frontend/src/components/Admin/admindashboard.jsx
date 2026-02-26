@@ -30,6 +30,7 @@ import AdminJobProfileManager from "./jobprofiles";
 import StudentManager from "./students";
 import RecruiterManager from "./recruiter";
 import ProfessorManager from "./professor";
+import FacultyManager from "./faculty";
 import BrochureManager from "./brochure";
 import DepartmentManager from "./department";
 import DevteamManager from "./team";
@@ -93,6 +94,7 @@ const Admindashboard = () => {
     { label: "Recruiter Management", icon: faUserTie, path: "/admindashboard/recruiters" },
     { label: "Student Management", icon: faChild, path: "/admindashboard/students" },
     { label: "Professor Management", icon: faPersonChalkboard, path: "/admindashboard/professor" },
+    { label: "Faculty Management", icon: faPersonChalkboard, path: "/admindashboard/faculty" },
     { label: "Department Management", icon: faBuilding, path: "/admindashboard/department" },
     { label: "Brochure Management", icon: faBriefcase, path: "/admindashboard/brochure" },
     { label: "Devteam Management", icon: faCode, path: "/admindashboard/devteam" },
@@ -288,6 +290,7 @@ const Admindashboard = () => {
             <Route path="/students" element={<StudentManager />} />
             <Route path="/recruiters" element={<RecruiterManager />} />
             <Route path="/professor" element={<ProfessorManager />} />
+            <Route path="/faculty" element={<FacultyManager />} />
             <Route path="/department" element={<DepartmentManager/>} />
             <Route path="/brochure" element={<BrochureManager />} />
             <Route path="/devteam" element={<DevteamManager />} />
