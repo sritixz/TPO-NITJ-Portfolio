@@ -60,6 +60,8 @@ import PlacementCalendar from "./placement-calendar.jsx";
 import RecruiterFeedbackList from "./companyFeedback.jsx";
 import InternshipsManagement from "./internshipManagement.jsx";
 import ManageEventAnnouncements from "./ManageEventAnnouncements.jsx";
+import ProfessorRepresentativeDashboard from "./RepresentativeApplication.jsx"
+
 
 import Suggestions from "./suggestions.jsx";
 import BulkResumeUpload from "./resumeZip.jsx";
@@ -126,6 +128,7 @@ const Pdashboard = () => {
     { label: "Internships Management", icon: faContactCard, path: "/pdashboard/internshipsmanagement" },
     { label: "Make Announcements", icon: faCalendarAlt, path: "/pdashboard/manage-landing-page" },    
     {label:"Suggestions",icon:faEnvelope, path:"/pdashboard/suggestions"},
+    {label:"Representative Application",icon:faEnvelope, path:"/pdashboard/representativeApplication"},
     // {label:"Download Result",icon:faDownload, path:"/pdashboard/downloadResult"},
   ];
 
@@ -337,6 +340,7 @@ const Pdashboard = () => {
             <Route path="manage-landing-page" element={<ManageEventAnnouncements />} />
             <Route path="suggestions" element={<Suggestions />} />
             <Route path="resumeZip" element={<BulkResumeUpload/>} />
+            <Route path="representativeApplication" element={<ProfessorRepresentativeDashboard/>} />
             {/* <Route path="downloadResult" element={<downloadResult/>} /> */}
             {/* <Route path="uploads" element={<Upload />} /> */}
             </Routes>
