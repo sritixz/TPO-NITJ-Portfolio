@@ -25,6 +25,8 @@ import PlacementCalendar from "../components/ProfessorDashboard/placement-calend
 import PlacementRegistrationExport from "../components/ProfessorDashboard/registration-form.jsx";
 import Fsuggestions from "../components/FacultyDashboard/Fsuggestions.jsx";
 import ChangePasswordForm from "../components/changepass.jsx";
+import PlacementRegistrationExportFaculty from "../components/FacultyDashboard/placement-registration.jsx";
+import ProfessorCalendar from "../components/StudentDashboard/placement-calendar.jsx";
 
 const Fdashboard = () => {
   const [isSidebarExpanded, setIsSidebarExpanded] = useState(true);
@@ -63,7 +65,6 @@ const Fdashboard = () => {
   { label: "Placement Registration", icon: faFileAlt, path: "/fdashboard/placement-registration" },
   { label: "Placement Calendar", icon: faCalendarAlt, path: "/fdashboard/placement-calendar" },
   { label: "Suggestions", icon: faEnvelope, path: "/fdashboard/suggestions" },
-  { label: "Change Password", icon: faKey, path: "/fdashboard/change-pass" }, // Matches student path
 ];
 
   return (
@@ -144,12 +145,12 @@ const Fdashboard = () => {
           <div className="max-w-7xl mx-auto">
             <Routes>
   <Route path="home" element={<InsightDashboard readOnly={true} />} />
-  <Route path="placement-registration" element={<PlacementRegistrationExport readOnly={true} />} />
-  <Route path="placement-calendar" element={<PlacementCalendar readOnly={true} />} />
+  <Route path="placement-registration" element={<PlacementRegistrationExportFaculty readOnly={true} />} />
+  <Route path="placement-calendar" element={<ProfessorCalendar />} />
   <Route path="suggestions" element={<Fsuggestions />} />
   
   {/* New Route for Change Password */}
-  <Route path="change-pass" element={<ChangePasswordForm />} /> 
+  {/* <Route path="change-pass" element={<ChangePasswordForm />} />  */}
 </Routes>
           </div>
         </main>
