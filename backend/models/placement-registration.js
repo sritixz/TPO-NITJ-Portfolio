@@ -70,6 +70,12 @@ const placementRegistrationSchema = new mongoose.Schema(
     privateType: {
       type: String,
     },
+    nonTechType: {
+      type: [String],
+    },
+    otherNonTechRole: {
+      type: String,
+    },
     trainingPlatform: {
       type: String,
     },

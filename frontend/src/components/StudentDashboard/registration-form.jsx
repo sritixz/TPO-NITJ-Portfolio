@@ -1006,6 +1006,8 @@ const PremiumPlacementForm = () => {
     // NEW FIELDS (backend-aligned names)
     preferredSector: "", // 'PSU' | 'Private'
     privateType: "", // 'Tech' | 'Non-Tech'
+    nonTechType: [],
+    otherNonTechRole: "",
     trainingRequired: null, // true | false | null
     trainingPlatform: "", // text input for platform
   });
@@ -1106,6 +1108,8 @@ const PremiumPlacementForm = () => {
             privateType: response.data.data.privateType || "",
             trainingRequired: response.data.data.trainingRequired ?? null,
             trainingPlatform: response.data.data.trainingPlatform || "",
+            nonTechType: response.data.data.nonTechType || [],
+            otherNonTechRole: response.data.data.otherNonTechRole || "",
           });
           // setShowSuccess(true);
         }
@@ -1191,6 +1195,7 @@ const PremiumPlacementForm = () => {
         "otherReason",
         "preferredSector",
         "privateType",
+        "nonTechType",
         "trainingRequired",
         "trainingPlatform",
       ],
@@ -1221,59 +1226,65 @@ const PremiumPlacementForm = () => {
         return false;
       }
 
+      // ---- INTEREST VALIDATION ----
       if (!formData.interested) {
-        // when NOT interested, ensure a reason is selected
-        if (
-          !formData.notInterestedReason ||
-          formData.notInterestedReason.trim() === ""
-        ) {
+        if (!formData.notInterestedReason?.trim()) {
           toast.error("Please select a reason for not being interested.");
           return false;
         }
+
         if (
           formData.notInterestedReason === "Other reason" &&
-          (!formData.otherReason || formData.otherReason.trim() === "")
+          !formData.otherReason?.trim()
         ) {
-          toast.error(
-            'Please specify your reason for selecting "Other reason".',
-          );
+          toast.error("Please specify your reason.");
           return false;
         }
       } else {
-        // when interested === true, require sector preference
-        if (
-          !formData.preferredSector ||
-          formData.preferredSector.trim() === ""
-        ) {
-          toast.error("Please select your preferred sector (PSU or Private).");
+        if (!formData.preferredSector?.trim()) {
+          toast.error("Please select preferred sector.");
           return false;
         }
+
         if (
           (formData.preferredSector === "Private" ||
             formData.preferredSector === "Both") &&
-          (!formData.privateType || formData.privateType.trim() === "")
+          !formData.privateType?.trim()
         ) {
-          toast.error(
-            "Please select whether you prefer Tech or Non-Tech roles in Private sector.",
-          );
+          toast.error("Please select Tech or Non-Tech.");
           return false;
         }
-        // training requirement must be chosen (yes/no)
+
         if (
-          formData.trainingRequired === null ||
-          formData.trainingRequired === undefined
+          formData.privateType === "Non-Tech" &&
+          (!formData.nonTechType || formData.nonTechType.length === 0)
         ) {
-          toast.error("Please indicate if you require training.");
+          toast.error("Please select at least one Non-Tech role.");
           return false;
         }
+
         if (
-          formData.trainingRequired === true &&
-          (!formData.trainingPlatform ||
-            formData.trainingPlatform.trim() === "")
+          formData.privateType === "Non-Tech" &&
+          formData.nonTechType.includes("Other") &&
+          !formData.otherNonTechRole?.trim()
         ) {
-          toast.error("Please specify the platform you want training from.");
+          toast.error("Please specify the Other Non-Tech role.");
           return false;
         }
+      }
+
+      // ---- TRAINING VALIDATION (ALWAYS REQUIRED) ----
+      if (formData.trainingRequired === null) {
+        toast.error("Please indicate if training is required.");
+        return false;
+      }
+
+      if (
+        formData.trainingRequired === true &&
+        !formData.trainingPlatform?.trim()
+      ) {
+        toast.error("Please specify training platform.");
+        return false;
       }
 
       return true;
@@ -1291,7 +1302,10 @@ const PremiumPlacementForm = () => {
         return true;
       if (field === "preferredSector" && formData.interested !== true)
         return true;
-      if (field === "privateType" && formData.preferredSector !== "Private")
+      if (
+        field === "privateType" &&
+        !["Private", "Both"].includes(formData.preferredSector)
+      )
         return true;
       if (field === "trainingPlatform" && formData.trainingRequired !== true)
         return true;
@@ -1538,10 +1552,19 @@ const PremiumPlacementForm = () => {
         );
 
       case 3:
+        const nonTechTypes = [
+          "Managerial Roles",
+          "Consulting & Strategy",
+          "Finance & Banking",
+          "Sales & Marketing",
+          "Core Domain",
+          "Other",
+        ];
         const reasons = [
           "I am preparing for government exams and want to focus on them full-time.",
-          "I plan to pursue higher studies immediately after graduation.",
-          "I am interested in starting my own business or entrepreneurial venture.",
+          "I plan to pursue higher studies(in India) immediately after graduation.",
+          "I plan to pursue higher studies(Abroad) immediately after graduation.",
+          "I am interested in starting my own business/startup or entrepreneurial venture.",
           "I want to go abroad for better opportunities or experience.",
           "Other reason",
         ];
@@ -1704,6 +1727,14 @@ const PremiumPlacementForm = () => {
                                 sec === "Private" || sec === "Both"
                                   ? prev.privateType
                                   : "",
+                              nonTechType:
+                                sec === "Private" || sec === "Both"
+                                  ? prev.nonTechType
+                                  : [],
+                              otherNonTechRole:
+                                sec === "Private" || sec === "Both"
+                                  ? prev.otherNonTechRole
+                                  : "",
                             }))
                           }
                           className={`px-4 py-2 rounded-xl border transition-colors ${
@@ -1734,6 +1765,12 @@ const PremiumPlacementForm = () => {
                               setFormData((prev) => ({
                                 ...prev,
                                 privateType: pt,
+                                nonTechType:
+                                  pt === "Non-Tech" ? prev.nonTechType : [],
+                                otherNonTechRole:
+                                  pt === "Non-Tech"
+                                    ? prev.otherNonTechRole
+                                    : "",
                               }))
                             }
                             className={`px-4 py-2 rounded-xl border transition-colors ${
@@ -1749,52 +1786,101 @@ const PremiumPlacementForm = () => {
                     </div>
                   )}
 
-                  <div>
-                    <label className="block text-sm font-medium text-slate-700">
-                      Do you require training to be placement-ready?{" "}
-                      <span className="text-red-500">*</span>
-                    </label>
-                    <div className="flex space-x-3 mt-2">
-                      {["Yes", "No"].map((opt) => (
-                        <button
-                          key={opt}
-                          type="button"
-                          onClick={() =>
-                            setFormData((prev) => ({
-                              ...prev,
-                              trainingRequired: opt === "Yes",
-                              trainingPlatform:
-                                opt === "No" ? "" : prev.trainingPlatform,
-                            }))
-                          }
-                          className={`px-4 py-2 rounded-xl border transition-colors ${
-                            (formData.trainingRequired === true &&
-                              opt === "Yes") ||
-                            (formData.trainingRequired === false &&
-                              opt === "No")
-                              ? "bg-custom-blue text-white border-custom-blue"
-                              : "bg-white text-slate-700 border-slate-300 hover:bg-slate-100"
-                          }`}
-                        >
-                          {opt}
-                        </button>
-                      ))}
-                    </div>
+                  {formData.privateType === "Non-Tech" && (
+                    <div>
+                      <label className="block text-sm font-medium text-slate-700">
+                        Preferred Non-Tech Role{" "}
+                        <span className="text-red-500">*</span>
+                      </label>
 
-                    {formData.trainingRequired === true && (
-                      <div className="mt-3">
-                        <InputField
-                          label="Preferred training platform"
-                          field={formData.trainingPlatform}
-                          placeholder="e.g., Coursera, NPTEL, Internshala, Company-specific training"
-                          required
-                          onChange={handleInputChange("trainingPlatform")}
-                        />
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mt-2">
+                        {nonTechTypes.map((nt) => (
+                          <button
+                            key={nt}
+                            type="button"
+                            onClick={() =>
+                              setFormData((prev) => {
+                                const alreadySelected =
+                                  prev.nonTechType.includes(nt);
+
+                                return {
+                                  ...prev,
+                                  nonTechType: alreadySelected
+                                    ? prev.nonTechType.filter(
+                                        (item) => item !== nt,
+                                      )
+                                    : [...prev.nonTechType, nt],
+                                };
+                              })
+                            }
+                            className={`px-4 py-2 rounded-xl border text-left transition-colors ${
+                              formData.nonTechType.includes(nt)
+                                ? "bg-custom-blue text-white border-custom-blue"
+                                : "bg-white text-slate-700 border-slate-300 hover:bg-slate-100"
+                            }`}
+                          >
+                            {nt}
+                          </button>
+                        ))}
                       </div>
-                    )}
-                  </div>
+                      {formData.nonTechType.includes("Other") && (
+                        <div className="mt-3">
+                          <InputField
+                            label="Specify Other Non-Tech Role"
+                            field={formData.otherNonTechRole}
+                            placeholder="Enter role type"
+                            required
+                            onChange={handleInputChange("otherNonTechRole")}
+                          />
+                        </div>
+                      )}
+                    </div>
+                  )}
                 </div>
               )}
+
+              <div>
+                <label className="block text-sm font-medium text-slate-700">
+                  Do you require training to be placement-ready?{" "}
+                  <span className="text-red-500">*</span>
+                </label>
+                <div className="flex space-x-3 mt-2">
+                  {["Yes", "No"].map((opt) => (
+                    <button
+                      key={opt}
+                      type="button"
+                      onClick={() =>
+                        setFormData((prev) => ({
+                          ...prev,
+                          trainingRequired: opt === "Yes",
+                          trainingPlatform:
+                            opt === "No" ? "" : prev.trainingPlatform,
+                        }))
+                      }
+                      className={`px-4 py-2 rounded-xl border transition-colors ${
+                        (formData.trainingRequired === true && opt === "Yes") ||
+                        (formData.trainingRequired === false && opt === "No")
+                          ? "bg-custom-blue text-white border-custom-blue"
+                          : "bg-white text-slate-700 border-slate-300 hover:bg-slate-100"
+                      }`}
+                    >
+                      {opt}
+                    </button>
+                  ))}
+                </div>
+
+                {formData.trainingRequired === true && (
+                  <div className="mt-3">
+                    <InputField
+                      label="Preferred training platform"
+                      field={formData.trainingPlatform}
+                      placeholder="e.g., Coursera, NPTEL, Internshala, Company-specific training"
+                      required
+                      onChange={handleInputChange("trainingPlatform")}
+                    />
+                  </div>
+                )}
+              </div>
             </div>
           </div>
         );
@@ -1945,7 +2031,26 @@ const PremiumPlacementForm = () => {
             );
           })}
         </div>
+        <div className="mb-6 rounded-xl border border-amber-300 bg-gradient-to-r from-amber-50 to-yellow-50 p-5 shadow-sm">
+          <div className="flex items-start gap-3">
+            <div className="flex h-9 w-9 items-center justify-center rounded-full">
+              ⚠️
+            </div>
 
+            <div>
+              <h4 className="text-sm font-semibold text-amber-800">
+                Important – Read Before Submitting
+              </h4>
+
+              <p className="mt-1 text-sm text-amber-700 leading-relaxed">
+                Please fill this form carefully and honestly. Training programs,
+                non-tech role preparation, and abroad-oriented guidance will be
+                arranged strictly based on your responses. Incorrect information
+                may result in missing relevant opportunities.
+              </p>
+            </div>
+          </div>
+        </div>
         <div className="bg-white/70 backdrop-blur-lg rounded-2xl shadow-xl border border-white/50 overflow-hidden">
           <div className="bg-custom-blue p-6">
             <h2 className="text-2xl font-bold text-white flex items-center">
