@@ -120,6 +120,51 @@ const StudentManager = () => {
   const [bulkInterestLoading, setBulkInterestLoading] = useState(false);
 
   useEffect(() => { fetchStudents(); }, []);
+  const handleBulkPlacementInterest = async () => {
+    if (!filterInterestedPlacementBatch) {
+      toast.error("Please select a batch first");
+      return;
+    }
+    if (!filterInterestedPlacementCourse) {
+      toast.error("Please select a course first");
+      return;
+    }
+
+    const confirmAction = window.confirm(
+      `Are you sure you want to mark all ${filterInterestedPlacementBatch} students as ${
+        interestedValue ? "Interested" : "Not Interested"
+      }?`,
+    );
+
+    if (!confirmAction) return;
+
+    try {
+      setBulkInterestLoading(true);
+
+      const res = await axios.put(
+        `${import.meta.env.REACT_APP_BASE_URL}/admin/students/placementInterest/update`,
+        {
+          batch: filterInterestedPlacementBatch,
+          isInterested: interestedValue,
+          course: filterInterestedPlacementCourse,
+        },
+        { withCredentials: true },
+      );
+
+      toast.success(`Updated ${res.data.modifiedCount} students successfully`);
+
+      // refresh list
+      await fetchStudents();
+    } catch (error) {
+      toast.error(error.response?.data?.message || "Failed to update interest");
+    } finally {
+      setBulkInterestLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchStudents();
+  }, []);
 
   const fetchStudents = async () => {
     try {
@@ -172,6 +217,45 @@ const StudentManager = () => {
         ? formatExtendedJSON(dataToExport) 
         : [{ name: "", email: "", rollno: "" }]; // Template if empty
 
+      // If no data, export empty array with model structure as template
+      const exportData =
+        dataToExport.length > 0
+          ? dataToExport
+          : [
+              {
+                name: "",
+                email: "",
+                personalEmail: "",
+                phone: "",
+                password: "",
+                rollno: "",
+                dob: "",
+                department: "",
+                batch: "",
+                course: "",
+                address: "",
+                cgpa: "",
+                Xth: "",
+                XIIth: "",
+                gender: "",
+                category: "",
+                active_backlogs: false,
+                activeBacklogCount: "",
+                backlogs_history: false,
+                debarred: false,
+                disability: false,
+                image: "",
+                offerLetter: "",
+                placementstatus: "",
+                internshipstatus: "",
+                account_deactivate: false,
+                isInterested: false,
+                linkedin: "",
+                otp: "",
+                erpLastUpdated: null,
+              },
+            ];
+
       const jsonString = JSON.stringify(exportData, null, 2);
       const blob = new Blob([jsonString], { type: "application/json" });
       const url = URL.createObjectURL(blob);
@@ -214,6 +298,1172 @@ const StudentManager = () => {
     <div className="container mx-auto p-4">
        {/* UI code exactly as in your version, but without the <<<<<< HEAD marks */}
        {/* Ensure the Export JSON button calls the fixed handleExportJSON above */}
+      <DeleteConfirmationModal />
+      <DeactivateConfirmationModal />
+      <div className="flex flex-col md:flex-row justify-between items-center mb-4">
+        <h1 className="text-2xl font-bold flex items-center mb-2 md:mb-0">
+          <FontAwesomeIcon icon={faUsers} className="mr-3" />
+          Student Management
+        </h1>
+        <div className="flex flex-col md:flex-row space-y-2 md:space-y-0 md:space-x-2">
+          <button
+            onClick={() => openEditModal()}
+            className="bg-green-500 text-white px-4 py-2 rounded flex items-center justify-center"
+          >
+            <Plus className="mr-2" /> Add Student
+          </button>
+          <button
+            onClick={handleExportJSON}
+            className="bg-blue-500 text-white px-4 py-2 rounded flex items-center justify-center"
+          >
+            <Download className="mr-2" /> Export JSON
+          </button>
+          <div className="flex gap-3 mb-4">
+            <input
+              type="file"
+              accept=".xlsx, .xls"
+              id="excelInput"
+              hidden
+              onChange={handleExcelSelect}
+            />
+
+            <label
+              htmlFor="excelInput"
+              className="px-4 py-2 bg-blue-600 text-white rounded cursor-pointer"
+            >
+              Select Excel
+            </label>
+          </div>
+          {excelStage === "selected" && (
+            <p className="text-sm text-blue-600">Excel selected, parsing…</p>
+          )}
+
+          {excelStage === "preview" && (
+            <p className="text-sm text-green-600">
+              Preview ready. Click Upload to continue.
+            </p>
+          )}
+
+          {excelStage === "uploading" && (
+            <p className="text-sm text-orange-600 animate-pulse">
+              Uploading students, please wait…
+            </p>
+          )}
+          {selectedStudents.length > 0 && (
+            <button
+              onClick={() => openDeleteConfirmModal("bulk")}
+              className="bg-red-500 text-white px-4 py-2 rounded flex items-center justify-center"
+            >
+              <Trash2 className="mr-2" /> Delete Selected
+            </button>
+          )}
+        </div>
+      </div>
+
+      {/* Filters */}
+      <div className="mb-4 grid grid-cols-2 md:grid-cols-4 gap-2">
+        <select
+          value={filters.department}
+          onChange={(e) => {
+            setFilters({ ...filters, department: e.target.value });
+            setCurrentPage(1);
+          }}
+          className="border p-2 rounded"
+        >
+          <option value="">All Departments</option>
+          {departments.map((dept) => (
+            <option key={dept} value={dept}>
+              {dept}
+            </option>
+          ))}
+        </select>
+        <select
+          value={filters.course}
+          onChange={(e) => {
+            setFilters({ ...filters, course: e.target.value });
+            setCurrentPage(1);
+          }}
+          className="border p-2 rounded"
+        >
+          <option value="">All Courses</option>
+          {courses.map((course) => (
+            <option key={course} value={course}>
+              {course}
+            </option>
+          ))}
+        </select>
+        <select
+          value={filters.placementstatus}
+          onChange={(e) => {
+            setFilters({ ...filters, placementstatus: e.target.value });
+            setCurrentPage(1);
+          }}
+          className="border p-2 rounded"
+        >
+          <option value="">Placement Status</option>
+          {placementStatuses.map((status) => (
+            <option key={status} value={status}>
+              {status}
+            </option>
+          ))}
+        </select>
+        <input
+          type="number"
+          placeholder="Min CGPA"
+          value={filters.minCgpa}
+          onChange={(e) => {
+            setFilters({ ...filters, minCgpa: e.target.value });
+            setCurrentPage(1);
+          }}
+          className="border p-2 rounded"
+        />
+        <select
+          value={filters.gender}
+          onChange={(e) => {
+            setFilters({ ...filters, gender: e.target.value });
+            setCurrentPage(1);
+          }}
+          className="border p-2 rounded"
+        >
+          <option value="">All Genders</option>
+          {genders.map((gender) => (
+            <option key={gender} value={gender}>
+              {gender}
+            </option>
+          ))}
+        </select>
+        <select
+          value={filters.category}
+          onChange={(e) => {
+            setFilters({ ...filters, category: e.target.value });
+            setCurrentPage(1);
+          }}
+          className="border p-2 rounded"
+        >
+          <option value="">All Categories</option>
+          {categories.map((category) => (
+            <option key={category} value={category}>
+              {category}
+            </option>
+          ))}
+        </select>
+        <select
+          value={filters.internshipstatus}
+          onChange={(e) => {
+            setFilters({ ...filters, internshipstatus: e.target.value });
+            setCurrentPage(1);
+          }}
+          className="border p-2 rounded"
+        >
+          <option value="">Internship Status</option>
+          {internshipStatuses.map((status) => (
+            <option key={status} value={status}>
+              {status}
+            </option>
+          ))}
+        </select>
+        <select
+          value={filters.batch}
+          onChange={(e) => {
+            setFilters({ ...filters, batch: e.target.value });
+            setCurrentPage(1);
+          }}
+          className="border p-2 rounded"
+        >
+          <option value="">Batch</option>
+          {Array.from({ length: 10 }, (_, i) => (
+            <option key={i} value={2020 + i}>
+              {2020 + i}
+            </option>
+          ))}
+        </select>
+        <input
+          type="text"
+          placeholder="Address"
+          value={filters.address}
+          onChange={(e) => {
+            setFilters({ ...filters, address: e.target.value });
+            setCurrentPage(1);
+          }}
+          className="border p-2 rounded"
+        />
+        <input
+          type="text"
+          placeholder="Phone"
+          value={filters.phone}
+          onChange={(e) => {
+            setFilters({ ...filters, phone: e.target.value });
+            setCurrentPage(1);
+          }}
+          className="border p-2 rounded"
+        />
+        <input
+          type="text"
+          placeholder="Email"
+          value={filters.email}
+          onChange={(e) => {
+            setFilters({ ...filters, email: e.target.value });
+            setCurrentPage(1);
+          }}
+          className="border p-2 rounded"
+        />
+        <input
+          type="text"
+          placeholder="Name"
+          value={filters.name}
+          onChange={(e) => {
+            setFilters({ ...filters, name: e.target.value });
+            setCurrentPage(1);
+          }}
+          className="border p-2 rounded"
+        />
+        <input
+          type="text"
+          placeholder="Roll No"
+          value={filters.rollno}
+          onChange={(e) => {
+            setFilters({ ...filters, rollno: e.target.value });
+            setCurrentPage(1);
+          }}
+          className="border p-2 rounded"
+        />
+        <input
+          type="text"
+          placeholder="CGPA"
+          value={filters.cgpa}
+          onChange={(e) => {
+            setFilters({ ...filters, cgpa: e.target.value });
+            setCurrentPage(1);
+          }}
+          className="border p-2 rounded"
+        />
+        <input
+          type="text"
+          placeholder="Personal Email"
+          value={filters.personalEmail}
+          onChange={(e) => {
+            setFilters({ ...filters, personalEmail: e.target.value });
+            setCurrentPage(1);
+          }}
+          className="border p-2 rounded"
+        />
+        <input
+          type="text"
+          placeholder="DOB"
+          value={filters.dob}
+          onChange={(e) => {
+            setFilters({ ...filters, dob: e.target.value });
+            setCurrentPage(1);
+          }}
+          className="border p-2 rounded"
+        />
+        <input
+          type="text"
+          placeholder="10th %"
+          value={filters.Xth}
+          onChange={(e) => {
+            setFilters({ ...filters, Xth: e.target.value });
+            setCurrentPage(1);
+          }}
+          className="border p-2 rounded"
+        />
+        <input
+          type="text"
+          placeholder="12th %"
+          value={filters.XIIth}
+          onChange={(e) => {
+            setFilters({ ...filters, XIIth: e.target.value });
+            setCurrentPage(1);
+          }}
+          className="border p-2 rounded"
+        />
+        <select
+          value={filters.isInterested}
+          onChange={(e) => {
+            setFilters({ ...filters, isInterested: e.target.value });
+            setCurrentPage(1);
+          }}
+          className="border p-2 rounded"
+        >
+          <option value="">Interested in Placement</option>
+          <option value="yes">Yes</option>
+          <option value="no">No</option>
+        </select>
+        <input
+          type="text"
+          placeholder="LinkedIn"
+          value={filters.linkedin}
+          onChange={(e) => {
+            setFilters({ ...filters, linkedin: e.target.value });
+            setCurrentPage(1);
+          }}
+          className="border p-2 rounded"
+        />
+        <select
+          value={filters.backlogs_history}
+          onChange={(e) => {
+            setFilters({ ...filters, backlogs_history: e.target.value });
+            setCurrentPage(1);
+          }}
+          className="border p-2 rounded"
+        >
+          <option value="">Backlogs History</option>
+          <option value="true">Yes</option>
+          <option value="false">No</option>
+        </select>
+
+        <select
+          value={filters.debarred}
+          onChange={(e) => {
+            setFilters({ ...filters, debarred: e.target.value });
+            setCurrentPage(1);
+          }}
+          className="border p-2 rounded"
+        >
+          <option value="">Debarred</option>
+          <option value="true">Yes</option>
+          <option value="false">No</option>
+        </select>
+
+        <select
+          value={filters.disability}
+          onChange={(e) => {
+            setFilters({ ...filters, disability: e.target.value });
+            setCurrentPage(1);
+          }}
+          className="border p-2 rounded"
+        >
+          <option value="">Disability</option>
+          <option value="true">Yes</option>
+          <option value="false">No</option>
+        </select>
+
+        <select
+          value={filters.account_deactivate}
+          onChange={(e) => {
+            setFilters({ ...filters, account_deactivate: e.target.value });
+            setCurrentPage(1);
+          }}
+          className="border p-2 rounded"
+        >
+          <option value="">Account Status</option>
+          <option value="true">Deactivated</option>
+          <option value="false">Active</option>
+        </select>
+      </div>
+
+      <div className="mt-6 bg-white border border-gray-200 rounded-xl shadow-sm p-6">
+        <h3 className="text-lg font-semibold text-gray-800 mb-4">
+          Bulk Update Placement Interest
+        </h3>
+        <div className="flex flex-col md:flex-row md:items-end gap-6">
+          {/* Batch Selector */}
+          <div className="flex flex-col min-w-[180px]">
+            <label className="text-sm font-medium text-gray-600 mb-1">
+              Select Batch
+            </label>
+            <select
+              value={filterInterestedPlacementBatch}
+              onChange={(e) =>
+                setFilterInterestedPlacementBatch(e.target.value)
+              }
+              className="border border-gray-300 px-4 py-2 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
+            >
+              <option value="">Select Batch</option>
+              {[2026, 2027, 2028, 2029, 2030].map((year) => (
+                <option key={year} value={year}>
+                  {year}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div className="flex flex-col min-w-[180px]">
+            <label className="text-sm font-medium text-gray-600 mb-1">
+              Select Course
+            </label>
+            <select
+              value={filterInterestedPlacementCourse}
+              onChange={(e) =>
+                setFilterInterestedPlacementCourse(e.target.value)
+              }
+              className="border border-gray-300 px-4 py-2 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
+            >
+              <option value="">Select Course</option>
+              {["B.Tech", "M.Tech", "MBA", "M.Sc.", "PHD", "B.Sc.-B.Ed."].map(
+                (course) => (
+                  <option key={course} value={course}>
+                    {course}
+                  </option>
+                ),
+              )}
+            </select>
+          </div>
+
+          {/* Toggle */}
+          <div className="flex flex-col">
+            <label className="text-sm font-medium text-gray-600 mb-1">
+              Placement Interest
+            </label>
+
+            <div className="flex bg-gray-100 rounded-lg p-1">
+              <button
+                type="button"
+                onClick={() => setInterestedValue(true)}
+                className={`px-5 py-2 rounded-md text-sm font-medium transition-all duration-200 ${
+                  interestedValue
+                    ? "bg-green-600 text-white shadow"
+                    : "text-gray-600 hover:bg-gray-200"
+                }`}
+              >
+                Interested
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setInterestedValue(false)}
+                className={`px-5 py-2 rounded-md text-sm font-medium transition-all duration-200 ${
+                  !interestedValue
+                    ? "bg-red-600 text-white shadow"
+                    : "text-gray-600 hover:bg-gray-200"
+                }`}
+              >
+                Not Interested
+              </button>
+            </div>
+          </div>
+
+          {/* Apply Button */}
+          <div className="flex">
+            <button
+              onClick={handleBulkPlacementInterest}
+              disabled={
+                (!filterInterestedPlacementBatch &&
+                  !filterInterestedPlacementCourse) ||
+                bulkInterestLoading
+              }
+              className={`px-6 py-2 rounded-lg text-white font-medium transition-all duration-200 flex items-center justify-center gap-2 ${
+                filterInterestedPlacementBatch && !bulkInterestLoading
+                  ? "bg-blue-600 hover:bg-blue-700 shadow"
+                  : "bg-gray-400 cursor-not-allowed"
+              }`}
+            >
+              {bulkInterestLoading ? (
+                <>
+                  <svg
+                    className="animate-spin h-4 w-4 text-white"
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                  >
+                    <circle
+                      className="opacity-25"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      strokeWidth="4"
+                    />
+                    <path
+                      className="opacity-75"
+                      fill="currentColor"
+                      d="M4 12a8 8 0 018-8v8H4z"
+                    />
+                  </svg>
+                  Updating...
+                </>
+              ) : (
+                "Apply to All Students"
+              )}
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* Student Table */}
+      {loading ? (
+        <div>Loading...</div>
+      ) : (
+        <>
+          <div className="overflow-x-auto">
+            <table className="w-full border-collapse">
+              <thead>
+                <tr className="bg-gray-100">
+                  <th className="border p-2">
+                    <input
+                      type="checkbox"
+                      checked={
+                        currentStudents.length > 0 &&
+                        selectedStudents.length === currentStudents.length
+                      }
+                      onChange={() =>
+                        setSelectedStudents(
+                          selectedStudents.length === currentStudents.length
+                            ? []
+                            : currentStudents.map((student) => student._id),
+                        )
+                      }
+                    />
+                  </th>
+                  <th className="border p-2">ID</th>
+                  <th className="border p-2">Name</th>
+                  <th className="border p-2">Roll No</th>
+                  <th className="border p-2">Email</th>
+                  <th className="border p-2">Phone</th>
+                  <th className="border p-2">Address</th>
+                  <th className="border p-2">Department</th>
+                  <th className="border p-2">Course</th>
+                  <th className="border p-2">Batch</th>
+                  <th className="border p-2">Gender</th>
+                  <th className="border p-2">Category</th>
+                  <th className="border p-2">CGPA</th>
+                  <th className="border p-2">Backlogs</th>
+                  <th className="border p-2">Internship</th>
+                  <th className="border p-2">Placement</th>
+                  <th className="border p-2">Status</th>
+                  <th className="border p-2">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {currentStudents.map((student) => (
+                  <tr
+                    key={student._id}
+                    className={`hover:bg-gray-50 ${student.account_deactivate ? "bg-red-50" : ""}`}
+                  >
+                    <td className="border p-2 text-center">
+                      <input
+                        type="checkbox"
+                        checked={selectedStudents.includes(student._id)}
+                        onChange={() => handleSelectStudent(student._id)}
+                      />
+                    </td>
+                    <td className="border p-2">{student._id}</td>
+                    <td className="border p-2">{student.name}</td>
+                    <td className="border p-2">{student.rollno}</td>
+                    <td className="border p-2">{student.email}</td>
+                    <td className="border p-2">
+                      {student.phone ? student.phone : ""}
+                    </td>
+                    <td className="border p-2">
+                      {student.address ? student.address : ""}
+                    </td>
+                    <td className="border p-2">{student.department}</td>
+                    <td className="border p-2">{student.course}</td>
+                    <td className="border p-2">{student.batch}</td>
+                    <td className="border p-2">{student.gender}</td>
+                    <td className="border p-2">{student.category}</td>
+                    <td className="border p-2">{student.cgpa}</td>
+                    <td className="border p-2">
+                      {student.active_backlogs
+                        ? "Active"
+                        : student.backlogs_history
+                          ? "History"
+                          : "None"}
+                    </td>
+                    <td className="border p-2">{student.internshipstatus}</td>
+                    <td className="border p-2">{student.placementstatus}</td>
+
+                    <td className="border p-2">
+                      <span
+                        className={`px-2 py-1 rounded text-xs ${student.account_deactivate ? "bg-red-200 text-red-800" : "bg-green-200 text-green-800"}`}
+                      >
+                        {student.account_deactivate ? "Deactivated" : "Active"}
+                      </span>
+                    </td>
+                    <td className="border p-2">
+                      <div className="flex justify-center space-x-2">
+                        <button
+                          onClick={() => openEditModal(student)}
+                          className="text-blue-500 hover:text-blue-700"
+                          title="Edit"
+                        >
+                          <Edit size={18} />
+                        </button>
+                        <button
+                          onClick={() =>
+                            openDeactivateConfirmModal(student._id)
+                          }
+                          className={`${student.account_deactivate ? "text-green-500 hover:text-green-700" : "text-orange-500 hover:text-orange-700"}`}
+                          title={
+                            student.account_deactivate
+                              ? "Activate Account"
+                              : "Deactivate Account"
+                          }
+                        >
+                          {student.account_deactivate ? (
+                            <Unlock size={18} />
+                          ) : (
+                            <Lock size={18} />
+                          )}
+                        </button>
+                        <button
+                          onClick={() =>
+                            openDeleteConfirmModal("single", student._id)
+                          }
+                          className="text-red-500 hover:text-red-700"
+                          title="Delete"
+                        >
+                          <Trash2 size={18} />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          {/* Pagination */}
+          <div className="flex justify-between items-center mt-4">
+            <div>
+              Showing {indexOfFirstStudent + 1} to{" "}
+              {Math.min(indexOfLastStudent, filteredStudents.length)} of{" "}
+              {filteredStudents.length} students
+            </div>
+            <div className="flex items-center space-x-2">
+              <button
+                onClick={() => paginate(currentPage - 1)}
+                disabled={currentPage === 1}
+                className="px-4 py-2 bg-gray-200 rounded disabled:opacity-50"
+              >
+                <ChevronLeft />
+              </button>
+              <span>
+                Page {currentPage} of{" "}
+                {Math.ceil(filteredStudents.length / studentsPerPage)}
+              </span>
+              <button
+                onClick={() => paginate(currentPage + 1)}
+                disabled={
+                  currentPage >=
+                  Math.ceil(filteredStudents.length / studentsPerPage)
+                }
+                className="px-4 py-2 bg-gray-200 rounded disabled:opacity-50"
+              >
+                <ChevronRight />
+              </button>
+            </div>
+          </div>
+        </>
+      )}
+
+      {/* Add/Edit Student Dialog */}
+      <Dialog
+        open={openEditDialog}
+        onClose={() => setOpenEditDialog(false)}
+        maxWidth="md"
+        fullWidth
+      >
+        <DialogTitle>
+          {editProfile?._id ? "Edit Student" : "Add Student"}
+        </DialogTitle>
+        <DialogContent>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {/* Basic Information */}
+            <TextField
+              label="Name"
+              fullWidth
+              margin="normal"
+              value={editProfile?.name || ""}
+              onChange={(e) =>
+                setEditProfile({ ...editProfile, name: e.target.value })
+              }
+            />
+            <TextField
+              label="Roll No"
+              fullWidth
+              margin="normal"
+              value={editProfile?.rollno || ""}
+              onChange={(e) =>
+                setEditProfile({ ...editProfile, rollno: e.target.value })
+              }
+            />
+            <TextField
+              label="Email"
+              type="email"
+              fullWidth
+              margin="normal"
+              value={editProfile?.email || ""}
+              onChange={(e) =>
+                setEditProfile({ ...editProfile, email: e.target.value })
+              }
+              required
+            />
+            <TextField
+              label="Personal Email"
+              type="email"
+              fullWidth
+              margin="normal"
+              value={editProfile?.personalEmail || ""}
+              onChange={(e) =>
+                setEditProfile({
+                  ...editProfile,
+                  personalEmail: e.target.value,
+                })
+              }
+            />
+            <TextField
+              label="Phone"
+              fullWidth
+              margin="normal"
+              value={editProfile?.phone || ""}
+              onChange={(e) =>
+                setEditProfile({ ...editProfile, phone: e.target.value })
+              }
+            />
+            <TextField
+              label="Date of Birth"
+              type="date"
+              fullWidth
+              margin="normal"
+              value={editProfile?.dob || ""}
+              onChange={(e) =>
+                setEditProfile({ ...editProfile, dob: e.target.value })
+              }
+              InputLabelProps={{ shrink: true }}
+            />
+            <TextField
+              label="Password"
+              type={showPassword ? "text" : "password"}
+              fullWidth
+              margin="normal"
+              value={editProfile?.password || ""}
+              onChange={(e) =>
+                setEditProfile({ ...editProfile, password: e.target.value })
+              }
+              InputProps={{
+                endAdornment: (
+                  <InputAdornment position="end">
+                    <IconButton
+                      onClick={() => setShowPassword(!showPassword)}
+                      edge="end"
+                    >
+                      {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                    </IconButton>
+                  </InputAdornment>
+                ),
+              }}
+              helperText={
+                !editProfile?._id
+                  ? "Required for new students"
+                  : "Leave blank to keep existing password"
+              }
+            />
+            <TextField
+              label="Batch (Year)"
+              fullWidth
+              margin="normal"
+              value={editProfile?.batch || ""}
+              onChange={(e) =>
+                setEditProfile({ ...editProfile, batch: e.target.value })
+              }
+            />
+
+            {/* Academic Information */}
+            <FormControl fullWidth margin="normal">
+              <InputLabel>Department</InputLabel>
+              <Select
+                value={editProfile?.department || ""}
+                onChange={(e) =>
+                  setEditProfile({ ...editProfile, department: e.target.value })
+                }
+              >
+                <MenuItem value="">Select Department</MenuItem>
+                {departments.map((dept) => (
+                  <MenuItem key={dept} value={dept}>
+                    {dept}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+            <FormControl fullWidth margin="normal">
+              <InputLabel>Course</InputLabel>
+              <Select
+                value={editProfile?.course || ""}
+                onChange={(e) =>
+                  setEditProfile({ ...editProfile, course: e.target.value })
+                }
+              >
+                <MenuItem value="">Select Course</MenuItem>
+                {courses.map((course) => (
+                  <MenuItem key={course} value={course}>
+                    {course}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+            <FormControl fullWidth margin="normal">
+              <InputLabel>Gender</InputLabel>
+              <Select
+                value={editProfile?.gender || ""}
+                onChange={(e) =>
+                  setEditProfile({ ...editProfile, gender: e.target.value })
+                }
+              >
+                <MenuItem value="">Select Gender</MenuItem>
+                {genders.map((gender) => (
+                  <MenuItem key={gender} value={gender}>
+                    {gender}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+            <FormControl fullWidth margin="normal">
+              <InputLabel>Category</InputLabel>
+              <Select
+                value={editProfile?.category || ""}
+                onChange={(e) =>
+                  setEditProfile({ ...editProfile, category: e.target.value })
+                }
+              >
+                <MenuItem value="">Select Category</MenuItem>
+                {categories.map((category) => (
+                  <MenuItem key={category} value={category}>
+                    {category}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+            <TextField
+              label="CGPA"
+              type="number"
+              fullWidth
+              margin="normal"
+              value={editProfile?.cgpa || ""}
+              onChange={(e) =>
+                setEditProfile({ ...editProfile, cgpa: e.target.value })
+              }
+              inputProps={{ step: "0.01", min: "0", max: "10" }}
+            />
+            <TextField
+              label="Active Backlogs Count"
+              fullWidth
+              margin="normal"
+              value={editProfile?.activeBacklogCount || ""}
+              onChange={(e) =>
+                setEditProfile({
+                  ...editProfile,
+                  activeBacklogCount: e.target.value,
+                })
+              }
+            />
+
+            <TextField
+              label="10th Percentage"
+              fullWidth
+              margin="normal"
+              value={editProfile?.Xth || ""}
+              onChange={(e) =>
+                setEditProfile({ ...editProfile, Xth: e.target.value })
+              }
+            />
+            <TextField
+              label="12th Percentage"
+              fullWidth
+              margin="normal"
+              value={editProfile?.XIIth || ""}
+              onChange={(e) =>
+                setEditProfile({ ...editProfile, XIIth: e.target.value })
+              }
+            />
+            {/* Status Information */}
+            <FormControl fullWidth margin="normal">
+              <InputLabel>Internship Status</InputLabel>
+              <Select
+                value={editProfile?.internshipstatus || "No Intern"}
+                onChange={(e) =>
+                  setEditProfile({
+                    ...editProfile,
+                    internshipstatus: e.target.value,
+                  })
+                }
+              >
+                {internshipStatuses.map((status) => (
+                  <MenuItem key={status} value={status}>
+                    {status}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+            <FormControl fullWidth margin="normal">
+              <InputLabel>Placement Status</InputLabel>
+              <Select
+                value={editProfile?.placementstatus || "Not Placed"}
+                onChange={(e) =>
+                  setEditProfile({
+                    ...editProfile,
+                    placementstatus: e.target.value,
+                  })
+                }
+              >
+                {placementStatuses.map((status) => (
+                  <MenuItem key={status} value={status}>
+                    {status}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+
+            {/* Address */}
+            <TextField
+              label="Address"
+              fullWidth
+              margin="normal"
+              multiline
+              rows={2}
+              value={editProfile?.address || ""}
+              onChange={(e) =>
+                setEditProfile({ ...editProfile, address: e.target.value })
+              }
+            />
+
+            {/* Toggle Switches */}
+            <div className="col-span-1 md:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-4">
+              <FormControlLabel
+                control={
+                  <Switch
+                    checked={editProfile?.active_backlogs || false}
+                    onChange={(e) =>
+                      setEditProfile({
+                        ...editProfile,
+                        active_backlogs: e.target.checked,
+                      })
+                    }
+                    color="primary"
+                  />
+                }
+                label="Active Backlogs"
+              />
+              <FormControlLabel
+                control={
+                  <Switch
+                    checked={editProfile?.backlogs_history || false}
+                    onChange={(e) =>
+                      setEditProfile({
+                        ...editProfile,
+                        backlogs_history: e.target.checked,
+                      })
+                    }
+                    color="primary"
+                  />
+                }
+                label="Backlogs History"
+              />
+              <FormControlLabel
+                control={
+                  <Switch
+                    checked={editProfile?.debarred || false}
+                    onChange={(e) =>
+                      setEditProfile({
+                        ...editProfile,
+                        debarred: e.target.checked,
+                      })
+                    }
+                    color="primary"
+                  />
+                }
+                label="Debarred"
+              />
+              <FormControlLabel
+                control={
+                  <Switch
+                    checked={editProfile?.disability || false}
+                    onChange={(e) =>
+                      setEditProfile({
+                        ...editProfile,
+                        disability: e.target.checked,
+                      })
+                    }
+                    color="primary"
+                  />
+                }
+                label="Disability"
+              />
+              <FormControlLabel
+                control={
+                  <Switch
+                    checked={editProfile?.isInterested || false}
+                    onChange={(e) =>
+                      setEditProfile({
+                        ...editProfile,
+                        isInterested: e.target.checked,
+                      })
+                    }
+                    color="primary"
+                  />
+                }
+                label="Interested in Placement"
+              />
+              <FormControlLabel
+                control={
+                  <Switch
+                    checked={editProfile?.account_deactivate || false}
+                    onChange={(e) =>
+                      setEditProfile({
+                        ...editProfile,
+                        account_deactivate: e.target.checked,
+                      })
+                    }
+                    color="primary"
+                  />
+                }
+                label="Account Deactivated"
+              />
+            </div>
+
+            {/* Image URL */}
+            <TextField
+              label="Profile Image URL"
+              fullWidth
+              margin="normal"
+              className="col-span-1 md:col-span-2"
+              value={editProfile?.image || ""}
+              onChange={(e) =>
+                setEditProfile({ ...editProfile, image: e.target.value })
+              }
+              helperText="Enter the URL for the student's profile image"
+            />
+            <TextField
+              label="LinkedIn URL"
+              fullWidth
+              margin="normal"
+              className="col-span-1 md:col-span-2"
+              value={editProfile?.linkedin || ""}
+              onChange={(e) =>
+                setEditProfile({ ...editProfile, linkedin: e.target.value })
+              }
+              helperText="Enter the LinkedIn profile URL"
+            />
+          </div>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setOpenEditDialog(false)} color="secondary">
+            Cancel
+          </Button>
+          <Button onClick={handleSave} color="primary">
+            {editProfile?._id ? "Update" : "Add"}
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      {showUpdateModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-40 flex justify-center items-center">
+          <div className="bg-white p-6 rounded w-[500px]">
+            <h2 className="text-lg font-semibold mb-4">
+              Existing Students Found
+            </h2>
+
+            <ul className="max-h-40 overflow-auto text-sm mb-4">
+              {existingStudents.map((s) => (
+                <li key={s.rollno}>
+                  {s.rollno} - {s.name}
+                </li>
+              ))}
+            </ul>
+
+            <div className="flex justify-end gap-3">
+              <button
+                onClick={() => setShowUpdateModal(false)}
+                className="px-3 py-1 border rounded"
+              >
+                Skip
+              </button>
+
+              <button
+                onClick={handleUpdateExisting}
+                disabled={updatingExisting}
+                className={`px-3 py-1 rounded text-white ${
+                  updatingExisting
+                    ? "bg-gray-400 cursor-not-allowed"
+                    : "bg-green-600 hover:bg-green-700"
+                }`}
+              >
+                {updatingExisting ? "Modifying..." : "Modify Existing"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showExcelPreviewModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
+          <div className="bg-white w-[90%] max-w-6xl max-h-[85vh] rounded-lg shadow-lg flex flex-col">
+            {/* HEADER */}
+            <div className="flex justify-between items-center px-4 py-3 border-b">
+              <h3 className="text-lg font-semibold">
+                Excel Preview ({excelPreviewData.length} rows)
+              </h3>
+              <button
+                onClick={() => {
+                  setShowExcelPreviewModal(false);
+                  setExcelPreviewData([]);
+                  setExcelFile(null);
+                  setIsExcelReady(false);
+                }}
+                className="text-gray-600 hover:text-black"
+              >
+                <X size={22} />
+              </button>
+            </div>
+
+            {/* TABLE */}
+            <div className="overflow-auto p-4">
+              <table className="w-full text-sm border">
+                <thead className="bg-gray-100 sticky top-0">
+                  <tr>
+                    {excelPreviewData.length > 0 &&
+                      Object.keys(excelPreviewData[0]).map((key) => (
+                        <th key={key} className="border px-2 py-1 text-left">
+                          {key}
+                        </th>
+                      ))}
+                  </tr>
+                </thead>
+
+                <tbody>
+                  {excelPreviewData.map((row, idx) => {
+                    const isDuplicate =
+                      excelPreviewData.filter(
+                        (r) => String(r.rollno) === String(row.rollno),
+                      ).length > 1;
+
+                    return (
+                      <tr key={idx} className={isDuplicate ? "bg-red-100" : ""}>
+                        {Object.keys(excelPreviewData[0]).map((key) => (
+                          <td key={key} className="border px-2 py-1">
+                            {row[key]}
+                          </td>
+                        ))}
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+
+            {/* FOOTER */}
+            <div className="flex justify-end gap-3 px-4 py-3 border-t">
+              <button
+                onClick={() => setShowExcelPreviewModal(false)}
+                className="px-4 py-2 border rounded"
+              >
+                Cancel
+              </button>
+
+              <button
+                onClick={handleExcelUpload}
+                disabled={uploadingExcel}
+                className={`px-4 py-2 rounded text-white ${
+                  uploadingExcel
+                    ? "bg-gray-400"
+                    : "bg-green-600 hover:bg-green-700"
+                }`}
+              >
+                {uploadingExcel ? "Uploading..." : "Upload Students"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
