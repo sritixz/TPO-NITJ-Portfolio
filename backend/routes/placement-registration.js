@@ -10,12 +10,24 @@ import {
 } from '../controller/placement-registration.js';
 
 import { restrictTo } from "../utils/restrict.js";
+import Student from '../models/user_model/student.js';
 
 const router = express.Router();
 
-router.get('/join-whatsapp', (req, res) => {
-  const whatsappUrl = "https://chat.whatsapp.com/HfRgPTJE2tSGNZ2i6YBJd8";
-  return res.redirect(302, whatsappUrl);
+router.get('/join-whatsapp', async (req, res) => {
+  const id = req.user.userId
+  const response = await Student.findById(id)
+  // console.log(response)
+  if(response.batch === '2027' && response.course === 'B.Tech')
+  {
+    const whatsappUrl = "https://chat.whatsapp.com/BHgx4igkwVgDvlNyxCncQ8";
+    return res.redirect(302, whatsappUrl);
+  }
+  if(response.batch === '2028' && response.course === 'B.Tech')
+  {
+    const whatsappUrl = "https://chat.whatsapp.com/C7YBBdtWK4hGWZkLw0EtI6";
+    return res.redirect(302, whatsappUrl);
+  }
 });
 
 
