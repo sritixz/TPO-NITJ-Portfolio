@@ -56,14 +56,16 @@ import outsourceInternshipAuthRoutes from "./routes/outsource-internship-auth.js
 import companyFeedbackroutes from "./routes/companyFeedback.js"
 import resumeRoutes from "./routes/presumeZip.js"
 import eventAnnouncementRoutes from "./routes/eventAnnouncement.js";
+import facultyRoutes from "./routes/faculty.js";
 import { 
   getEventAnnouncements, 
-  createEventAnnouncement, updateEventAnnouncement, deleteEventAnnouncement,
+  createEventAnnouncement, 
+  updateEventAnnouncement, 
+  deleteEventAnnouncement,
   upload 
 } from './controller/EventAnnouncement.js';
 import hardRefreshERPDataRoutes from "./routes/hardRefreshERPData.js"
 import messageRoutes from "./routes/admin/messagesHeadAdmin.js";
-
 
 
 import studentsuggestionroute from "./routes/studentsuggestionroute.js";
@@ -156,12 +158,17 @@ app.use('/conversations',authenticate, restrictTo('Professor'),logMiddleware, co
 app.use('/nodemailer',authenticate, restrictTo('Professor'),logMiddleware, nodemailerRoutes);
 app.use('/add-recruiter', authenticate,restrictTo('Professor'),logMiddleware, addRecruiterRoutes);
 app.use('/cgpa-checker',authenticate, restrictTo('Professor'),logMiddleware, cgpaCheckerRoutes);
-app.use('/insight',authenticate, restrictTo('Professor','Student'),logMiddleware, insightRoutes);
+app.use('/insight', authenticate, restrictTo('Professor', 'Student', 'Faculty'), logMiddleware, insightRoutes);
 app.use('/psuggestions',authenticate,restrictTo('Professor'),logMiddleware,professorsuggestionroute);
 app.use("/api/resumes", authenticate,restrictTo('Professor'),logMiddleware, resumeRoutes);
 app.use("/hardRefreshERPData",authenticate,restrictTo('Professor'),logMiddleware, hardRefreshERPDataRoutes)
+
 //Admin routes
 app.use('/admin',authenticate,restrictTo('Admin'),logMiddleware,adminRoutes);
+
+//Faculty Routes
+app.use('/faculty', authenticate, restrictTo('Faculty'), logMiddleware, facultyRoutes);
+
 
 //Protected and restricted inside sub-routes
 app.use('/pplacementReport',authenticate, logMiddleware, pplacementReportroutes);
@@ -180,9 +187,8 @@ app.use('/admin/student-documents',authenticate, logMiddleware,studentDocumentsR
 app.use('/admin/outsider-documents',authenticate, logMiddleware,outsiderDocumentsRoutes);
 app.use("/job-events",authenticate, logMiddleware, jobEventroutes);
 app.use("/travel-planner",authenticate, logMiddleware,travelplannerRoutes);
-app.use("/placement-registration",authenticate, logMiddleware, placementRegistrationRoutes);
-app.use('/placement-calendar',authenticate,logMiddleware, placementCalendarRoutes);
-
+app.use("/placement-registration", authenticate, logMiddleware, placementRegistrationRoutes);
+app.use('/placement-calendar', authenticate, logMiddleware, placementCalendarRoutes);
 //mix routes
 app.use('/notification',authenticate,restrictTo('Student','Professor'),logMiddleware,notificationRoutes);
 app.use('/events',authenticate,restrictTo('Professor','Department','Admin'),logMiddleware,eventRoutes);

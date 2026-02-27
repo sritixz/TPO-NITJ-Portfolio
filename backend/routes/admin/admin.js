@@ -1,10 +1,11 @@
 import express from "express";
 const router = express.Router();
 
+import SummerIntern from "../../models/summer_internship.js";
 import multer from "multer";
 import path from "path";
 import fs from "fs";
-
+import { getAllSummerInternTrackers, removeStudentFromTracker } from "../../controller/Admin/summer_intern_tracker.js";
 import {
   addJobProfile,
   getAllJobProfiles,
@@ -26,8 +27,7 @@ import {
   deleteProfessorProfiles,
   addNewProfessor,
   getProfessorById,
-// <<<<<<< HEAD:backend/routes/admin.js
-   getJobProfileDetails,
+  getJobProfileDetails,
   addAppliedStudent,
   removeAppliedStudent,
   addFinalShortlisted,
@@ -36,8 +36,8 @@ import {
   bulkUpdatePlacementInterest,
 // } from "../controller/admin.js";
 // =======
+  getDatabaseRecords,
 } from "../../controller/admin.js";
-// >>>>>>> upstream/main:backend/routes/admin/admin.js
 
 import {
   getAllDepartments,
@@ -46,6 +46,16 @@ import {
   addNewDepartment,
   getDepartmentById,
 } from "../../controller/Admin/Department.js";
+
+// Re-integrated your Faculty logic imports
+import { 
+  getAllFaculties, 
+  addNewFaculty, 
+  updateFacultyProfile, 
+  deleteFacultyProfiles,
+  uploadFacultiesExcel, 
+  updateExistingFaculties 
+} from "../../controller/Admin/Faculty.js";
 
 import {
   getAllDevelopers,
@@ -136,7 +146,11 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage });
 
-//job profile routes
+// Re-added your memory storage for Faculty Excel uploads
+const excelMemoryStorage = multer.memoryStorage();
+const uploadExcelMemory = multer({ storage: excelMemoryStorage });
+
+// Job profile routes
 router.post("/jobprofiles", addJobProfile);
 router.get("/jobprofiles", getAllJobProfiles);
 router.put("/jobprofiles/:id", updateJobProfile);
@@ -144,6 +158,7 @@ router.delete("/jobprofiles/:id", deleteJobProfile);
 router.post("/jobprofiles/bulk-delete", bulkDeleteJobProfiles);
 router.put("/jobprofiles/:id/toggle-visibility", toggleJobProfileVisibility);
 
+// Sir's latest Job Profile management routes
 router.get("/jobprofiles/:id/details",  getJobProfileDetails);
 router.post("/jobprofiles/:id/applied/add",  addAppliedStudent);
 router.delete("/jobprofiles/:id/applied/remove",  removeAppliedStudent);
@@ -151,8 +166,7 @@ router.post("/jobprofiles/:id/final/add",  addFinalShortlisted);
 router.delete("/jobprofiles/:id/final/remove",  removeFinalShortlisted);
 router.post("/jobprofiles/move-forward",  moveStudentForward);
 
-//student profile routes
-
+// Student profile routes
 router.get("/students", getAllStudents);
 router.put("/students/:id", updateStudentProfile);
 router.post("/students", addNewStudent);
@@ -163,38 +177,52 @@ router.post(
   uploadExcel.single("file"),
   uploadStudentsExcel
 );
-
 router.put("/students/excel/update-existing", updateExistingStudents);
+// Sir's latest Placement Interest route
 router.put("/students/placementInterest/update", bulkUpdatePlacementInterest);
 
-//recruiter profile routes
+// Recruiter profile routes
 router.get("/recruiters", getAllRecruiters);
 router.put("/recruiters/:id", updateRecruiterProfile);
 router.post("/recruiters", addNewRecruiter);
 router.delete("/recruiters", deleteRecruiterProfiles);
-//professor profile routes
+
+// Professor profile routes
 router.get("/professors", getAllProfessors);
 router.put("/professors/:id", updateProfessorProfile);
 router.post("/professors", addNewProfessor);
 router.delete("/professors", deleteProfessorProfiles);
 router.get("/professors/:id", getProfessorById);
-//department profile routes
+
+// Re-integrated your Faculty Management Routes
+router.get("/faculties", getAllFaculties);
+router.post("/faculties", addNewFaculty);
+router.put("/faculties/:id", updateFacultyProfile);
+router.delete("/faculties", deleteFacultyProfiles);
+router.post(
+  "/faculties/excel/upload-excel", 
+  uploadExcelMemory.single("file"), 
+  uploadFacultiesExcel
+);
+router.put("/faculties/excel/update-existing", updateExistingFaculties);
+
+// Department profile routes
 router.get("/departments", getAllDepartments);
 router.put("/departments/:id", updateDepartmentProfile);
 router.delete("/departments", deleteDepartmentProfiles);
 router.post("/departments", addNewDepartment);
 router.get("/departments/:id", getDepartmentById);
 
-//developer profile routes
+// Developer profile routes
 router.get("/devteam", getAllDevelopers);
 router.put("/devteam/:id", upload.single("imageFile"), updateDeveloperProfile);
 router.delete("/devteam", deleteDeveloperProfiles);
 router.post("/devteam", upload.single("imageFile"), addNewDeveloper);
 
-//logs routes
+// Logs routes
 router.get("/getlogs", getLogs);
 
-//login attempt
+// Login attempt
 router.post("/loginattempts/", addLoginAttempt);
 router.get("/loginattempts/", getLoginAttempts);
 router.get("/loginattempts/:id", getLoginAttempt);
@@ -202,7 +230,7 @@ router.put("/loginattempts/:id", updateLoginAttempt);
 router.delete("/loginattempts/:id", deleteLoginAttempt);
 router.post("/loginattempts/bulk-delete", deleteBulkLoginAttempts);
 
-//offer tracker
+// Offer tracker
 router.post("/offertracker/", addOfferTracker);
 router.get("/offertracker/", getOfferTrackers);
 router.get("/offertracker/:id", getOfferTrackerbyId);
@@ -212,7 +240,7 @@ router.delete("/offertracker/:id/offer/:index", deleteSpecificOffer);
 router.delete("/offertracker/:id", deleteOfferTracker);
 router.post("/offertracker/bulk-delete", deleteBulkOfferTrackers);
 
-//offer
+// Offer
 router.post("/offers/", addOffer);
 router.get("/offers/", getOffers);
 router.get("/offers/:id", getOffer);
@@ -223,14 +251,14 @@ router.post("/offers/:offerId/add-student", addStudentToOffer);
 router.put("/offers/:offerId/student/:studentId", updateStudentInOffer);
 router.delete("/offers/:offerId/student/:studentId", deleteStudentFromOffer);
 
-//alert
+// Alert
 router.post("/alert/", createAlert);
 router.get("/alert/", getAllAlerts);
 router.get("/alert/active", getActiveAlerts);
 router.put("/alert/:id", updateAlert);
 router.delete("/alert/:id", deleteAlert);
 
-//placement calendar
+// Placement calendar
 router.post("/placement-calendar/", createPlacementCalendar);
 router.get("/placement-calendar/", getAllPlacementCalendars);
 router.get("/placement-calendar/filter", getUpcomingOrPastCalendars);
@@ -244,7 +272,7 @@ router.delete(
   removeCompanyFromCalendar
 );
 
-// placement registration
+// Placement registration
 router.post("/placement-registration/", createPlacementRegistration);
 router.get("/placement-registration/", getAllPlacementRegistrations);
 router.get("/placement-registration/:id", getPlacementRegistrationById);
@@ -256,6 +284,82 @@ router.delete(
 );
 
 
-//erpData
-router.get("/erp/student", getERPData)
+//summerInterntracker
+
+router.get("/summerInternTracker", getAllSummerInternTrackers);
+router.delete("/summerInternTracker/:docId/student/:studentId", removeStudentFromTracker);
+
+
+//summer Intern
+/* ================= GET ALL ================= */
+router.get("/summerIntern", async (req, res) => {
+  const data = await SummerIntern.find().lean();
+  res.json(data);
+});
+
+/* ================= GET SINGLE ================= */
+router.get("/summerIntern/:id", async (req, res) => {
+  const data = await SummerIntern.findById(req.params.id).lean();
+  res.json(data);
+});
+
+/* ================= CREATE ================= */
+router.post("/summerIntern", async (req, res) => {
+  const intern = await SummerIntern.create(req.body);
+  res.json(intern);
+});
+
+/* ================= UPDATE VISIBILITY ================= */
+router.put("/summerIntern/:id", async (req, res) => {
+  const updated = await SummerIntern.findByIdAndUpdate(
+    req.params.id,
+    req.body,
+    { new: true }
+  );
+  res.json(updated);
+});
+
+/* ================= DELETE WHOLE INTERN OFFER ================= */
+router.delete("/summerIntern/:id", async (req, res) => {
+  await SummerIntern.findByIdAndDelete(req.params.id);
+  res.json({ message: "Summer Intern Offer Deleted" });
+});
+
+/* ================= ADD STUDENT ================= */
+router.post("/summerIntern/:id/add-student", async (req, res) => {
+  const intern = await SummerIntern.findById(req.params.id);
+  intern.shortlisted_students.push(req.body);
+  await intern.save();
+  res.json(intern);
+});
+
+/* ================= UPDATE STUDENT ================= */
+router.put("/summerIntern/:id/student/:studentId", async (req, res) => {
+  const intern = await SummerIntern.findById(req.params.id);
+
+  const student = intern.shortlisted_students.id(req.params.studentId);
+  Object.assign(student, req.body);
+
+  await intern.save();
+  res.json(intern);
+});
+
+/* ================= DELETE PARTICULAR STUDENT ================= */
+router.delete("/summerIntern/:id/student/:studentId", async (req, res) => {
+  const intern = await SummerIntern.findById(req.params.id);
+
+  intern.shortlisted_students =
+    intern.shortlisted_students.filter(
+      (s) => s._id.toString() !== req.params.studentId
+    );
+
+  await intern.save();
+  res.json({ message: "Student Removed" });
+});
+
+
+router.get("/database/:collectionName/", getDatabaseRecords);
+// ERP Data route (Sir's latest)
+router.get("/erp/student", getERPData);
+
 export default router;

@@ -30,6 +30,7 @@ import AdminJobProfileManager from "./jobprofiles";
 import StudentManager from "./students";
 import RecruiterManager from "./recruiter";
 import ProfessorManager from "./professor";
+import FacultyManager from "./faculty";
 import BrochureManager from "./brochure";
 import DepartmentManager from "./department";
 import DevteamManager from "./team";
@@ -44,6 +45,9 @@ import PlacementCalendarManager from "./placement-calendar";
 import PlacementRegistrationAdmin from "./placement-registration";
 import OutsiderDocumentManager from "./documentOutsider";
 import ERPStudentDashboard from "./erpDataStudent";
+import Database from "./database";
+import SummerInternTracker from "./summerinterntracker";
+import SummerIntern from "./summerIntern";
 
 const Admindashboard = () => {
   const [isMobile, setIsMobile] = useState(false);
@@ -92,6 +96,7 @@ const Admindashboard = () => {
     { label: "Recruiter Management", icon: faUserTie, path: "/admindashboard/recruiters" },
     { label: "Student Management", icon: faChild, path: "/admindashboard/students" },
     { label: "Professor Management", icon: faPersonChalkboard, path: "/admindashboard/professor" },
+    { label: "Faculty Management", icon: faPersonChalkboard, path: "/admindashboard/faculty" },
     { label: "Department Management", icon: faBuilding, path: "/admindashboard/department" },
     { label: "Brochure Management", icon: faBriefcase, path: "/admindashboard/brochure" },
     { label: "Devteam Management", icon: faCode, path: "/admindashboard/devteam" },
@@ -99,11 +104,14 @@ const Admindashboard = () => {
     { label: "Student Documents", icon: faBriefcase, path: "/admindashboard/student-documents" },
     { label: "Outsider Documents", icon: faBriefcase, path: "/admindashboard/outsider-documents" },
     { label: "Placement Registration", icon: faBriefcase, path: "/admindashboard/placement-registration" },
+    { label: "Database", icon : faDatabase, path: "/admindashboard/database" },
     { label: "Alerts", icon: faBriefcase, path: "/admindashboard/alerts" },
     {label: "Logs", icon: faCode, path:"/admindashboard/logs"},
     {label: "Login Attempts", icon: faRightToBracket, path:"/admindashboard/login-attempt"},
     {label: "Offer", icon: faGift, path:"/admindashboard/offer"},
     {label: "Offer Tracker", icon: faClipboardList, path:"/admindashboard/offer-tracker"},
+    {label: "Summer Intern", icon: faClipboardList, path:"/admindashboard/summerintern"},
+    {label: "Summer Intern Tracker", icon: faClipboardList, path:"/admindashboard/summerintern-tracker"},
     {label: "ERP Data", icon: faDatabase, path:"/admindashboard/erpData"},
 
     // {label: "Placement Calendar", icon: faClipboardList, path:"/admindashboard/placement-calendar"},
@@ -286,6 +294,7 @@ const Admindashboard = () => {
             <Route path="/students" element={<StudentManager />} />
             <Route path="/recruiters" element={<RecruiterManager />} />
             <Route path="/professor" element={<ProfessorManager />} />
+            <Route path="/faculty" element={<FacultyManager />} />
             <Route path="/department" element={<DepartmentManager/>} />
             <Route path="/brochure" element={<BrochureManager />} />
             <Route path="/devteam" element={<DevteamManager />} />
@@ -298,8 +307,11 @@ const Admindashboard = () => {
             <Route path="/login-attempt" element={<LoginAttempts />} />
             <Route path="/offer" element={<Offer />} />
             <Route path="/offer-tracker" element={<OfferTracker />} />
+            <Route path="/summerintern-tracker" element={<SummerInternTracker />} />
+            <Route path="/summerintern" element={<SummerIntern />} />
             <Route path="/placement-calendar" element={<PlacementCalendarManager />} />
             <Route path="/erpData" element={<ERPStudentDashboard/>} />
+            <Route path="/database" element={<Database/>}/>
             </Routes>
         </div>
 

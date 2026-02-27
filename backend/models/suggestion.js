@@ -6,6 +6,10 @@ const SuggestionSchema=new mongoose.Schema({
     ref:"Student",
     // required:true,
     },
+    faculty_id: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Faculty", 
+    },
     company_name:{
         type:String,
         // required: true,
