@@ -2932,7 +2932,67 @@ const ViewJobDetails = ({ job, onClose, oneditingAllowedUpdate }) => {
       </div>
     );
   };
-
+ const renderAttachments = () => {
+    return (
+      <div className="space-y-6">
+        {editedJob.attachments.length > 0 ? (
+          <ul className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {editedJob.attachments.map((attachment, index) => (
+              <li
+                key={index}
+                className="p-4 bg-gray-50 border border-gray-200 rounded-xl shadow-sm hover:shadow-md transition-shadow duration-300 flex items-center justify-between"
+              >
+                <div className="flex items-center space-x-3">
+                  <FileText className="h-6 w-6 text-custom-blue" />
+                  <a
+                    href={`${import.meta.env.REACT_APP_BASE_URL}${attachment.url}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-gray-700 hover:text-gray-900 font-medium truncate max-w-xs"
+                  >
+                    {attachment.name || `Attachment ${index + 1}`}
+                  </a>
+                </div>
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <button
+                        onClick={() => handleRemoveAttachment(index)}
+                        className="p-2 text-red-600 hover:text-red-800 hover:bg-red-100 rounded-full transition-colors"
+                      >
+                        <Trash2 className="h-5 w-5" />
+                      </button>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>Remove attachment</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <p className="text-gray-500 text-center">No attachments uploaded yet.</p>
+        )}
+        <div className="flex justify-center mt-6">
+          <label
+            htmlFor="attachment-upload"
+            className="bg-gradient-to-r from-blue-900 to-blue-700 text-white px-6 py-3 rounded-2xl hover:from-blue-600 hover:to-blue-700 focus:outline-none focus:ring-4 focus:ring-blue-500 focus:ring-offset-2 transition-all duration-300 transform hover:scale-105 active:scale-95 shadow-lg hover:shadow-xl cursor-pointer flex items-center space-x-2"
+          >
+            <Upload className="h-5 w-5" />
+            <span>Upload Attachments</span>
+          </label>
+          <input
+            id="attachment-upload"
+            type="file"
+            multiple
+            onChange={handleUploadAttachment}
+            className="hidden"
+          />
+        </div>
+      </div>
+    );
+  };
 
 
   const renderEditableCard = (title, content, section) => (
@@ -3409,11 +3469,12 @@ const ViewJobDetails = ({ job, onClose, oneditingAllowedUpdate }) => {
             </TooltipProvider>
           </div>
         </div>
+        
         {renderEditableCard("Basic Details", renderBasicDetails(), "basic")}
-        {/* <div className="p-8 bg-white border border-gray-200 rounded-2xl shadow-lg hover:shadow-xl transition-shadow duration-300 relative mt-8">
+         <div className="p-8 bg-white border border-gray-200 rounded-2xl shadow-lg hover:shadow-xl transition-shadow duration-300 relative mt-8">
           <h3 className="text-2xl font-semibold text-custom-blue mb-6">Attachments</h3>
           {renderAttachments()}
-        </div> */}
+        </div> 
         {renderEditableCard("Salary Details", renderSalaryDetails(), "salary")}
         {renderEditableCard(
           "Eligibility Criteria",
