@@ -1,10 +1,11 @@
 import express from "express";
 const router = express.Router();
 
+import SummerIntern from "../../models/summer_internship.js";
 import multer from "multer";
 import path from "path";
 import fs from "fs";
-
+import { getAllSummerInternTrackers, removeStudentFromTracker } from "../../controller/Admin/summer_intern_tracker.js";
 import {
   addJobProfile,
   getAllJobProfiles,
@@ -33,6 +34,9 @@ import {
   removeFinalShortlisted,
   moveStudentForward,
   bulkUpdatePlacementInterest,
+// } from "../controller/admin.js";
+// =======
+  getDatabaseRecords,
 } from "../../controller/admin.js";
 
 import {
@@ -279,6 +283,82 @@ router.delete(
   deleteManyPlacementRegistrations
 );
 
+
+//summerInterntracker
+
+router.get("/summerInternTracker", getAllSummerInternTrackers);
+router.delete("/summerInternTracker/:docId/student/:studentId", removeStudentFromTracker);
+
+
+//summer Intern
+/* ================= GET ALL ================= */
+router.get("/summerIntern", async (req, res) => {
+  const data = await SummerIntern.find().lean();
+  res.json(data);
+});
+
+/* ================= GET SINGLE ================= */
+router.get("/summerIntern/:id", async (req, res) => {
+  const data = await SummerIntern.findById(req.params.id).lean();
+  res.json(data);
+});
+
+/* ================= CREATE ================= */
+router.post("/summerIntern", async (req, res) => {
+  const intern = await SummerIntern.create(req.body);
+  res.json(intern);
+});
+
+/* ================= UPDATE VISIBILITY ================= */
+router.put("/summerIntern/:id", async (req, res) => {
+  const updated = await SummerIntern.findByIdAndUpdate(
+    req.params.id,
+    req.body,
+    { new: true }
+  );
+  res.json(updated);
+});
+
+/* ================= DELETE WHOLE INTERN OFFER ================= */
+router.delete("/summerIntern/:id", async (req, res) => {
+  await SummerIntern.findByIdAndDelete(req.params.id);
+  res.json({ message: "Summer Intern Offer Deleted" });
+});
+
+/* ================= ADD STUDENT ================= */
+router.post("/summerIntern/:id/add-student", async (req, res) => {
+  const intern = await SummerIntern.findById(req.params.id);
+  intern.shortlisted_students.push(req.body);
+  await intern.save();
+  res.json(intern);
+});
+
+/* ================= UPDATE STUDENT ================= */
+router.put("/summerIntern/:id/student/:studentId", async (req, res) => {
+  const intern = await SummerIntern.findById(req.params.id);
+
+  const student = intern.shortlisted_students.id(req.params.studentId);
+  Object.assign(student, req.body);
+
+  await intern.save();
+  res.json(intern);
+});
+
+/* ================= DELETE PARTICULAR STUDENT ================= */
+router.delete("/summerIntern/:id/student/:studentId", async (req, res) => {
+  const intern = await SummerIntern.findById(req.params.id);
+
+  intern.shortlisted_students =
+    intern.shortlisted_students.filter(
+      (s) => s._id.toString() !== req.params.studentId
+    );
+
+  await intern.save();
+  res.json({ message: "Student Removed" });
+});
+
+
+router.get("/database/:collectionName/", getDatabaseRecords);
 // ERP Data route (Sir's latest)
 router.get("/erp/student", getERPData);
 

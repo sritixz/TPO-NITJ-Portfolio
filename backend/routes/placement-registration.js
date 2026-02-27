@@ -38,7 +38,7 @@ router.get('/checkopen', restrictTo('Student','Professor'), checkopen);
 
 router.get('/check', restrictTo('Student'), checkStudentPlacementRegistration);
 
-router.get('/export', restrictTo('Professor'), getPlacementRegistrationExportData);
+router.get('/export', restrictTo('Professor', 'Faculty'), getPlacementRegistrationExportData);
 
 router.post('/', restrictTo('Student'), createPlacementRegistration);
 router.put('/edit', restrictTo('Student'), editPlacementRegistration);
