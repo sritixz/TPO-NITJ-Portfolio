@@ -16,6 +16,6 @@ router.put("/:date/edit", restrictTo('Professor'), editCompanyProcess); // Edit 
 router.put("/:date/dayStatus", restrictTo('Professor'),  setDayStatus ); // Edit one company process
 router.delete("/:date/company/:companyId", restrictTo('Professor'), deleteCompanyProcess); // Delete one company process
 router.delete("/:date/all", restrictTo('Professor'), deleteAllCompanyProcesses); // Delete all company processes of a date
-router.get("/:month/:year", restrictTo('Professor','Student'), getPlacementsByMonth); // Fetch by month & year
+router.get("/:month/:year", restrictTo('Professor','Student', 'Faculty'), getPlacementsByMonth); // Fetch by month & year
 
 export default router;

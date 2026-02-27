@@ -87,6 +87,15 @@ const NavigationCards = () => {
       iconColor: 'text-orange-600'
     },
     // {
+    //   id: 9,
+    //   title: 'IR/PR Application',
+    //   description: 'Please provide the company details you would like to invite for campus recruitment.',
+    //   icon: Lightbulb,
+    //   path: '/sdashboard/representativeApplication',
+    //   color: 'bg-orange-50',
+    //   iconColor: 'text-orange-600'
+    // },
+    // {
     // id: 8,
     // title: 'Fine Payment',
     // description: 'Pay your fine and track your payment status.',
