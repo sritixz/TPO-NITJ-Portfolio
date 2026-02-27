@@ -1,5 +1,6 @@
 import Recuiter from "../models/user_model/recuiter.js";
 import Professor from "../models/user_model/professor.js";
+import Faculty from "../models/user_model/faculty.js"; 
 import Student from "../models/user_model/student.js";
 import Alumni from "../models/user_model/alumni.js";
 import Admin from "../models/user_model/admin.js";
@@ -30,7 +31,8 @@ export const sendResetPasswordOtp = async (req, res) => {
     (await Recuiter.findOne({ email })) ||
     (await Professor.findOne({ email })) ||
     (await Alumni.findOne({ email })) ||
-    (await Admin.findOne({ email }));
+    (await Admin.findOne({ email }))||
+    (await Faculty.findOne({ email }));
 
   if (!user)
     return res.status(401).json({ message: "Email is not registered" });
@@ -122,7 +124,8 @@ export const verifyResetPasswordOtp = async (req, res) => {
     (await Recuiter.findOne({ email })) ||
     (await Professor.findOne({ email })) ||
     (await Alumni.findOne({ email })) ||
-    (await Admin.findOne({ email }));
+    (await Admin.findOne({ email })) ||
+    (await Faculty.findOne({ email }));
 
   if (!user)
     return res.status(401).json({ message: "Email is not registered" });
@@ -319,12 +322,13 @@ export const resetPassword = async (req, res) => {
     const professor = await Professor.findOne({ email });
     const alumni = await Alumni.findOne({ email });
     const admin = await Admin.findOne({ email });
+    const faculty = await Faculty.findOne({ email });
 
-    if (!student && !recuiter && !professor && !alumni && !admin) {
+    if (!student && !recuiter && !professor && !alumni && !admin && !faculty) {
       return res.status(401).json({ message: "Email is not Registered" });
     }
 
-    const user = student || recuiter || professor || alumni || admin;
+   const user = student || recuiter || professor || alumni || admin || faculty;
 
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(newPassword, salt);
@@ -440,6 +444,7 @@ export const login = async (req, res) => {
     const alumni = await Alumni.findOne({ email });
     const admin = await Admin.findOne({ email });
     const department = await Department.findOne({ email });
+    const faculty = await Faculty.findOne({ email });
 
     if (
       !student &&
@@ -448,13 +453,12 @@ export const login = async (req, res) => {
       !alumni &&
       !admin &&
       !department
+      && !faculty
     ) {
       return res.status(401).json({ message: "Email is not Registered" });
     }
 
-    const user =
-      student || recuiter || professor || alumni || admin || department;
-
+    const user = student || recuiter || professor || alumni || admin || department || faculty;
     let isPasswordValid;
     if (user.password.startsWith("$2")) {
       isPasswordValid = await bcrypt.compare(password, user.password);
@@ -464,6 +468,8 @@ export const login = async (req, res) => {
       const hashedPassword = await bcrypt.hash(user.password, salt);
       await user.updateOne({ password: hashedPassword });
     }
+
+
 
     if (!isPasswordValid) {
       if (!loginAttempt) {
@@ -596,6 +602,7 @@ export const login = async (req, res) => {
     else if (user == alumni) userType = "Alumni";
     else if (user == admin) userType = "Admin";
     else if (user == department) userType = "Department";
+    else if (user == faculty) userType = "Faculty";
 
     const token = jwt.sign(
       { userId: user._id, userType: userType },

@@ -2373,6 +2373,7 @@ const StudentManager = () => {
         <h3 className="text-lg font-semibold text-gray-800 mb-4">
           Bulk Update Placement Interest
         </h3>
+
         <div className="flex flex-col md:flex-row md:items-end gap-6">
           {/* Batch Selector */}
           <div className="flex flex-col min-w-[180px]">
