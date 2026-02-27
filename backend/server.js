@@ -187,8 +187,8 @@ app.use('/admin/student-documents',authenticate, logMiddleware,studentDocumentsR
 app.use('/admin/outsider-documents',authenticate, logMiddleware,outsiderDocumentsRoutes);
 app.use("/job-events",authenticate, logMiddleware, jobEventroutes);
 app.use("/travel-planner",authenticate, logMiddleware,travelplannerRoutes);
-app.use("/placement-registration", authenticate, restrictTo('Student', 'Professor', 'Admin', 'Faculty'), logMiddleware, placementRegistrationRoutes);
-app.use('/placement-calendar', authenticate, restrictTo('Student', 'Professor', 'Admin', 'Faculty'), logMiddleware, placementCalendarRoutes);
+app.use("/placement-registration", authenticate, logMiddleware, placementRegistrationRoutes);
+app.use('/placement-calendar', authenticate, logMiddleware, placementCalendarRoutes);
 //mix routes
 app.use('/notification',authenticate,restrictTo('Student','Professor'),logMiddleware,notificationRoutes);
 app.use('/events',authenticate,restrictTo('Professor','Department','Admin'),logMiddleware,eventRoutes);

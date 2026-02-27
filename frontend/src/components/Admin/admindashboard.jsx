@@ -46,6 +46,8 @@ import PlacementRegistrationAdmin from "./placement-registration";
 import OutsiderDocumentManager from "./documentOutsider";
 import ERPStudentDashboard from "./erpDataStudent";
 import Database from "./database";
+import SummerInternTracker from "./summerinterntracker";
+import SummerIntern from "./summerIntern";
 
 const Admindashboard = () => {
   const [isMobile, setIsMobile] = useState(false);
@@ -108,6 +110,8 @@ const Admindashboard = () => {
     {label: "Login Attempts", icon: faRightToBracket, path:"/admindashboard/login-attempt"},
     {label: "Offer", icon: faGift, path:"/admindashboard/offer"},
     {label: "Offer Tracker", icon: faClipboardList, path:"/admindashboard/offer-tracker"},
+    {label: "Summer Intern", icon: faClipboardList, path:"/admindashboard/summerintern"},
+    {label: "Summer Intern Tracker", icon: faClipboardList, path:"/admindashboard/summerintern-tracker"},
     {label: "ERP Data", icon: faDatabase, path:"/admindashboard/erpData"},
 
     // {label: "Placement Calendar", icon: faClipboardList, path:"/admindashboard/placement-calendar"},
@@ -303,6 +307,8 @@ const Admindashboard = () => {
             <Route path="/login-attempt" element={<LoginAttempts />} />
             <Route path="/offer" element={<Offer />} />
             <Route path="/offer-tracker" element={<OfferTracker />} />
+            <Route path="/summerintern-tracker" element={<SummerInternTracker />} />
+            <Route path="/summerintern" element={<SummerIntern />} />
             <Route path="/placement-calendar" element={<PlacementCalendarManager />} />
             <Route path="/erpData" element={<ERPStudentDashboard/>} />
             <Route path="/database" element={<Database/>}/>
