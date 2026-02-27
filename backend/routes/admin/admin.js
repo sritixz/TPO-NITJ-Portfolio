@@ -33,12 +33,6 @@ import {
   removeFinalShortlisted,
   moveStudentForward,
   bulkUpdatePlacementInterest,
-<<<<<<< main
-// } from "../controller/admin.js";
-// =======
-  getDatabaseRecords,
-=======
->>>>>>> main
 } from "../../controller/admin.js";
 
 import {
@@ -285,11 +279,7 @@ router.delete(
   deleteManyPlacementRegistrations
 );
 
-<<<<<<< main
-router.get("/database/:collectionName/", getDatabaseRecords);
-=======
 // ERP Data route (Sir's latest)
 router.get("/erp/student", getERPData);
->>>>>>> main
 
 export default router;
