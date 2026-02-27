@@ -218,7 +218,7 @@ const StudentManager = () => {
         : [{ name: "", email: "", rollno: "" }]; // Template if empty
 
       // If no data, export empty array with model structure as template
-      const exportData =
+       exportData =
         dataToExport.length > 0
           ? dataToExport
           : [
