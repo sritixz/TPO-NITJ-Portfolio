@@ -2,7 +2,7 @@ import express from "express";
 const router = express.Router();
 
 // Import existing controllers
-import { savesuggestions, recentsuggestions } from "../controller/suggestionController.js";
+import { savesuggestions, recentsuggestions } from "../controller/suggestioncontroller.js";
 
 // Use the restrictTo and log middleware
 import { restrictTo } from "../utils/restrict.js";

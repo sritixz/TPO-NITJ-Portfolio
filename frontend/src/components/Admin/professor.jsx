@@ -70,7 +70,7 @@ const ProfessorManager = () => {
       
       toast.success(editProfile._id ? "Professor updated successfully" : "Professor added successfully");
     } catch (error) {
-      toast.error(`Failed to ${editProfile._id ? 'update' : 'add'} professor`);
+      toast.error(`Failed to ${editProfile._id ? 'update' : 'add'} professor ${error}`);
     }
   };
 
