@@ -9,7 +9,7 @@ const representativeSchema = new mongoose.Schema(
     type: {
       type: String,
     },
-    batch: stirng,
+    batch: String,
     branch: String,
     course: String,
     activities: [
@@ -20,9 +20,19 @@ const representativeSchema = new mongoose.Schema(
       },
     ],
     sop: String,
+
+    status: {
+      type: String,
+      enum: ["draft", "submitted"],
+      default: "draft",
+    },
     declarationAccepted: {
       type: Boolean,
     },
+semester: {
+  type: Number,
+  required: true
+}
   },
   { timestamps: true },
 );

@@ -7,6 +7,8 @@ export default function ProfessorRepresentativeDashboard() {
   const [applications, setApplications] = useState([]);
   const [loading, setLoading] = useState(false);
 
+const [deadline, setDeadline] = useState("");
+const [deadlineType, setDeadlineType] = useState("Internship");
   const [filters, setFilters] = useState({
     batch: "",
     course: "",
@@ -319,11 +321,27 @@ export default function ProfessorRepresentativeDashboard() {
   // ----------------------------
   // Fetch Applications
   // ----------------------------
+  const fetchDeadline = async (type) => {
+  try {
+    const res = await axios.get(
+      `${import.meta.env.REACT_APP_BASE_URL}/api/representative/get-deadline`,
+      {
+        params: { type },
+        withCredentials: true
+      }
+    );
+
+    setDeadline(toDateLocaltime(res.data.deadline));
+
+  } catch (err) {
+    console.error(err);
+  }
+};
   const fetchApplications = async () => {
     try {
       setLoading(true);
 
-      const res = await axios.get("/api/representative/list", {
+      const res = await axios.get(`${import.meta.env.REACT_APP_BASE_URL}/api/representative/list`, {
         params: filters,
         withCredentials: true
       });
@@ -341,25 +359,110 @@ export default function ProfessorRepresentativeDashboard() {
       setLoading(false);
     }
   };
+const toDateLocaltime = (isoString) => {
+  if (!isoString) return "";
 
+  const d = new Date(isoString);
+
+  const pad = (n) => String(n).padStart(2, "0");
+
+  return (
+    d.getFullYear() +
+    "-" + pad(d.getMonth() + 1) +
+    "-" + pad(d.getDate()) +
+    "T" +
+    pad(d.getHours()) +
+    ":" +
+    pad(d.getMinutes())
+  );
+};
   useEffect(() => {
     fetchApplications();
+    fetchDeadline(deadlineType);
   }, []);
 
   // ----------------------------
   // Handlers
   // ----------------------------
+  // const handleExport = () => {
+  //   const query = new URLSearchParams(filters).toString();
+  //   window.open(`/api/representative/export?${query}`, "_blank");
+  // };
   const handleExport = () => {
-    const query = new URLSearchParams(filters).toString();
-    window.open(`/api/representative/export?${query}`, "_blank");
-  };
+  const query = new URLSearchParams(filters).toString();
 
+  window.open(
+    `${import.meta.env.REACT_APP_BASE_URL}/api/representative/export?${query}`,
+    "_blank"
+  );
+};
+const handleSetDeadline = async () => {
+  if (!deadline) {
+    alert("Select a deadline");
+    return;
+  }
+
+  try {
+   const res = await axios.post(
+      `${import.meta.env.REACT_APP_BASE_URL}/api/representative/set-deadline`,
+      {
+        type: deadlineType,
+        deadline
+      },
+      { withCredentials: true }
+    );
+    setDeadline(toDateLocaltime(res.data.deadline));
+
+// console.log("Deadline type:", deadlineType);
+    alert("Deadline updated");
+// console.log(toDateLocaltime(res.data.deadline));
+  } catch (err) {
+    alert(err.response?.data?.message || "Failed");
+  }
+};
   return (
     <div className="p-8">
       <h2 className="text-2xl font-bold mb-6">
         Representative Applications
       </h2>
+{/* ===== DEADLINE CONTROL ===== */}
+<div className="bg-yellow-50 border p-4 rounded mb-6">
+  <h3 className="font-bold mb-3">Submission Deadline</h3>
 
+  <div className="flex gap-4 items-center">
+
+    {/* Type selector */}
+    <select
+      value={deadlineType}
+      onChange={(e) => {
+        setDeadlineType(e.target.value);
+        // setDeadline(toDateLocaltime(res.data.deadline));
+        fetchDeadline(e.target.value);
+      }}
+      className="border p-2 rounded"
+    >
+      <option value="Internship">Internship</option>
+      <option value="Placement">Placement</option>
+    </select>
+
+    {/* Date + Time picker */}
+    <input
+      type="datetime-local"
+      value={deadline}
+      onChange={(e) => setDeadline(e.target.value)}
+      className="border p-2 rounded"
+    />
+
+    {/* Save button */}
+    <button
+      onClick={handleSetDeadline}
+      className="bg-red-600 text-white px-4 py-2 rounded"
+    >
+      Set / Update Deadline
+    </button>
+
+  </div>
+</div>
       {/* Filters Section */}
       <div className="grid grid-cols-4 gap-4 mb-6">
 
@@ -439,6 +542,7 @@ export default function ProfessorRepresentativeDashboard() {
               <th className="border p-2">Roll</th>
               <th className="border p-2">CGPA</th>
               <th className="border p-2">Branch</th>
+              <th className="border p-2">Semester</th>
               <th className="border p-2">Type</th>
               <th className="border p-2">PDF</th>
             </tr>
@@ -460,13 +564,14 @@ export default function ProfessorRepresentativeDashboard() {
               applications.map((app) => (
                 <tr key={app._id}>
                   <td className="border p-2">{app.student?.name}</td>
-                  <td className="border p-2">{app.student?.rollNumber}</td>
+                  <td className="border p-2">{app.student?.rollno}</td>
                   <td className="border p-2">{app.student?.cgpa}</td>
-                  <td className="border p-2">{app.branch}</td>
+                  <td className="border p-2">{app.student.department}</td>
+                  <td className="border p-2">{app.semester}</td>
                   <td className="border p-2 capitalize">{app.type}</td>
                   <td className="border p-2">
                     <a
-                      href={`/api/representative/pdf/${app._id}`}
+                      href={`${import.meta.env.REACT_APP_BASE_URL}/api/representative/pdf/${app._id}`}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="text-blue-600 underline"
