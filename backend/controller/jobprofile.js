@@ -1501,8 +1501,7 @@ export const checkEligibility = async (req, res) => {
 };
 
 export const addfinalshortlistStudent = async (req, res) => {
-  const { jobId, students } = req.body;
-
+  const { jobId, students, combinations } = req.body;
   try {
     // Validate jobId
     if (!mongoose.Types.ObjectId.isValid(jobId)) {
@@ -1514,7 +1513,69 @@ export const addfinalshortlistStudent = async (req, res) => {
     if (!job) {
       return res.status(404).json({ error: "Job not found" });
     }
+    const isNoneShortlisted = !students || students.length === 0;
 
+if (isNoneShortlisted) {
+  for (const combo of combinations) {
+    const { batch, course } = combo;
+
+    if (!batch || !course) continue;
+
+    if (course === "B.Tech" && batch === "2027") {
+      let summerIntern = await SummerIntern.findOne({
+        jobId,
+        batch,
+        course,
+      });
+
+      if (!summerIntern) {
+        summerIntern = new SummerIntern({
+          jobId,
+          company_name: job.company_name,
+          batch,
+          course,
+          offer_mode: "On-Campus",
+          offer_sector: job.job_sector || "Private",
+          result_date: new Date(),
+          shortlisted_students: [],
+          visibility: true,
+        });
+      } else {
+        summerIntern.shortlisted_students = [];
+      }
+
+      await summerIntern.save();
+    } else {
+      let offer = await Offer.findOne({ jobId, batch, course });
+
+      if (!offer) {
+        offer = new Offer({
+          jobId,
+          company_name: job.company_name,
+          batch,
+          course,
+          offer_mode: "On-Campus",
+          offer_sector: job.job_sector || "Private",
+          result_date: new Date(),
+          shortlisted_students: [],
+          visibility: true,
+        });
+      } else {
+        offer.shortlisted_students = [];
+      }
+
+      await offer.save();
+    }
+  }
+
+  // Clear job shortlist
+  job.final_shortlisted_students = [];
+  await job.save();
+
+  return res.status(200).json({
+    message: "Company added with no shortlisted students",
+  });
+}
     // Validate input
     if (!Array.isArray(students) || students.length === 0) {
       return res
