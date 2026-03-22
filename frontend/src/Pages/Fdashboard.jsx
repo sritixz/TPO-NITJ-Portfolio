@@ -10,7 +10,6 @@ import {
   faCalendarAlt, 
   faFileAlt, 
   faEnvelope,
-  faKey
 } from "@fortawesome/free-solid-svg-icons";
 import { LogOut, Menu, X } from "lucide-react";
 import { Route, Routes, useNavigate, useLocation } from "react-router-dom";
@@ -21,27 +20,30 @@ import ProfileImage from "../assets/chillguy.png";
 
 // Components
 import InsightDashboard from "../components/ProfessorDashboard/InsightDashboard.jsx";
-import PlacementCalendar from "../components/ProfessorDashboard/placement-calendar.jsx";
-import PlacementRegistrationExport from "../components/ProfessorDashboard/registration-form.jsx";
 import Fsuggestions from "../components/FacultyDashboard/Fsuggestions.jsx";
-import ChangePasswordForm from "../components/changepass.jsx";
 import PlacementRegistrationExportFaculty from "../components/FacultyDashboard/placement-registration.jsx";
 import ProfessorCalendar from "../components/StudentDashboard/placement-calendar.jsx";
 
 const Fdashboard = () => {
   const [isSidebarExpanded, setIsSidebarExpanded] = useState(true);
+  const [isMobileOpen, setIsMobileOpen] = useState(false); // New state for mobile drawer
   const { userData } = useSelector((state) => state.auth);
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const location = useLocation();
 
-  // Handle screen resizing for sidebar state
+  // Close mobile sidebar on route change
+  useEffect(() => {
+    setIsMobileOpen(false);
+  }, [location]);
+
   useEffect(() => {
     const handleResize = () => {
       if (window.innerWidth < 1024) {
         setIsSidebarExpanded(false);
       } else {
         setIsSidebarExpanded(true);
+        setIsMobileOpen(false);
       }
     };
     window.addEventListener("resize", handleResize);
@@ -60,98 +62,115 @@ const Fdashboard = () => {
     }
   };
 
- const menuItems = [
-  { label: "Home", icon: faHome, path: "/fdashboard/home" },
-  { label: "Placement Registration", icon: faFileAlt, path: "/fdashboard/placement-registration" },
-  { label: "Placement Calendar", icon: faCalendarAlt, path: "/fdashboard/placement-calendar" },
-  { label: "Suggestions", icon: faEnvelope, path: "/fdashboard/suggestions" },
-];
+  const menuItems = [
+    { label: "Home", icon: faHome, path: "/fdashboard/home" },
+    { label: "Placement Registration", icon: faFileAlt, path: "/fdashboard/placement-registration" },
+    { label: "Placement Calendar", icon: faCalendarAlt, path: "/fdashboard/placement-calendar" },
+    { label: "Suggestions", icon: faEnvelope, path: "/fdashboard/suggestions" },
+  ];
 
   return (
     <div className="flex flex-col min-h-screen bg-gray-50 font-sans">
       {/* Navbar Section */}
-      <header className="fixed top-0 left-0 right-0 bg-white shadow-sm z-50 h-16 flex items-center justify-between px-6">
-        <div className="flex items-center gap-4">
+      <header className="fixed top-0 left-0 right-0 bg-white shadow-sm z-[60] h-16 flex items-center justify-between px-4 md:px-6">
+        <div className="flex items-center gap-3">
+          <button 
+            onClick={() => setIsMobileOpen(!isMobileOpen)}
+            className="p-2 hover:bg-gray-100 rounded-lg lg:hidden text-gray-600"
+          >
+            {isMobileOpen ? <X size={24} /> : <Menu size={24} />}
+          </button>
+          
+          {/* Desktop Toggle */}
           <button 
             onClick={() => setIsSidebarExpanded(!isSidebarExpanded)}
-            className="p-2 hover:bg-gray-100 rounded-lg lg:hidden"
+            className="hidden lg:block p-2 hover:bg-gray-100 rounded-lg text-gray-600"
           >
-            <Menu size={24} />
+            <Menu size={20} />
           </button>
-          <img src={NITJlogo} alt="NITJ Logo" className="h-10 w-10" />
-          <h1 className="font-bold text-xl hidden sm:block">
-            TPO-<span className="text-custom-blue uppercase">NITJ</span>
+
+          <img src={NITJlogo} alt="NITJ Logo" className="h-8 w-8 md:h-10 md:w-10" />
+          <h1 className="font-bold text-lg md:text-xl">
+            TPO-<span className="text-blue-600 uppercase">NITJ</span>
           </h1>
         </div>
 
-        <div className="flex items-center gap-4">
-          <div className="text-right hidden md:block">
-            <p className="text-sm font-semibold text-gray-800">{userData?.name || "Faculty Member"}</p>
-            <p className="text-xs text-custom-blue font-medium uppercase tracking-wider">Faculty Portal</p>
+        <div className="flex items-center gap-3">
+          <div className="text-right hidden sm:block">
+            <p className="text-sm font-semibold text-gray-800 leading-none">{userData?.name || "Faculty Member"}</p>
+            <p className="text-[10px] text-blue-600 font-bold uppercase tracking-tighter mt-1">Faculty Portal</p>
           </div>
           <img 
             src={userData?.image || ProfileImage} 
             alt="User Profile" 
-            className="w-10 h-10 rounded-full border-2 border-custom-blue p-0.5 object-cover" 
+            className="w-9 h-9 rounded-full border-2 border-blue-100 object-cover" 
           />
         </div>
       </header>
 
+      {/* Mobile Overlay */}
+      {isMobileOpen && (
+        <div 
+          className="fixed inset-0 bg-black/50 z-40 lg:hidden transition-opacity"
+          onClick={() => setIsMobileOpen(false)}
+        />
+      )}
+
       <div className="flex flex-1 mt-16">
         {/* Sidebar Navigation */}
         <aside 
-          className={`fixed left-0 h-[calc(100vh-64px)] bg-white border-r border-gray-200 transition-all duration-300 z-40 
-          ${isSidebarExpanded ? "w-64" : "w-20"}`}
+          className={`fixed left-0 h-[calc(100vh-64px)] bg-white border-r border-gray-200 transition-all duration-300 z-50 
+          ${isMobileOpen ? "translate-x-0 w-64" : "-translate-x-full lg:translate-x-0"} 
+          ${isSidebarExpanded ? "lg:w-64" : "lg:w-20"}`}
         >
           <nav className="p-4 flex flex-col h-full">
-            <div className="space-y-2 flex-1">
+            <div className="space-y-1 flex-1">
               {menuItems.map((item) => {
-  const isActive = location.pathname === item.path;
-  return (
-    <button
-      key={item.path}
-      onClick={() => navigate(item.path)}
-      className={`flex items-center w-full p-3.5 px-5 rounded-xl transition-all duration-200 mb-1
-      ${isActive 
-        ? "bg-custom-blue text-white shadow-md" 
-        : "text-gray-500 hover:bg-blue-50 hover:text-custom-blue"}`}
-    >
-      <FontAwesomeIcon icon={item.icon} className="w-5 h-5 min-w-[20px]" />
-      {isSidebarExpanded && (
-        <span className="font-semibold text-[15px] ml-4 whitespace-nowrap">
-          {item.label}
-        </span>
-      )}
-    </button>
-  );
-})}
+                const isActive = location.pathname === item.path;
+                return (
+                  <button
+                    key={item.path}
+                    onClick={() => navigate(item.path)}
+                    className={`flex items-center w-full p-3 rounded-xl transition-all duration-200
+                    ${isActive 
+                      ? "bg-blue-600 text-white shadow-md" 
+                      : "text-gray-500 hover:bg-blue-50 hover:text-blue-600"}`}
+                  >
+                    <div className="w-6 flex justify-center">
+                      <FontAwesomeIcon icon={item.icon} className="text-lg" />
+                    </div>
+                    {(isSidebarExpanded || isMobileOpen) && (
+                      <span className="font-semibold text-sm ml-4 whitespace-nowrap">
+                        {item.label}
+                      </span>
+                    )}
+                  </button>
+                );
+              })}
             </div>
 
             <button 
               onClick={handleLogout}
-              className="mt-auto flex items-center w-full p-3 text-red-500 hover:bg-red-50 rounded-xl transition-colors group"
+              className="mt-auto flex items-center w-full p-3 text-red-500 hover:bg-red-50 rounded-xl transition-colors"
             >
-              <LogOut size={20} className={`${isSidebarExpanded ? "mr-4" : "mx-auto"}`} />
-              {isSidebarExpanded && <span className="font-medium text-sm">Logout</span>}
+              <LogOut size={20} className={(isSidebarExpanded || isMobileOpen) ? "mr-4" : "mx-auto"} />
+              {(isSidebarExpanded || isMobileOpen) && <span className="font-medium text-sm">Logout</span>}
             </button>
           </nav>
         </aside>
 
         {/* Main Content Area */}
         <main 
-          className={`flex-1 min-h-full transition-all duration-300 p-6 bg-gray-50
-          ${isSidebarExpanded ? "ml-64" : "ml-20"}`}
+          className={`flex-1 min-h-full transition-all duration-300 p-4 md:p-6 bg-gray-50
+          ${isSidebarExpanded ? "lg:ml-64" : "lg:ml-20"} ml-0`}
         >
           <div className="max-w-7xl mx-auto">
             <Routes>
-  <Route path="home" element={<InsightDashboard readOnly={true} />} />
-  <Route path="placement-registration" element={<PlacementRegistrationExportFaculty readOnly={true} />} />
-  <Route path="placement-calendar" element={<ProfessorCalendar />} />
-  <Route path="suggestions" element={<Fsuggestions />} />
-  
-  {/* New Route for Change Password */}
-  {/* <Route path="change-pass" element={<ChangePasswordForm />} />  */}
-</Routes>
+              <Route path="home" element={<InsightDashboard readOnly={true} />} />
+              <Route path="placement-registration" element={<PlacementRegistrationExportFaculty readOnly={true} />} />
+              <Route path="placement-calendar" element={<ProfessorCalendar />} />
+              <Route path="suggestions" element={<Fsuggestions />} />
+            </Routes>
           </div>
         </main>
       </div>

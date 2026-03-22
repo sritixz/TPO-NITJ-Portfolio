@@ -9,7 +9,7 @@ const FinalShortlistStudents = ({ jobId, onClose }) => {
   const [loading, setLoading] = useState(false);
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
-
+  const [selectedCombinations, setSelectedCombinations] = useState([]);
   const jobTypeOptions = [
     { value: "Intern", label: "Internship" },
     { value: "Intern+PPO", label: "Intern + Pre Placement Offer(PPO)" },
@@ -30,7 +30,7 @@ const FinalShortlistStudents = ({ jobId, onClose }) => {
         const response = await axios.post(
           `${import.meta.env.REACT_APP_BASE_URL}/jobprofile/final_eligible_students`,
           { jobId },
-          { withCredentials: true }
+          { withCredentials: true },
         );
         const { eligibleStudents, starredFields } = response.data;
         const updatedStudents = eligibleStudents
@@ -88,14 +88,14 @@ const FinalShortlistStudents = ({ jobId, onClose }) => {
 
   const handleInitialSubmit = () => {
     const hasChanges = students.some(
-      (student) => student.shortlisted !== student.initiallyShortlisted
+      (student) => student.shortlisted !== student.initiallyShortlisted,
     );
     const shortlistedStudents = students.filter(
-      (student) => student.shortlisted
+      (student) => student.shortlisted,
     );
 
     if (!hasChanges && shortlistedStudents.length === 0) {
-      toast.error("No changes made to the shortlist");
+      setShowConfirmModal(true);
       return;
     }
 
@@ -105,14 +105,14 @@ const FinalShortlistStudents = ({ jobId, onClose }) => {
       }
       if (!student.job_type) {
         toast.error(
-          "Please select Job Type for all newly shortlisted students"
+          "Please select Job Type for all newly shortlisted students",
         );
         return;
       }
       if (student.job_type === "Intern") {
         if (!student.stipend || !student.intern_duration) {
           toast.error(
-            "Please fill in Stipend and Internship Duration for Intern students"
+            "Please fill in Stipend and Internship Duration for Intern students",
           );
           return;
         }
@@ -122,7 +122,7 @@ const FinalShortlistStudents = ({ jobId, onClose }) => {
       ) {
         if (!student.ctc || !student.stipend || !student.intern_duration) {
           toast.error(
-            "Please fill in CTC, Stipend, and Internship Duration for Intern+PPO/FTE students"
+            "Please fill in CTC, Stipend, and Internship Duration for Intern+PPO/FTE students",
           );
           return;
         }
@@ -134,7 +134,7 @@ const FinalShortlistStudents = ({ jobId, onClose }) => {
       }
       if (!student.job_role) {
         toast.error(
-          "Please fill in Job Role for all newly shortlisted students"
+          "Please fill in Job Role for all newly shortlisted students",
         );
         return;
       }
@@ -149,51 +149,76 @@ const FinalShortlistStudents = ({ jobId, onClose }) => {
 
   const handleFinalSubmit = async () => {
     setLoading(true);
+
     try {
+      const validCombos = selectedCombinations.filter(
+        (c) => c.batch && c.course,
+      );
+
       const updatedStudents = students
         .filter(
-          (student) => student.shortlisted !== student.initiallyShortlisted
+          (student) => student.shortlisted !== student.initiallyShortlisted,
         )
-        .map(
-          ({
-            studentId,
-            shortlisted,
-            initiallyShortlisted,
-            job_type,
-            job_role,
-            ctc,
-            stipend,
-            intern_duration,
-          }) => ({
-            studentId,
-            action: shortlisted ? "add" : "remove",
-            jobtype: shortlisted ? job_type : undefined,
-            jobrole: shortlisted ? job_role : undefined,
-            ctc: shortlisted && job_type !== "Intern" ? ctc : undefined,
-            stipend:
-              shortlisted && job_type.includes("Intern") ? stipend : undefined,
-            internduration:
-              shortlisted && job_type.includes("Intern")
-                ? intern_duration
-                : undefined,
-          })
-        );
-      console.log("Submitting payload:", { jobId, students: updatedStudents });
+        .map((student) => ({
+          studentId: student.studentId,
+          action: student.shortlisted ? "add" : "remove",
+          jobtype: student.shortlisted ? student.job_type : undefined,
+          jobrole: student.shortlisted ? student.job_role : undefined,
+          ctc:
+            student.shortlisted && student.job_type !== "Intern"
+              ? student.ctc
+              : undefined,
+          stipend:
+            student.shortlisted && student.job_type.includes("Intern")
+              ? student.stipend
+              : undefined,
+          internduration:
+            student.shortlisted && student.job_type.includes("Intern")
+              ? student.intern_duration
+              : undefined,
+        }));
 
-      if (updatedStudents.length > 0) {
+      // =========================
+      // NONE SHORTLISTED
+      // =========================
+      if (updatedStudents.length === 0) {
+        if (validCombos.length === 0) {
+          toast.error("Select at least one batch & course");
+          setLoading(false);
+          return;
+        }
+
         await axios.post(
           `${import.meta.env.REACT_APP_BASE_URL}/jobprofile/add-final-shortlist-students`,
-          { jobId, students: updatedStudents },
-          { withCredentials: true }
+          {
+            jobId,
+            students: [],
+            combinations: validCombos,
+          },
+          { withCredentials: true },
         );
-        toast.success("Shortlist updated successfully!");
-      } else {
-        toast.success("No changes to shortlist.");
+
+        toast.success("Marked as none shortlisted");
+        onClose();
+        return;
       }
-      setShowConfirmModal(false);
+
+      // =========================
+      // NORMAL FLOW
+      // =========================
+      await axios.post(
+        `${import.meta.env.REACT_APP_BASE_URL}/jobprofile/add-final-shortlist-students`,
+        {
+          jobId,
+          students: updatedStudents,
+        },
+        { withCredentials: true },
+      );
+
+      toast.success("Shortlist updated successfully!");
       onClose();
     } catch (error) {
-      console.error("Error updating shortlist:", error);
+      console.error(error);
       toast.error("Failed to update shortlist.");
     } finally {
       setLoading(false);
@@ -206,8 +231,8 @@ const FinalShortlistStudents = ({ jobId, onClose }) => {
         student[field.fieldName]
           ?.toString()
           .toLowerCase()
-          .includes(searchQuery.toLowerCase())
-      ) || student.name.toLowerCase().includes(searchQuery.toLowerCase())
+          .includes(searchQuery.toLowerCase()),
+      ) || student.name.toLowerCase().includes(searchQuery.toLowerCase()),
   );
 
   // Determine if Stipend and Intern Duration columns should be shown
@@ -215,8 +240,12 @@ const FinalShortlistStudents = ({ jobId, onClose }) => {
     (student) =>
       student.job_type === "Intern" ||
       student.job_type === "Intern+PPO" ||
-      student.job_type === "Intern+FTE"
+      student.job_type === "Intern+FTE",
   );
+
+  const isNoneShortlistedPreviously =
+    students.length > 0 &&
+    students.every((s) => s.initiallyShortlisted === false);
 
   const renderInputFields = (student, index) => {
     const isIntern = student.job_type === "Intern";
@@ -234,7 +263,7 @@ const FinalShortlistStudents = ({ jobId, onClose }) => {
               handleInputChange(
                 students.findIndex((s) => s.studentId === student.studentId),
                 "job_type",
-                e.target.value
+                e.target.value,
               )
             }
             className="w-full px-2 py-1 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100"
@@ -257,10 +286,10 @@ const FinalShortlistStudents = ({ jobId, onClose }) => {
                 onChange={(e) =>
                   handleInputChange(
                     students.findIndex(
-                      (s) => s.studentId === student.studentId
+                      (s) => s.studentId === student.studentId,
                     ),
                     "stipend",
-                    e.target.value
+                    e.target.value,
                   )
                 }
                 className="w-full px-2 py-1 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100"
@@ -288,10 +317,10 @@ const FinalShortlistStudents = ({ jobId, onClose }) => {
                 onChange={(e) =>
                   handleInputChange(
                     students.findIndex(
-                      (s) => s.studentId === student.studentId
+                      (s) => s.studentId === student.studentId,
                     ),
                     "intern_duration",
-                    e.target.value
+                    e.target.value,
                   )
                 }
                 className="w-full px-2 py-1 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100"
@@ -316,7 +345,7 @@ const FinalShortlistStudents = ({ jobId, onClose }) => {
                 handleInputChange(
                   students.findIndex((s) => s.studentId === student.studentId),
                   "ctc",
-                  e.target.value
+                  e.target.value,
                 )
               }
               className="w-full px-2 py-1 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100"
@@ -336,7 +365,7 @@ const FinalShortlistStudents = ({ jobId, onClose }) => {
               handleInputChange(
                 students.findIndex((s) => s.studentId === student.studentId),
                 "job_role",
-                e.target.value
+                e.target.value,
               )
             }
             className="w-full px-2 py-1 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100"
@@ -418,6 +447,14 @@ const FinalShortlistStudents = ({ jobId, onClose }) => {
           </button>
         </div>
         <div className="overflow-x-auto mb-6">
+          {isNoneShortlistedPreviously && (
+            <div className="mb-4 flex items-center gap-2 bg-red-100 text-red-700 px-4 py-2 rounded-lg border border-red-300">
+              <span className="text-lg">⚠️</span>
+              <span className="font-medium">
+                No students were shortlisted for this job
+              </span>
+            </div>
+          )}
           {loading ? (
             <div className="text-center py-8">
               <p className="text-gray-600">Loading students...</p>
@@ -468,8 +505,8 @@ const FinalShortlistStudents = ({ jobId, onClose }) => {
                         onChange={() =>
                           handleCheckboxChange(
                             students.findIndex(
-                              (s) => s.studentId === student.studentId
-                            )
+                              (s) => s.studentId === student.studentId,
+                            ),
                           )
                         }
                       />
@@ -486,6 +523,17 @@ const FinalShortlistStudents = ({ jobId, onClose }) => {
         </div>
 
         <div className="mt-8 flex justify-end space-x-4">
+          <button
+            className="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600"
+            onClick={() => {
+              setStudents((prev) =>
+                prev.map((s) => ({ ...s, shortlisted: false })),
+              );
+              setShowConfirmModal(true);
+            }}
+          >
+            None Shortlisted
+          </button>
           <button
             className="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600"
             onClick={handleInitialSubmit}
@@ -512,7 +560,8 @@ const FinalShortlistStudents = ({ jobId, onClose }) => {
                 Please review the changes to the shortlist before submitting:
               </p>
               {students.filter(
-                (student) => student.shortlisted || student.initiallyShortlisted
+                (student) =>
+                  student.shortlisted || student.initiallyShortlisted,
               ).length > 0 ? (
                 <table className="w-full text-sm text-left text-gray-500 border-collapse mb-6">
                   <thead className="text-xs text-gray-700 uppercase bg-gray-100">
@@ -544,7 +593,7 @@ const FinalShortlistStudents = ({ jobId, onClose }) => {
                     {students
                       .filter(
                         (student) =>
-                          student.shortlisted || student.initiallyShortlisted
+                          student.shortlisted || student.initiallyShortlisted,
                       )
                       .map((student, index) => (
                         <tr key={index} className="bg-white border-b">
@@ -568,9 +617,77 @@ const FinalShortlistStudents = ({ jobId, onClose }) => {
                   </tbody>
                 </table>
               ) : (
-                <p className="text-gray-600 mb-4">
-                  No students are currently shortlisted.
-                </p>
+                <div className="mb-4">
+                  <p className="text-gray-600 mb-4">
+                    No students are currently shortlisted.
+                  </p>
+                  <h3 className="font-semibold mb-2">Select Batch & Course</h3>
+
+                  <div className="flex gap-4">
+                    {/* Batch */}
+                    <select
+                      onChange={(e) => {
+                        const batch = e.target.value;
+                        setSelectedCombinations((prev) => [
+                          ...prev,
+                          { batch, course: "" },
+                        ]);
+                      }}
+                      className="border px-3 py-2 rounded"
+                    >
+                      <option value="">Select Batch</option>
+                      <option value="2026">2026</option>
+                      <option value="2027">2027</option>
+                      <option value="2028">2028</option>
+                      <option value="2029">2029</option>
+                    </select>
+
+                    {/* Course */}
+                    <select
+                      onChange={(e) => {
+                        const course = e.target.value;
+                        setSelectedCombinations((prev) => {
+                          const updated = [...prev];
+                          updated[updated.length - 1].course = course;
+                          return updated;
+                        });
+                      }}
+                      className="border px-3 py-2 rounded"
+                    >
+                      <option value="">Select Course</option>
+                      <option value="B.Tech">B.Tech</option>
+                      <option value="M.Tech">M.Tech</option>
+                      <option value="MBA">MBA</option>
+                      <option value="M.Sc.">M.Sc.</option>
+                      <option value="PHD">PHD</option>
+                    </select>
+                  </div>
+
+                  {/* Selected List */}
+                  <div className="mt-3">
+                    {selectedCombinations.map((item, index) => (
+                      <div
+                        key={index}
+                        className="flex items-center justify-between bg-gray-100 px-3 py-1 rounded mb-1"
+                      >
+                        <span className="text-sm">
+                          {item.batch} - {item.course}
+                        </span>
+
+                        <button
+                          className="text-red-500 hover:text-red-700 text-sm"
+                          onClick={() => {
+                            setSelectedCombinations((prev) =>
+                              prev.filter((_, i) => i !== index),
+                            );
+                          }}
+                        >
+                          ✕
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
               )}
               <div className="flex space-x-4">
                 <button

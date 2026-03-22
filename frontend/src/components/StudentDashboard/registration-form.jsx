@@ -1052,7 +1052,7 @@ const PremiumPlacementForm = () => {
         setIsRegistered(response.data.registered);
         if (response.data.registered && response.data.data) {
           setIsEditing(true);
-
+            
           // parse description to see if it matches one of the predefined reasons
           const reasons = [
             "I am preparing for government exams and want to focus on them full-time.",
@@ -2051,6 +2051,21 @@ const PremiumPlacementForm = () => {
             </div>
           </div>
         </div>
+        {isEditing && 
+          <div className="mb-6 rounded-xl border border-red-300 bg-gradient-to-r from-red-50 to-red-50 p-5 shadow-sm">
+            <div className="flex items-start gap-3">
+            <div className="flex h-3 w-9 items-center justify-center rounded-full">
+              ⚠️
+            </div>
+
+            <div>
+              <h4 className="text-sm font-semibold text-amber-800">
+                You have already filled the form. If you want to edit it then continue.
+              </h4>
+            </div>
+          </div>
+          </div>
+          }
         <div className="bg-white/70 backdrop-blur-lg rounded-2xl shadow-xl border border-white/50 overflow-hidden">
           <div className="bg-custom-blue p-6">
             <h2 className="text-2xl font-bold text-white flex items-center">

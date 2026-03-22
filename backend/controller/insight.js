@@ -355,6 +355,7 @@ import Student from "../models/user_model/student.js";
 import axios from "axios";
 import { encryptValue, decryptValue } from "../utils/security.js";
 import JobProfile from "../models/jobprofile.js";
+import SummerIntern from "../models/summer_internship.js";
 
 const parseCTC = (ctc) => {
   if (!ctc) return 0;
@@ -389,16 +390,29 @@ export const getOfferInsights = async (req, res) => {
     const offers = await Offer.find(query).sort({ result_date: 1 });
 
     const companyQuery = { visibility: true };
+    const SummerCompanyQuery = { visibility: true };
+
     if (batch) companyQuery.batch = batch;
 
     // companyFilter applies ONLY here
     if (companyFilter && companyFilter !== "All") {
       companyQuery.course = companyFilter;
     }
+    if (batch) SummerCompanyQuery.batch = String(Number(batch) + 1);
+
+    if (companyFilter && companyFilter !== "All") {
+      SummerCompanyQuery.course = companyFilter;
+    }
 
     const normalizeCompany = (name = "") =>
       name.toLowerCase().trim().replace(/\s+/g, " ").replace(/\.$/, "");
     const companyData = await Offer.find(companyQuery);
+    const summerInternData = await SummerIntern.find(SummerCompanyQuery);
+
+    const normalisedSummerCompanies = new Set(
+      summerInternData.map((o) => normalizeCompany(o.company_name)),
+    );
+
     const normalizedCompanies = new Set(
       companyData.map((o) => normalizeCompany(o.company_name)),
     );
@@ -409,9 +423,30 @@ export const getOfferInsights = async (req, res) => {
         .map((o) => normalizeCompany(o.company_name)),
     );
 
-    const totalCompanies = normalizedCompanies.size;
-const offCampusCount = offCampusCompanies.size;
-const onCampusCount = totalCompanies - offCampusCount;
+    const pendingCompanyQuery = {
+      visibility: true,
+      pending: true,
+    };
+
+    if (batch || (companyFilter && companyFilter !== "All")) {
+      pendingCompanyQuery.eligibility_criteria = {
+        $elemMatch: {
+          ...(batch && { eligible_batch: batch }),
+          ...(companyFilter &&
+            companyFilter !== "All" && {
+              course_allowed: companyFilter,
+            }),
+        },
+      };
+    }
+    const pendingCompanies = await JobProfile.find(pendingCompanyQuery);
+    const totalCompanies =
+      normalizedCompanies.size +
+      normalisedSummerCompanies.size +
+      pendingCompanies.length;
+    const offCampusCount = offCampusCompanies.size;
+    const onCampusCount =
+      totalCompanies - offCampusCount - normalisedSummerCompanies.size;
     if (!offers.length) {
       return res.status(404).json({ message: "No offers found" });
     }
@@ -834,6 +869,8 @@ const onCampusCount = totalCompanies - offCampusCount;
       topCompaniesByCTC,
       totalOffers: offers.length,
       totalCompanies: totalCompanies,
+      summerTotalCompanies: normalisedSummerCompanies.size,
+      pendingCompanies: pendingCompanies.length,
       offCampusCompanies: offCampusCount,
       onCampusCompanies: onCampusCount,
       totalEligibleStudents, // ✅ overall eligible students
@@ -850,6 +887,100 @@ const onCampusCount = totalCompanies - offCampusCount;
     res.json(insights);
   } catch (error) {
     console.error("Error generating insights:", error);
+    res.status(500).json({ message: error.message });
+  }
+};
+
+export const getSummerInternInsights = async (req, res) => {
+  try {
+    const { course, batch } = req.query;
+
+    let query = { visibility: true };
+    if (course) query.course = course;
+    if (batch) query.batch = batch;
+
+    const summerOffers = await SummerIntern.find(query).sort({
+      result_date: 1,
+    });
+
+    if (!summerOffers.length) {
+      return res.status(404).json({ message: 'No offers found' })
+    }
+
+    // Flatten all students
+    const allStudents = summerOffers.flatMap(
+      (offer) => offer.shortlisted_students || [],
+    );
+
+    //  Unique + Double offers
+    const studentMap = new Map();
+
+    allStudents.forEach((s, idx) => {
+      const id = s?.studentId
+        ? s.studentId.toString()
+        : `${s?.name || "unknown"}_${idx}`;
+
+      studentMap.set(id, (studentMap.get(id) || 0) + 1);
+    });
+
+    const totalOffers = allStudents.length;
+    const uniqueStudents = studentMap.size;
+    const doubleOffers = [...studentMap.values()].filter((v) => v > 1).length;
+
+    // Department-wise stats
+    const deptMap = {};
+
+    summerOffers.forEach((offer) => {
+      (offer.shortlisted_students || []).forEach((student, idx) => {
+        const dept = student.department || "Unknown";
+
+        if (!deptMap[dept]) {
+          deptMap[dept] = {
+            totalOffers: 0,
+            studentOfferCount: new Map(),
+          };
+        }
+
+        const D = deptMap[dept];
+
+        D.totalOffers += 1;
+
+        const sid = student?.studentId
+          ? student.studentId.toString()
+          : `${student?.name || "unknown"}_${idx}_${dept}`;
+
+        D.studentOfferCount.set(sid, (D.studentOfferCount.get(sid) || 0) + 1);
+      });
+    });
+
+    // Final department stats
+    const departmentStats = {};
+
+    Object.entries(deptMap).forEach(([dept, data]) => {
+      const unique = data.studentOfferCount.size;
+
+      const multiple = [...data.studentOfferCount.values()].filter(
+        (v) => v > 1,
+      ).length;
+
+      departmentStats[dept] = {
+        totalOffers: data.totalOffers,
+        uniqueStudents: unique,
+        doubleOffers: multiple,
+      };
+    });
+
+    // Final response
+    const insights = {
+      totalOffers,
+      uniqueStudents,
+      doubleOffers,
+      departmentStats,
+    };
+
+    res.json(insights);
+  } catch (error) {
+    console.error("Error generating summer intern insights:", error);
     res.status(500).json({ message: error.message });
   }
 };
