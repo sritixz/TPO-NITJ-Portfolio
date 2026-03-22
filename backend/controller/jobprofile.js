@@ -946,6 +946,73 @@ export const getspecificJobProfilesForProfessors = async (req, res) => {
   }
 };
 
+export const updateJobStatus = async (req, res) => {
+  const { jobId } = req.params;
+  const { status } = req.body; // "pending" | "completed" | "incomplete"
+
+  try {
+    if (!mongoose.Types.ObjectId.isValid(jobId)) {
+      return res.status(400).json({ error: "Invalid Job ID" });
+    }
+
+    if (!["pending", "completed", "incomplete"].includes(status)) {
+      return res.status(400).json({ error: "Invalid status value" });
+    }
+
+    const job = await JobProfile.findById(jobId);
+    if (!job) {
+      return res.status(404).json({ error: "Job not found" });
+    }
+
+    if (status === "pending") {
+      job.pending = true;
+      job.completed = false;
+    } else if (status === "completed") {
+      job.pending = false;
+      job.completed = true;
+    } else {
+      job.pending = false;
+      job.completed = false;
+    }
+
+    await job.save();
+
+    return res.status(200).json({ message: "Job status updated", job });
+  } catch (error) {
+    return res.status(500).json({ error: "Server error", details: error.message });
+  }
+};
+
+export const markJobPending = async (req, res) => {
+  const { _id } = req.params;
+  const jobId = _id
+  try {
+    if (!mongoose.Types.ObjectId.isValid(jobId)) {
+      return res.status(400).json({ error: "Invalid Job ID" });
+    }
+
+    const job = await JobProfile.findById(jobId);
+
+    if (!job) {
+      return res.status(404).json({ error: "Job not found" });
+    }
+
+    job.pending = true;
+    job.completed = false; 
+
+    await job.save();
+
+    return res.status(200).json({
+      message: "Job marked as pending",
+      job,
+    });
+  } catch (error) {
+    console.error("Error marking job pending:", error);
+    return res.status(500).json({
+      error: "Server error",
+    });
+  }
+};
 export const approveJobProfile = async (req, res) => {
   try {
     const { _id } = req.params;
@@ -966,7 +1033,7 @@ export const completedJobProfile = async (req, res) => {
     const { _id } = req.params;
     const completedJob = await JobProfile.findByIdAndUpdate(
       _id,
-      { completed: true },
+      { completed: true, pending: false },
       { new: true },
     );
     if (!completedJob)

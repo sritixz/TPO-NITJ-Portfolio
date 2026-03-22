@@ -355,6 +355,7 @@ import Student from "../models/user_model/student.js";
 import axios from "axios";
 import { encryptValue, decryptValue } from "../utils/security.js";
 import JobProfile from "../models/jobprofile.js";
+import SummerIntern from "../models/summer_internship.js";
 
 const parseCTC = (ctc) => {
   if (!ctc) return 0;
@@ -389,16 +390,29 @@ export const getOfferInsights = async (req, res) => {
     const offers = await Offer.find(query).sort({ result_date: 1 });
 
     const companyQuery = { visibility: true };
+    const SummerCompanyQuery = { visibility: true };
+
     if (batch) companyQuery.batch = batch;
 
     // companyFilter applies ONLY here
     if (companyFilter && companyFilter !== "All") {
       companyQuery.course = companyFilter;
     }
+    if (batch) SummerCompanyQuery.batch = String(Number(batch) + 1);
+
+    if (companyFilter && companyFilter !== "All") {
+      SummerCompanyQuery.course = companyFilter;
+    }
 
     const normalizeCompany = (name = "") =>
       name.toLowerCase().trim().replace(/\s+/g, " ").replace(/\.$/, "");
     const companyData = await Offer.find(companyQuery);
+    const summerInternData = await SummerIntern.find(SummerCompanyQuery);
+
+    const normalisedSummerCompanies = new Set(
+      summerInternData.map((o) => normalizeCompany(o.company_name)),
+    );
+
     const normalizedCompanies = new Set(
       companyData.map((o) => normalizeCompany(o.company_name)),
     );
@@ -409,9 +423,30 @@ export const getOfferInsights = async (req, res) => {
         .map((o) => normalizeCompany(o.company_name)),
     );
 
-    const totalCompanies = normalizedCompanies.size;
-const offCampusCount = offCampusCompanies.size;
-const onCampusCount = totalCompanies - offCampusCount;
+    const pendingCompanyQuery = {
+      visibility: true,
+      pending: true,
+    };
+
+    if (batch || (companyFilter && companyFilter !== "All")) {
+      pendingCompanyQuery.eligibility_criteria = {
+        $elemMatch: {
+          ...(batch && { eligible_batch: batch }),
+          ...(companyFilter &&
+            companyFilter !== "All" && {
+              course_allowed: companyFilter,
+            }),
+        },
+      };
+    }
+    const pendingCompanies = await JobProfile.find(pendingCompanyQuery);
+    const totalCompanies =
+      normalizedCompanies.size +
+      normalisedSummerCompanies.size +
+      pendingCompanies.length;
+    const offCampusCount = offCampusCompanies.size;
+    const onCampusCount =
+      totalCompanies - offCampusCount - normalisedSummerCompanies.size;
     if (!offers.length) {
       return res.status(404).json({ message: "No offers found" });
     }
@@ -834,6 +869,8 @@ const onCampusCount = totalCompanies - offCampusCount;
       topCompaniesByCTC,
       totalOffers: offers.length,
       totalCompanies: totalCompanies,
+      summerTotalCompanies: normalisedSummerCompanies.size,
+      pendingCompanies: pendingCompanies.length,
       offCampusCompanies: offCampusCount,
       onCampusCompanies: onCampusCount,
       totalEligibleStudents, // ✅ overall eligible students
