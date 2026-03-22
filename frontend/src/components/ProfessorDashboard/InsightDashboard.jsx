@@ -414,8 +414,8 @@ const InsightDashboard = () => {
       try {
         const params = { course: selectedCourse, batch: selectedBatch };
         if (companyFilter !== "All") {
-        params.companyFilter = companyFilter;
-      }
+          params.companyFilter = companyFilter;
+        }
 
         const res = await axios.get(
           `${import.meta.env.REACT_APP_BASE_URL}/insight/stats/`,
@@ -545,7 +545,16 @@ const InsightDashboard = () => {
   const chartOptionsdatewise = {
     responsive: true,
     maintainAspectRatio: false,
+
+    interaction: {
+      mode: "index",
+      intersect: false,
+    },
+
     plugins: {
+      datalabels: {
+        display: false,
+      },
       legend: {
         position: "bottom",
         labels: {
@@ -553,23 +562,66 @@ const InsightDashboard = () => {
           padding: 20,
         },
       },
+
       tooltip: {
-        backgroundColor: "rgba(0, 0, 0, 0.8)",
+        backgroundColor: "rgba(0, 0, 0, 0.85)",
         titleColor: "white",
         bodyColor: "white",
-        cornerRadius: 8,
+        cornerRadius: 10,
+        padding: 12,
+        displayColors: false,
+
         callbacks: {
           title: (tooltipItems) => {
             const index = tooltipItems[0].dataIndex;
-            const rawDate = insights.offersVsDate[index].date; // original date
-            const fullDate = new Date(rawDate).toLocaleDateString("en-US", {
+            const rawDate = insights.offersVsDate[index].date;
+
+            return new Date(rawDate).toLocaleDateString("en-US", {
               weekday: "short",
               day: "numeric",
               month: "short",
               year: "numeric",
             });
-            return fullDate; // show full date in tooltip
           },
+
+          label: (context) => {
+            return `Offers: ${context.raw}`;
+          },
+        },
+      },
+    },
+
+    elements: {
+      point: {
+        radius: 0,
+        hoverRadius: 5,
+        hitRadius: 10,
+      },
+      line: {
+        tension: 0.4,
+        borderWidth: 2,
+      },
+    },
+
+    scales: {
+      x: {
+        grid: {
+          display: false,
+        },
+        ticks: {
+          autoSkip: true,
+          maxTicksLimit: 6,
+          maxRotation: 0,
+        },
+      },
+
+      y: {
+        beginAtZero: true,
+        grid: {
+          color: "rgba(255,255,255,0.05)",
+        },
+        ticks: {
+          precision: 0,
         },
       },
     },
@@ -949,14 +1001,14 @@ const InsightDashboard = () => {
             icon={Users}
             title="Double Offers"
             value={insights.doublePlacements || 0}
-            subtitle="Per annum"
+            subtitle={selectedCourse === "ALL" ? "All courses" : selectedCourse}
             color="red"
           />
           <StatCard
             icon={Users}
             title="Student Placed"
             value={insights.uniquePlacements || 0}
-            subtitle="Per annum"
+            subtitle={selectedCourse === "ALL" ? "All courses" : selectedCourse}
             color="indigo"
           />
           <StatCard
@@ -1002,7 +1054,6 @@ const InsightDashboard = () => {
           />
         </div>
 
-        
         <select
           value={companyFilter}
           onChange={(e) => setCompanyFilter(e.target.value)}
@@ -1015,27 +1066,41 @@ const InsightDashboard = () => {
           ))}
         </select>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8 mt-5">
-        <StatCard
-          icon={TrendingUp}
-          title="Total Companies Visited"
-          value={`${insights.totalCompanies || 0}`}
-          subtitle={companyFilter}
-          color="purple"
-        />
-        <StatCard
-          icon={TrendingUp}
-          title="On Campus Companies Visited"
-          value={`${insights.onCampusCompanies || 0}`}
-          subtitle={companyFilter}
-          color="purple"
-        />
-        <StatCard
-          icon={TrendingUp}
-          title="Off Campus Companies"
-          value={`${insights.offCampusCompanies || 0}`}
-          subtitle={companyFilter}
-          color="purple"
-        />
+          <StatCard
+            icon={TrendingUp}
+            title="Total Companies Visited"
+            value={`${insights.totalCompanies || 0}`}
+            subtitle={companyFilter}
+            color="purple"
+          />
+          <StatCard
+            icon={TrendingUp}
+            title="On Campus Companies Visited"
+            value={`${insights.onCampusCompanies || 0}`}
+            subtitle={companyFilter}
+            color="purple"
+          />
+          <StatCard
+            icon={TrendingUp}
+            title="Off Campus Companies"
+            value={`${insights.offCampusCompanies || 0}`}
+            subtitle={companyFilter}
+            color="purple"
+          />
+          <StatCard
+            icon={TrendingUp}
+            title="Summer Intern Companies"
+            value={`${insights.summerTotalCompanies || 0}`}
+            subtitle={companyFilter}
+            color="purple"
+          />
+          <StatCard
+            icon={TrendingUp}
+            title="Pending Companies (On-Campus)"
+            value={`${insights.pendingCompanies || 0}`}
+            subtitle={companyFilter}
+            color="purple"
+          />
         </div>
         {/* Charts Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
