@@ -7,7 +7,7 @@ import { existsSync, mkdirSync } from 'fs';
 
 import { restrictTo } from "../utils/restrict.js";
 
-import {addfinalshortlistStudent,finalshortlisteligible,toggleEditingAllowed,getEditingAllowedStatus,incompletedJobProfile,updateInterviewLink,updategdLink,updateOthersLink, updateoaLink , checkEligibility, getJobProfiletostudent,getJobProfiledetails, getJobsByRecruiter,createJobProfilecopy, uploadAttachment,deleteAttachment,updateJob,deleteJob,getJobProfilesForProfessors,approveJobProfile,rejectJobProfile,addshortlistStudents,eligibleinthis,viewshortlisting,getspecificJobProfilesForProfessors, completedJobProfile, getAllCompanies } from "../controller/jobprofile.js";
+import {addfinalshortlistStudent,finalshortlisteligible,toggleEditingAllowed,getEditingAllowedStatus,incompletedJobProfile,updateInterviewLink,updategdLink,updateOthersLink, updateoaLink , checkEligibility, getJobProfiletostudent,getJobProfiledetails, getJobsByRecruiter,createJobProfilecopy, uploadAttachment,deleteAttachment,updateJob,deleteJob,getJobProfilesForProfessors,approveJobProfile,rejectJobProfile,addshortlistStudents,eligibleinthis,viewshortlisting,getspecificJobProfilesForProfessors, completedJobProfile, getAllCompanies, markJobPending, updateJobStatus } from "../controller/jobprofile.js";
 
 
 const uploadDir = path.join(process.cwd(), 'uploads', 'job_attachments');
@@ -43,6 +43,8 @@ router.get("/professor/getjobs/:id", restrictTo('Professor'), getspecificJobProf
 router.put("/approvejob/:_id", restrictTo('Professor'), approveJobProfile);
 router.put("/incompletejob/:_id", restrictTo('Professor'), incompletedJobProfile);
 router.put("/completejob/:_id",restrictTo('Professor'), completedJobProfile);
+router.put("/pendingjob/:_id",restrictTo('Professor'), markJobPending);
+router.put("/status/:jobId",restrictTo('Professor'), updateJobStatus);
 router.put("/rejectjob/:_id", restrictTo('Professor'), rejectJobProfile);
 router.post("/add-shortlist-students", restrictTo('Professor'), addshortlistStudents);
 router.post("/add-final-shortlist-students", restrictTo('Professor'), addfinalshortlistStudent);

@@ -332,6 +332,10 @@ const JobProfileSchema = new mongoose.Schema(
       type:Boolean,
       default:false
     },
+    pending:{
+      type:Boolean,
+      default: false
+    },
     visibility: {
       type: Boolean,
       default: true,
