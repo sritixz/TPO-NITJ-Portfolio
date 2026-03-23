@@ -478,8 +478,8 @@ const InsightDashboard = () => {
     color = "indigo",
   }) => (
     <div className="bg-white rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 p-6 border border-gray-100">
-      <div className="flex items-center justify-between">
-        <div>
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div className="overflow-hidden">
           <p className="text-sm font-medium text-gray-600 mb-1">{title}</p>
           <p className={`text-3xl font-bold text-${color}-600`}>{value}</p>
           {subtitle && <p className="text-sm text-gray-500 mt-1">{subtitle}</p>}
@@ -832,7 +832,7 @@ const InsightDashboard = () => {
             />
           </div>
           {/* Charts Grid */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+          <div className="grid grid-cols-1 lg:grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
             <ChartCard title="CTC Distribution" icon={IndianRupee}>
               <Doughnut
                 data={{
@@ -869,7 +869,7 @@ const InsightDashboard = () => {
               />
             </ChartCard>
           </div>
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+          <div className="grid grid-cols-1 lg:grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
             <ChartCard
               title="Top 5 Companies (Offer Count Wise)"
               icon={Building}
@@ -1065,7 +1065,7 @@ const InsightDashboard = () => {
             </option>
           ))}
         </select>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8 mt-5">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8 mt-5">
           <StatCard
             icon={TrendingUp}
             title="Total Companies Visited"
@@ -1133,7 +1133,7 @@ const InsightDashboard = () => {
           </ChartCard> */}
         </div>
         {/* Additional Insights */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
           <div className="bg-white rounded-xl shadow-lg p-6 border border-gray-100">
             <h4 className="font-semibold text-gray-800 mb-3">
               Job Type Distribution
@@ -1209,7 +1209,7 @@ const InsightDashboard = () => {
       {/* Header */}
       <div className="bg-white shadow-sm border-b border-gray-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-          <div className="flex items-center justify-between">
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div>
               <h1 className="text-3xl font-bold text-gray-900">
                 Placement <span className="text-custom-blue">Analytics</span>
