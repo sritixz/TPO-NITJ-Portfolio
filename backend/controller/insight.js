@@ -620,6 +620,25 @@ export const getOfferInsights = async (req, res) => {
     const avgCTC =
       allStudents.reduce((sum, student) => sum + parseCTC(student.ctc), 0) /
         (totalPlacements || 1) || 0;
+
+    const ctcs = allStudents
+      .map((s) => parseFloat(s.ctc))
+      .filter((v) => !isNaN(v) && v !== 0); 
+
+    if (ctcs.length === 0) return "N/A";
+
+    // sort ascending
+    ctcs.sort((a, b) => a - b);
+
+    const mid = Math.floor(ctcs.length / 2);
+
+    const median =
+      ctcs.length % 2 !== 0
+        ? ctcs[mid] 
+        : (ctcs[mid - 1] + ctcs[mid]) / 2; 
+
+    const medianCTC = median.toFixed(2);
+
     const highestCTC = allStudents.reduce(
       (max, student) => Math.max(max, parseCTC(student.ctc)),
       0,
@@ -858,6 +877,7 @@ export const getOfferInsights = async (req, res) => {
       avgCTC: parseFloat(avgCTC.toFixed(2)),
       highestCTC: parseFloat(highestCTC.toFixed(2)),
       lowestCTC: isFinite(lowestCTC) ? parseFloat(lowestCTC.toFixed(2)) : 0,
+      medianCTC: medianCTC,
       placementsByDepartment: placementsByCategory,
       ctcBuckets,
       genderDist,
@@ -904,7 +924,7 @@ export const getSummerInternInsights = async (req, res) => {
     });
 
     if (!summerOffers.length) {
-      return res.status(404).json({ message: 'No offers found' })
+      return res.status(404).json({ message: "No offers found" });
     }
 
     // Flatten all students
