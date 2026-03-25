@@ -1113,6 +1113,15 @@ const InsightDashboard = () => {
               />
               <StatCard
                 icon={IndianRupee}
+                title="Median CTC"
+                value={
+                  activeInsights.medianCTC ? `₹${activeInsights.medianCTC}L` : "N/A"
+                }
+                subtitle="Per annum"
+                color="green"
+              />
+              <StatCard
+                icon={IndianRupee}
                 title="Highest CTC"
                 value={
                   activeInsights.highestCTC
