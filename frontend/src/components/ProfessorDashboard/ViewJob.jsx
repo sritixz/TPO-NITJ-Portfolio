@@ -2158,6 +2158,10 @@ const handleAddStepCancel = () => {
           value: "GEOTECHNICAL AND GEO-ENVIRONMENTAL ENGINEERING",
           label: "GEOTECHNICAL AND GEO-ENVIRONMENTAL ENGINEERING",
         },
+        {
+          value: "GEOTECHNICAL ENGINEERING AND INFRASTRUCTURE DESIGN",
+          label: "GEOTECHNICAL ENGINEERING AND INFRASTRUCTURE DESIGN",
+        },
       ],
     },
     {
