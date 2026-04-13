@@ -492,8 +492,8 @@ const InsightDashboard = () => {
     color = "indigo",
   }) => (
     <div className="bg-white rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 p-6 border border-gray-100">
-      <div className="flex items-center justify-between">
-        <div>
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div className="overflow-hidden">
           <p className="text-sm font-medium text-gray-600 mb-1">{title}</p>
           <p className={`text-3xl font-bold text-${color}-600`}>{value}</p>
           {subtitle && <p className="text-sm text-gray-500 mt-1">{subtitle}</p>}
@@ -1323,7 +1323,7 @@ const InsightDashboard = () => {
       {/* Header */}
       <div className="bg-white shadow-sm border-b border-gray-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-          <div className="flex items-center justify-between">
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div>
               <h1 className="text-3xl font-bold text-gray-900">
                 {!isSummer && (
