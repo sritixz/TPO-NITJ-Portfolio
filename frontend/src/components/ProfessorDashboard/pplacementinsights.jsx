@@ -120,6 +120,10 @@ const mtechdepartmentOptions = [
         value: "GEOTECHNICAL AND GEO-ENVIRONMENTAL ENGINEERING",
         label: "GEOTECHNICAL AND GEO-ENVIRONMENTAL ENGINEERING",
       },
+      {
+        value: "GEOTECHNICAL ENGINEERING AND INFRASTRUCTURE DESIGN",
+        label: "GEOTECHNICAL ENGINEERING AND INFRASTRUCTURE DESIGN",
+      },
     ],
   },
   {
@@ -372,11 +376,11 @@ const PPlacementReport = () => {
   const calculateStats = () => {
     const uniqueStudents = new Set(reportData.map((item) => item.roll_no)).size;
     const doubleOffers =
-      reportData.filter((item) => item.isDoublePlaced).length / 2;
+      reportData.filter((item) => item.isDoublePlaced).length;
     const totalOffers = reportData.length;
     const packages = reportData
       .map((item) => parseFloat(item.package))
-      .filter((p) => !isNaN(p));
+      .filter((p) => !isNaN(p) && p !== 0);
     const avgPackage =
       packages.length > 0
         ? (packages.reduce((sum, p) => sum + p, 0) / packages.length).toFixed(2)
