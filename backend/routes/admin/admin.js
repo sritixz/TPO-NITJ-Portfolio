@@ -192,7 +192,7 @@ router.get("/professors", getAllProfessors);
 router.put("/professors/:id", updateProfessorProfile);
 router.post("/professors", addNewProfessor);
 router.delete("/professors", deleteProfessorProfiles);
-router.get("/professors/:id", getProfessorById);
+router.get("/professors/:id", getProfessorById);  
 
 // Re-integrated your Faculty Management Routes
 router.get("/faculties", getAllFaculties);
