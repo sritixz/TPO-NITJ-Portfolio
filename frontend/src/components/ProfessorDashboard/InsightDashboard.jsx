@@ -147,6 +147,10 @@ const mtechdepartmentOptions = [
         value: "GEOTECHNICAL AND GEO-ENVIRONMENTAL ENGINEERING",
         label: "GEOTECHNICAL AND GEO-ENVIRONMENTAL ENGINEERING",
       },
+      {
+        value: "GEOTECHNICAL ENGINEERING AND INFRASTRUCTURE DESIGN",
+        label: "GEOTECHNICAL ENGINEERING AND INFRASTRUCTURE DESIGN",
+      },
     ],
   },
   {
@@ -491,7 +495,7 @@ const InsightDashboard = () => {
     subtitle,
     color = "indigo",
   }) => (
-    <div className="bg-white rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 p-6 border border-gray-100">
+    <div className="bg-white rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 p-6 border border-gray-100 w-full">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div className="overflow-hidden">
           <p className="text-sm font-medium text-gray-600 mb-1">{title}</p>
@@ -1345,11 +1349,11 @@ const InsightDashboard = () => {
             </div>
 
             {/* Combine both dropdowns in one flex */}
-            <div className="flex items-center space-x-4">
+            <div className="flex flex-col sm:flex-row items-center sm:space-x-4 gap-2">
               <select
                 value={insightsType}
                 onChange={(e) => setInsightsType(e.target.value)}
-                className="bg-white border border-gray-300 rounded-lg px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                className="bg-white border border-gray-300 rounded-lg px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent w-full"
               >
                 {["Placement", "Summer Internships"].map((typeOption) => (
                   <option key={typeOption} value={typeOption}>
@@ -1360,7 +1364,7 @@ const InsightDashboard = () => {
               <select
                 value={selectedBatch}
                 onChange={(e) => setSelectedBatch(e.target.value)}
-                className="bg-white border border-gray-300 rounded-lg px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                className="bg-white border border-gray-300 rounded-lg px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent w-full"
               >
                 {batches.map((batchOption) => (
                   <option key={batchOption} value={batchOption}>
@@ -1371,7 +1375,7 @@ const InsightDashboard = () => {
               <select
                 value={selectedCourse}
                 onChange={(e) => setSelectedCourse(e.target.value)}
-                className="bg-white border border-gray-300 rounded-lg px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                className="bg-white border border-gray-300 rounded-lg px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent w-full"
               >
                 {courses.map((courseOption) => (
                   <option key={courseOption} value={courseOption}>
@@ -1383,7 +1387,7 @@ const InsightDashboard = () => {
                 <select
                   value={selectedDepartment}
                   onChange={(e) => setSelectedDepartment(e.target.value)}
-                  className="bg-white border border-gray-300 rounded-lg px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                  className="bg-white border border-gray-300 rounded-lg px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent w-full"
                 >
                   <option value="">All Departments</option>
                   {deptOptions.map((dept) => (
