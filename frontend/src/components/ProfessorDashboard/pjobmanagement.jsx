@@ -38,6 +38,7 @@ const JobProfilesonp = () => {
     approved: [],
     notApproved: [],
     completed: [],
+    pending: [],
     feedbackByCompany: {},
     jafByCompany: {},
     guestHouseBookings: [],
@@ -58,103 +59,240 @@ const JobProfilesonp = () => {
     minCGPA: "",
   });
 
+  const [activeTab, setActiveTab] = useState("approved");
   const departmentOptions = {
     "B.Tech": [
-      { label: "BIO TECHNOLOGY", options: [{ value: "BIO TECHNOLOGY", label: "BIO TECHNOLOGY" }] },
-      { label: "CHEMICAL ENGINEERING", options: [{ value: "CHEMICAL ENGINEERING", label: "CHEMICAL ENGINEERING" }] },
-      { label: "CIVIL ENGINEERING", options: [{ value: "CIVIL ENGINEERING", label: "CIVIL ENGINEERING" }] },
-      { 
-        label: "COMPUTER SCIENCE AND ENGINEERING", 
+      {
+        label: "BIO TECHNOLOGY",
+        options: [{ value: "BIO TECHNOLOGY", label: "BIO TECHNOLOGY" }],
+      },
+      {
+        label: "CHEMICAL ENGINEERING",
         options: [
-          { value: "COMPUTER SCIENCE AND ENGINEERING", label: "COMPUTER SCIENCE AND ENGINEERING" },
-          { value: "DATA SCIENCE AND ENGINEERING", label: "DATA SCIENCE AND ENGINEERING" },
-        ]
+          { value: "CHEMICAL ENGINEERING", label: "CHEMICAL ENGINEERING" },
+        ],
       },
-      { label: "ELECTRICAL ENGINEERING", options: [{ value: "ELECTRICAL ENGINEERING", label: "ELECTRICAL ENGINEERING" }] },
-      {
-        label: "ELECTRONICS AND COMMUNICATION ENGINEERING",
-        options: [
-          { value: "ELECTRONICS AND COMMUNICATION ENGINEERING", label: "ELECTRONICS AND COMMUNICATION ENGINEERING" },
-          { value: "ELECTRONICS AND VLSI ENGINEERING", label: "ELECTRONICS AND VLSI ENGINEERING" },
-        ]
-      },
-      {
-        label: "INDUSTRIAL AND PRODUCTION ENGINEERING",
-        options: [{ value: "INDUSTRIAL AND PRODUCTION ENGINEERING", label: "INDUSTRIAL AND PRODUCTION ENGINEERING" }]
-      },
-      { label: "INFORMATION TECHNOLOGY", options: [{ value: "INFORMATION TECHNOLOGY", label: "INFORMATION TECHNOLOGY" }] },
-      {
-        label: "INSTRUMENTATION AND CONTROL ENGINEERING",
-        options: [{ value: "INSTRUMENTATION AND CONTROL ENGINEERING", label: "INSTRUMENTATION AND CONTROL ENGINEERING" }]
-      },
-      { label: "MATHEMATICS AND COMPUTING", options: [{ value: "MATHEMATICS AND COMPUTING", label: "MATHEMATICS AND COMPUTING" }] },
-      { label: "MECHANICAL ENGINEERING", options: [{ value: "MECHANICAL ENGINEERING", label: "MECHANICAL ENGINEERING" }] },
-      { label: "TEXTILE TECHNOLOGY", options: [{ value: "TEXTILE TECHNOLOGY", label: "TEXTILE TECHNOLOGY" }] },
-    ],
-    "M.Tech": [
-      { label: "BIO TECHNOLOGY", options: [{ value: "BIO TECHNOLOGY", label: "BIO TECHNOLOGY" }] },
-      { label: "CHEMICAL ENGINEERING", options: [{ value: "CHEMICAL ENGINEERING", label: "CHEMICAL ENGINEERING" }] },
       {
         label: "CIVIL ENGINEERING",
-        options: [
-          { value: "STRUCTURAL AND CONSTRUCTION ENGINEERING", label: "STRUCTURAL AND CONSTRUCTION ENGINEERING" },
-          { value: "GEOTECHNICAL AND GEO-ENVIRONMENTAL ENGINEERING", label: "GEOTECHNICAL AND GEO-ENVIRONMENTAL ENGINEERING" },
-        ]
+        options: [{ value: "CIVIL ENGINEERING", label: "CIVIL ENGINEERING" }],
       },
       {
         label: "COMPUTER SCIENCE AND ENGINEERING",
         options: [
-          { value: "COMPUTER SCIENCE AND ENGINEERING", label: "COMPUTER SCIENCE AND ENGINEERING" },
-          { value: "COMPUTER SCIENCE AND ENGINEERING (INFORMATION SECURITY)", label: "COMPUTER SCIENCE AND ENGINEERING (INFORMATION SECURITY)" },
-          { value: "DATA SCIENCE AND ENGINEERING", label: "DATA SCIENCE AND ENGINEERING" },
-        ]
+          {
+            value: "COMPUTER SCIENCE AND ENGINEERING",
+            label: "COMPUTER SCIENCE AND ENGINEERING",
+          },
+          {
+            value: "DATA SCIENCE AND ENGINEERING",
+            label: "DATA SCIENCE AND ENGINEERING",
+          },
+        ],
       },
-      { label: "ELECTRICAL ENGINEERING", options: [{ value: "ELECTRIC VEHICLE DESIGN", label: "ELECTRIC VEHICLE DESIGN" }] },
+      {
+        label: "ELECTRICAL ENGINEERING",
+        options: [
+          { value: "ELECTRICAL ENGINEERING", label: "ELECTRICAL ENGINEERING" },
+        ],
+      },
       {
         label: "ELECTRONICS AND COMMUNICATION ENGINEERING",
         options: [
-          { value: "SIGNAL PROCESSING AND MACHINE LEARNING", label: "SIGNAL PROCESSING AND MACHINE LEARNING" },
-          { value: "VLSI DESIGN", label: "VLSI DESIGN" },
-        ]
+          {
+            value: "ELECTRONICS AND COMMUNICATION ENGINEERING",
+            label: "ELECTRONICS AND COMMUNICATION ENGINEERING",
+          },
+          {
+            value: "ELECTRONICS AND VLSI ENGINEERING",
+            label: "ELECTRONICS AND VLSI ENGINEERING",
+          },
+        ],
       },
       {
         label: "INDUSTRIAL AND PRODUCTION ENGINEERING",
-        options: [{ value: "INDUSTRIAL ENGINEERING AND DATA ANALYTICS", label: "INDUSTRIAL ENGINEERING AND DATA ANALYTICS" }]
+        options: [
+          {
+            value: "INDUSTRIAL AND PRODUCTION ENGINEERING",
+            label: "INDUSTRIAL AND PRODUCTION ENGINEERING",
+          },
+        ],
       },
-      { label: "INFORMATION TECHNOLOGY", options: [{ value: "DATA ANALYTICS", label: "DATA ANALYTICS" }] },
+      {
+        label: "INFORMATION TECHNOLOGY",
+        options: [
+          { value: "INFORMATION TECHNOLOGY", label: "INFORMATION TECHNOLOGY" },
+        ],
+      },
+      {
+        label: "INSTRUMENTATION AND CONTROL ENGINEERING",
+        options: [
+          {
+            value: "INSTRUMENTATION AND CONTROL ENGINEERING",
+            label: "INSTRUMENTATION AND CONTROL ENGINEERING",
+          },
+        ],
+      },
+      {
+        label: "MATHEMATICS AND COMPUTING",
+        options: [
+          {
+            value: "MATHEMATICS AND COMPUTING",
+            label: "MATHEMATICS AND COMPUTING",
+          },
+        ],
+      },
+      {
+        label: "MECHANICAL ENGINEERING",
+        options: [
+          { value: "MECHANICAL ENGINEERING", label: "MECHANICAL ENGINEERING" },
+        ],
+      },
+      {
+        label: "TEXTILE TECHNOLOGY",
+        options: [{ value: "TEXTILE TECHNOLOGY", label: "TEXTILE TECHNOLOGY" }],
+      },
+    ],
+    "M.Tech": [
+      {
+        label: "BIO TECHNOLOGY",
+        options: [{ value: "BIO TECHNOLOGY", label: "BIO TECHNOLOGY" }],
+      },
+      {
+        label: "CHEMICAL ENGINEERING",
+        options: [
+          { value: "CHEMICAL ENGINEERING", label: "CHEMICAL ENGINEERING" },
+        ],
+      },
+      {
+        label: "CIVIL ENGINEERING",
+        options: [
+          {
+            value: "STRUCTURAL AND CONSTRUCTION ENGINEERING",
+            label: "STRUCTURAL AND CONSTRUCTION ENGINEERING",
+          },
+          {
+            value: "GEOTECHNICAL AND GEO-ENVIRONMENTAL ENGINEERING",
+            label: "GEOTECHNICAL AND GEO-ENVIRONMENTAL ENGINEERING",
+          },
+          {
+            value: "GEOTECHNICAL ENGINEERING AND INFRASTRUCTURE DESIGN",
+            label: "GEOTECHNICAL ENGINEERING AND INFRASTRUCTURE DESIGN",
+          },
+        ],
+      },
+      {
+        label: "COMPUTER SCIENCE AND ENGINEERING",
+        options: [
+          {
+            value: "COMPUTER SCIENCE AND ENGINEERING",
+            label: "COMPUTER SCIENCE AND ENGINEERING",
+          },
+          {
+            value: "COMPUTER SCIENCE AND ENGINEERING (INFORMATION SECURITY)",
+            label: "COMPUTER SCIENCE AND ENGINEERING (INFORMATION SECURITY)",
+          },
+          {
+            value: "DATA SCIENCE AND ENGINEERING",
+            label: "DATA SCIENCE AND ENGINEERING",
+          },
+        ],
+      },
+      {
+        label: "ELECTRICAL ENGINEERING",
+        options: [
+          {
+            value: "ELECTRIC VEHICLE DESIGN",
+            label: "ELECTRIC VEHICLE DESIGN",
+          },
+        ],
+      },
+      {
+        label: "ELECTRONICS AND COMMUNICATION ENGINEERING",
+        options: [
+          {
+            value: "SIGNAL PROCESSING AND MACHINE LEARNING",
+            label: "SIGNAL PROCESSING AND MACHINE LEARNING",
+          },
+          { value: "VLSI DESIGN", label: "VLSI DESIGN" },
+        ],
+      },
+      {
+        label: "INDUSTRIAL AND PRODUCTION ENGINEERING",
+        options: [
+          {
+            value: "INDUSTRIAL ENGINEERING AND DATA ANALYTICS",
+            label: "INDUSTRIAL ENGINEERING AND DATA ANALYTICS",
+          },
+        ],
+      },
+      {
+        label: "INFORMATION TECHNOLOGY",
+        options: [{ value: "DATA ANALYTICS", label: "DATA ANALYTICS" }],
+      },
       {
         label: "CONTROL AND INSTRUMENTATION ENGINEERING",
         options: [
-          { value: "CONTROL AND INSTRUMENTATION ENGINEERING", label: "CONTROL AND INSTRUMENTATION ENGINEERING" },
-          { value: "MACHINE INTELLIGENCE AND AUTOMATION", label: "MACHINE INTELLIGENCE AND AUTOMATION" },
-        ]
+          {
+            value: "CONTROL AND INSTRUMENTATION ENGINEERING",
+            label: "CONTROL AND INSTRUMENTATION ENGINEERING",
+          },
+          {
+            value: "MACHINE INTELLIGENCE AND AUTOMATION",
+            label: "MACHINE INTELLIGENCE AND AUTOMATION",
+          },
+        ],
       },
-      { label: "MATHEMATICS AND COMPUTING", options: [{ value: "MATHEMATICS AND COMPUTING", label: "MATHEMATICS AND COMPUTING" }] },
+      {
+        label: "MATHEMATICS AND COMPUTING",
+        options: [
+          {
+            value: "MATHEMATICS AND COMPUTING",
+            label: "MATHEMATICS AND COMPUTING",
+          },
+        ],
+      },
       {
         label: "MECHANICAL ENGINEERING",
         options: [
           { value: "DESIGN ENGINEERING", label: "DESIGN ENGINEERING" },
-          { value: "THERMAL AND ENERGY ENGINEERING", label: "THERMAL AND ENERGY ENGINEERING" },
-        ]
+          {
+            value: "THERMAL AND ENERGY ENGINEERING",
+            label: "THERMAL AND ENERGY ENGINEERING",
+          },
+        ],
       },
       {
         label: "TEXTILE TECHNOLOGY",
         options: [
           { value: "TEXTILE TECHNOLOGY", label: "TEXTILE TECHNOLOGY" },
-          { value: "TEXTILE ENGINEERING AND MANAGEMENT", label: "TEXTILE ENGINEERING AND MANAGEMENT" },
+          {
+            value: "TEXTILE ENGINEERING AND MANAGEMENT",
+            label: "TEXTILE ENGINEERING AND MANAGEMENT",
+          },
           { value: "RENEWABLE ENERGY", label: "RENEWABLE ENERGY" },
-          { value: "ARTIFICIAL INTELLIGENCE", label: "ARTIFICIAL INTELLIGENCE" },
-          { value: "POWER SYSTEMS AND RELIABILITY", label: "POWER SYSTEMS AND RELIABILITY" },
-        ]
+          {
+            value: "ARTIFICIAL INTELLIGENCE",
+            label: "ARTIFICIAL INTELLIGENCE",
+          },
+          {
+            value: "POWER SYSTEMS AND RELIABILITY",
+            label: "POWER SYSTEMS AND RELIABILITY",
+          },
+        ],
       },
     ],
-    "MBA": [{ value: "HUMANITIES AND MANAGEMENT", label: "HUMANITIES AND MANAGEMENT" }],
+    MBA: [
+      {
+        value: "HUMANITIES AND MANAGEMENT",
+        label: "HUMANITIES AND MANAGEMENT",
+      },
+    ],
     "M.Sc.": [
       { value: "CHEMISTRY", label: "CHEMISTRY" },
       { value: "MATHEMATICS", label: "MATHEMATICS" },
       { value: "PHYSICS", label: "PHYSICS" },
     ],
-    "PHD": [],
+    PHD: [],
   };
 
   useEffect(() => {
@@ -162,7 +300,7 @@ const JobProfilesonp = () => {
       try {
         const response = await axios.get(
           `${import.meta.env.REACT_APP_BASE_URL}/jobprofile/professor/getjobs`,
-          { withCredentials: true }
+          { withCredentials: true },
         );
         setJobProfiles(response.data);
       } catch (err) {
@@ -174,6 +312,43 @@ const JobProfilesonp = () => {
     fetchJobProfiles();
   }, []);
 
+  const handlePending = async (jobId) => {
+    const confirm = await Swal.fire({
+      title: "Mark as Pending?",
+      text: "Do you want to mark this job as pending?",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonText: "Yes",
+      cancelButtonText: "Cancel",
+    });
+
+    if (confirm.isConfirmed) {
+      try {
+        await axios.put(
+          `${import.meta.env.REACT_APP_BASE_URL}/jobprofile/pendingjob/:_id`,
+          {},
+          { withCredentials: true },
+        );
+
+        Swal.fire("Updated!", "Job marked as pending.", "success");
+
+        setJobProfiles((prev) => {
+          const job =
+            prev.completed.find((j) => j._id === jobId) ||
+            prev.approved.find((j) => j._id === jobId);
+
+          return {
+            ...prev,
+            completed: prev.completed.filter((j) => j._id !== jobId),
+            approved: prev.approved.filter((j) => j._id !== jobId),
+            pending: [...(prev.pending || []), job],
+          };
+        });
+      } catch (err) {
+        Swal.fire("Error", "Failed to mark pending.", "error");
+      }
+    }
+  };
   const handleApprove = async (jobId) => {
     const confirm = await Swal.fire({
       title: "Are you sure?",
@@ -189,7 +364,7 @@ const JobProfilesonp = () => {
         await axios.put(
           `${import.meta.env.REACT_APP_BASE_URL}/jobprofile/approvejob/${jobId}`,
           {},
-          { withCredentials: true }
+          { withCredentials: true },
         );
         Swal.fire("Approved!", "The job has been approved.", "success");
         setJobProfiles((prev) => ({
@@ -221,7 +396,7 @@ const JobProfilesonp = () => {
         await axios.put(
           `${import.meta.env.REACT_APP_BASE_URL}/jobprofile/completejob/${jobId}`,
           {},
-          { withCredentials: true }
+          { withCredentials: true },
         );
         Swal.fire("Completed!", "The job has been completed.", "success");
         setJobProfiles((prev) => ({
@@ -253,7 +428,7 @@ const JobProfilesonp = () => {
         await axios.put(
           `${import.meta.env.REACT_APP_BASE_URL}/jobprofile/incompletejob/${jobId}`,
           {},
-          { withCredentials: true }
+          { withCredentials: true },
         );
         Swal.fire("InCompleted!", "The job has not completed yet.", "success");
         setJobProfiles((prev) => ({
@@ -285,7 +460,7 @@ const JobProfilesonp = () => {
         await axios.put(
           `${import.meta.env.REACT_APP_BASE_URL}/jobprofile/rejectjob/${jobId}`,
           {},
-          { withCredentials: true }
+          { withCredentials: true },
         );
         Swal.fire("Rejected!", "The job has been rejected.", "success");
         setJobProfiles((prev) => ({
@@ -312,7 +487,7 @@ const JobProfilesonp = () => {
       try {
         await axios.delete(
           `${import.meta.env.REACT_APP_BASE_URL}/jobprofile/deletejob/${jobId}`,
-          { withCredentials: true }
+          { withCredentials: true },
         );
         Swal.fire("Deleted!", "The job has been deleted.", "success");
         setJobProfiles((prev) => ({
@@ -327,16 +502,64 @@ const JobProfilesonp = () => {
     }
   };
 
+  const updateJobStatus = async (jobId, status) => {
+    const confirm = await Swal.fire({
+      title: "Are you sure?",
+      text: `Do you want to mark this job as ${status}?`,
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonText: "Yes",
+      cancelButtonText: "Cancel",
+    });
+
+    if (!confirm.isConfirmed) return;
+
+    try {
+      const response = await axios.put(
+        `${import.meta.env.REACT_APP_BASE_URL}/jobprofile/status/${jobId}`,
+        { status },
+        { withCredentials: true },
+      );
+
+      const updatedJob = response.data.job;
+
+      setJobProfiles((prev) => {
+        const removeFromAll = (arr) =>
+          (arr || []).filter((j) => j._id !== jobId);
+
+        const next = {
+          ...prev,
+          approved: removeFromAll(prev.approved),
+          pending: removeFromAll(prev.pending),
+          completed: removeFromAll(prev.completed),
+          notApproved: removeFromAll(prev.notApproved),
+        };
+
+        if (status === "pending") next.pending = [...next.pending, updatedJob];
+        else if (status === "completed")
+          next.completed = [...next.completed, updatedJob];
+        else next.approved = [...next.approved, updatedJob];
+
+        return next;
+      });
+
+      setActiveTab(status === "incomplete" ? "approved" : status);
+      Swal.fire("Updated!", "Job status changed successfully.", "success");
+    } catch (err) {
+      Swal.fire("Error", "Failed to update job status.", "error");
+    }
+  };
+
   const handleCardClick = (componentName) => {
     setActiveComponent(componentName);
   };
 
   const hasVehicleArrangement = jobProfiles?.vehicleRequisitions?.find(
-    (vehicle) => vehicle.company === selectedCompany
+    (vehicle) => vehicle.company === selectedCompany,
   );
 
   const hasRoomArrangement = jobProfiles?.guestHouseBookings?.find(
-    (room) => room.organization === selectedCompany
+    (room) => room.organization === selectedCompany,
   );
 
   const JobCard = ({ job, showActions }) => (
@@ -347,27 +570,74 @@ const JobProfilesonp = () => {
           onClick={() => handleDelete(job._id)}
         />
       </div>
-      {job.Approved_Status && !job.completed && (
-        <div className="absolute top-2 right-10 text-green-600">
-          <Check
-            className="w-7 h-7 bg-green-100 rounded-3xl p-1"
-            onClick={() => handleComplete(job._id)}
-          />
-        </div>
+
+      {/* APPROVED / ACTIVE => can go to PENDING or COMPLETED */}
+      {!job.pending && !job.completed && (
+        <>
+          <div className="absolute top-2 right-20 text-yellow-600 cursor-pointer">
+            <FaSpinner
+              className="w-7 h-7 bg-yellow-100 rounded-3xl p-1"
+              onClick={() => updateJobStatus(job._id, "pending")}
+              title="Mark Pending"
+            />
+          </div>
+          <div className="absolute top-2 right-10 text-green-600 cursor-pointer">
+            <Check
+              className="w-7 h-7 bg-green-100 rounded-3xl p-1"
+              onClick={() => updateJobStatus(job._id, "completed")}
+              title="Mark Complete"
+            />
+          </div>
+        </>
       )}
+
+      {/* PENDING => can go to APPROVED or COMPLETED */}
+      {job.pending && !job.completed && (
+        <>
+          <div className="absolute top-2 right-20 text-blue-600 cursor-pointer">
+            <ArrowLeft
+              className="w-7 h-7 bg-blue-100 rounded-3xl p-1"
+              onClick={() => updateJobStatus(job._id, "incomplete")}
+              title="Mark Active"
+            />
+          </div>
+          <div className="absolute top-2 right-10 text-green-600 cursor-pointer">
+            <Check
+              className="w-7 h-7 bg-green-100 rounded-3xl p-1"
+              onClick={() => updateJobStatus(job._id, "completed")}
+              title="Mark Complete"
+            />
+          </div>
+        </>
+      )}
+
+      {/* COMPLETED => can go to APPROVED or PENDING */}
       {job.completed && (
-        <div className="absolute top-2 right-10 text-red-600">
-          <X
-            className="w-7 h-7 bg-red-100 rounded-3xl p-1"
-            onClick={() => handleInComplete(job._id)}
-          />
-        </div>
+        <>
+          <div className="absolute top-2 right-20 text-blue-600 cursor-pointer">
+            <ArrowLeft
+              className="w-7 h-7 bg-blue-100 rounded-3xl p-1"
+              onClick={() => updateJobStatus(job._id, "incomplete")}
+              title="Mark Active"
+            />
+          </div>
+          <div className="absolute top-2 right-10 text-yellow-600 cursor-pointer">
+            <FaSpinner
+              className="w-7 h-7 bg-yellow-100 rounded-3xl p-1"
+              onClick={() => updateJobStatus(job._id, "pending")}
+              title="Mark Pending"
+            />
+          </div>
+        </>
       )}
       <CardHeader className="pb-4">
         <div className="flex items-center space-x-4">
           <div className="w-16 h-16 rounded-lg overflow-hidden bg-gray-50 flex items-center justify-center">
             {job.company_logo ? (
-              <img src={job.company_logo} className="w-14 h-14 object-contain" />
+              <img
+                src={job.company_logo}
+                className="w-14 h-14 object-contain"
+              />
             ) : (
               <span className="text-lg font-bold text-custom-blue">
                 {job.company_name?.[0]?.toUpperCase() || "N"}
@@ -375,11 +645,28 @@ const JobProfilesonp = () => {
             )}
           </div>
           <div>
-            <h3 className="text-xl font-semibold text-gray-900">{job.company_name}</h3>
+            <h3 className="text-xl font-semibold text-gray-900">
+              {job.company_name}
+            </h3>
             <p className="text-sm text-gray-500">Job ID: {job.job_id}</p>
           </div>
         </div>
       </CardHeader>
+      <div className="absolute top-2 left-2">
+        {job.completed ? (
+          <span className="bg-green-100 text-green-700 px-2 py-1 rounded text-xs">
+            Completed
+          </span>
+        ) : job.pending ? (
+          <span className="bg-yellow-100 text-yellow-700 px-2 py-1 rounded text-xs">
+            Pending
+          </span>
+        ) : (
+          <span className="bg-blue-100 text-blue-700 px-2 py-1 rounded text-xs">
+            Active
+          </span>
+        )}
+      </div>
       <CardContent className="pb-6">
         <div className="space-y-3">
           <div className="flex items-center space-x-2">
@@ -435,7 +722,10 @@ const JobProfilesonp = () => {
         <div className="flex items-center space-x-4">
           <div className="w-16 h-16 rounded-lg overflow-hidden bg-gray-50 flex items-center justify-center">
             {jobs[0].company_logo ? (
-              <img src={jobs[0].company_logo} className="w-14 h-14 object-contain" />
+              <img
+                src={jobs[0].company_logo}
+                className="w-14 h-14 object-contain"
+              />
             ) : (
               <span className="text-lg font-bold text-custom-blue">
                 {company[0]?.toUpperCase() || "N"}
@@ -509,20 +799,28 @@ const JobProfilesonp = () => {
             <div className="space-y-2">
               <div className="flex items-center space-x-2">
                 <p className="text-sm text-gray-700">Technical Skills:</p>
-                <div className="flex space-x-1">{renderStars(feedback.technicalSkill)}</div>
+                <div className="flex space-x-1">
+                  {renderStars(feedback.technicalSkill)}
+                </div>
               </div>
               <div className="flex items-center space-x-2">
                 <p className="text-sm text-gray-700">Communication Skills:</p>
-                <div className="flex space-x-1">{renderStars(feedback.communicationSkill)}</div>
+                <div className="flex space-x-1">
+                  {renderStars(feedback.communicationSkill)}
+                </div>
               </div>
               <div className="flex items-center space-x-2">
                 <p className="text-sm text-gray-700">Overall Experience:</p>
-                <div className="flex space-x-1">{renderStars(feedback.overallExperience)}</div>
+                <div className="flex space-x-1">
+                  {renderStars(feedback.overallExperience)}
+                </div>
               </div>
             </div>
             <div className="flex items-start space-x-2">
               <MessageCircle className="w-5 h-5 text-custom-blue flex-shrink-0" />
-              <p className="text-sm text-gray-700">{truncateComment(feedback.comment)}</p>
+              <p className="text-sm text-gray-700">
+                {truncateComment(feedback.comment)}
+              </p>
             </div>
           </div>
         </CardContent>
@@ -541,7 +839,8 @@ const JobProfilesonp = () => {
 
   const filterJobs = (jobs) => {
     return jobs.filter((job) => {
-      const { batchEligible, courseEligible, branchEligible, minCGPA } = filters;
+      const { batchEligible, courseEligible, branchEligible, minCGPA } =
+        filters;
       let matchesCriteria = false;
 
       // Check all eligibility criteria arrays
@@ -554,8 +853,10 @@ const JobProfilesonp = () => {
         } = criteria;
 
         const batchMatch = !batchEligible || eligible_batch === batchEligible;
-        const courseMatch = !courseEligible || course_allowed === courseEligible;
-        const branchMatch = !branchEligible || department_allowed.includes(branchEligible);
+        const courseMatch =
+          !courseEligible || course_allowed === courseEligible;
+        const branchMatch =
+          !branchEligible || department_allowed.includes(branchEligible);
         const cgpaMatch = !minCGPA || minimum_cgpa >= parseFloat(minCGPA);
 
         if (batchMatch && courseMatch && branchMatch && cgpaMatch) {
@@ -579,20 +880,20 @@ const JobProfilesonp = () => {
 
   const filteredApprovedJobs = filterJobs(
     jobProfiles.approved.filter((job) =>
-      job.company_name.toLowerCase().includes(searchTerm.toLowerCase())
-    )
+      job.company_name.toLowerCase().includes(searchTerm.toLowerCase()),
+    ),
   );
 
   const filteredNotApprovedJobs = filterJobs(
     jobProfiles.notApproved.filter((job) =>
-      job.company_name.toLowerCase().includes(searchTerm.toLowerCase())
-    )
+      job.company_name.toLowerCase().includes(searchTerm.toLowerCase()),
+    ),
   );
 
   const filteredCompletedJobs = filterJobs(
     jobProfiles.completed.filter((job) =>
-      job.company_name.toLowerCase().includes(searchTerm.toLowerCase())
-    )
+      job.company_name.toLowerCase().includes(searchTerm.toLowerCase()),
+    ),
   );
 
   const groupedApprovedJobs = groupJobsByCompany(filteredApprovedJobs);
@@ -667,9 +968,10 @@ const JobProfilesonp = () => {
               <ArrowLeft className="w-5 h-5" />
             </button>
             <h1 className="text-4xl font-bold text-center">
-              <span className="text-custom-blue">{selectedCompany}</span> Job Profiles
+              <span className="text-custom-blue">{selectedCompany}</span> Job
+              Profiles
             </h1>
-            <button
+            {/* <button
               onClick={() => setShowJAF(true)}
               className="absolute top-0 right-4 group inline-flex items-center gap-2 bg-white border-2 border-custom-blue px-4 py-2 rounded-lg 
                hover:bg-custom-blue transition-all duration-300 shadow-md
@@ -677,7 +979,7 @@ const JobProfilesonp = () => {
             >
               <FileText className="w-5 h-5 transition-transform group-hover:scale-110" />
               <span>View JAF</span>
-            </button>
+            </button> */}
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {groupedApprovedJobs[selectedCompany]?.map((job) => (
@@ -692,9 +994,13 @@ const JobProfilesonp = () => {
           </div>
           {jobProfiles.feedbackByCompany[selectedCompany] && (
             <div className="mt-8">
-              <h2 className="text-2xl font-bold text-custom-blue mb-4">Company Feedback</h2>
+              <h2 className="text-2xl font-bold text-custom-blue mb-4">
+                Company Feedback
+              </h2>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <FeedbackCard feedback={jobProfiles.feedbackByCompany[selectedCompany]} />
+                <FeedbackCard
+                  feedback={jobProfiles.feedbackByCompany[selectedCompany]}
+                />
               </div>
             </div>
           )}
@@ -706,7 +1012,9 @@ const JobProfilesonp = () => {
                   onClick={() => handleCardClick("vehicle")}
                 >
                   <CardHeader className="text-center">
-                    <CardTitle className="text-xl font-bold text-custom-blue">Vehicle Arrangement</CardTitle>
+                    <CardTitle className="text-xl font-bold text-custom-blue">
+                      Vehicle Arrangement
+                    </CardTitle>
                   </CardHeader>
                 </Card>
               )}
@@ -716,7 +1024,9 @@ const JobProfilesonp = () => {
                   onClick={() => handleCardClick("room")}
                 >
                   <CardHeader className="text-center">
-                    <CardTitle className="text-xl font-bold text-custom-blue">Room Arrangement</CardTitle>
+                    <CardTitle className="text-xl font-bold text-custom-blue">
+                      Room Arrangement
+                    </CardTitle>
                   </CardHeader>
                 </Card>
               )}
@@ -724,9 +1034,13 @@ const JobProfilesonp = () => {
             {activeComponent === "vehicle" && hasVehicleArrangement && (
               <div className="w-full flex justify-center mt-6">
                 <div className="max-w-5xl w-full">
-                  <h2 className="text-2xl font-bold text-custom-blue mb-4 text-center">Vehicle Arrangement</h2>
+                  <h2 className="text-2xl font-bold text-custom-blue mb-4 text-center">
+                    Vehicle Arrangement
+                  </h2>
                   <div className="w-full">
-                    <VehicleRequisitionForm existingData={hasVehicleArrangement} />
+                    <VehicleRequisitionForm
+                      existingData={hasVehicleArrangement}
+                    />
                   </div>
                 </div>
               </div>
@@ -734,7 +1048,9 @@ const JobProfilesonp = () => {
             {activeComponent === "room" && hasRoomArrangement && (
               <div className="w-full flex justify-center mt-6">
                 <div className="max-w-5xl w-full">
-                  <h2 className="text-2xl font-bold text-custom-blue mb-4 text-center">Room Arrangement</h2>
+                  <h2 className="text-2xl font-bold text-custom-blue mb-4 text-center">
+                    Room Arrangement
+                  </h2>
                   <div className="w-full">
                     <GuestHouseBookingForm existingData={hasRoomArrangement} />
                   </div>
@@ -747,32 +1063,39 @@ const JobProfilesonp = () => {
         <>
           <div className="flex sm:flex-row flex-col items-center justify-between px-4">
             <div className="flex-1"></div>
-            <h1 className="text-4xl font-bold text-center mb-8 sm:mb-0 text-custom-blue">Job Profiles Dashboard</h1>
+            <h1 className="text-4xl font-bold text-center mb-8 sm:mb-0 text-custom-blue">
+              Job Profiles Dashboard
+            </h1>
             <div className="flex-1 flex justify-end">
-            <button
-  className="bg-gradient-to-r from-blue-600 to-blue-900 text-white px-6 py-3 rounded-full shadow-lg hover:from-blue-600 hover:to-blue-800 hover:scale-105 transition-all duration-300 ease-in-out flex items-center gap-2"
-  onClick={() => setShowCreateJob(true)}
->
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    fill="none"
-    viewBox="0 0 24 24"
-    strokeWidth={2}
-    stroke="currentColor"
-    className="w-5 h-5"
-  >
-    <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
-  </svg>
-  <span className="font-semibold">Create Job Profile</span>
-</button>
-
+              <button
+                className="bg-gradient-to-r from-blue-600 to-blue-900 text-white px-6 py-3 rounded-full shadow-lg hover:from-blue-600 hover:to-blue-800 hover:scale-105 transition-all duration-300 ease-in-out flex items-center gap-2"
+                onClick={() => setShowCreateJob(true)}
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  strokeWidth={2}
+                  stroke="currentColor"
+                  className="w-5 h-5"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M12 4v16m8-8H4"
+                  />
+                </svg>
+                <span className="font-semibold">Create Job Profile</span>
+              </button>
             </div>
           </div>
           <div className="mb-6 bg-gray-50 p-4 rounded-lg shadow-sm">
             <h3 className="text-lg font-semibold mb-4">Filter Jobs</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700">Batch Eligible</label>
+                <label className="block text-sm font-medium text-gray-700">
+                  Batch Eligible
+                </label>
                 <input
                   type="text"
                   name="batchEligible"
@@ -783,7 +1106,9 @@ const JobProfilesonp = () => {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700">Course Eligible</label>
+                <label className="block text-sm font-medium text-gray-700">
+                  Course Eligible
+                </label>
                 <select
                   name="courseEligible"
                   value={filters.courseEligible}
@@ -799,7 +1124,9 @@ const JobProfilesonp = () => {
                 </select>
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700">Branch Eligible</label>
+                <label className="block text-sm font-medium text-gray-700">
+                  Branch Eligible
+                </label>
                 <select
                   name="branchEligible"
                   value={filters.branchEligible}
@@ -811,7 +1138,10 @@ const JobProfilesonp = () => {
                   {filters.courseEligible &&
                     departmentOptions[filters.courseEligible].map((dept) => (
                       <optgroup key={dept.label} label={dept.label}>
-                        {(Array.isArray(dept.options) ? dept.options : [dept]).map((option) => (
+                        {(Array.isArray(dept.options)
+                          ? dept.options
+                          : [dept]
+                        ).map((option) => (
                           <option key={option.value} value={option.value}>
                             {option.label}
                           </option>
@@ -821,7 +1151,9 @@ const JobProfilesonp = () => {
                 </select>
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700">Minimum CGPA</label>
+                <label className="block text-sm font-medium text-gray-700">
+                  Minimum CGPA
+                </label>
                 <input
                   type="number"
                   name="minCGPA"
@@ -835,19 +1167,23 @@ const JobProfilesonp = () => {
               </div>
             </div>
           </div>
-          <Tabs defaultValue="approved" className="w-full">
+          <Tabs
+            value={activeTab}
+            onValueChange={setActiveTab}
+            className="w-full"
+          >
             <TabsList className="grid w-full sm:grid-cols-3 grid-cols-2 sm:mb-8 mb-16 gap-2">
               <TabsTrigger
                 value="approved"
                 className="data-[state=active]:bg-custom-blue data-[state=active]:text-white bg-gray-300 rounded-3xl py-2"
               >
-                Approved Jobs ({filteredApprovedJobs.length})
+                Ongoing Jobs ({filteredApprovedJobs.length})
               </TabsTrigger>
               <TabsTrigger
-                value="not-approved"
+                value="pending"
                 className="border data-[state=active]:bg-custom-blue data-[state=active]:text-white bg-gray-300 rounded-3xl py-2"
               >
-                Pending Approval ({filteredNotApprovedJobs.length})
+                Pending Jobs ({jobProfiles.pending?.length || 0})
               </TabsTrigger>
               <TabsTrigger
                 value="completed"
@@ -871,9 +1207,16 @@ const JobProfilesonp = () => {
             <TabsContent value="approved">
               {Object.keys(groupedApprovedJobs).length > 0 ? (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {Object.entries(groupedApprovedJobs).map(([company, jobs]) => (
-                    <CompanyCard key={company} company={company} jobs={jobs} showActions={false} />
-                  ))}
+                  {Object.entries(groupedApprovedJobs).map(
+                    ([company, jobs]) => (
+                      <CompanyCard
+                        key={company}
+                        company={company}
+                        jobs={jobs}
+                        showActions={false}
+                      />
+                    ),
+                  )}
                 </div>
               ) : (
                 <div className="text-center py-12 text-gray-500">
@@ -885,9 +1228,16 @@ const JobProfilesonp = () => {
             <TabsContent value="not-approved">
               {Object.keys(groupedNotApprovedJobs).length > 0 ? (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {Object.entries(groupedNotApprovedJobs).map(([company, jobs]) => (
-                    <CompanyCard key={company} company={company} jobs={jobs} showActions={true} />
-                  ))}
+                  {Object.entries(groupedNotApprovedJobs).map(
+                    ([company, jobs]) => (
+                      <CompanyCard
+                        key={company}
+                        company={company}
+                        jobs={jobs}
+                        showActions={true}
+                      />
+                    ),
+                  )}
                 </div>
               ) : (
                 <div className="text-center py-12 text-gray-500">
@@ -899,14 +1249,34 @@ const JobProfilesonp = () => {
             <TabsContent value="completed">
               {Object.keys(groupedCompletedJobs).length > 0 ? (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {Object.entries(groupedCompletedJobs).map(([company, jobs]) => (
-                    <CompanyCard key={company} company={company} jobs={jobs} showActions={false} />
-                  ))}
+                  {Object.entries(groupedCompletedJobs).map(
+                    ([company, jobs]) => (
+                      <CompanyCard
+                        key={company}
+                        company={company}
+                        jobs={jobs}
+                        showActions={false}
+                      />
+                    ),
+                  )}
                 </div>
               ) : (
                 <div className="text-center py-12 text-gray-500">
                   <Building2 className="w-12 h-12 mx-auto mb-4 opacity-50" />
                   <p>No completed job profiles found</p>
+                </div>
+              )}
+            </TabsContent>
+            <TabsContent value="pending">
+              {jobProfiles.pending?.length > 0 ? (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {jobProfiles.pending.map((job) => (
+                    <JobCard key={job._id} job={job} showActions={false} />
+                  ))}
+                </div>
+              ) : (
+                <div className="text-center py-12 text-gray-500">
+                  <p>No pending jobs found</p>
                 </div>
               )}
             </TabsContent>
