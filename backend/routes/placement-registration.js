@@ -28,9 +28,17 @@ router.get('/join-whatsapp', async (req, res) => {
     const whatsappUrl = "https://chat.whatsapp.com/C7YBBdtWK4hGWZkLw0EtI6";
     return res.redirect(302, whatsappUrl);
   }
+  if(response.batch === '2027' && response.course === 'MBA')
+  {
+    const whatsappUrl = "https://chat.whatsapp.com/KPkAIaEHXTq88VQ11FwGaz?mode=gi_t";
+    return res.redirect(302, whatsappUrl);
+  }
+  if(response.batch === '2027' && response.course === 'M.Sc.')
+  {
+    const whatsappUrl = "https://chat.whatsapp.com/JZo7SR8y5O38A9uAD0mBdQ?mode=gi_t";
+    return res.redirect(302, whatsappUrl);
+  }
 });
-
-
 
 router.post('/create-deadline', restrictTo('Professor'), createDeadline);
 router.put('/deadline/:id', restrictTo('Professor'), editDeadline);
