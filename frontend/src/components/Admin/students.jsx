@@ -1262,6 +1262,7 @@ const StudentManager = () => {
     "DESIGN ENGINEERING",
     "ELECTRIC VEHICLE DESIGN",
     "GEOTECHNICAL AND GEO-ENVIRONMENTAL ENGINEERING",
+    "GEOTECHNICAL ENGINEERING AND INFRASTRUCTURE DESIGN",
     "INDUSTRIAL ENGINEERING AND DATA ANALYTICS",
     "POWER SYSTEMS AND RELIABILITY",
     "RENEWABLE ENERGY",
@@ -1941,7 +1942,7 @@ const StudentManager = () => {
       const dataToExport = applyFilters();
 
       // If no data, export empty array with model structure as template
-      const exportData =
+       exportData =
         dataToExport.length > 0
           ? dataToExport
           : [

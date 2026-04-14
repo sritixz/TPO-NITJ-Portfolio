@@ -106,7 +106,7 @@ const ViewApplicationForm = ({ jobId, onHide }) => {
         </div>
       ))}
 
-      <div className="mb-4">
+      {/* <div className="mb-4">
         <label className="block text-gray-700 font-medium mb-2">
           Resume URL{" "}
           <span className="text-red-500">
@@ -120,7 +120,7 @@ const ViewApplicationForm = ({ jobId, onHide }) => {
           placeholder="Enter your resume URL"
           required
         />
-      </div>
+      </div> */}
     </div>
   );
 };

@@ -70,8 +70,18 @@ const mtechdepartmentOptions = [
   {
     label: "CIVIL ENGINEERING",
     options: [
-      { value: "STRUCTURAL AND CONSTRUCTION ENGINEERING", label: "STRUCTURAL AND CONSTRUCTION ENGINEERING" },
-      { value: "GEOTECHNICAL AND GEO-ENVIRONMENTAL ENGINEERING", label: "GEOTECHNICAL AND GEO-ENVIRONMENTAL ENGINEERING" },
+      {
+        value: "STRUCTURAL AND CONSTRUCTION ENGINEERING",
+        label: "STRUCTURAL AND CONSTRUCTION ENGINEERING",
+      },
+      {
+        value: "GEOTECHNICAL AND GEO-ENVIRONMENTAL ENGINEERING",
+        label: "GEOTECHNICAL AND GEO-ENVIRONMENTAL ENGINEERING",
+      },
+      {
+        value: "GEOTECHNICAL ENGINEERING AND INFRASTRUCTURE DESIGN",
+        label: "GEOTECHNICAL ENGINEERING AND INFRASTRUCTURE DESIGN",
+      },
     ],
   },
   {
@@ -215,11 +225,14 @@ const InsightDashboard = () => {
       </div>
     );
   }
-
-  // ─── Reusable components ──────────────────────────────────────────────────
-
-  const StatCard = ({ icon: Icon, title, value, subtitle, color = "indigo" }) => (
-    <div className="bg-white rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 p-6 border border-gray-100">
+  const StatCard = ({
+    icon: Icon,
+    title,
+    value,
+    subtitle,
+    color = "indigo",
+  }) => (
+    <div className="bg-white rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 p-6 border border-gray-100 w-full">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div className="overflow-hidden">
           <p className="text-sm font-medium text-gray-600 mb-1">{title}</p>
@@ -652,18 +665,48 @@ const InsightDashboard = () => {
                 {isSummer ? <>Summer Intern <span className="text-custom-blue">Analytics</span></> : <>Placement <span className="text-custom-blue">Analytics</span></>}
               </h1>
             </div>
-            <div className="flex flex-wrap items-center gap-3">
-              <select value={insightsType} onChange={(e) => { setInsightsType(e.target.value); setShowAllCompanies(false); }} className="bg-white border border-gray-300 rounded-lg px-4 py-2 text-sm font-medium hover:bg-gray-50">
-                {["Placement", "Summer Internships"].map((t) => <option key={t} value={t}>{t}</option>)}
+
+            {/* Combine both dropdowns in one flex */}
+            <div className="flex flex-col sm:flex-row items-center sm:space-x-4 gap-2">
+              <select
+                value={insightsType}
+                onChange={(e) => setInsightsType(e.target.value)}
+                className="bg-white border border-gray-300 rounded-lg px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent w-full"
+              >
+                {["Placement", "Summer Internships"].map((typeOption) => (
+                  <option key={typeOption} value={typeOption}>
+                    {typeOption}
+                  </option>
+                ))}
               </select>
-              <select value={selectedBatch} onChange={(e) => setSelectedBatch(e.target.value)} className="bg-white border border-gray-300 rounded-lg px-4 py-2 text-sm font-medium hover:bg-gray-50">
-                {batches.map((b) => <option key={b} value={b}>{b}</option>)}
+              <select
+                value={selectedBatch}
+                onChange={(e) => setSelectedBatch(e.target.value)}
+                className="bg-white border border-gray-300 rounded-lg px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent w-full"
+              >
+                {batches.map((batchOption) => (
+                  <option key={batchOption} value={batchOption}>
+                    {batchOption}
+                  </option>
+                ))}
               </select>
-              <select value={selectedCourse} onChange={(e) => setSelectedCourse(e.target.value)} className="bg-white border border-gray-300 rounded-lg px-4 py-2 text-sm font-medium hover:bg-gray-50">
-                {courses.map((c) => <option key={c} value={c}>{c}</option>)}
+              <select
+                value={selectedCourse}
+                onChange={(e) => setSelectedCourse(e.target.value)}
+                className="bg-white border border-gray-300 rounded-lg px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent w-full"
+              >
+                {courses.map((courseOption) => (
+                  <option key={courseOption} value={courseOption}>
+                    {courseOption}
+                  </option>
+                ))}
               </select>
               {deptOptions.length > 0 && (
-                <select value={selectedDepartment} onChange={(e) => setSelectedDepartment(e.target.value)} className="bg-white border border-gray-300 rounded-lg px-4 py-2 text-sm font-medium hover:bg-gray-50">
+                <select
+                  value={selectedDepartment}
+                  onChange={(e) => setSelectedDepartment(e.target.value)}
+                  className="bg-white border border-gray-300 rounded-lg px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent w-full"
+                >
                   <option value="">All Departments</option>
                   {getDeptOptions(selectedCourse).map((opt) => (
                     <option key={opt.value} value={opt.value}>{opt.label}</option>

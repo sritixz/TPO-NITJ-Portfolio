@@ -14,6 +14,7 @@ import {
   faChartLine,
   faLayerGroup,
   faKey,
+  faUserCheck,
   faDatabase,
    faCertificate,
    faUserTie,
@@ -113,6 +114,11 @@ const StudentDashboard = () => {
     { path: "/sdashboard/placement-insights", label: "Placement Insights", icon: faChartLine },
     { path: "/sdashboard/navigator", label: "Navigator", icon: faLayerGroup, },
     { path: "/sdashboard/change-pass", label: "Change Password", icon: faKey },
+   { 
+  path: "/sdashboard/representativeApplication", 
+  label: "Representative Form", 
+  icon: faUserCheck // or any icon you like
+},
   ];
 
   const MenuItem = ({ item, onClick, isSidebarExpanded }) => {
