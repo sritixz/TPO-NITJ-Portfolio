@@ -459,6 +459,12 @@ export const login = async (req, res) => {
     }
 
     const user = student || recuiter || professor || alumni || admin || department || faculty;
+
+    // Block deactivated student accounts
+    if (student && student.account_deactivate) {
+      return res.status(403).json({ message: "Your account has been deactivated. Please contact the TPO office." });
+    }
+
     let isPasswordValid;
     if (user.password.startsWith("$2")) {
       isPasswordValid = await bcrypt.compare(password, user.password);
