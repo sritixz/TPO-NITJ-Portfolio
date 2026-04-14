@@ -76,5 +76,6 @@ const SummerInternSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-const SummerIntern = mongoose.model("SummerIntern", SummerInternSchema);
+// In backend/models/SummerIntern.js
+const SummerIntern = mongoose.model("SummerIntern", SummerInternSchema, "summerinterns");
 export default SummerIntern;
