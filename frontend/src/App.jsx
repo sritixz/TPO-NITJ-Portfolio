@@ -29,6 +29,7 @@ import ErrorPage from "./Pages/ErrorPage";
 import AssessmentAttemptPage from "./Pages/Mock-test";
 import WhyRecruitPage from "./Pages/WhyRecruitPage";
 import Placementstatistics from "./Pages/Placementstatistic";
+// import InternshipStatistics from "./Pages/InternshipStatistics"; 
 import FeedbackForm from "./Pages/companyFeedbackForm";
 
 import OutsourceInternshipPage from "./components/outsource-studentDashboard/home";
@@ -99,6 +100,7 @@ const AppContent = () => {
         />
         <Route path="/forgot-password" element={<Forgotpassword />} />
         <Route path="/placement-statistics" element={<Placementstatistics />} />
+        {/* <Route path="/internship-statistics" element={<InternshipStatistics />} />  */}
         <Route path="/placements" element={<Placement />} />
         <Route path="/internships" element={<OutsourceInternshipPage />} />
         <Route path="/recruiter" element={<Recruiter />} />
