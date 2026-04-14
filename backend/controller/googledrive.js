@@ -49,6 +49,7 @@ export const gdrive = async (req, res) => {
     }
 
     const authClient = await authorize();
+    console.log(process.env.GOOGLE_DRIVE_FOLDER_ID);
     const uploadedFile = await uploadFile(authClient, req.file.path, process.env.GOOGLE_DRIVE_FOLDER_ID);
 
     fs.unlink(req.file.path, (err) => {

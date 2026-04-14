@@ -24,6 +24,14 @@ import { encryptValue, decryptValue } from "../utils/security.js";
 import fs from "fs";
 import path from "path";
 
+const stepEmailTransporter = nodemailer.createTransport({
+  service: "gmail",
+  auth: {
+    user: process.env.EMAIL_USER,
+    pass: process.env.EMAIL_PASS,
+  },
+});
+
 export const getAllCompanies = async (req, res) => {
   try {
     const companiesFromJobProfiles =
@@ -45,6 +53,7 @@ export const getAllCompanies = async (req, res) => {
   }
 };
 
+//commented
 const transporter = nodemailer.createTransport({
   service: "gmail",
   auth: {
@@ -151,7 +160,7 @@ const sendEmailToStudent = async (student, jobProfile) => {
   </div>
 `,
   };
-
+// commented
   try {
     await transporter.sendMail(mailOptions);
   } catch (error) {
@@ -342,7 +351,7 @@ export const createJobProfilecopy = async (req, res) => {
         const email = `${prefix}${admissionYear}@nitj.ac.in`;
 
         const pseudoStudent = { email };
-        await sendEmailToStudent(pseudoStudent, savedProfile);
+        await sendEmailToStudent(pseudoStudent, savedProfile); //commented
       }),
     );
 
@@ -376,7 +385,8 @@ export const uploadAttachment = async (req, res) => {
       .json({ success: false, message: "No file uploaded" });
   }
 
-  const attachmentUrl = `/uploads/job_attachments/${file.filename}`;
+  // const attachmentUrl = `/uploads/job_attachments/${file.filename}`;
+const attachmentUrl = `http://localhost:7000/uploads/job_attachments/${file.filename}`;
   const attachmentName = file.originalname;
 
   try {
@@ -387,6 +397,7 @@ export const uploadAttachment = async (req, res) => {
     }
 
     console.log(job.attachments);
+    console.log(attachmentUrl);
 
     const newAttachment = { name: attachmentName, url: attachmentUrl };
     job.attachments.push(newAttachment);
@@ -2900,6 +2911,172 @@ export const updateOthersLink = async (req, res) => {
     console.error("Error updating others links:", error);
     return res.status(500).json({
       message: "Failed to update others links.",
+      error: error.message,
+    });
+  }
+};
+
+export const sendStepEmail = async (req, res) => {
+  try {
+    const { jobId, stepIndex } = req.params;
+    const { message } = req.body;
+    const files = req.files || [];
+    // const file = req.file;
+    const emailAttachments = [];
+const dbAttachments = [];
+
+for (const file of files) {
+  emailAttachments.push({
+    filename: file.originalname,
+    path: file.path,
+  });
+
+  dbAttachments.push({
+    file_name: file.originalname,
+   file_url: `http://localhost:7000/uploads/job_attachments/${file.filename}`
+  });
+}
+
+    if (!mongoose.Types.ObjectId.isValid(jobId)) {
+      return res.status(400).json({ message: "Invalid job ID" });
+    }
+
+    const index = Number(stepIndex);
+    if (Number.isNaN(index) || index < 0) {
+      return res.status(400).json({ message: "Invalid step index" });
+    }
+
+    const job = await JobProfile.findById(jobId);
+    if (!job) {
+      return res.status(404).json({ message: "Job profile not found" });
+    }
+
+    const step = job.Hiring_Workflow[index];
+    if (!step) {
+      return res.status(404).json({ message: "Hiring workflow step not found" });
+    }
+
+    const eligibleStudentIds = step.eligible_students || [];
+    if (!eligibleStudentIds.length) {
+      return res
+        .status(400)
+        .json({ message: "No eligible students found for this step" });
+    }
+
+    const students = await Student.find(
+      { _id: { $in: eligibleStudentIds } },
+      "email name",
+    );
+
+    const emails = students
+      .map((s) => s.email)
+      .filter((email) => typeof email === "string" && email.trim() !== "");
+
+    if (!emails.length) {
+      return res
+        .status(400)
+        .json({ message: "No valid email addresses for eligible students" });
+    }
+
+    const subject = `Hiring Step Scheduled: ${step.step_type} for ${job.job_role} at ${job.company_name}`;
+
+    const plainDetailsLines = Object.entries(step.details || {}).map(
+      ([key, value]) => `${key.replace(/_/g, " ")}: ${value || "N/A"}`,
+    );
+
+    const textBody = [
+      "Dear Student,",
+      "",
+      // message || "This is a Test Email.Please Ignore it.",
+      message || "You have a new hiring process step scheduled.",
+      "",
+      `Job: ${job.job_role} at ${job.company_name}`,
+      `Step: ${step.step_type}`,
+      "",
+      "Step details:",
+      ...plainDetailsLines,
+      "",
+      "Regards,",
+      "TPO-NITJ",
+    ].join("\n");
+
+    const htmlDetailsRows = Object.entries(step.details || {})
+      .map(
+        ([key, value]) => `
+          <tr>
+            <td style="padding:8px;font-weight:bold;text-transform:capitalize;">
+              ${key.replace(/_/g, " ")}:
+            </td>
+            <td style="padding:8px;">${value || "N/A"}</td>
+          </tr>`,
+      )
+      .join("");
+
+    const safeMessage = (message || "").replace(/\n/g, "<br />");
+
+    const htmlBody = `
+      <div style="font-family:Arial,sans-serif;color:#333;line-height:1.6;">
+        <div style="max-width:650px;margin:auto;border:1px solid #e0e0e0;border-radius:10px;overflow:hidden;box-shadow:0 4px 10px rgba(0,0,0,0.05);">
+          <div style="background:linear-gradient(90deg,#0369A0,#04A6CF);padding:24px;text-align:center;color:#ffffff;">
+            <h2 style="margin:0;font-size:22px;">Hiring Step Scheduled</h2>
+            <p style="margin:4px 0 0;font-size:16px;">
+              ${step.step_type} for ${job.job_role} at ${job.company_name}
+            </p>
+          </div>
+          <div style="padding:24px;background-color:#fafafa;">
+            <p style="font-size:16px;">Dear <strong>Student</strong>,</p>
+            <p style="font-size:15px;margin-top:10px;">
+              ${safeMessage || "You have a new hiring process step scheduled."}
+            </p>
+            <table style="width:100%;margin-top:16px;border-collapse:collapse;font-size:15px;">
+              ${htmlDetailsRows}
+            </table>
+          </div>
+          <div style="background-color:#f4f4f4;padding:16px;text-align:center;font-size:13px;color:#777;">
+            <p style="margin:0;">Best regards,</p>
+            <p style="margin:0;font-weight:bold;color:#0369A0;">TPO-NITJ</p>
+            <p style="margin-top:8px;font-size:12px;color:#999;">
+              This is an automated message. Please do not reply to this email.
+            </p>
+          </div>
+        </div>
+      </div>
+    `;
+
+    // const attachments = [];
+    // if (files) {
+    //   attachments.push({
+    //     filename: file.originalname,
+    //     path: file.path,
+    //   });
+    // }
+
+    // commented latest - send email to students
+ 
+
+     stepEmailTransporter.sendMail({
+  from: process.env.EMAIL_USER,
+  to: emails,
+  subject,
+  text: textBody,
+  html: htmlBody,
+  attachments: emailAttachments,
+});
+
+step.step_announcements.push({
+  message: message || "",
+  attachments: dbAttachments,
+
+});
+
+await job.save();
+    return res
+      .status(200)
+      .json({ message: "Emails being sent to eligible students " });
+  } catch (error) {
+    console.error("Error sending step email:", error);
+    return res.status(500).json({
+      message: "Failed to send emails for this hiring step",
       error: error.message,
     });
   }

@@ -66,7 +66,7 @@ import {
 } from './controller/EventAnnouncement.js';
 import hardRefreshERPDataRoutes from "./routes/hardRefreshERPData.js"
 import messageRoutes from "./routes/admin/messagesHeadAdmin.js";
-
+import router from "./routes/ir_pr_application.js";
 
 import studentsuggestionroute from "./routes/studentsuggestionroute.js";
 import professorsuggestionroute from "./routes/professersuggestionroute.js";
@@ -150,7 +150,7 @@ app.use('/question-bank', authenticate,restrictTo('Student'),logMiddleware, ques
 app.use('/withdraw',authenticate, restrictTo('Student'),logMiddleware, withdrawRoutes);
 app.use('/alert',authenticate, restrictTo('Student'),logMiddleware, alertRoutes);
 app.use('/suggestions',authenticate,restrictTo("Student"),logMiddleware,studentsuggestionroute);
-
+app.use("/api/representative", authenticate, logMiddleware, router);
 //Professor routes
 app.use("/student-analysis",authenticate, restrictTo('Professor'),logMiddleware, studentanalysisRoutes);
 app.use("/companies-analysis",authenticate,restrictTo('Professor'),logMiddleware, companiesanalysisRoutes);
