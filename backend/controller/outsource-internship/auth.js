@@ -6,19 +6,20 @@ import OutsiderToken from "../../models/outsource-internship/tokenOutsider.js";
 import { v4 as uuidv4 } from "uuid";
 import jwt from "jsonwebtoken";
 import LoginAttemptOutsider from "../../models/outsource-internship/loginAttempt.js";
-import ResetPasswordTokenOutsider from "../../models/outsource-internship/resetpasswordOutsider.js"
+import ResetPasswordTokenOutsider from "../../models/outsource-internship/resetpasswordOutsider.js";
+
+//FORGOT PASSWORD
+const generateOTP = (length = 6) => {
+  const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+  let otp = "";
+  for (let i = 0; i < length; i++) {
+    otp += chars.charAt(Math.floor(Math.random() * chars.length));
+  }
+  return otp;
+};
 
 export const handleOTPGeneration = async (req, res) => {
   const { email } = req.body;
-  const generateOTP = (length = 6) => {
-    const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-    let otp = "";
-    for (let i = 0; i < length; i++) {
-      otp += chars.charAt(Math.floor(Math.random() * chars.length));
-    }
-    return otp;
-  };
-
   const expiry = new Date(Date.now() + 5 * 60 * 1000);
   const otp = generateOTP();
 
@@ -32,7 +33,7 @@ export const handleOTPGeneration = async (req, res) => {
       ip: req.headers["x-forwarded-for"] || req.socket.remoteAddress,
       timestamp: new Date(),
     },
-    { upsert: true, new: true }
+    { upsert: true, new: true },
   );
 
   const mailOptions = {
@@ -128,13 +129,13 @@ export const verifyOutsiderOtp = async (req, res) => {
       verificationId,
       timestamp: new Date(),
     },
-    { upsert: true, new: true }
+    { upsert: true, new: true },
   );
 
   const tokenOutsider = jwt.sign(
     { email, verificationId },
     process.env.JWT_SECRET,
-    { expiresIn: "10m" }
+    { expiresIn: "10m" },
   );
   res.cookie("tokenOutsider", tokenOutsider, {
     httpOnly: true,
@@ -292,8 +293,20 @@ export const handleLoginOutsider = async (req, res) => {
         .json({ success: false, error: "CAPTCHA not verified" });
     }
     let loginAttempt = await LoginAttemptOutsider.findOne({ email });
-    if (loginAttempt && loginAttempt.isLocked) {
-      if (Date.now() > loginAttempt.otpExpires) {
+    if (!loginAttempt) {
+      loginAttempt = new LoginAttemptOutsider({ email, loginAttempts: 0 });
+    }
+
+    if (loginAttempt.isLocked) {
+      let otp = loginAttempt.otp;
+
+      if (!otp || Date.now() > loginAttempt.otpExpires) {
+        otp = generateOTP();
+        loginAttempt.otp = otp;
+        loginAttempt.otpExpires = new Date(Date.now() + 5 * 60 * 1000);
+        await loginAttempt.save();
+
+        // send mail here
         const mailOptions = {
           from: process.env.EMAIL_USER,
           to: email,
@@ -345,19 +358,18 @@ export const handleLoginOutsider = async (req, res) => {
         };
         await transporter.sendMail(mailOptions);
       }
+
       return res
         .status(400)
         .json({ message: "Account locked. Please check your email for OTP." });
     }
     const outsider = await Outsider.findOne({ email });
 
-    if (
-      !outsider
-    ) {
+    if (!outsider) {
       return res.status(401).json({ message: "Email is not Registered" });
     }
 
-    const user = outsider
+    const user = outsider;
 
     let isPasswordValid;
     if (user.password.startsWith("$2")) {
@@ -433,6 +445,7 @@ export const handleLoginOutsider = async (req, res) => {
         loginAttempt.otp = otp;
         loginAttempt.otpExpires = new Date(Date.now() + 5 * 60 * 1000);
         loginAttempt.ip = ip;
+        await loginAttempt.save();
         const mailOptions = {
           from: process.env.EMAIL_USER,
           to: email,
@@ -495,11 +508,11 @@ export const handleLoginOutsider = async (req, res) => {
 
     let userType = "";
     if (user == outsider) userType = "Outsider";
- 
+
     const token = jwt.sign(
       { userId: user._id, userType: userType },
       process.env.JWT_SECRET,
-      { expiresIn: process.env.JWT_EXPIRES_IN }
+      { expiresIn: process.env.JWT_EXPIRES_IN },
     );
     if (!token) {
       return res.status(500).json({ message: "Failed to generate token" });
@@ -515,7 +528,11 @@ export const handleLoginOutsider = async (req, res) => {
     res.clearCookie("captchaToken");
     res
       .status(200)
-      .json({ message: "Login Successful", user: user, userType: userType });
+      .json({ message: "Login Successful", user: {
+  id: user._id,
+  email: user.email,
+  name: user.name
+}, userType: userType });
   } catch (error) {
     console.error("Error in login route:", error);
     res.clearCookie("captchaToken");
@@ -523,19 +540,9 @@ export const handleLoginOutsider = async (req, res) => {
   }
 };
 
-//FORGOT PASSWORD
-const generateOTP = (length = 6) => {
-  const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-  let otp = "";
-  for (let i = 0; i < length; i++) {
-    otp += chars.charAt(Math.floor(Math.random() * chars.length));
-  }
-  return otp;
-};
-
 export const sendResetPasswordOtp = async (req, res) => {
   const { email } = req.body;
-  const user = await Outsider.findOne({email});
+  const user = await Outsider.findOne({ email });
 
   if (!user)
     return res.status(401).json({ message: "Email is not registered" });
@@ -552,7 +559,7 @@ export const sendResetPasswordOtp = async (req, res) => {
       ip: req.headers["x-forwarded-for"] || req.socket.remoteAddress,
       timestamp: new Date(),
     },
-    { upsert: true, new: true }
+    { upsert: true, new: true },
   );
 
   const mailOptions = {
@@ -622,7 +629,7 @@ export const sendResetPasswordOtp = async (req, res) => {
 
 export const verifyResetPasswordOtp = async (req, res) => {
   const { email, otp } = req.body;
-  const user =await Outsider.findOne({email});
+  const user = await Outsider.findOne({ email });
 
   if (!user)
     return res.status(401).json({ message: "Email is not registered" });
@@ -642,7 +649,7 @@ export const verifyResetPasswordOtp = async (req, res) => {
 
   if (otpVerification.otp !== otp) {
     otpVerification.otpAttempts += 1;
-    await OtpVerificationOutsider.save();
+    await otpVerification.save();
     return res.status(400).json({ message: "Invalid OTP" });
   }
 
@@ -657,13 +664,13 @@ export const verifyResetPasswordOtp = async (req, res) => {
       resetId,
       timestamp: new Date(),
     },
-    { upsert: true, new: true }
+    { upsert: true, new: true },
   );
 
   const resetPasswordtoken = jwt.sign(
     { email, resetId },
     process.env.JWT_SECRET,
-    { expiresIn: "10m" }
+    { expiresIn: "10m" },
   );
   res.cookie("resetPasswordToken", resetPasswordtoken, {
     httpOnly: true,
@@ -686,7 +693,9 @@ export const resetPassword = async (req, res) => {
     if (!decoded || decoded.email !== email) {
       return res.status(401).json({ message: "Unauthorized" });
     }
-    const resetpasswordData = await ResetPasswordTokenOutsider.findOne({ email });
+    const resetpasswordData = await ResetPasswordTokenOutsider.findOne({
+      email,
+    });
     if (!resetpasswordData) {
       return res.status(401).json({ message: "Invalid request" });
     }
@@ -694,7 +703,7 @@ export const resetPassword = async (req, res) => {
       return res.status(401).json({ message: "Reset Token expired" });
     }
 
-    const user=await Outsider.findOne({email});
+    const user = await Outsider.findOne({ email });
 
     if (!user) {
       return res.status(401).json({ message: "Email is not Registered" });

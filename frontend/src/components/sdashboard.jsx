@@ -114,11 +114,11 @@ const StudentDashboard = () => {
     { path: "/sdashboard/placement-insights", label: "Placement Insights", icon: faChartLine },
     { path: "/sdashboard/navigator", label: "Navigator", icon: faLayerGroup, },
     { path: "/sdashboard/change-pass", label: "Change Password", icon: faKey },
-   { 
-  path: "/sdashboard/representativeApplication", 
-  label: "Representative Form", 
-  icon: faUserCheck // or any icon you like
-},
+//    { 
+//   path: "/sdashboard/representativeApplication", 
+//   label: "Representative Form", 
+//   icon: faUserCheck // or any icon you like
+// },
   ];
 
   const MenuItem = ({ item, onClick, isSidebarExpanded }) => {
@@ -330,7 +330,7 @@ const StudentDashboard = () => {
             <Route path="student-connect" element={<StudentConnect />} />
             {/* <Route path="fine-payment" element={<FinePayment />} /> */}
             <Route path="suggestions" element={<Suggestions />} />
-            <Route path="representativeApplication" element={<RepresentativeApplication/>} />
+            {/* <Route path="representativeApplication" element={<RepresentativeApplication/>} /> */}
             </Routes>
         </div>
 

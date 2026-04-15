@@ -3548,6 +3548,38 @@ const ViewJobDetails = ({ job, onClose, oneditingAllowedUpdate }) => {
   );
 
   function renderHiringWorkflow() {
+    
+  const handleAddStepSubmit = async () => {
+    try {
+      setIsSavingStep(true);
+      const updatedWorkflow = [
+        ...editedWorkflow,
+        {
+          ...newStep,
+          eligible_students: [],
+          shortlisted_students: [],
+          absent_students: [],
+        },
+      ];
+      const response = await axios.put(
+        `${import.meta.env.REACT_APP_BASE_URL}/jobprofile/updatejob/${job._id}`,
+        { Hiring_Workflow: updatedWorkflow },
+        { withCredentials: true },
+      );
+      if (response.data.success) {
+        setEditedWorkflow(updatedWorkflow);
+        Object.assign(job, {Hiring_Workflow: updatedWorkflow})
+        setAddingStep(false);
+        setNewStep({ step_type: "", details: {} });
+        toast.success("Hiring step added successfully!");
+      }
+    } catch (error) {
+      console.error("Error adding hiring step:", error);
+      toast.error("Failed to add hiring step");
+    } finally {
+      setIsSavingStep(false);
+    }
+  };
    if (addingStep) {
     return (
       <div className="p-8 bg-white border border-gray-200 rounded-2xl shadow-lg hover:shadow-xl transition-shadow duration-300 mt-8">
@@ -3815,7 +3847,7 @@ const ViewJobDetails = ({ job, onClose, oneditingAllowedUpdate }) => {
             </ul>
            
 {/* Toggle Button */}
-<button
+{/* <button
   type="button"
   onClick={() =>
     setOpenEmailStepIndex(
@@ -3825,7 +3857,7 @@ const ViewJobDetails = ({ job, onClose, oneditingAllowedUpdate }) => {
   className="mt-4 bg-gradient-to-r from-blue-500 to-indigo-600 text-white px-5 py-2.5 rounded-xl hover:from-blue-600 hover:to-indigo-700 transition-all duration-300 shadow-md"
 >
   Add Attachments 
-</button>
+</button> */}
 
 {/* Modal Popup */}
 {openEmailStepIndex === index && (

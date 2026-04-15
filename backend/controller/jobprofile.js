@@ -24,6 +24,7 @@ import { encryptValue, decryptValue } from "../utils/security.js";
 import fs from "fs";
 import path from "path";
 
+
 const stepEmailTransporter = nodemailer.createTransport({
   service: "gmail",
   auth: {
@@ -386,7 +387,7 @@ export const uploadAttachment = async (req, res) => {
   }
 
   // const attachmentUrl = `/uploads/job_attachments/${file.filename}`;
-const attachmentUrl = `http://localhost:7000/uploads/job_attachments/${file.filename}`;
+const attachmentUrl = `/uploads/job_attachments/${file.filename}`;
   const attachmentName = file.originalname;
 
   try {
@@ -397,7 +398,7 @@ const attachmentUrl = `http://localhost:7000/uploads/job_attachments/${file.file
     }
 
     console.log(job.attachments);
-    console.log(attachmentUrl);
+    // console.log(attachmentUrl);
 
     const newAttachment = { name: attachmentName, url: attachmentUrl };
     job.attachments.push(newAttachment);
@@ -2933,7 +2934,7 @@ for (const file of files) {
 
   dbAttachments.push({
     file_name: file.originalname,
-   file_url: `http://localhost:7000/uploads/job_attachments/${file.filename}`
+    file_url: `/uploads/job_attachments/${file.filename}`
   });
 }
 
