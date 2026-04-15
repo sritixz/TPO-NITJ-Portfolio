@@ -3,7 +3,7 @@ import { Clock, FileText, CreditCard, CheckCircle, ExternalLink } from 'lucide-r
 import { useNavigate } from "react-router-dom";
 import LTE2MonthForm from './lte2monthform';
 const OutsourceInternshipPage = () => {
-  const [selectedOption, setSelectedOption] = useState('moreThan3Months');
+  const [selectedOption, setSelectedOption] = useState('winterSummer');
   const navigate = useNavigate();
 
   const winterSummerContent = (

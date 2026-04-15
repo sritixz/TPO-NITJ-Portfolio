@@ -4,11 +4,9 @@ const LogoSchema = new mongoose.Schema(
   {
     company_name: {
       type: String,
-      required: true,
     },
     company_logo: {
       type: String,
-      required: true,
     },
   },
   { timestamps: true }

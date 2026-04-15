@@ -6,8 +6,8 @@ const tokenSchema = new mongoose.Schema({
     ref: "Student",
     required: true
   },
-  token: { type: String, required: true },
-  expiresAt: { type: Date, required: true }
+  token: { type: String, },
+  expiresAt: { type: Date, }
 });
 
 // auto delete when expired
