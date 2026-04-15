@@ -12,7 +12,7 @@ const Request = () => {
   // For toggling resolved issue comments; key format: `${issue._id}-${index}`
   const [expandedComments, setExpandedComments] = useState({});
   const [raising, setRaising] = useState(false);
-
+  const [contactNo, setContactNo] = useState("");
 
   const availableIssues = [
     "Eligibility Issue",
@@ -30,7 +30,7 @@ const Request = () => {
     try {
       const response = await axios.get(
         `${import.meta.env.REACT_APP_BASE_URL}/reqhelp/get-own-issue`,
-        { withCredentials: true }
+        { withCredentials: true },
       );
       setResolvedIssues(response.data.resolved || []);
       setUnresolvedIssues(response.data.unresolved || []);
@@ -39,37 +39,42 @@ const Request = () => {
     }
   };
 
-const raiseIssue = async () => {
-  if (raising) return; // Prevent double click
-  if (!selectedIssuetitle || !issueDescription) {
-    alert("Please select an issue and provide a description before raising it.");
-    return;
-  }
+  const raiseIssue = async () => {
+    if (raising) return; // Prevent double click
+    if (!selectedIssuetitle || !issueDescription || !contactNo) {
+      alert("All fields are required");
+      return;
+    }
 
-  setRaising(true);
+    if (!/^[6-9]\d{9}$/.test(contactNo)) {
+      alert("Enter valid 10-digit phone number");
+      return;
+    }
 
-  try {
-    const response = await axios.post(
-      `${import.meta.env.REACT_APP_BASE_URL}/reqhelp/create`,
-      {
-        title: selectedIssuetitle,
-        description: issueDescription,
-      },
-      { withCredentials: true }
-    );
+    setRaising(true);
 
-    setUnresolvedIssues([...unresolvedIssues, response.data.data]);
-    setAlertMessage("Your issue has been raised and sent to the team.");
-    setIssueDescription("");
-    setSelectedIssuetitle("");
-    setTimeout(() => setAlertMessage(""), 3000);
-  } catch (error) {
-    console.error("Error raising issue:", error);
-  } finally {
-    setRaising(false);
-  }
-};
+    try {
+      const response = await axios.post(
+        `${import.meta.env.REACT_APP_BASE_URL}/reqhelp/create`,
+        {
+          title: selectedIssuetitle,
+          contact: contactNo,
+          description: issueDescription,
+        },
+        { withCredentials: true },
+      );
 
+      setUnresolvedIssues([...unresolvedIssues, response.data.data]);
+      setAlertMessage("Your issue has been raised and sent to the team.");
+      setIssueDescription("");
+      setSelectedIssuetitle("");
+      setTimeout(() => setAlertMessage(""), 3000);
+    } catch (error) {
+      console.error("Error raising issue:", error);
+    } finally {
+      setRaising(false);
+    }
+  };
 
   // Toggle the display of the professor's comment
   const toggleComment = (key) => {
@@ -88,7 +93,7 @@ const raiseIssue = async () => {
         {issues.map((issue) => {
           // Although the backend filtered details, do an extra filter in case there are extra entries.
           const filteredDetails = issue.details.filter(
-            (detail) => detail.status === filterStatus
+            (detail) => detail.status === filterStatus,
           );
           if (filteredDetails.length === 0) return null;
           return (
@@ -97,9 +102,7 @@ const raiseIssue = async () => {
               className="p-4 bg-gray-50 border rounded-md shadow-sm"
             >
               <div>
-                <span className="font-medium text-gray-800">
-                  {issue.title}
-                </span>
+                <span className="font-medium text-gray-800">{issue.title}</span>
                 <ul className="mt-2 space-y-2">
                   {filteredDetails.map((detail, index) => (
                     <li
@@ -173,9 +176,7 @@ const raiseIssue = async () => {
         <div className="border border-gray-300 flex flex-row items-center justify-center mb-4 rounded-3xl bg-white">
           <button
             className={`px-4 py-2 rounded-3xl ${
-              activeTab === "request"
-                ? "bg-custom-blue text-white"
-                : "bg-white"
+              activeTab === "request" ? "bg-custom-blue text-white" : "bg-white"
             }`}
             onClick={() => setActiveTab("request")}
           >
@@ -244,28 +245,38 @@ const raiseIssue = async () => {
             </select>
 
             <label className="block text-gray-700 font-medium mb-2">
+              Contact Number
+            </label>
+            <input
+              type="tel"
+              value={contactNo}
+              onChange={(e) => setContactNo(e.target.value)}
+              className="w-full p-3 mb-4 border border-gray-300 rounded-md"
+              placeholder="Enter contact number"
+            />
+
+            <label className="block text-gray-700 font-medium mb-2">
               Issue Description
             </label>
             <textarea
               onChange={(e) => setIssueDescription(e.target.value)}
               value={issueDescription}
-              className="w-full p-3 mb-4 border border-gray-300 rounded-md focus:outline-none focus:ring focus:ring-blue-300"
+              className="w-full p-3 mb-4 border border-gray-300 rounded-md"
               rows="4"
               placeholder="Describe your issue here..."
             />
 
-         <button
-  onClick={raiseIssue}
-  disabled={raising}
-  className={`w-full py-2 rounded-md transition-all shadow-md text-white ${
-    raising
-      ? "bg-blue-300 cursor-not-allowed"
-      : "bg-custom-blue hover:bg-blue-700"
-  }`}
->
-  {raising ? "Raising Issue..." : "Raise Issue"}
-</button>
-
+            <button
+              onClick={raiseIssue}
+              disabled={raising}
+              className={`w-full py-2 rounded-md transition-all shadow-md text-white ${
+                raising
+                  ? "bg-blue-300 cursor-not-allowed"
+                  : "bg-custom-blue hover:bg-blue-700"
+              }`}
+            >
+              {raising ? "Raising Issue..." : "Raise Issue"}
+            </button>
           </>
         ) : (
           <div className="mt-2">
