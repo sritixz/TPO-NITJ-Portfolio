@@ -1942,7 +1942,7 @@ const StudentManager = () => {
       const dataToExport = applyFilters();
 
       // If no data, export empty array with model structure as template
-       exportData =
+      const exportData =
         dataToExport.length > 0
           ? dataToExport
           : [
