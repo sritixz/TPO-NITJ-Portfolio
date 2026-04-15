@@ -46,7 +46,7 @@ export const createIssue = async (req, res) => {
 
     const mailOptions = {
   from: `"Placement Portal" <${process.env.EMAIL_USER}>`,
-  to: "quer4ctp@nitj.ac.in",
+  to: "query4ctp@nitj.ac.in",
   subject: `New Issue Raised by ${user?.name}`,
   html: `
   <div style="font-family: Arial, sans-serif; color: #333; line-height: 1.6;">
