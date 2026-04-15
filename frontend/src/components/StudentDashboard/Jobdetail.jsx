@@ -1241,14 +1241,14 @@ const Jobdetail = () => {
           ))}
         </div>
 
-        <div className="flex justify-center mt-6">
+         <div className="flex justify-center mt-6">
           <button
             className="text-custom-blue p-2 border border-custom-blue rounded-lg text-sm font-semibold hover:bg-custom-blue hover:text-white transition duration-200"
             onClick={() => setShowAttachments(true)}
           >
             Attachments
           </button>
-        </div>
+        </div> 
 
        {description && (
   <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-40 z-50">
@@ -1276,8 +1276,7 @@ const Jobdetail = () => {
     </div>
   </div>
 )}
-
-        {showAttachments && (
+  {showAttachments && (
           <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-40">
             <div className="relative p-6 bg-white rounded-lg shadow-lg w-80 sm:w-96 max-h-[80vh] overflow-y-auto">
               <button
@@ -1325,6 +1324,8 @@ const Jobdetail = () => {
             </div>
           </div>
         )}
+
+    
       </div>
     ),
 
@@ -1628,8 +1629,52 @@ const Jobdetail = () => {
                     )}
                   </div>
                 </div>
+                {/*  Step Announcements */}
+{step.step_announcements && step.step_announcements.length > 0 && (
+  <div className="mt-6 space-y-4">
+    <h4 className="text-lg font-semibold text-blue-700">
+      Announcements
+    </h4>
+
+    {step.step_announcements.map((announcement, i) => (
+      <div
+        key={i}
+        className="p-4 bg-blue-50 border border-blue-200 rounded-xl shadow-sm"
+      >
+        {/* Message */}
+        {announcement.message && (
+          <p className="text-gray-800 text-sm whitespace-pre-line">
+            {announcement.message}
+          </p>
+        )}
+
+        {/* Attachments */}
+        {announcement.attachments &&
+          announcement.attachments.length > 0 && (
+            <div className="mt-3 space-y-2">
+              {announcement.attachments.map((file, idx) => (
+                <a
+                  key={idx}
+                  href={file.file_url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center text-blue-600 hover:text-blue-800 text-sm underline"
+                >
+                  📎 {file.file_name}
+                </a>
+              ))}
+            </div>
+          )}
+
+     
+      </div>
+    ))}
+  </div>
+)}
               </div>
+              
             );
+            
           })}
         </div>
       )}
