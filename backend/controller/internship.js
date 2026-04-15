@@ -126,6 +126,56 @@ export const getFilteredInternships = async (req, res) => {
     res.status(500).json({ message: "Internal Server Error" });
   }
 };
+
+// backend/controller/internship.js
+
+export const getSummerInternshipAnalytics = async (req, res) => {
+  try {
+    const { course, batch } = req.query;
+    const filter = { visibility: true };
+    if (course && course !== "All") filter.course = course;
+    if (batch) filter.batch = batch;
+
+    const summerOffers = await SummerIntern.find(filter);
+    if (!summerOffers.length) return res.status(200).json({ totalOffers: 0, noData: true });
+
+    // Flatten all students into one array
+    const allStudents = summerOffers.flatMap(offer => offer.shortlisted_students || []);
+    
+    // 1. UNIQUE STUDENTS SELECTION LOGIC
+    const uniqueStudentIds = new Set();
+    allStudents.forEach(s => {
+      // Fallback to name-email combo if studentId is missing
+      const id = s.studentId?.toString() || `${s.name}-${s.email}`;
+      uniqueStudentIds.add(id);
+    });
+
+    const totalOffers = allStudents.length;
+    const studentsSelected = uniqueStudentIds.size;
+    const doubleOffers = totalOffers - studentsSelected;
+
+    // 2. STIPEND LOGIC (For your other missing cards)
+    const stipends = allStudents.map(s => parseFloat(s.stipend || 0)).filter(s => s > 0);
+
+    res.status(200).json({
+      totalOffers,
+      studentsSelected,
+      doubleOffers,
+      highestStipend: stipends.length ? Math.max(...stipends).toLocaleString() : 0,
+      lowestStipend: stipends.length ? Math.min(...stipends).toLocaleString() : 0,
+      avgStipend: stipends.length ? Math.round(stipends.reduce((a, b) => a + b, 0) / stipends.length).toLocaleString() : 0,
+      departmentWise: Object.entries(
+        allStudents.reduce((acc, s) => {
+          acc[s.department] = (acc[s.department] || 0) + 1;
+          return acc;
+        }, {})
+      ).map(([department, percentage]) => ({ department, percentage })),
+      companies: [] // Aggregate your company data here
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
 export const getLastSevenDaysInternships = async (req, res) => {
   try {
     const studentId= req.user?.userId;
