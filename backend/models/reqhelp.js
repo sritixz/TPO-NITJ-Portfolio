@@ -11,23 +11,26 @@ const IssueSchema = new mongoose.Schema(
         userId: {
           type: mongoose.Schema.Types.ObjectId,
           required: true,
-          refPath: 'details.onModel',
+          refPath: "details.onModel",
         },
         onModel: {
           type: String,
           required: true,
-          enum: ['Student', 'Recruiter'],
+          enum: ["Student", "Recruiter"],
         },
         description: {
           type: String,
         },
+        contact: {
+          type: String,
+        },
         status: {
           type: String,
-          enum: ['Pending', 'Resolved'],
-          default: 'Pending',
+          enum: ["Pending", "Resolved"],
+          default: "Pending",
         },
-        comment:{
-          type:String
+        comment: {
+          type: String,
         },
         raisedAt: {
           type: Date,
@@ -35,7 +38,7 @@ const IssueSchema = new mongoose.Schema(
         },
         resolvedBy: {
           type: mongoose.Schema.Types.ObjectId,
-          ref: 'Professor',
+          ref: "Professor",
           default: null,
         },
         resolvedAt: {
@@ -47,8 +50,8 @@ const IssueSchema = new mongoose.Schema(
   },
   {
     timestamps: true,
-  }
+  },
 );
 
-const Issue = mongoose.model('Issue', IssueSchema);
-export default Issue ;
+const Issue = mongoose.model("Issue", IssueSchema);
+export default Issue;
