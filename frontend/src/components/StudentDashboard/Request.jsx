@@ -14,13 +14,20 @@ const Request = () => {
   const [raising, setRaising] = useState(false);
   const [contactNo, setContactNo] = useState("");
 
-  const availableIssues = [
-    "Eligibility Issue",
-    "Application Form Issue",
-    "Login/Signup Issue",
-    "Profile Issue",
-    "Other",
-  ];
+ const availableIssues = [
+  "NOC (No Objection Certificate) Issue",
+  "Offer Letter Issue",
+  "Internship/Placement Eligibility Issue",
+  "Company Application Issue",
+  "Interview Scheduling Issue",
+  "Selection/Result Update Issue",
+  "Document Verification Issue",
+  "Internship Completion Certificate Issue",
+  "Stipend/Salary Issue",
+  "Company Communication Issue",
+  "Placement Policy Clarification",
+  "Other",
+];
 
   useEffect(() => {
     fetchUserIssues();
