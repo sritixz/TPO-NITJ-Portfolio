@@ -1,15 +1,10 @@
-// backend/routes/insightRoutes.js
 import express from 'express';
-import {getOfferInsights, getSummerInternInsights } from '../controller/insight.js';
+import { getOfferInsights, getSummerInternInsights } from '../controller/insight.js';
 
 const router = express.Router();
 
-// Route for offer insights (statistics from Offer model)
-router.get('/stats', getOfferInsights);
+router.get('/stats',             getOfferInsights);
 router.get('/summerInternstats', getSummerInternInsights);
-
-// // Routes for Insight model (setting and getting goals, etc.)
-// router.post('/set', setInsight);
-// router.get('/get', getInsight);
+router.get('/internship-stats',  getSummerInternInsights); // alias for frontend
 
 export default router;

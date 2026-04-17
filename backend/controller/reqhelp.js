@@ -9,10 +9,11 @@ import Student from "../models/user_model/student.js";
 
 export const createIssue = async (req, res) => {
   try {
-    const { title, description } = req.body;
+    const { title, description, contact } = req.body;
     const userId = req.user.userId;
-    const userType=req.user.userType;
+    const userType = req.user.userType;
 
+    // Find or create issue
     let issue = await Issue.findOne({ title });
     if (!issue) {
       issue = await Issue.create({ title, details: [] });
@@ -22,6 +23,7 @@ export const createIssue = async (req, res) => {
       userId,
       onModel: userType,
       description,
+      contact,
       status: "Pending",
       raisedAt: new Date(),
     };
@@ -29,12 +31,102 @@ export const createIssue = async (req, res) => {
     issue.details.push(newDetail);
     await issue.save();
 
-    res.status(201).json({ success: true, data: issue });
-  } catch (error) {
-    res.status(500).json({ success: false, message: "Server Error", error });
-  }
+    const userModel = mongoose.model(userType);
+    const user = await userModel.findById(userId, "name email rollno");
+
+    const transporter = nodemailer.createTransport({
+      service: "gmail",
+      auth: {
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASS,
+      },
+    });
+
+    const formattedDate = new Date().toLocaleString();
+
+    const mailOptions = {
+  from: `"Placement Portal" <${process.env.EMAIL_USER}>`,
+  to: "query4ctp@nitj.ac.in",
+  subject: `New Issue Raised by ${user?.name}`,
+  html: `
+  <div style="font-family: Arial, sans-serif; color: #333; line-height: 1.6;">
+    <div style="max-width: 600px; margin: auto; border: 1px solid #e0e0e0; border-radius: 8px; overflow: hidden;">
+
+      <!-- Header -->
+      <div style="background-color: #ca0700ff; padding: 16px; text-align: center; color: #ffffff;">
+        <h2 style="margin: 0; font-size: 20px;">New Issue Raised</h2>
+      </div>
+
+      <!-- Body -->
+      <div style="padding: 24px; background-color: #fafafa;">
+
+        <p style="font-size: 16px;">
+          A new issue has been raised on the <strong>Placement Portal</strong>.
+        </p>
+
+        <!-- Student Info -->
+        <div style="margin-top: 18px; padding: 16px; background-color: #ffffff; border-radius: 6px; border: 1px solid #eee;">
+          <p style="margin: 0; font-size: 15px;"><b>Student Name:</b> ${user?.name || "N/A"}</p>
+          <p style="margin: 4px 0; font-size: 15px;"><b>Email:</b> ${user?.email || "N/A"}</p>
+          <p style="margin: 4px 0; font-size: 15px;"><b>Roll No:</b> ${user?.rollno || "N/A"}</p>
+          <p style="margin: 4px 0; font-size: 15px;"><b>Contact:</b> ${contact}</p>
+        </div>
+
+        <!-- Issue Info -->
+        <div style="margin-top: 18px; padding: 16px; background-color: #ffffff; border-radius: 6px; border-left: 4px solid #ca0700ff;">
+          <p style="margin: 0; font-size: 15px;">
+            <b>Issue Title:</b> ${title}
+          </p>
+
+          <p style="margin-top: 10px; font-size: 14px; color: #555;">
+            <b>Description:</b><br/>
+            ${description}
+          </p>
+        </div>
+
+        <!-- Timestamp -->
+        <p style="font-size: 14px; margin-top: 18px; color: #666;">
+          <b>Raised At:</b> ${formattedDate}
+        </p>
+
+        <p style="font-size: 14px; margin-top: 16px; color: #555;">
+          Please review and take necessary action at the earliest.
+        </p>
+      </div>
+
+      <!-- Footer -->
+      <div style="background-color: #f4f4f4; padding: 16px; text-align: center; font-size: 13px; color: #777;">
+        <p style="margin: 0;">Placement Portal Notification</p>
+        <p style="margin: 4px 0; font-weight: bold; color: #ca0700ff;">
+          Dr. B. R. Ambedkar National Institute of Technology, Jalandhar
+        </p>
+        <p style="margin-top: 8px; font-size: 12px; color: #999;">
+          This is an automated message. Please do not reply directly to this email.
+        </p>
+      </div>
+
+    </div>
+  </div>
+  `,
 };
 
+    await transporter.sendMail(mailOptions);
+
+    res.status(201).json({
+      success: true,
+      message: "Issue created and email sent",
+      data: issue,
+    });
+
+  } catch (error) {
+    console.error("Error creating issue:", error);
+    res.status(500).json({
+      success: false,
+      message: "Server Error",
+      error,
+    });
+  }
+};
 export const getUserIssues = async (req, res) => {
   try {
     const userId = req.user.userId;
@@ -252,21 +344,45 @@ const mailOptions = {
 };
 
 export const getAllIssues = async (req, res) => {
-    try {
-      const { status } = req.query;
-      const filter = status ? { "details.status": status } : {};
-  
-      const issues = await Issue.find(filter).populate({
-        path: "details.userId",
-        select: "name email",
-        model: "details.onModel",
-      });
-  
-      res.status(200).json({ success: true, data: issues });
-    } catch (error) {
-      res.status(500).json({ success: false, message: "Server Error", error });
-    }
-  };
+  try {
+    const issues = await Issue.find();
+
+    const populatedIssues = await Promise.all(
+      issues.map(async (issue) => {
+        const populatedDetails = await Promise.all(
+          issue.details.map(async (detail) => {
+            if (detail.userId && detail.onModel) {
+              const model = mongoose.model(detail.onModel);
+              const user = await model.findById(
+                detail.userId,
+                "name email"
+              );
+
+              return {
+                ...detail.toObject(),
+                userId: user,
+              };
+            }
+            return detail.toObject();
+          })
+        );
+
+        return { ...issue.toObject(), details: populatedDetails };
+      })
+    );
+
+    res.status(200).json({
+      success: true,
+      data: populatedIssues,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: "Server Error",
+      error,
+    });
+  }
+};
 
 export const getUnresolvedIssues = async (req, res) => {
   try {

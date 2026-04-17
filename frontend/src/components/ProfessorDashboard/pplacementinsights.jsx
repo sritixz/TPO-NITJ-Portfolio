@@ -375,8 +375,15 @@ const PPlacementReport = () => {
 
   const calculateStats = () => {
     const uniqueStudents = new Set(reportData.map((item) => item.roll_no)).size;
-    const doubleOffers =
-      reportData.filter((item) => item.isDoublePlaced).length;
+    const uniqueDoubleOffers = new Set();
+    // console.log(reportData)
+    reportData.forEach((item) => {
+      if (item.isDoublePlaced) {
+        uniqueDoubleOffers.add(item.roll_no); // use unique field
+      }
+    });
+    // console.log("Double", uniqueDoubleOffers)
+    const doubleOffers = uniqueDoubleOffers.size;
     const totalOffers = reportData.length;
     const packages = reportData
       .map((item) => parseFloat(item.package))
