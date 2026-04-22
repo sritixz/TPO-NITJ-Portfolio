@@ -6,6 +6,7 @@ const NOCPreview = ({ noc, onClose }) => {
   const isOffCampus = noc.internshipMode === 'Off-Campus';
   const isOwnStartup = noc.internshipMode === 'Own Startup';
   const needsExtra = (noc.course === 'M.Tech' || (noc.course === 'B.Tech' && noc.year === '4th')) && noc.internshipMode !== 'On-Campus';
+  const isFTE = noc.purpose === "FTE"
 
   const handleDocumentClick = (filePath) => {
     if (filePath) {
@@ -74,14 +75,32 @@ const NOCPreview = ({ noc, onClose }) => {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                 </svg>
               </div>
-              <h2 className="text-2xl font-bold text-gray-800">Internship Details</h2>
+              <h2 className="text-2xl font-bold text-gray-800">                {isFTE? "FTE Details" : "Internship Details"} 
+</h2>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <DetailItem label="Company Name" value={noc.companyName} />
-              <DetailItem label="Internship Mode" value={noc.internshipMode} badge={true} />
+              
+              {isFTE? <>
+              <DetailItem
+                label="Date Of Joining"
+                value={formatDate(noc.dateOfJoining)}
+                badge={true}
+              />
+              </> : <>
+              <DetailItem
+                label="Internship Mode"
+                value={noc.internshipMode}
+                badge={true}
+              />
               <DetailItem label="From" value={formatDate(noc.internshipFrom)} />
               <DetailItem label="To" value={formatDate(noc.internshipTo)} />
-              <DetailItem label="Duration" value={noc.internshipDuration} colSpan={true} />
+              <DetailItem
+                label="Duration"
+                value={noc.internshipDuration}
+                colSpan={true}
+              />
+              </>}
             </div>
           </div>
           {isOffCampus && (

@@ -308,26 +308,58 @@ page.drawLine({
     const noObjectionText = isSpecialCase
   ? `The Training & Placement Office & Department of ${noc.department}, NIT Jalandhar`
   : `The Department of ${noc.department}, NIT Jalandhar`;
+    const forFTE = noc.purpose && noc.purpose === "FTE";
 
-  
-    drawText(
-      `It is to certify that ${noc.salutation} ${noc.studentName} , with Roll No. ${noc.rollNo}, is currently studying in ${noc.course}, ${noc.year} Year, ${noc.semester} Semester, in the Department of ${noc.department} at Dr. B.R. Ambedkar National Institute of Technology, Jalandhar. ${noObjectionText} has no objection if ${noc.studentName} is allowed to undergo an internship at your esteemed organization from ${new Date(noc.internshipFrom).toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' })} to ${new Date(noc.internshipTo).toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' })}, for a maximum duration of ${noc.internshipDuration}.`,
-      {
-        font: englishFont,
-        align: 'justify',
-        boldFont: englishBoldFont,
-        highlightPhrases: [noc.salutation, noc.studentName, noc.rollNo, noc.course, noc.year, noc.semester, noc.department, noc.companyName, new Date(noc.internshipFrom).toLocaleDateString(), new Date(noc.internshipTo).toLocaleDateString(), noc.internshipDuration],
-        underlinePhrases: [],
-      }
-    );
+
+  drawText(
+    `It is to certify that ${noc.salutation} ${noc.studentName}, with Roll No. ${noc.rollNo}, is currently studying in ${noc.course}, ${noc.year} Year, ${noc.semester} Semester, in the Department of ${noc.department} at Dr. B.R. Ambedkar National Institute of Technology, Jalandhar. ${noObjectionText} has no objection if ${noc.studentName} is allowed to undergo ${forFTE ? "Full Time Employment" : "an internship"} at your esteemed organization from ${
+      forFTE
+        ? `${new Date(noc.dateOfJoining).toLocaleDateString("en-GB", {
+            day: "2-digit",
+            month: "2-digit",
+            year: "numeric",
+          })}.`
+        : `${new Date(noc.internshipFrom).toLocaleDateString("en-GB", {
+            day: "2-digit",
+            month: "2-digit",
+            year: "numeric",
+          })} to ${new Date(noc.internshipTo).toLocaleDateString("en-GB", {
+            day: "2-digit",
+            month: "2-digit",
+            year: "numeric",
+          })}, for a maximum duration of ${noc.internshipDuration}.`
+    }`,
+    {
+      font: englishFont,
+      align: "justify",
+      boldFont: englishBoldFont,
+      highlightPhrases: [
+        noc.salutation,
+        noc.studentName,
+        noc.rollNo,
+        noc.course,
+        noc.year,
+        noc.semester,
+        noc.department,
+        noc.companyName,
+        new Date(noc.internshipFrom).toLocaleDateString(),
+        new Date(noc.internshipTo).toLocaleDateString(),
+        noc.internshipDuration,
+      ],
+      underlinePhrases: [],
+    },
+  );
     drawLine();
   
     const joiningLetterPhrase = isSpecialCase ? 'the TPO' : 'their department';
+     const warningText = forFTE
+    ? ""
+    : "Failure to submit the joining letter will result in non-evaluation of internship/training for credit purposes. The permission is granted on the condition that the student will not seek any relaxation in academic activities due to this internship.";
 
     drawText(
-      `This NOC has been issued upon the student's request and is duly signed and stamped in its original form. It is valid only for the stated period and purpose. Furthermore, this NOC will be considered valid only if the student submits the joining letter to ${joiningLetterPhrase}, within one week of receiving an offer based on this NOC. Failure to submit the joining letter will result in non-evaluation of internship/training for credit purposes. The permission is granted on the condition that the student will not seek any relaxation in academic activities due to this internship.`,
-      { font: englishFont, align: 'justify' }
-    );
+    `This NOC has been issued upon the student's request and is duly signed and stamped in its original form. It is valid only for the stated period and purpose. Furthermore, this NOC will be considered valid only if the student submits the joining letter to ${joiningLetterPhrase}, within one week of receiving an offer based on this NOC. ${warningText}`,
+    { font: englishFont, align: "justify" },
+  );
     drawLine(2);
   
     drawText('Best regards,');
