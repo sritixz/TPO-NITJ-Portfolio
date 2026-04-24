@@ -45,6 +45,19 @@ export const getsuggestions=async(req,res)=>{
   }
 }
 
+export const getContactedCompanies = async (req, res) => {
+  try {
+    const suggestions = await Suggestions.find({
+      status: "Contacted",
+    }).select("company_name response");
+
+    res.status(200).json(suggestions);
+  } catch (error) {
+    console.error("Error fetching contacted companies:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
 export const recentsuggestions=async(req,res)=>{
   try
   {
