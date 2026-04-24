@@ -4,8 +4,10 @@ const Suggestions = () => {
   const [activeTab, setActiveTab] = useState("not_contacted");
 const [showModal, setShowModal] = useState(false);
 const [selectedSuggestion, setSelectedSuggestion] = useState(null);
-const [invalidFields, setInvalidFields] = useState([]);
+// const [invalidFields, setInvalidFields] = useState([]);
+
 const [response, setResponse] = useState("");
+const [otherResponse, setOtherResponse] = useState("");
 const [additionalInfo, setAdditionalInfo] = useState("");
 const [showToStudent, setShowToStudent] = useState(false);
 
@@ -38,21 +40,24 @@ const [showToStudent, setShowToStudent] = useState(false);
   const handleUpdate = async (suggestion) => {
     console.log("Update suggestion:", suggestion);
      const emptyFields = [];
+   
+  const finalResponse =
+    response === "Other" ? otherResponse : response;
 
-  if (!response || response.trim() === "") {
-    emptyFields.push("response");
-  }
+  // if (!response || response.trim() === "") {
+  //   emptyFields.push("response");
+  // }
 
-  if (!additionalInfo || additionalInfo.trim() === "") {
-    emptyFields.push("additionalInfo");
-  }
+  // if (!additionalInfo || additionalInfo.trim() === "") {
+  //   emptyFields.push("additionalInfo");
+  // }
 
-  if (emptyFields.length > 0) {
-    setInvalidFields(emptyFields);
-    return;
-  }
+  // if (emptyFields.length > 0) {
+  //   setInvalidFields(emptyFields);
+  //   return;
+  // }
 
-  setInvalidFields([]);
+  // setInvalidFields([]);
 
     const res = await fetch(
       `${import.meta.env.REACT_APP_BASE_URL}/psuggestions/updatesuggestion`,
@@ -164,6 +169,16 @@ const [showToStudent, setShowToStudent] = useState(false);
               {suggestion.company_name}
             </h4>
 
+{/* Date */}
+            <p className="text-xs text-gray-400 mb-2">
+  Added on:{" "}
+  {new Date(suggestion.createdAt).toLocaleDateString("en-IN", {
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+  })}
+</p>
+
             {/* Details */}
             <div className="text-sm text-gray-600 space-y-1">
               <p>
@@ -199,7 +214,7 @@ const [showToStudent, setShowToStudent] = useState(false);
                     Additional Info:
                   </span>{" "}
                   {suggestion.Additional_Info}
-                </p>
+                </p>            
               )}
               {suggestion.company_type && (
     <p>
@@ -274,7 +289,7 @@ const [showToStudent, setShowToStudent] = useState(false);
           </div>
         ))}
       </div>
-      {showModal && (
+    {showModal && (
   <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
     <div className="bg-white rounded-xl shadow-lg w-full max-w-md p-6">
       <h3 className="text-lg font-semibold mb-4">
@@ -282,72 +297,70 @@ const [showToStudent, setShowToStudent] = useState(false);
       </h3>
 
       {/* Radio Options */}
-      <div className={`space-y-2 mb-4 ${
-    invalidFields.includes("response")
-      ? "border border-red-500 rounded-lg p-2"
-      : ""
-  }`}>
-        {["Interested", "Not Interested", "Does Not Meet Policy"].map(
-          (option) => (
-            <label key={option} className="flex items-center gap-2">
-              <input
-                type="radio"
-                name="response"
-                
-                value={option}
-                checked={response === option}
-                onChange={(e) =>{ 
-                  setInvalidFields((prev) =>
-    prev.filter((field) => field !== e.target.name)
-  );
-                  setResponse(e.target.value)}}
-              />
-              <span className="text-sm text-gray-700">{option}</span>
-            </label>
-          )
-        )}
+      <div className="space-y-2 mb-4">
+        {[
+          "Interested",
+          "Not Interested",
+          "Does Not Meet Policy",
+          "Not Able to Contact",
+          "No Vacancy",
+          "Position Closed",
+          "No Response",
+          "Other"
+        ].map((option) => (
+          <label key={option} className="flex items-center gap-2">
+            <input
+              type="radio"
+              name="response"
+              value={option}
+              checked={response === option}
+              onChange={(e) => setResponse(e.target.value)}
+            />
+            <span className="text-sm text-gray-700">{option}</span>
+          </label>
+        ))}
       </div>
+
+      {/* Other Input */}
+      {response === "Other" && (
+        <input
+          type="text"
+          placeholder="Enter custom response"
+          className="w-full border rounded-lg p-2 text-sm mb-4"
+          value={otherResponse}
+          onChange={(e) => setOtherResponse(e.target.value)}
+        />
+      )}
 
       {/* Additional Info */}
       <textarea
         placeholder="Additional Info (optional)"
-        className={`w-full border rounded-lg p-2 text-sm mb-4  ${invalidFields.includes("additionalInfo")
-    ? "border-red-500 focus:ring-red-500"
-    : "focus:ring-blue-500"}`}
+        className="w-full border rounded-lg p-2 text-sm mb-4"
         rows={3}
         value={additionalInfo}
-        onChange={(e) => {
-          setInvalidFields((prev) =>
-            prev.filter((field) => field !== e.target.name)
-          );
-          setAdditionalInfo(e.target.value);
-        }}
+        onChange={(e) => setAdditionalInfo(e.target.value)}
       />
-      <div className="flex items-center justify-between mb-4">
-        {/* Display response to student or not */}
-  <span className="text-sm font-medium text-gray-700">
-    Show response to student
-  </span>
 
-  <button
-    type="button"
-    onClick={() => setShowToStudent((prev) => !prev)}
-    className={`w-12 h-6 flex items-center rounded-full p-1 transition ${
-      showToStudent ? "bg-green-500" : "bg-gray-300"
-    }`}
-  >
-    <div
-      className={`bg-white w-4 h-4 rounded-full shadow-md transform transition ${
-        showToStudent ? "translate-x-6" : "translate-x-0"
-      }`}
-    />
-  </button>
-</div>
-{invalidFields.length > 0 && (
-  <div className="bg-red-50 border border-red-300 text-red-700 px-4 py-2 rounded-lg text-sm mb-3">
-    Please fill all details first
-  </div>
-)}
+      {/* Toggle */}
+      <div className="flex items-center justify-between mb-4">
+        <span className="text-sm font-medium text-gray-700">
+          Show response to student
+        </span>
+
+        <button
+          type="button"
+          onClick={() => setShowToStudent((prev) => !prev)}
+          className={`w-12 h-6 flex items-center rounded-full p-1 transition ${
+            showToStudent ? "bg-green-500" : "bg-gray-300"
+          }`}
+        >
+          <div
+            className={`bg-white w-4 h-4 rounded-full shadow-md transform transition ${
+              showToStudent ? "translate-x-6" : "translate-x-0"
+            }`}
+          />
+        </button>
+      </div>
 
       {/* Actions */}
       <div className="flex justify-end gap-3">
