@@ -2529,6 +2529,10 @@ const ViewJobDetails = ({ job, onClose, oneditingAllowedUpdate }) => {
           company_name: editedJob.company_name,
           job_id: editedJob.job_id,
           job_role: editedJob.job_role,
+          hr_contact: editedJob.hr_contact,
+          hr_email: editedJob.hr_email,
+          tpo_spoc_name: editedJob.tpo_spoc_name,
+          tpo_spoc_contact: editedJob.tpo_spoc_contact,
           job_type: editedJob.job_type,
           internship_duration: editedJob.internship_duration,
           jobdescription: editedJob.jobdescription,
@@ -2706,6 +2710,66 @@ const ViewJobDetails = ({ job, onClose, oneditingAllowedUpdate }) => {
             />
           ) : (
             <span className="flex-1">{editedJob.job_role}</span>
+          )}
+        </div>
+        <div className="flex items-center">
+          <strong className="w-1/3 text-gray-800">HR Contact:</strong>
+          {editingSection === "basic" ? (
+            <input
+              type="text"
+              value={editedJob.hr_contact || ""}
+              onChange={(e) =>
+                handleInputChange("basic", "hr_contact", e.target.value)
+              }
+              className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            />
+          ) : (
+            <span className="flex-1">{editedJob.hr_contact || "N/A"}</span>
+          )}
+        </div>
+        <div className="flex items-center">
+          <strong className="w-1/3 text-gray-800">HR Email:</strong>
+          {editingSection === "basic" ? (
+            <input
+              type="email"
+              value={editedJob.hr_email || ""}
+              onChange={(e) =>
+                handleInputChange("basic", "hr_email", e.target.value)
+              }
+              className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            />
+          ) : (
+            <span className="flex-1">{editedJob.hr_email || "N/A"}</span>
+          )}
+        </div>
+        <div className="flex items-center">
+          <strong className="w-1/3 text-gray-800">TPO SPOC Name:</strong>
+          {editingSection === "basic" ? (
+            <input
+              type="text"
+              value={editedJob.tpo_spoc_name || ""}
+              onChange={(e) =>
+                handleInputChange("basic", "tpo_spoc_name", e.target.value)
+              }
+              className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            />
+          ) : (
+            <span className="flex-1">{editedJob.tpo_spoc_name || "N/A"}</span>
+          )}
+        </div>
+        <div className="flex items-center">
+          <strong className="w-1/3 text-gray-800">TPO SPOC Contact:</strong>
+          {editingSection === "basic" ? (
+            <input
+              type="text"
+              value={editedJob.tpo_spoc_contact || ""}
+              onChange={(e) =>
+                handleInputChange("basic", "tpo_spoc_contact", e.target.value)
+              }
+              className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            />
+          ) : (
+            <span className="flex-1">{editedJob.tpo_spoc_contact || "N/A"}</span>
           )}
         </div>
         <div className="flex items-center">
