@@ -10,6 +10,7 @@ import {
   faCalendarAlt, 
   faFileAlt, 
   faEnvelope,
+  faBriefcaseClock
 } from "@fortawesome/free-solid-svg-icons";
 import { LogOut, Menu, X } from "lucide-react";
 import { Route, Routes, useNavigate, useLocation } from "react-router-dom";
@@ -23,6 +24,8 @@ import InsightDashboard from "../components/ProfessorDashboard/InsightDashboard.
 import Fsuggestions from "../components/FacultyDashboard/Fsuggestions.jsx";
 import PlacementRegistrationExportFaculty from "../components/FacultyDashboard/placement-registration.jsx";
 import ProfessorCalendar from "../components/StudentDashboard/placement-calendar.jsx";
+import JobManagement from "../components/ProfessorDashboard/pjobmanagement";
+
 
 const Fdashboard = () => {
   const [isSidebarExpanded, setIsSidebarExpanded] = useState(true);
@@ -67,6 +70,8 @@ const Fdashboard = () => {
     { label: "Placement Registration", icon: faFileAlt, path: "/fdashboard/placement-registration" },
     { label: "Placement Calendar", icon: faCalendarAlt, path: "/fdashboard/placement-calendar" },
     { label: "Suggestions", icon: faEnvelope, path: "/fdashboard/suggestions" },
+     { label: "Job Management", icon: faBriefcaseClock, path: "/fdashboard/job-management" },
+
   ];
 
   return (
@@ -170,6 +175,8 @@ const Fdashboard = () => {
               <Route path="placement-registration" element={<PlacementRegistrationExportFaculty readOnly={true} />} />
               <Route path="placement-calendar" element={<ProfessorCalendar />} />
               <Route path="suggestions" element={<Fsuggestions />} />
+              <Route path="job-management" element={<JobManagement readOnly={true} />} />
+
             </Routes>
           </div>
         </main>

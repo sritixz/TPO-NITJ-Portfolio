@@ -33,7 +33,7 @@ import Notification from "./Notification";
 import GuestHouseBookingForm from "./roomarrangement";
 import VehicleRequisitionForm from "./vehiclerequisitionform";
 
-const JobProfilesonp = () => {
+const JobProfilesonp = ({ readOnly = false }) => {
   const [jobProfiles, setJobProfiles] = useState({
     approved: [],
     notApproved: [],
@@ -564,15 +564,17 @@ const JobProfilesonp = () => {
 
   const JobCard = ({ job, showActions }) => (
     <Card className="bg-white border border-gray-200 rounded-2xl shadow-lg hover:shadow-xl transition-shadow duration-300 relative">
+      {!readOnly && (
       <div className="absolute top-2 right-2 text-red-600">
         <Trash2
           className="w-7 h-7 bg-red-100 rounded-3xl p-1 cursor-pointer"
           onClick={() => handleDelete(job._id)}
         />
       </div>
+      )}
 
       {/* APPROVED / ACTIVE => can go to PENDING or COMPLETED */}
-      {!job.pending && !job.completed && (
+      {!readOnly && !job.pending && !job.completed && (
         <>
           <div className="absolute top-2 right-20 text-yellow-600 cursor-pointer">
             <FaSpinner
@@ -592,7 +594,7 @@ const JobProfilesonp = () => {
       )}
 
       {/* PENDING => can go to APPROVED or COMPLETED */}
-      {job.pending && !job.completed && (
+      {!readOnly && job.pending && !job.completed && (
         <>
           <div className="absolute top-2 right-20 text-blue-600 cursor-pointer">
             <ArrowLeft
@@ -612,7 +614,7 @@ const JobProfilesonp = () => {
       )}
 
       {/* COMPLETED => can go to APPROVED or PENDING */}
-      {job.completed && (
+      {!readOnly && job.completed && (
         <>
           <div className="absolute top-2 right-20 text-blue-600 cursor-pointer">
             <ArrowLeft
@@ -690,7 +692,7 @@ const JobProfilesonp = () => {
         </div>
       </CardContent>
       <CardFooter className="flex flex-col space-y-2">
-        {showActions && (
+        {showActions && !readOnly &&(
           <div className="flex space-x-2 w-full">
             <button
               className="flex-1 bg-green-700 text-white px-4 py-2 rounded-md hover:bg-green-600 transition-colors"
@@ -929,7 +931,7 @@ const JobProfilesonp = () => {
           job={selectedJob}
           oneditingAllowedUpdate={handleediting_allowed}
         />
-      ) : showCreateJob ? (
+      ) : showCreateJob && !readOnly ? (
         <CreateJob
           onJobCreated={() => setShowCreateJob(false)}
           onCancel={() => setShowCreateJob(false)}
@@ -1066,6 +1068,7 @@ const JobProfilesonp = () => {
             <h1 className="text-4xl font-bold text-center mb-8 sm:mb-0 text-custom-blue">
               Job Profiles Dashboard
             </h1>
+           {!readOnly && (
             <div className="flex-1 flex justify-end">
               <button
                 className="bg-gradient-to-r from-blue-600 to-blue-900 text-white px-6 py-3 rounded-full shadow-lg hover:from-blue-600 hover:to-blue-800 hover:scale-105 transition-all duration-300 ease-in-out flex items-center gap-2"
@@ -1088,6 +1091,7 @@ const JobProfilesonp = () => {
                 <span className="font-semibold">Create Job Profile</span>
               </button>
             </div>
+           )}
           </div>
           <div className="mb-6 bg-gray-50 p-4 rounded-lg shadow-sm">
             <h3 className="text-lg font-semibold mb-4">Filter Jobs</h3>
