@@ -930,6 +930,7 @@ const JobProfilesonp = ({ readOnly = false }) => {
           onClose={() => setSelectedJob(null)}
           job={selectedJob}
           oneditingAllowedUpdate={handleediting_allowed}
+          readOnly={readOnly}
         />
       ) : showCreateJob && !readOnly ? (
         <CreateJob
