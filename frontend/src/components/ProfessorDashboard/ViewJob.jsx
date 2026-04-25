@@ -2551,7 +2551,17 @@ const ViewJobDetails = ({ job, onClose, oneditingAllowedUpdate }) => {
 
       if (response.data.success) {
         toast.success("Job updated successfully!");
-        Object.assign(job, editedJob);
+        const refreshedJob = response.data.job || editedJob;
+        setEditedJob({
+          ...refreshedJob,
+          job_salary: {
+            ...refreshedJob.job_salary,
+            stipend: refreshedJob.job_salary?.stipend || "0",
+          },
+          job_sector: refreshedJob.job_sector || "Private",
+          attachments: refreshedJob.attachments || [],
+        });
+        Object.assign(job, refreshedJob);
         setEditingSection(null);
         setEditingStepIndex(null);
         setEditingCriteriaIndex(null);
@@ -2868,6 +2878,16 @@ const ViewJobDetails = ({ job, onClose, oneditingAllowedUpdate }) => {
             <span className="flex-1">{editedJob.job_sector || "Private"}</span>
           )}
         </div>
+        {/* for debugging purpose only this shows when we update ctc then it must update job class */}
+        {/* <div className="flex items-center">
+          <strong className="w-1/3 text-gray-800">Job Class (Auto):</strong>
+          <span className="flex-1">
+            {editedJob.job_class || "N/A"}
+            <span className="ml-2 text-xs text-gray-500">
+              (derived from CTC and sector)
+            </span>
+          </span>
+        </div> */}
         <div className="flex items-center">
           <strong className="w-1/3 text-gray-800">Location:</strong>
           {editingSection === "basic" ? (
