@@ -9,8 +9,7 @@ export const savesuggestions = async (req, res) => {
 
   try {
     const newSuggestions = new Suggestions({
-      // LOGIC: Agar req.user mein data hai, toh check karein
-      // Agar aap Faculty Dashboard se bhej rahe hain, toh faculty_id fill hona chahiye
+      
       professor_id: req.user.role === 'professor' ? req.user.userId : null,
       faculty_id: req.user.role === 'faculty' ? req.user.userId : null, 
       student_id: req.user.role === 'student' ? req.user.userId : null,
@@ -33,7 +32,7 @@ export const savesuggestions = async (req, res) => {
     res.status(500).json({ message: "Error saving" });
   }
 };
-// backend/controller/suggestioncontroller.js
+
 export const getsuggestions = async (req, res) => {
   try {
     const suggestions = await Suggestions.find({})
