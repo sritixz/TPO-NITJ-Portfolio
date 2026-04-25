@@ -96,19 +96,19 @@ const Fdashboard = () => {
 
           <img src={NITJlogo} alt="NITJ Logo" className="h-8 w-8 md:h-10 md:w-10" />
           <h1 className="font-bold text-lg md:text-xl">
-            TPO-<span className="text-blue-600 uppercase">NITJ</span>
+            TPO-<span className="text-custom-blue-600 uppercase">NITJ</span>
           </h1>
         </div>
 
         <div className="flex items-center gap-3">
           <div className="text-right hidden sm:block">
             <p className="text-sm font-semibold text-gray-800 leading-none">{userData?.name || "Faculty Member"}</p>
-            <p className="text-[10px] text-blue-600 font-bold uppercase tracking-tighter mt-1">Faculty Portal</p>
+            <p className="text-[10px] text-custom-blue-600 font-bold uppercase tracking-tighter mt-1">Faculty Portal</p>
           </div>
           <img 
             src={userData?.image || ProfileImage} 
             alt="User Profile" 
-            className="w-9 h-9 rounded-full border-2 border-blue-100 object-cover" 
+            className="w-9 h-9 rounded-full border-2 border-custom-blue-100 object-cover" 
           />
         </div>
       </header>
@@ -138,8 +138,8 @@ const Fdashboard = () => {
                     onClick={() => navigate(item.path)}
                     className={`flex items-center w-full p-3 rounded-xl transition-all duration-200
                     ${isActive 
-                      ? "bg-blue-600 text-white shadow-md" 
-                      : "text-gray-500 hover:bg-blue-50 hover:text-blue-600"}`}
+                      ? "bg-custom-blue-600 text-white shadow-md" 
+                      : "text-gray-500 hover:bg-custom-blue-50 hover:text-custom-blue-600"}`}
                   >
                     <div className="w-6 flex justify-center">
                       <FontAwesomeIcon icon={item.icon} className="text-lg" />

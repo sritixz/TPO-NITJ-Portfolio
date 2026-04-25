@@ -1066,8 +1066,8 @@ const JobProfilesonp = ({ readOnly = false }) => {
         <>
           <div className="flex sm:flex-row flex-col items-center justify-between px-4">
             <div className="flex-1"></div>
-            <h1 className="text-4xl font-bold text-center mb-8 sm:mb-0 text-custom-blue">
-              Job Profiles Dashboard
+            <h1 className="absolute left-1/2 -translate-x-1/2 text-4xl font-bold text-custom-blue whitespace-nowrap">
+            Job Profiles Dashboard
             </h1>
            {!readOnly && (
             <div className="flex-1 flex justify-end">
