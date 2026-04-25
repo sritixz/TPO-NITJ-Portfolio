@@ -1,50 +1,53 @@
 import Suggestions from "../models/suggestion.js";
 import Student from "../models/user_model/student.js";
-export const savesuggestions= async(req,res)=>{
-        const companyType =
-      req.body.company_type_other &&
-      req.body.company_type_other.trim() !== ""
-        ? req.body.company_type_other
-        : req.body.company_type;
-     try{const newSuggestions= new Suggestions({
-      student_id:req.user.userId,
-      company_name:req.body.company_name,
-    company_linkedin:req.body.company_linkedin,
-    Hr_name:req.body.Hr_name,
-    Hr_contact:req.body.Hr_contact,
-    HR_email:req.body.HR_email,
-    company_type:companyType,
-    sector:req.body.sector,
-    hiring_status:req.body.hiring_status,
-    Additional_Info:req.body.Additional_Info,
-  });
-const savedSuggestion=await newSuggestions.save();
-console.log("suggestion saved successfully");
-  res.status(201).json({
-      message: "Suggestion submitted successfully",
-      suggestion: savedSuggestion,
-    });
-}
-catch(error)
-{
-  console.error(error);
-  console.log("error saving suggestions");
-    res.status(500).json({
-      message: "Error saving suggestion",
-    });
-}
-}
+import Faculty from "../models/user_model/professor.js";
+export const savesuggestions = async (req, res) => {
+  const companyType =
+    req.body.company_type_other && req.body.company_type_other.trim() !== ""
+      ? req.body.company_type_other
+      : req.body.company_type;
 
-export const getsuggestions=async(req,res)=>{
-     try {
-    const suggestions = await Suggestions.find().populate("student_id", "name rollno"); 
+  try {
+    const newSuggestions = new Suggestions({
+      // LOGIC: Agar req.user mein data hai, toh check karein
+      // Agar aap Faculty Dashboard se bhej rahe hain, toh faculty_id fill hona chahiye
+      professor_id: req.user.role === 'professor' ? req.user.userId : null,
+      faculty_id: req.user.role === 'faculty' ? req.user.userId : null, 
+      student_id: req.user.role === 'student' ? req.user.userId : null,
+      
+      company_name: req.body.company_name,
+      company_linkedin: req.body.company_linkedin,
+      Hr_name: req.body.Hr_name,
+      Hr_contact: req.body.Hr_contact,
+      HR_email: req.body.HR_email,
+      company_type: companyType,
+      sector: req.body.sector,
+      hiring_status: req.body.hiring_status,
+      Additional_Info: req.body.Additional_Info,
+    });
+
+    const savedSuggestion = await newSuggestions.save();
+    res.status(201).json({ message: "Success", suggestion: savedSuggestion });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Error saving" });
+  }
+};
+// backend/controller/suggestioncontroller.js
+export const getsuggestions = async (req, res) => {
+  try {
+    const suggestions = await Suggestions.find({})
+      .populate("student_id", "name rollno") // Fetch student details
+      .populate("faculty_id", "name")
+      .populate("professor_id", "name")        // Fetch faculty details
+      .sort({ createdAt: -1 });
+
     res.status(200).json(suggestions);
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Failed to fetch suggestions" });
   }
-}
-
+};
 export const getContactedCompanies = async (req, res) => {
   try {
     const suggestions = await Suggestions.find({

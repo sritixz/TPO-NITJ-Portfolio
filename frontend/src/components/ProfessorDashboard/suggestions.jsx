@@ -17,7 +17,10 @@ const Suggestions = () => {
   const exportToExcel = () => {
     const formatData = (list) => list.map((s) => ({
       "Company Name": s.company_name,
-      "HR Name": s.Hr_name,
+"Suggested By": s.professor_id?.name 
+    ? `Prof. ${s.professor_id.name}` 
+    : (s.faculty_id?.name || "N/A"),
+          "HR Name": s.Hr_name,
       "HR Email": s.HR_email,
       "Current Status": s.status,
       "Student": s.student_id ? `${s.student_id.name} (${s.student_id.rollno})` : "N/A",
@@ -175,9 +178,22 @@ const Suggestions = () => {
                 <p><span className="font-medium text-gray-700">LinkedIn:</span> <a href={suggestion.company_linkedin} target="_blank" rel="noreferrer" className="text-custom-blue underline">View Profile</a></p>
                 <p><span className="font-medium text-gray-700">HR:</span> {suggestion.Hr_name} | {suggestion.Hr_contact}</p>
                 <p><span className="font-medium text-gray-700">Email:</span> {suggestion.HR_email}</p>
-                {suggestion.student_id && <p className="pt-2 border-t mt-2 text-xs italic text-gray-500">Submitted By: {suggestion.student_id.name} ({suggestion.student_id.rollno})</p>}
-              </div>
+             <div className="pt-2 border-t mt-2">
+  {/* Priority 1: Professor */}
+  {suggestion.professor_id?.name && (
+    <p className="text-xs font-bold text-custom-blue">
+      Suggested By: Prof. {suggestion.professor_id.name}
+    </p>
+  )}
 
+    {/* Show Student if it exists (e.g., 28... style) */}
+    {suggestion.student_id?.name && (
+      <p className="text-[10px] text-gray-500 italic">
+        Submitted By: {suggestion.student_id.name} ({suggestion.student_id.rollno})
+      </p>
+    )}
+  </div>
+</div>
               {(suggestion.status === "Contacted" || suggestion.status === "Rejected") && (
                 /* Requirement: Remarks section using light blue-50 background and custom-blue icons */
                 <div className="mt-4 p-3 bg-blue-50 border border-blue-100 rounded-lg">
