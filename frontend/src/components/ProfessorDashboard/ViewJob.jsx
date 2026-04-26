@@ -2529,6 +2529,10 @@ const ViewJobDetails = ({ job, onClose, oneditingAllowedUpdate }) => {
           company_name: editedJob.company_name,
           job_id: editedJob.job_id,
           job_role: editedJob.job_role,
+          hr_contact: editedJob.hr_contact,
+          hr_email: editedJob.hr_email,
+          tpo_spoc_name: editedJob.tpo_spoc_name,
+          tpo_spoc_contact: editedJob.tpo_spoc_contact,
           job_type: editedJob.job_type,
           internship_duration: editedJob.internship_duration,
           jobdescription: editedJob.jobdescription,
@@ -2547,7 +2551,17 @@ const ViewJobDetails = ({ job, onClose, oneditingAllowedUpdate }) => {
 
       if (response.data.success) {
         toast.success("Job updated successfully!");
-        Object.assign(job, editedJob);
+        const refreshedJob = response.data.job || editedJob;
+        setEditedJob({
+          ...refreshedJob,
+          job_salary: {
+            ...refreshedJob.job_salary,
+            stipend: refreshedJob.job_salary?.stipend || "0",
+          },
+          job_sector: refreshedJob.job_sector || "Private",
+          attachments: refreshedJob.attachments || [],
+        });
+        Object.assign(job, refreshedJob);
         setEditingSection(null);
         setEditingStepIndex(null);
         setEditingCriteriaIndex(null);
@@ -2709,6 +2723,66 @@ const ViewJobDetails = ({ job, onClose, oneditingAllowedUpdate }) => {
           )}
         </div>
         <div className="flex items-center">
+          <strong className="w-1/3 text-gray-800">HR Contact:</strong>
+          {editingSection === "basic" ? (
+            <input
+              type="text"
+              value={editedJob.hr_contact || ""}
+              onChange={(e) =>
+                handleInputChange("basic", "hr_contact", e.target.value)
+              }
+              className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            />
+          ) : (
+            <span className="flex-1">{editedJob.hr_contact || "N/A"}</span>
+          )}
+        </div>
+        <div className="flex items-center">
+          <strong className="w-1/3 text-gray-800">HR Email:</strong>
+          {editingSection === "basic" ? (
+            <input
+              type="email"
+              value={editedJob.hr_email || ""}
+              onChange={(e) =>
+                handleInputChange("basic", "hr_email", e.target.value)
+              }
+              className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            />
+          ) : (
+            <span className="flex-1">{editedJob.hr_email || "N/A"}</span>
+          )}
+        </div>
+        <div className="flex items-center">
+          <strong className="w-1/3 text-gray-800">TPO SPOC Name:</strong>
+          {editingSection === "basic" ? (
+            <input
+              type="text"
+              value={editedJob.tpo_spoc_name || ""}
+              onChange={(e) =>
+                handleInputChange("basic", "tpo_spoc_name", e.target.value)
+              }
+              className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            />
+          ) : (
+            <span className="flex-1">{editedJob.tpo_spoc_name || "N/A"}</span>
+          )}
+        </div>
+        <div className="flex items-center">
+          <strong className="w-1/3 text-gray-800">TPO SPOC Contact:</strong>
+          {editingSection === "basic" ? (
+            <input
+              type="text"
+              value={editedJob.tpo_spoc_contact || ""}
+              onChange={(e) =>
+                handleInputChange("basic", "tpo_spoc_contact", e.target.value)
+              }
+              className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            />
+          ) : (
+            <span className="flex-1">{editedJob.tpo_spoc_contact || "N/A"}</span>
+          )}
+        </div>
+        <div className="flex items-center">
           <strong className="w-1/3 text-gray-800">Job Type:</strong>
           {editingSection === "basic" ? (
             <select
@@ -2804,6 +2878,16 @@ const ViewJobDetails = ({ job, onClose, oneditingAllowedUpdate }) => {
             <span className="flex-1">{editedJob.job_sector || "Private"}</span>
           )}
         </div>
+        {/* for debugging purpose only this shows when we update ctc then it must update job class */}
+        {/* <div className="flex items-center">
+          <strong className="w-1/3 text-gray-800">Job Class (Auto):</strong>
+          <span className="flex-1">
+            {editedJob.job_class || "N/A"}
+            <span className="ml-2 text-xs text-gray-500">
+              (derived from CTC and sector)
+            </span>
+          </span>
+        </div> */}
         <div className="flex items-center">
           <strong className="w-1/3 text-gray-800">Location:</strong>
           {editingSection === "basic" ? (

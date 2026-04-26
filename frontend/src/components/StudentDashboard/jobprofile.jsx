@@ -73,6 +73,7 @@ const JobApplications = () => {
                 key={`${activeTab}-${job._id}`}
                 job_id={job.job_id}
                 jobtype={job.job_type}
+                internshipDuration={job.internship_duration}
                 company={job.company_name}
                 jobtitle={job.job_role}
                 deadline={job.deadline}
@@ -96,6 +97,7 @@ const JobApplications = () => {
                 key={`${activeTab}-${job._id}`}
                 job_id={job.job_id}
                 jobtype={job.job_type}
+                internshipDuration={job.internship_duration}
                 company={job.company_name}
                 jobtitle={job.job_role}
                 deadline={job.deadline}
@@ -122,6 +124,7 @@ const JobApplications = () => {
                 key={`${activeTab}-${job._id}`}
                 job_id={job.job_id}
                 jobtype={job.job_type}
+                internshipDuration={job.internship_duration}
                 company={job.company_name}
                 jobtitle={job.job_role}
                 deadline={job.deadline}

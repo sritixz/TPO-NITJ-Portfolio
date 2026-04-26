@@ -179,6 +179,10 @@ export const createJobProfilecopy = async (req, res) => {
       job_id,
       company_name,
       company_logo,
+      hr_contact,
+      hr_email,
+      tpo_spoc_name,
+      tpo_spoc_contact,
       job_role,
       jobdescription,
       joblocation,
@@ -193,6 +197,20 @@ export const createJobProfilecopy = async (req, res) => {
       Hiring_Workflow,
       eligibility_criteria,
     } = req.body;
+
+    const requiredFields = [
+      ["hr_contact", hr_contact],
+      ["hr_email", hr_email],
+      ["tpo_spoc_name", tpo_spoc_name],
+      ["tpo_spoc_contact", tpo_spoc_contact],
+    ];
+
+    const missingField = requiredFields.find(([, value]) => !String(value || "").trim());
+    if (missingField) {
+      return res.status(400).json({
+        error: `${missingField[0]} is required`,
+      });
+    }
 
     // Check if the recruiter is a TPO (Professor)
     const tpo = await Professor.findById(recruiter_id);
@@ -284,6 +302,10 @@ export const createJobProfilecopy = async (req, res) => {
       job_id: job_id || "",
       company_name: company_name || "",
       company_logo: company_logo || "",
+      hr_contact: hr_contact || "",
+      hr_email: hr_email || "",
+      tpo_spoc_name: tpo_spoc_name || "",
+      tpo_spoc_contact: tpo_spoc_contact || "",
       job_role: job_role || "",
       jobdescription: jobdescription || "",
       joblocation: joblocation || "",
@@ -331,7 +353,7 @@ export const createJobProfilecopy = async (req, res) => {
       uniqueGroups.add(key);
     });
 
-    // Mapping of course names to email prefixes
+    // // Mapping of course names to email prefixes
     const coursePrefixMap = {
       "B.Tech": "btech",
       "M.Tech": "mtech",

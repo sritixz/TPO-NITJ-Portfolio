@@ -199,6 +199,15 @@ const JobdetailFromCalender = () => {
       label: "JOB TYPE",
       value: jobDetails.job_type || "N/A",
     },
+    ...(isInternship && jobDetails.internship_duration && jobDetails.internship_duration !== "N/A"
+      ? [
+          {
+            icon: faBriefcase,
+            label: "INTERNSHIP DURATION",
+            value: jobDetails.internship_duration,
+          },
+        ]
+      : []),
     {
       icon: faClipboardList,
       label: "JOB CATEGORY",

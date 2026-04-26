@@ -199,6 +199,23 @@ const JobProfileSchema = new mongoose.Schema(
     company_logo: {
       type: String,
     },
+    hr_contact: {
+      type: String,
+      trim: true,
+    },
+    hr_email: {
+      type: String,
+      trim: true,
+      lowercase: true,
+    },
+    tpo_spoc_name: {
+      type: String,
+      trim: true,
+    },
+    tpo_spoc_contact: {
+      type: String,
+      trim: true,
+    },
     job_role: {
       type: String,
     },
