@@ -3506,10 +3506,23 @@ const ViewJobDetails = ({ job, onClose, oneditingAllowedUpdate, readOnly = false
                 View Form
               </Button>
               {!readOnly && (
-      <Button onClick={() => setEditingApplicationForm(true)}>Edit Form</Button>
+              <Button
+                className="bg-amber-500 hover:bg-amber-600 text-white"
+                onClick={() => setEditingApplicationForm(true)}
+              >
+                <Edit className="mr-2 h-4 w-4" />
+                Edit Form
+              </Button>
     )}
     {!readOnly && (
-      <Button onClick={handleDeleteForm}>Delete Form</Button>
+              <Button
+                className="bg-red-500 hover:bg-red-600 text-white"
+                onClick={handleDeleteForm}
+                disabled={isDeleting}
+              >
+                <Trash2 className="mr-2 h-4 w-4" />
+                {isDeleting ? "Deleting..." : "Delete Form"}
+              </Button>
     )}
             </div>
           ) : (
@@ -3741,11 +3754,11 @@ const ViewJobDetails = ({ job, onClose, oneditingAllowedUpdate, readOnly = false
       <div className="mt-8 space-y-8">
      {!readOnly && (
   <div className="flex space-x-4">
-    <button onClick={() => setAddingStep(true)}>
+    <button className="bg-gradient-to-r from-green-500 to-green-600 text-white px-8 py-3 rounded-2xl hover:from-green-600 hover:to-green-700 focus:outline-none focus:ring-4 focus:ring-green-500 focus:ring-offset-2 transition-all duration-300 transform hover:scale-105 active:scale-95 shadow-lg hover:shadow-xl" onClick={() => setAddingStep(true)}>
       Add Hiring Step
     </button>
     {job.Hiring_Workflow.length > 0 && (
-      <button onClick={handleDeleteLastStep}>
+      <button  className="bg-gradient-to-r from-red-500 to-red-600 text-white px-8 py-3 rounded-2xl hover:from-red-600 hover:to-red-700 focus:outline-none focus:ring-4 focus:ring-red-500 focus:ring-offset-2 transition-all duration-300 transform hover:scale-105 active:scale-95 shadow-lg hover:shadow-xl" onClick={handleDeleteLastStep}>
         Delete Last Hiring Step
       </button>
     )}
