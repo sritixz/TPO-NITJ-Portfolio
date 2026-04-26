@@ -5,6 +5,7 @@ import { useNavigate } from 'react-router-dom';
 const JobCard = ({ 
   job_id, 
   jobtype, 
+  internshipDuration,
   jobtitle, 
   company, 
   deadline,
@@ -28,6 +29,9 @@ const JobCard = ({
   };
 
   const navigate = useNavigate();
+  const isInternshipType = ["Intern", "Intern+PPO", "Intern+FTE"].includes(jobtype);
+  const showInternshipDuration =
+    isInternshipType && internshipDuration && internshipDuration !== "N/A";
    const handleClick = () => {
     navigate(`${jpid}`);
   };
@@ -54,6 +58,14 @@ const JobCard = ({
             <span className="font-medium mr-1">ID:</span>
             <span className="text-gray-600">{job_id}</span>
           </div>
+
+          {showInternshipDuration && (
+            <div className="flex items-center text-gray-700 text-sm">
+              <Clock className="mr-2 text-custom-blue" size={16} />
+              <span className="font-medium mr-1">Duration:</span>
+              <span className="text-gray-600">{internshipDuration}</span>
+            </div>
+          )}
 
           <div className="flex items-center text-gray-700 text-sm">
             <Clock className="mr-2 text-custom-blue" size={16} />
