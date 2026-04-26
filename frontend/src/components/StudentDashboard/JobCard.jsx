@@ -1,5 +1,5 @@
 import React from 'react';
-import { Clock, Briefcase, Tag } from 'lucide-react';
+import { Clock, Briefcase, Tag , Loader2, Activity} from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 const JobCard = ({ 
@@ -9,6 +9,7 @@ const JobCard = ({
   company, 
   deadline,
   jpid, 
+  job_status
 }) => {
   // Format deadline with more robust date handling
   const formatDeadline = (deadlineDate) => {
@@ -54,11 +55,16 @@ const JobCard = ({
             <span className="font-medium mr-1">ID:</span>
             <span className="text-gray-600">{job_id}</span>
           </div>
+  <div className="flex items-center text-gray-700 text-sm">
+        <Activity className="mr-2 text-blue-500" size={16} />
+             <p>Status: {job_status || "Not Updated"}</p>
 
+</div>
           <div className="flex items-center text-gray-700 text-sm">
             <Clock className="mr-2 text-custom-blue" size={16} />
             <span className="font-medium mr-1">Deadline:</span>
             <span className="text-gray-600">
+             
               {formatDeadline(deadline)}
             </span>
           </div>

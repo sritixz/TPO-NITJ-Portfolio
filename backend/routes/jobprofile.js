@@ -47,6 +47,8 @@ router.put("/incompletejob/:_id", restrictTo('Professor'), incompletedJobProfile
 router.put("/completejob/:_id",restrictTo('Professor'), completedJobProfile);
 router.put("/pendingjob/:_id",restrictTo('Professor'), markJobPending);
 router.put("/status/:jobId",restrictTo('Professor'), updateJobStatus);
+// router.put("/status/:jobId",restrictTo('Professor'), updatePlaStatus);
+
 router.put("/rejectjob/:_id", restrictTo('Professor'), rejectJobProfile);
 router.post("/add-shortlist-students", restrictTo('Professor'), addshortlistStudents);
 router.post("/add-final-shortlist-students", restrictTo('Professor'), addfinalshortlistStudent);
