@@ -168,6 +168,7 @@ const sendEmailToStudent = async (student, jobProfile) => {
     console.error(`Failed to send email to ${student.email}:`, error);
   }
 };
+
 export const createJobProfilecopy = async (req, res) => {
   try {
     // Extract recruiter ID from authenticated user
@@ -178,6 +179,10 @@ export const createJobProfilecopy = async (req, res) => {
       job_id,
       company_name,
       company_logo,
+      hr_contact,
+      hr_email,
+      tpo_spoc_name,
+      tpo_spoc_contact,
       job_role,
       jobdescription,
       joblocation,
@@ -192,6 +197,20 @@ export const createJobProfilecopy = async (req, res) => {
       Hiring_Workflow,
       eligibility_criteria,
     } = req.body;
+
+    const requiredFields = [
+      ["hr_contact", hr_contact],
+      ["hr_email", hr_email],
+      ["tpo_spoc_name", tpo_spoc_name],
+      ["tpo_spoc_contact", tpo_spoc_contact],
+    ];
+
+    const missingField = requiredFields.find(([, value]) => !String(value || "").trim());
+    if (missingField) {
+      return res.status(400).json({
+        error: `${missingField[0]} is required`,
+      });
+    }
 
     // Check if the recruiter is a TPO (Professor)
     const tpo = await Professor.findById(recruiter_id);
@@ -283,6 +302,10 @@ export const createJobProfilecopy = async (req, res) => {
       job_id: job_id || "",
       company_name: company_name || "",
       company_logo: company_logo || "",
+      hr_contact: hr_contact || "",
+      hr_email: hr_email || "",
+      tpo_spoc_name: tpo_spoc_name || "",
+      tpo_spoc_contact: tpo_spoc_contact || "",
       job_role: job_role || "",
       jobdescription: jobdescription || "",
       joblocation: joblocation || "",
@@ -330,7 +353,7 @@ export const createJobProfilecopy = async (req, res) => {
       uniqueGroups.add(key);
     });
 
-    // Mapping of course names to email prefixes
+    // // Mapping of course names to email prefixes
     const coursePrefixMap = {
       "B.Tech": "btech",
       "M.Tech": "mtech",
@@ -352,7 +375,7 @@ export const createJobProfilecopy = async (req, res) => {
         const email = `${prefix}${admissionYear}@nitj.ac.in`;
 
         const pseudoStudent = { email };
-        await sendEmailToStudent(pseudoStudent, savedProfile); //commented
+        await sendEmailToStudent(pseudoStudent, savedProfile); 
       }),
     );
 
@@ -960,14 +983,15 @@ export const getspecificJobProfilesForProfessors = async (req, res) => {
 
 export const updateJobStatus = async (req, res) => {
   const { jobId } = req.params;
-  const { status } = req.body; // "pending" | "completed" | "incomplete"
+  // const { status } = req.body; // "pending" | "completed" | "incomplete"
+   const { status, jobStatus, comment } = req.body;
 
   try {
     if (!mongoose.Types.ObjectId.isValid(jobId)) {
       return res.status(400).json({ error: "Invalid Job ID" });
     }
 
-    if (!["pending", "completed", "incomplete"].includes(status)) {
+    if (status && !["pending", "completed", "incomplete"].includes(status)) {
       return res.status(400).json({ error: "Invalid status value" });
     }
 
@@ -975,18 +999,25 @@ export const updateJobStatus = async (req, res) => {
     if (!job) {
       return res.status(404).json({ error: "Job not found" });
     }
-
-    if (status === "pending") {
-      job.pending = true;
-      job.completed = false;
-    } else if (status === "completed") {
-      job.pending = false;
-      job.completed = true;
-    } else {
-      job.pending = false;
-      job.completed = false;
+if (status) {
+  if (status === "pending") {
+    job.pending = true;
+    job.completed = false;
+  } else if (status === "completed") {
+    job.pending = false;
+    job.completed = true;
+  } else {
+    job.pending = false;
+    job.completed = false;
+  }
+}
+   if (jobStatus) {
+      job.jobStatusInfo = {
+        status: jobStatus,
+        comment: comment || "",
+        updatedAt: new Date()
+      };
     }
-
     await job.save();
 
     return res.status(200).json({ message: "Job status updated", job });
@@ -1162,17 +1193,17 @@ export const checkEligibility = async (req, res) => {
       updatedStudent = student.toObject();
     }
 
-    if (
-      (job.job_type === "Intern" ||
-        job.job_type === "Intern+FTE" ||
-        job.job_type === "Intern+PPO") &&
-      updatedStudent.activeBacklogCount > 3
-    ) {
-      return res.json({
-        eligible: false,
-        reason: "You have more than 3 active backlogs",
-      });
-    }
+    // if (
+    //   (job.job_type === "Intern" ||
+    //     job.job_type === "Intern+FTE" ||
+    //     job.job_type === "Intern+PPO") &&
+    //   updatedStudent.activeBacklogCount > 3
+    // ) {
+    //   return res.json({
+    //     eligible: false,
+    //     reason: "You have more than 3 active backlogs",
+    //   });
+    // }
 
     const eligibilityCriteria = job.eligibility_criteria;
     let isEligible = false;

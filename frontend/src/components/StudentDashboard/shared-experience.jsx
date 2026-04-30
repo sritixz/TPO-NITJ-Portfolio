@@ -6,7 +6,7 @@ import parse from "html-react-parser";
 import Swal from "sweetalert2";
 import toast from "react-hot-toast";
 import BouncingLoader from "../BouncingLoader";
-import { FaEdit, FaTrash, FaPlus } from "react-icons/fa";
+import { FaEdit, FaTrash, FaPlus, FaSearch } from "react-icons/fa";
 import Notification from "../ProfessorDashboard/Notification";
 
 const SharedExperience = () => {
@@ -19,6 +19,7 @@ const SharedExperience = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [activeTab, setActiveTab] = useState("myExperiences");
+  const [searchQuery, setSearchQuery] = useState("");
 
   useEffect(() => {
     const fetchExperiences = async () => {
@@ -75,6 +76,16 @@ const SharedExperience = () => {
 
   const handleBack = () => {
     setSelectedExperience(null);
+  };
+
+  const filterExperiences = (experiences) => {
+    if (!searchQuery.trim()) return experiences;
+    const query = searchQuery.toLowerCase();
+    return experiences.filter(
+      (exp) =>
+        exp.title?.toLowerCase().includes(query) ||
+        exp.author?.name?.toLowerCase().includes(query)
+    );
   };
 
   if (loading) return (
@@ -186,6 +197,29 @@ const SharedExperience = () => {
 
       {/* Tab Content */}
       <div className="container mx-auto px-4 py-6">
+        {/* Search Bar */}
+        <div className="mb-6 flex items-center">
+          <div className="relative w-full max-w-md">
+            <FaSearch className="absolute left-3 top-3 text-gray-400" />
+            <input
+              type="text"
+              placeholder="Search experiences..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-custom-blue"
+            />
+          </div>
+          {searchQuery && (
+            <button
+              onClick={() => setSearchQuery("")}
+              className="ml-2 px-4 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 transition"
+            >
+              Clear
+            </button>
+          )}
+        </div>
+
+        {/* My Experiences Tab */}
         {activeTab === "myExperiences" && (
           <section>
             <div className="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
@@ -197,7 +231,7 @@ const SharedExperience = () => {
                   <FaPlus />
                 </div>
               {/* )} */}
-              {currentUserExperiences.map((experience) => (
+              {filterExperiences(currentUserExperiences).map((experience) => (
                 <div
                   key={experience._id}
                   className=" border border-gray-200 rounded-xl shadow-md hover:shadow-2xl transition-transform hover:scale-105 hover:border-blue-500 duration-300 cursor-pointer overflow-hidden p-4 flex flex-col  items-center justify-between text-center h-auto w-auto"
@@ -240,13 +274,18 @@ const SharedExperience = () => {
                 </div>
               ))}
             </div>
+            {filterExperiences(currentUserExperiences).length === 0 && searchQuery && (
+              <div className="text-center text-gray-500 py-8">
+                <p className="text-lg">No experiences found matching "{searchQuery}"</p>
+              </div>
+            )}
           </section>
         )}
 
         {activeTab === "otherExperiences" && (
           <section>
             <div className="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-              {otherExperiences.map((experience) => (
+              {filterExperiences(otherExperiences).map((experience) => (
                 <div
                   key={experience._id}
                   className="bg-white border border-custom-blue rounded-xl shadow-md hover:shadow-lg transition-transform hover:scale-105 hover:border-blue-400 duration-300 cursor-pointer overflow-hidden py-4"
@@ -271,6 +310,11 @@ const SharedExperience = () => {
                 </div>
               ))}
             </div>
+            {filterExperiences(otherExperiences).length === 0 && searchQuery && (
+              <div className="text-center text-gray-500 py-8">
+                <p className="text-lg">No experiences found matching "{searchQuery}"</p>
+              </div>
+            )}
           </section>
         )}
       </div>

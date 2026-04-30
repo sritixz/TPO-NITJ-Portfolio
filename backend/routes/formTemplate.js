@@ -47,7 +47,7 @@ router.post('/upload-resume', upload.single('file'), gdrive);
 
 
 //professor form submission
-router.get('/form-submissions/:jobId',restrictTo('Professor','Recuiter'), getFormSubmissions);
+router.get('/form-submissions/:jobId',restrictTo('Professor','Recuiter','Faculty'), getFormSubmissions);
 router.delete('/form-submissions/:id', restrictTo('Professor'), deleteFormSubmission);
 router.delete('/form-submissions/delete-all/:jobId', restrictTo('Professor'), deleteAllFormSubmissions);
 router.patch('/form-submissions/make-visible/:jobId', restrictTo('Professor'), makeVisible);

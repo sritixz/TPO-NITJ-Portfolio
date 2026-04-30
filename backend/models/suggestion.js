@@ -10,6 +10,8 @@ const SuggestionSchema=new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: "Faculty", 
     },
+    professor_id: { type: mongoose.Schema.Types.ObjectId,
+         ref: "Professor" },
     company_name:{
         type:String,
         // required: true,
