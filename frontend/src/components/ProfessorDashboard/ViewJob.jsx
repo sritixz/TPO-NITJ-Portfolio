@@ -1955,6 +1955,7 @@ const [comment, setComment] = useState("");
 
   // Add this useEffect after your state declarations (e.g., after const [addingFinalShortlist, setAddingFinalShortlist] = useState(false);)
   useEffect(() => {
+    // console.log("Checking job type and editing section for dynamic field adjustments...");
   if (editedJob.job_type === "FTE" && editingSection === "basic") {
     setEditedJob((prev) => ({
       ...prev,
@@ -2378,6 +2379,7 @@ const [comment, setComment] = useState("");
           }`,
           { withCredentials: true }
         );
+        // console.log("Application form existence response:", response.data);
         setApplicationFormexist(response.data.exist);
       } catch (error) {
         console.error("Error checking application form existence:", error);
@@ -3503,7 +3505,7 @@ const updatePlacementStatus = async (jobId, jobStatus, comment) => {
       { jobStatus, comment },
       { withCredentials: true }
     );
-
+// console.log("Status update response:", res.data);
     // 👇 THIS IS THE FIX
     setEditedJob((prev) => ({
       ...prev,
@@ -3582,7 +3584,45 @@ const updatePlacementStatus = async (jobId, jobStatus, comment) => {
             </TooltipProvider>)}
           </div>
         </div>
-        
+         <div className="p-6 bg-gray-50 border border-gray-200 rounded-2xl shadow-md mb-6">
+    <h3 className="text-xl font-semibold text-custom-blue mb-3">
+      Placement Status
+    </h3>
+
+  <select
+  className="border p-2 rounded w-full"
+  value={jobStatus}
+  onChange={(e) => setJobStatus(e.target.value)}
+>
+  <option value="">Select Status</option>
+  <option value="Data Sent">Data Sent</option>
+  <option value="Shortlisting in Progress">Shortlisting in Progress</option>
+  <option value="OA Scheduled">OA Scheduled</option>
+  <option value="OA Completed">OA Completed</option>
+  <option value="Interview Round 1">Interview Round 1</option>
+  <option value="Final Results Awaited">Final Results Awaited</option>
+  <option value="Other">Other</option>
+</select>
+<textarea
+  value={comment}
+  placeholder="Add comment..."
+  className="border p-2 rounded w-full mt-3"
+  onChange={(e) => setComment(e.target.value)}
+/>
+    <button
+      className="bg-blue-600 text-white px-4 py-2 rounded mt-3"
+      onClick={() => updatePlacementStatus(job._id, jobStatus, comment)}
+    >
+      Update Status
+    </button>
+
+    {/* SHOW CURRENT STATUS */}
+    <div className="mt-3 text-sm text-gray-700">
+      <p><strong>Current:</strong> {job.jobStatusInfo?.status || "Not Updated"}</p>
+      <p className="text-gray-500">{job.jobStatusInfo?.comment}</p>
+    </div>
+  </div>
+
         {renderEditableCard("Basic Details", renderBasicDetails(), "basic")}
          <div className="p-8 bg-white border border-gray-200 rounded-2xl shadow-lg hover:shadow-xl transition-shadow duration-300 relative mt-8">
           <h3 className="text-2xl font-semibold text-custom-blue mb-6">Attachments</h3>
