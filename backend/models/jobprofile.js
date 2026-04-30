@@ -229,6 +229,29 @@ const JobProfileSchema = new mongoose.Schema(
       type: String,
       enum: ['Tech', 'Non-Tech','Tech+Non-Tech'],
     },
+   jobStatusInfo: {
+  status: {
+    type: String,
+    enum: [
+      "Data Sent",
+      "Shortlisting in Progress",
+      "OA Scheduled",
+      "OA Completed",
+      "Interview Round 1",
+      "Final Results Awaited",
+      "Other"
+    ],
+    default: "Data Sent"
+  },
+  comment: {
+    type: String,
+    default: ""
+  },
+  updatedAt: {
+    type: Date,
+    default: Date.now
+  }
+},
     job_sector:{
        type:String,
        default:'Private'
@@ -395,6 +418,7 @@ const JobProfileSchema = new mongoose.Schema(
     url: { type: String }
   }
 ],
+
 data_Sent:{
   type:Boolean,
   default:false

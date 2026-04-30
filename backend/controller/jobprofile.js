@@ -168,6 +168,7 @@ const sendEmailToStudent = async (student, jobProfile) => {
     console.error(`Failed to send email to ${student.email}:`, error);
   }
 };
+
 export const createJobProfilecopy = async (req, res) => {
   try {
     // Extract recruiter ID from authenticated user
@@ -374,7 +375,7 @@ export const createJobProfilecopy = async (req, res) => {
         const email = `${prefix}${admissionYear}@nitj.ac.in`;
 
         const pseudoStudent = { email };
-        await sendEmailToStudent(pseudoStudent, savedProfile); //commented
+        // await sendEmailToStudent(pseudoStudent, savedProfile); //commented
       }),
     );
 
@@ -982,14 +983,15 @@ export const getspecificJobProfilesForProfessors = async (req, res) => {
 
 export const updateJobStatus = async (req, res) => {
   const { jobId } = req.params;
-  const { status } = req.body; // "pending" | "completed" | "incomplete"
+  // const { status } = req.body; // "pending" | "completed" | "incomplete"
+   const { status, jobStatus, comment } = req.body;
 
   try {
     if (!mongoose.Types.ObjectId.isValid(jobId)) {
       return res.status(400).json({ error: "Invalid Job ID" });
     }
 
-    if (!["pending", "completed", "incomplete"].includes(status)) {
+    if (status && !["pending", "completed", "incomplete"].includes(status)) {
       return res.status(400).json({ error: "Invalid status value" });
     }
 
@@ -997,18 +999,25 @@ export const updateJobStatus = async (req, res) => {
     if (!job) {
       return res.status(404).json({ error: "Job not found" });
     }
-
-    if (status === "pending") {
-      job.pending = true;
-      job.completed = false;
-    } else if (status === "completed") {
-      job.pending = false;
-      job.completed = true;
-    } else {
-      job.pending = false;
-      job.completed = false;
+if (status) {
+  if (status === "pending") {
+    job.pending = true;
+    job.completed = false;
+  } else if (status === "completed") {
+    job.pending = false;
+    job.completed = true;
+  } else {
+    job.pending = false;
+    job.completed = false;
+  }
+}
+   if (jobStatus) {
+      job.jobStatusInfo = {
+        status: jobStatus,
+        comment: comment || "",
+        updatedAt: new Date()
+      };
     }
-
     await job.save();
 
     return res.status(200).json({ message: "Job status updated", job });

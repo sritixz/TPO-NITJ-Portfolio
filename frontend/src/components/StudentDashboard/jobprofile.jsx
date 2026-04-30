@@ -78,6 +78,7 @@ const JobApplications = () => {
                 jobtitle={job.job_role}
                 deadline={job.deadline}
                 jpid={job._id}
+                job_status= {job.jobStatusInfo?.status}
                 isVisible={false}
               />
             ))}
@@ -101,6 +102,7 @@ const JobApplications = () => {
                 jobtitle={job.job_role}
                 deadline={job.deadline}
                 jpid={job._id}
+                  job_status= {job.jobStatusInfo?.status}
                 isVisible={false}
               />
             ))}
@@ -127,6 +129,7 @@ const JobApplications = () => {
                 jobtitle={job.job_role}
                 deadline={job.deadline}
                 jpid={job._id}
+                  job_status= {job.jobStatusInfo?.status}
                 isVisible={false}
               />
             ))}

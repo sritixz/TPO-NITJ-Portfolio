@@ -1970,7 +1970,7 @@ deadline: (
         </button>
       </div>
 
-      <div className="text-center mb-8 sm:mb-12">
+    <div className="text-center mb-3 sm:mb-4">
         <h1 className="text-2xl sm:text-4xl md:text-5xl font-semibold text-custom-blue">
           {jobDetails.company_name || "Unknown Company"}
         </h1>
@@ -1978,7 +1978,26 @@ deadline: (
           Role: {jobDetails.job_role || "No Job Title Provided"}
         </h2>
       </div>
+ <div className="mt-2 mb-8 flex justify-center">
+  <div className="bg-blue-50 border border-blue-200 rounded-xl px-5 py-3 text-center shadow-sm min-w-[250px]">
+    
+    <p className="text-xs text-gray-500 mb-1">Current Status</p>
 
+    <span className="inline-block px-3 py-1 rounded-full bg-blue-100 text-blue-700 font-semibold text-sm">
+      {jobDetails.jobStatusInfo?.status || "Not Updated"}
+    </span>
+
+{jobDetails.jobStatusInfo?.comment && (
+  <div className="mt-2">
+    {/* <p className="text-xs text-gray-400">Note</p> */}
+    <p className="text-sm text-gray-900 italic">
+      {jobDetails.jobStatusInfo.comment}
+    </p>
+  </div>
+)}
+    
+  </div>
+</div>
       <div className="flex flex-wrap justify-center gap-2 sm:gap-4 mb-4 sm:mb-8">
         {Object.keys(info).map((key) => (
           <button
