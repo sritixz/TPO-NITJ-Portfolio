@@ -3609,12 +3609,14 @@ const updatePlacementStatus = async (jobId, jobStatus, comment) => {
       onChange={(e) => setJobStatus(e.target.value)}
     >
       <option value="">Select Status</option>
+      <option>Data Collection Ongoing</option>
       <option>Data Sent</option>
       <option>Shortlisting in Progress</option>
       <option>OA Scheduled</option>
       <option>OA Completed</option>
-      <option>Interview Round 1</option>
+      <option>Interview Round</option>
       <option>Final Results Awaited</option>
+      <option>Completed</option>
       <option>Other</option>
     </select>
 
