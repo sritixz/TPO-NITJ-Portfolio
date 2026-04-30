@@ -3493,46 +3493,7 @@ const ViewJobDetails = ({ job, onClose, oneditingAllowedUpdate, readOnly = false
       </div>
     );
   }
-  const [jobStatus, setJobStatus] = useState("");
-const [comment, setComment] = useState("");
-const updatePlacementStatus = async (jobId, jobStatus, comment) => {
-  try {
-    const res = await axios.put(
-      `${import.meta.env.REACT_APP_BASE_URL}/jobprofile/status/${jobId}`,
-      { jobStatus, comment },
-      { withCredentials: true }
-    );
 
-    // 👇 THIS IS THE FIX
-    setEditedJob((prev) => ({
-      ...prev,
-      jobStatusInfo: res.data.job.jobStatusInfo
-    }));
-
-    toast.success("Placement status updated");
-  } catch (err) {
-    toast.error("Failed to update placement status");
-  }
-};
-// const updatePlacementStatus = async (jobId, jobStatus, comment) => {
-//   try {
-//     console.log("Updated Status:", jobStatus, comment);
-//     await axios.put(
-//       `${import.meta.env.REACT_APP_BASE_URL}/jobprofile/status/${jobId}`,
-//       {
-//         jobStatus,
-//         comment
-//       },
-//       { withCredentials: true }
-//     );
-// console.log("Placement status updated successfully");
-
-
-//     toast.success("Updated!", "Placement status updated.", "success");
-//   } catch (err) {
-//     toast.error("Error", "Failed to update placement status.", "error");
-//   }
-// };
   return (
     <>
       <div className="-mt-10 ml-4">
@@ -3599,46 +3560,7 @@ const updatePlacementStatus = async (jobId, jobStatus, comment) => {
             </TooltipProvider>)}
           </div>
         </div>
-          <div className="p-6 bg-gray-50 border border-gray-200 rounded-2xl shadow-md mb-6">
-    <h3 className="text-xl font-semibold text-custom-blue mb-3">
-      Placement Status
-    </h3>
-
-    <select
-      className="border p-2 rounded w-full"
-      onChange={(e) => setJobStatus(e.target.value)}
-    >
-      <option value="">Select Status</option>
-      <option>Data Collection Ongoing</option>
-      <option>Data Sent</option>
-      <option>Shortlisting in Progress</option>
-      <option>OA Scheduled</option>
-      <option>OA Completed</option>
-      <option>Interview Round</option>
-      <option>Final Results Awaited</option>
-      <option>Completed</option>
-      <option>Other</option>
-    </select>
-
-    <textarea
-      placeholder="Add comment..."
-      className="border p-2 rounded w-full mt-3"
-      onChange={(e) => setComment(e.target.value)}
-    />
-
-    <button
-      className="bg-blue-600 text-white px-4 py-2 rounded mt-3"
-      onClick={() => updatePlacementStatus(job._id, jobStatus, comment)}
-    >
-      Update Status
-    </button>
-
-    {/* SHOW CURRENT STATUS */}
-    <div className="mt-3 text-sm text-gray-700">
-      <p><strong>Current:</strong> {job.jobStatusInfo?.status || "Not Updated"}</p>
-      <p className="text-gray-500">{job.jobStatusInfo?.comment}</p>
-    </div>
-  </div>
+        
         {renderEditableCard("Basic Details", renderBasicDetails(), "basic")}
          <div className="p-8 bg-white border border-gray-200 rounded-2xl shadow-lg hover:shadow-xl transition-shadow duration-300 relative mt-8">
           <h3 className="text-2xl font-semibold text-custom-blue mb-6">Attachments</h3>
