@@ -61,7 +61,7 @@ import AlertModal from "./StudentDashboard/alert.jsx";
 import FinePayment from "./StudentDashboard/fine-payment.jsx";
 import Suggestions from "./StudentDashboard/suggestions.jsx";
 import RepresentativeApplication from "./StudentDashboard/RepresentativeApplication.jsx";
-// import OfferUpload from "./StudentDashboard/offerUpload.jsx";
+import OfferUpload from "./StudentDashboard/offerUpload.jsx";
 
 const StudentDashboard = () => {
   const [isMobile, setIsMobile] = useState(false);
@@ -333,6 +333,7 @@ const StudentDashboard = () => {
             <Route path="student-connect" element={<StudentConnect />} />
             {/* <Route path="fine-payment" element={<FinePayment />} /> */}
             <Route path="suggestions" element={<Suggestions />} />
+            <Route path="offer-upload" element={<OfferUpload /> } />
             {/* <Route path="representativeApplication" element={<RepresentativeApplication/>} /> */}
             </Routes>
         </div>

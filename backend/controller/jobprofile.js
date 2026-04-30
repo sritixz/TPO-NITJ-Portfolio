@@ -375,7 +375,7 @@ export const createJobProfilecopy = async (req, res) => {
         const email = `${prefix}${admissionYear}@nitj.ac.in`;
 
         const pseudoStudent = { email };
-        // await sendEmailToStudent(pseudoStudent, savedProfile); //commented
+        await sendEmailToStudent(pseudoStudent, savedProfile); 
       }),
     );
 
@@ -1193,17 +1193,17 @@ export const checkEligibility = async (req, res) => {
       updatedStudent = student.toObject();
     }
 
-    if (
-      (job.job_type === "Intern" ||
-        job.job_type === "Intern+FTE" ||
-        job.job_type === "Intern+PPO") &&
-      updatedStudent.activeBacklogCount > 3
-    ) {
-      return res.json({
-        eligible: false,
-        reason: "You have more than 3 active backlogs",
-      });
-    }
+    // if (
+    //   (job.job_type === "Intern" ||
+    //     job.job_type === "Intern+FTE" ||
+    //     job.job_type === "Intern+PPO") &&
+    //   updatedStudent.activeBacklogCount > 3
+    // ) {
+    //   return res.json({
+    //     eligible: false,
+    //     reason: "You have more than 3 active backlogs",
+    //   });
+    // }
 
     const eligibilityCriteria = job.eligibility_criteria;
     let isEligible = false;

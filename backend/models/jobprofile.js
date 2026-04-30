@@ -232,16 +232,6 @@ const JobProfileSchema = new mongoose.Schema(
    jobStatusInfo: {
   status: {
     type: String,
-    enum: [
-      "Data Sent",
-      "Shortlisting in Progress",
-      "OA Scheduled",
-      "OA Completed",
-      "Interview Round 1",
-      "Final Results Awaited",
-      "Other"
-    ],
-    default: "Data Sent"
   },
   comment: {
     type: String,
