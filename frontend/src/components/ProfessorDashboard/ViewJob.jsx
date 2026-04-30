@@ -1917,6 +1917,8 @@ const ViewJobDetails = ({ job, onClose, oneditingAllowedUpdate }) => {
   const [editingApplicationForm, setEditingApplicationForm] = useState(false);
   const [editingSection, setEditingSection] = useState(null);
   const [editingStepIndex, setEditingStepIndex] = useState(null);
+    const [jobStatus, setJobStatus] = useState("");
+const [comment, setComment] = useState("");
   const [editedJob, setEditedJob] = useState({
     ...job,
     eligibility_criteria: job.eligibility_criteria || [],
@@ -3491,8 +3493,7 @@ const ViewJobDetails = ({ job, onClose, oneditingAllowedUpdate }) => {
       </div>
     );
   }
-  const [jobStatus, setJobStatus] = useState("");
-const [comment, setComment] = useState("");
+
 const updatePlacementStatus = async (jobId, jobStatus, comment) => {
   try {
     const res = await axios.put(
