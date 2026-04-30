@@ -40,8 +40,8 @@ router.delete("/deletejob/:_id", restrictTo('Professor','Recuiter'), deleteJob);
 router.get("/recruiter/getjobs/:company", restrictTo('Recuiter'), getJobsByRecruiter);
 
 
-router.get("/professor/getjobs", restrictTo('Professor'), getJobProfilesForProfessors);
-router.get("/professor/getjobs/:id", restrictTo('Professor'), getspecificJobProfilesForProfessors);
+router.get("/professor/getjobs", restrictTo('Professor','Faculty'), getJobProfilesForProfessors);
+router.get("/professor/getjobs/:id", restrictTo('Professor,Faculty'), getspecificJobProfilesForProfessors);
 router.put("/approvejob/:_id", restrictTo('Professor'), approveJobProfile);
 router.put("/incompletejob/:_id", restrictTo('Professor'), incompletedJobProfile);
 router.put("/completejob/:_id",restrictTo('Professor'), completedJobProfile);
