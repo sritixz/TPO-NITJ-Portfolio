@@ -15,11 +15,15 @@ export const updateOffer = async (req, res) => {
     //   return res.status(403).json({ message: "Deadline passed" });
     // }
 
-    // ✏️ Update fields
     offer.totalOffers = req.body.totalOffers || offer.totalOffers;
     offer.acceptedCompany = req.body.acceptedCompany || offer.acceptedCompany;
     offer.linkedin = req.body.linkedin || offer.linkedin;
-    offer.offerLetter = req.file ? req.file.path : offer.offerLetter; // if new file uploaded
+
+    offer.hrName = req.body.hrName || offer.hrName;
+    offer.hrEmail = req.body.hrEmail || offer.hrEmail;
+    offer.ctc = req.body.ctc || offer.ctc;
+
+    offer.offerLetter = req.file ? req.file.path : offer.offerLetter;
     await offer.save();
 
     res.json({ message: "Updated successfully", offer });
@@ -64,12 +68,13 @@ export const getDeadlineByType = async (req, res) => {
 };
 export const submitOffer = async (req, res) => {
   try {
-    const { totalOffers, acceptedCompany, linkedin } = req.body;
+    const { totalOffers, acceptedCompany, linkedin, hrName, hrEmail, ctc } =
+      req.body;
     // console.log("Received offer submission:", { totalOffers, acceptedCompany, file: req.file });
     // console.log("Authenticated user:", req.user);
-    if (!totalOffers || !acceptedCompany) {
+    if (!totalOffers || !acceptedCompany || !ctc) {
       return res.status(400).json({
-        message: "All fields are required",
+        message: "Total Offers, Accepted Company and CTC are required",
       });
     }
 
@@ -83,7 +88,10 @@ export const submitOffer = async (req, res) => {
       totalOffers,
       acceptedCompany,
       linkedin,
-      offerLetter: req.file.path, // assuming multer
+      hrName,
+      hrEmail,
+      ctc,
+      offerLetter: req.file.path,
     });
 
     await offer.save();

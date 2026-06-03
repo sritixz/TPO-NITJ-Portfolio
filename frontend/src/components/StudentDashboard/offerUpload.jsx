@@ -24,6 +24,9 @@ const [deadline, setDeadline] = useState(null);
   totalOffers: "",
   acceptedCompany: "",
     linkedin: "",
+    hrName: "",
+  hrEmail: "",
+  ctc: "",
   offerLetter: null
 });
 
@@ -65,11 +68,14 @@ useEffect(() => {
         setOfferId(res.data._id);
 
         setFormData({
-          totalOffers: res.data.totalOffers || "",
-          acceptedCompany: res.data.acceptedCompany || "",
-          linkedin: res.data.linkedin || "",
-          offerLetter: null
-        });
+  totalOffers: res.data.totalOffers || "",
+  acceptedCompany: res.data.acceptedCompany || "",
+  linkedin: res.data.linkedin || "",
+  hrName: res.data.hrName || "",
+  hrEmail: res.data.hrEmail || "",
+  ctc: res.data.ctc || "",
+  offerLetter: null
+});
       }
     } catch (err) {
       console.error(err);
@@ -161,10 +167,15 @@ const isDeadlinePassed = deadline
 
   if (loading) return;
 
-  if (!formData.totalOffers || !formData.acceptedCompany || !formData.linkedin) {
-    toast.error("Fill all fields properly");
-    return;
-  }
+  if (
+  !formData.totalOffers ||
+  !formData.acceptedCompany ||
+  !formData.linkedin ||
+  !formData.ctc
+) {
+  toast.error("Fill all mandatory fields properly");
+  return;
+}
 
   if (isDeadlinePassed) {
     toast.error("Deadline has passed");
@@ -176,8 +187,11 @@ const isDeadlinePassed = deadline
 
     const data = new FormData();
     data.append("totalOffers", formData.totalOffers);
-    data.append("acceptedCompany", formData.acceptedCompany);
-    data.append("linkedin", formData.linkedin);
+data.append("acceptedCompany", formData.acceptedCompany);
+data.append("linkedin", formData.linkedin);
+data.append("hrName", formData.hrName);
+data.append("hrEmail", formData.hrEmail);
+data.append("ctc", formData.ctc);
 
     if (formData.offerLetter) {
       data.append("offerLetter", formData.offerLetter);
@@ -202,6 +216,15 @@ const isDeadlinePassed = deadline
       );
 
       toast.success(" Submitted ");
+      setFormData({
+  totalOffers: "",
+  acceptedCompany: "",
+  linkedin: "",
+  hrName: "",
+  hrEmail: "",
+  ctc: "",
+  offerLetter: null
+});
     }
 
   } catch (err) {
@@ -248,31 +271,56 @@ const isDeadlinePassed = deadline
       </div>
 
       <div className="grid grid-cols-2 gap-4 mb-6">
-     <Input
-  label="Total Offers"
-  type="number"
-  name="totalOffers"
-  value={formData.totalOffers}
-  onChange={handleChange}
-  required
-/>
-     <Input
-  label="LinkedIn"
-  name="linkedin"
-  value={formData.linkedin}
-  onChange={handleChange}
-  required
+  <Input
+    label="Total Offers"
+    type="number"
+    name="totalOffers"
+    value={formData.totalOffers}
+    onChange={handleChange}
+    required
+  />
 
-/>
+  <Input
+    label="CTC (LPA)"
+    type="number"
+    step="0.01"
+    name="ctc"
+    value={formData.ctc}
+    onChange={handleChange}
+    required
+  />
 
-<Input
-  label="Accepted Company Name"
-  name="acceptedCompany"
-  value={formData.acceptedCompany}
-  onChange={handleChange}
-  required
-/>
-      </div>
+  <Input
+    label="LinkedIn"
+    name="linkedin"
+    value={formData.linkedin}
+    onChange={handleChange}
+    required
+  />
+
+  <Input
+    label="Accepted Company Name"
+    name="acceptedCompany"
+    value={formData.acceptedCompany}
+    onChange={handleChange}
+    required
+  />
+
+  <Input
+    label="HR Name"
+    name="hrName"
+    value={formData.hrName}
+    onChange={handleChange}
+  />
+
+  <Input
+    label="HR Email"
+    type="email"
+    name="hrEmail"
+    value={formData.hrEmail}
+    onChange={handleChange}
+  />
+</div>
      <div className="mb-4">
   <label className="block text-sm text-gray-600 mb-1">
     Offer Letter <span className="text-red-500">*</span>
@@ -283,25 +331,52 @@ const isDeadlinePassed = deadline
     name="offerLetter"
     accept="application/pdf"
     onChange={handleChange}
-    required
+    required={!offerId}
     className="w-full border border-gray-300 rounded-lg p-2"
   />
 
   {/* 👇 THIS LINE DOES THE JOB */}
   <p className="text-xs text-gray-500 mt-1">
-    Only PDF files are allowed
+    Only PDF files are allowed (Upload final letter)
   </p>
 </div>
 <button
   type="submit"
-  disabled={isDeadlinePassed}
-  className={`mt-4 px-4 py-2 rounded text-white ${
-    isDeadlinePassed
+  disabled={isDeadlinePassed || loading}
+  className={`mt-4 px-4 py-2 rounded text-white flex items-center justify-center gap-2 ${
+    isDeadlinePassed || loading
       ? "bg-gray-400 cursor-not-allowed"
-      : "bg-blue-600"
+      : "bg-blue-600 hover:bg-blue-700"
   }`}
 >
-  {offerId ? "Update  " : "Submit"}
+  {loading ? (
+    <>
+      <svg
+        className="animate-spin h-4 w-4"
+        xmlns="http://www.w3.org/2000/svg"
+        fill="none"
+        viewBox="0 0 24 24"
+      >
+        <circle
+          className="opacity-25"
+          cx="12"
+          cy="12"
+          r="10"
+          stroke="currentColor"
+          strokeWidth="4"
+        />
+        <path
+          className="opacity-75"
+          fill="currentColor"
+          d="M4 12a8 8 0 018-8v8H4z"
+        />
+      </svg>
+
+      {offerId ? "Updating..." : "Submitting..."}
+    </>
+  ) : (
+    offerId ? "Update" : "Submit"
+  )}
 </button>
 
     </div>
