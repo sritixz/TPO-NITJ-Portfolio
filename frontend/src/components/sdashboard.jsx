@@ -122,7 +122,7 @@ const StudentDashboard = () => {
 //   label: "Representative Form", 
 //   icon: faUserCheck // or any icon you like
 // },
-// { path: "/sdashboard/offer-upload", label: "Offer Upload", icon: faEnvelope },
+{ path: "/sdashboard/offer-upload", label: "Offer Upload", icon: faEnvelope },
   ];
 
   const MenuItem = ({ item, onClick, isSidebarExpanded }) => {
