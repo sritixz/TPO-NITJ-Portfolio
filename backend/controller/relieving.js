@@ -79,24 +79,30 @@ export const updateNOCStatus = async (req, res) => {
       { new: true },
     ).populate('studentId');
 
+    // console.log(JSON.stringify(updatedNOC, null, 2));
     if (!updatedNOC) {
       console.log("Relieving Letter not found");
       return res.status(404).json({ error: "Relieving Letter not found" });
     }
 
     if (nocStatus === "Issued") {
-      const studentEmail = updatedNOC.studentId?.email || updatedNOC.email;
-      const studentName = (updatedNOC.studentId?.name || updatedNOC.name || "Student").toUpperCase();
-      const studentRoll = updatedNOC.studentId?.rollno || "N/A";
+      const studentName = (updatedNOC.studentId?.studentName || updatedNOC.studentName || "Student").toUpperCase();
+      const studentRoll = updatedNOC.studentId?.rollNo || updatedNOC.rollNo ||  "N/A";
       const studentDept = updatedNOC.studentId?.department || updatedNOC.department || "N/A";
-      const studentCourse = updatedNOC.studentId?.course || "B.Tech";
-      
+      const studentCourse = updatedNOC.course || "";
+      const year = updatedNOC.studentId?.year || updatedNOC.year || "N/A";
+      const semester = updatedNOC.studentId?.semester || updatedNOC.semester || "N/A";
       const companyName = updatedNOC.companyName || "the designated organization";
       
       // Relieving letters focus strictly on the start date (Date of Joining or Release Date)
       const executionDate = updatedNOC.dateOfJoining || updatedNOC.internshipFrom || new Date();
       const formattedReleaseDate = new Date(executionDate).toLocaleDateString('en-GB');
 
+      const studentEmail = updatedNOC.respondentEmail
+      // console.log(updatedNOC)
+      // console.log(studentRoll)
+      // console.log("Student Email:", student.email);
+      // console.log("Student Data:", updatedNOC.studentId);
       if (studentEmail) {
         const htmlBody = `
           <div style="font-family: 'Times New Roman', Times, serif; line-height: 1.6; max-width: 650px; margin: 0 auto; border: 1px solid #cbd5e1; padding: 30px; color: #000000; background-color: #ffffff;">
@@ -132,22 +138,12 @@ export const updateNOCStatus = async (req, res) => {
             </div>
 
             <div style="text-align: justify; font-size: 14px; margin-bottom: 20px; text-indent: 30px;">
-              This is to certify that <strong>Mr./Ms. ${studentName}</strong>, bearing Roll No. <strong>${studentRoll}</strong>, is a bona fide student of the 
-              <strong>${studentCourse}</strong> program in the Department of <strong>${studentDept}</strong> at Dr. B.R. Ambedkar National Institute of Technology, Jalandhar.
+              This is to certify that <strong>Mr./Ms. ${studentName}</strong>, bearing Roll No. <strong>${studentRoll}</strong>, is a bonafide student of the 
+              <strong>${studentCourse}</strong> program in <strong>${year} year</strong> in <strong>${semester} semester</strong> in the Department of <strong>${studentDept}</strong> at Dr. B.R. Ambedkar National Institute of Technology, Jalandhar.
             </div>
 
             <div style="text-align: justify; font-size: 14px; margin-bottom: 20px; text-indent: 30px;">
               The Training & Placement Office, in coordination with the Department of <strong>${studentDept}</strong>, has no objection to the student joining <strong>${companyName}</strong>. The student is officially permitted to join their corporate assignment and is relieved from on-campus academic placement tracks effective from <strong>${formattedReleaseDate}</strong>.
-            </div>
-
-            <div style="font-size: 13px; color: #1e293b; background-color: #f8fafc; border-left: 3px solid #1e3a8a; padding: 12px; margin-bottom: 25px; text-align: justify;">
-              <p style="margin: 0 0 6px 0;"><strong>Important Directives & Conditions:</strong></p>
-              <ul style="margin: 0; padding-left: 20px;">
-                <li style="margin-bottom: 4px;">This relieving document is issued based on the verified corporate offer details uploaded by the candidate.</li>
-                <li style="margin-bottom: 4px;">The student is strictly required to submit their official joining report issued by ${companyName} to the TPO within one week of deployment.</li>
-                <li style="margin-bottom: 4px;">Failure to submit the official deployment reports will lead to the cancellation of credit weightage evaluations.</li>
-                <li style="margin-bottom: 4px;">This clearance is subject to the condition that the student continues to satisfy all pending end-semester academic requirements remotely without disruptions.</li>
-              </ul>
             </div>
 
             <p style="font-size: 14px; margin-bottom: 40px;">Best regards,</p>
@@ -155,13 +151,8 @@ export const updateNOCStatus = async (req, res) => {
             <table style="width: 100%; font-size: 12px; line-height: 1.4; text-align: center; margin-top: 20px;">
               <tr>
                 <td style="width: 50%; padding-top: 40px; border-top: 1px dotted #cbd5e1;">
-                  <strong>HEAD OF DEPARTMENT</strong><br />
-                  ${studentDept}<br />
-                  NIT JALANDHAR
-                </td>
-                <td style="width: 50%; padding-top: 40px; border-top: 1px dotted #cbd5e1;">
                   <strong>Professor-in-Charge</strong><br />
-                  Training & Placement Cell<br />
+                  Centre of Training & Placement<br />
                   NIT JALANDHAR
                 </td>
               </tr>
@@ -169,7 +160,7 @@ export const updateNOCStatus = async (req, res) => {
 
             <hr style="border: 0; border-top: 1px dashed #cbd5e1; margin: 25px 0 10px 0;" />
             <p style="font-size: 10px; color: #64748b; text-align: center; margin: 0;">
-              This document is electronically verified and dispatched through the Training & Placement Management Portal. Physical signatures are not required.
+              This document is electronically verified and dispatched through the Training & Placement Management Portal.
             </p>
           </div>
         `;
