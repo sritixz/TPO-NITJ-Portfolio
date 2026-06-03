@@ -61,6 +61,7 @@ import AlertModal from "./StudentDashboard/alert.jsx";
 import FinePayment from "./StudentDashboard/fine-payment.jsx";
 import Suggestions from "./StudentDashboard/suggestions.jsx";
 import RepresentativeApplication from "./StudentDashboard/RepresentativeApplication.jsx";
+import Relieving_letter from "./StudentDashboard/relieving_letter.jsx";
 
 const StudentDashboard = () => {
   const [isMobile, setIsMobile] = useState(false);
@@ -331,6 +332,7 @@ const StudentDashboard = () => {
             {/* <Route path="fine-payment" element={<FinePayment />} /> */}
             <Route path="suggestions" element={<Suggestions />} />
             {/* <Route path="representativeApplication" element={<RepresentativeApplication/>} /> */}
+            <Route path="relieving-letter" element={<Relieving_letter/>}/>
             </Routes>
         </div>
 
