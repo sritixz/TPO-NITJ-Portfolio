@@ -199,6 +199,23 @@ const JobProfileSchema = new mongoose.Schema(
     company_logo: {
       type: String,
     },
+    hr_contact: {
+      type: String,
+      trim: true,
+    },
+    hr_email: {
+      type: String,
+      trim: true,
+      lowercase: true,
+    },
+    tpo_spoc_name: {
+      type: String,
+      trim: true,
+    },
+    tpo_spoc_contact: {
+      type: String,
+      trim: true,
+    },
     job_role: {
       type: String,
     },
@@ -212,6 +229,19 @@ const JobProfileSchema = new mongoose.Schema(
       type: String,
       enum: ['Tech', 'Non-Tech','Tech+Non-Tech'],
     },
+   jobStatusInfo: {
+  status: {
+    type: String,
+  },
+  comment: {
+    type: String,
+    default: ""
+  },
+  updatedAt: {
+    type: Date,
+    default: Date.now
+  }
+},
     job_sector:{
        type:String,
        default:'Private'
@@ -378,6 +408,7 @@ const JobProfileSchema = new mongoose.Schema(
     url: { type: String }
   }
 ],
+
 data_Sent:{
   type:Boolean,
   default:false

@@ -61,6 +61,7 @@ import RecruiterFeedbackList from "./companyFeedback.jsx";
 import InternshipsManagement from "./internshipManagement.jsx";
 import ManageEventAnnouncements from "./ManageEventAnnouncements.jsx";
 import ProfessorRepresentativeDashboard from "./RepresentativeApplication.jsx"
+import OfferUpload from "./offerUpload.jsx";
 import RelievingManagement from "./RelievingManagement.jsx"
 
 import Suggestions from "./suggestions.jsx";
@@ -131,6 +132,7 @@ const Pdashboard = () => {
     {label:"Suggestions",icon:faEnvelope, path:"/pdashboard/suggestions"},
     // {label:"Representative Application",icon:faEnvelope, path:"/pdashboard/representativeApplication"},
     // {label:"Download Result",icon:faDownload, path:"/pdashboard/downloadResult"},
+    { label: "Offer Upload ", icon: faFileAlt, path: "/pdashboard/offerUpload" },
   ];
 
 
@@ -345,6 +347,7 @@ const Pdashboard = () => {
             {/* <Route path="representativeApplication" element={<ProfessorRepresentativeDashboard/>} /> */}
             {/* <Route path="downloadResult" element={<downloadResult/>} /> */}
             {/* <Route path="uploads" element={<Upload />} /> */}
+            <Route path="offerUpload" element={<OfferUpload />} />
             </Routes>
         </div>
 

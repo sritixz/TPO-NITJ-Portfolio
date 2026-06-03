@@ -78,6 +78,7 @@ try {
 } catch (err) {
   console.error('Error creating uploads directory:', err);
 }
+import offerRoutes from "./routes/offerletter.js";
 
 const app = express();
 
@@ -164,6 +165,7 @@ app.use('/psuggestions',authenticate,restrictTo('Professor'),logMiddleware,profe
 app.use("/api/resumes", authenticate,restrictTo('Professor'),logMiddleware, resumeRoutes);
 app.use("/hardRefreshERPData",authenticate,restrictTo('Professor'),logMiddleware, hardRefreshERPDataRoutes)
 
+app.use("/api/offer",authenticate, offerRoutes);
 //Admin routes
 app.use('/admin',authenticate,restrictTo('Admin'),logMiddleware,adminRoutes);
 
