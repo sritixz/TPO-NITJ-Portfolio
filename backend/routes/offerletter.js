@@ -33,16 +33,18 @@ router.get("/my", restrictTo('Student'), async (req, res) => {
 router.put(
   "/update/:id",
   restrictTo("Student"),
-  uploadOffer.single("offerLetter"), // ✅ ADD THIS
+  uploadOffer.single("offerLetter"),
   async (req, res) => {
     try {
       const updateData = {
         totalOffers: req.body.totalOffers,
         acceptedCompany: req.body.acceptedCompany,
-        linkedin: req.body.linkedin
+        linkedin: req.body.linkedin,
+        hrName: req.body.hrName,
+    hrEmail: req.body.hrEmail,
+   ctc: req.body.ctc
       };
 
-      // ✅ only update file if new one uploaded
       if (req.file) {
         updateData.offerLetter = req.file.path;
       }

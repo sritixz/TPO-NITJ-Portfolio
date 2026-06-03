@@ -85,62 +85,87 @@ const handleDelete = async (id) => {
 
 const exportToExcel = () => {
   if (offers.length === 0) {
-    alert("No data to export");
+    toast.error("No data to export");
     return;
   }
 
   const BASE_URL = import.meta.env.REACT_APP_BASE_URL;
 
-  // 🧠 Group by department
+  const workbook = XLSX.utils.book_new();
+
+  const formatOffer = (o) => ({
+    Name: o.student?.name,
+    RollNo: o.student?.rollno,
+    Batch: o.student?.batch,
+    Course: o.student?.course,
+    Department: o.student?.department,
+    TotalOffers: o.totalOffers,
+    AcceptedCompany: o.acceptedCompany,
+    CTC: o.ctc,
+    HRName: o.hrName || "N/A",
+    HREmail: o.hrEmail || "N/A",
+    LinkedIn: o.linkedin || "N/A",
+    OfferLetter: `${BASE_URL}/${o.offerLetter}`,
+  });
+
+  // ==========================
+  // Sheet 1: All Offers
+  // ==========================
+
+  const allData = offers.map(formatOffer);
+
+  const allSheet = XLSX.utils.json_to_sheet(allData);
+
+  XLSX.utils.book_append_sheet(
+    workbook,
+    allSheet,
+    "All Offers"
+  );
+
+  // ==========================
+  // Department Sheets
+  // ==========================
+
   const grouped = {};
 
-  offers.forEach((o) => {
-    const dept = o.student?.department || "UNKNOWN";
+  offers.forEach((offer) => {
+    const dept =
+      offer.student?.department || "UNKNOWN";
 
-    if (!grouped[dept]) grouped[dept] = [];
-// console.log("Processing offer for:", o.student?.linkedIn, "Dept:", dept);
-    grouped[dept].push({
-      Name: o.student?.name,
-      RollNo: o.student?.rollno,
-      Batch: o.student?.batch,
-      Course: o.student?.course,
-      Department: dept,
-      TotalOffers: o.totalOffers,
-      AcceptedCompany: o.acceptedCompany,
-LinkedIn: o.linkedin || "N/A",
-      // 🔥 Clickable Excel link
-      OfferLetter: {
-        t: "s",
-        v: "View Offer Letter",
-        l: {
-          Target: `${BASE_URL}/${o.offerLetter}`
-        }
-      }
-    });
+    if (!grouped[dept]) {
+      grouped[dept] = [];
+    }
+
+    grouped[dept].push(formatOffer(offer));
   });
 
-  // 📊 Create separate Excel file for each department
-  Object.keys(grouped).forEach((dept) => {
-    const worksheet = XLSX.utils.json_to_sheet(grouped[dept]);
-    const workbook = XLSX.utils.book_new();
+  Object.entries(grouped).forEach(
+    ([department, data]) => {
+      const worksheet =
+        XLSX.utils.json_to_sheet(data);
 
-    XLSX.utils.book_append_sheet(workbook, worksheet, "Offers");
+      const safeSheetName = department
+        .replace(/[\\/?*\[\]:]/g, "")
+        .substring(0, 31);
 
-    const excelBuffer = XLSX.write(workbook, {
-      bookType: "xlsx",
-      type: "array"
-    });
+      XLSX.utils.book_append_sheet(
+        workbook,
+        worksheet,
+        safeSheetName
+      );
+    }
+  );
 
-    const file = new Blob([excelBuffer], {
-      type:
-        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-    });
+  // ==========================
+  // Download Single Workbook
+  // ==========================
 
-    // 🧼 Clean filename (no spaces)
-    const safeDept = dept.replace(/\s+/g, "_");
-
-    saveAs(file, `${safeDept}_offers.xlsx`);
-  });
+  XLSX.writeFile(
+    workbook,
+    `Offer_Submissions_${new Date()
+      .toISOString()
+      .slice(0, 10)}.xlsx`
+  );
 };
 
 const handleSetDeadline = async () => {
@@ -279,6 +304,9 @@ const departments = [
               <th className="p-3">Dept</th>
               <th className="p-3">Offers</th>
               <th className="p-3">Company</th>
+              <th className="p-3">CTC</th>
+<th className="p-3">HR Name</th>
+<th className="p-3">HR Email</th>
               <th className="p-3">LinkedIn</th>
               <th className="p-3">PDF</th>
                 <th className="p-3">Actions</th>
@@ -314,6 +342,17 @@ const departments = [
                 <td className="p-3 text-green-600">
                   {o.acceptedCompany}
                 </td>
+                <td className="p-3">
+  {o.ctc || "N/A"}
+</td>
+
+<td className="p-3">
+  {o.hrName || "N/A"}
+</td>
+
+<td className="p-3">
+  {o.hrEmail || "N/A"}
+</td>
                 <td className="p-3 text-green-600">
                   {o.linkedin || "N/A"}
                 </td>
