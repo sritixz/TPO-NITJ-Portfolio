@@ -294,6 +294,7 @@ const departments = [
 
       {/* 📊 TABLE */}
       <div className="bg-white shadow rounded-xl overflow-hidden">
+        <div className="overflow-x-auto">
         <table className="w-full text-sm">
           <thead className="bg-gray-100 text-left">
             <tr>
@@ -378,7 +379,7 @@ const departments = [
             ))}
           </tbody>
         </table>
-
+        </div>
         {/*  EMPTY STATE */}
         {offers.length === 0 && (
           <div className="text-center py-10 text-gray-500">
