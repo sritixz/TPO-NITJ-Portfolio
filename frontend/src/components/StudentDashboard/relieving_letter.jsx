@@ -855,7 +855,7 @@ const handleDownload = async (nocData) => {
                       <FaEye />
                       <span>Preview</span>
                     </button>
-                    {noc.nocStatus === "Issued" && (
+                    {/* {noc.nocStatus === "Issued" && (
                       <button
                         onClick={() => handleDownload(noc)}
                         disabled={isDownloading}
@@ -868,7 +868,7 @@ const handleDownload = async (nocData) => {
                             : "Download Relieving Letter"}
                         </span>
                       </button>
-                    )}
+                    )} */}
                   </>
                 )}
               </div>

@@ -15,6 +15,115 @@ import { Info } from "lucide-react";
 import GenerateNOC from "./generate_relieving";
 import NOCPreview from "./relieving_preview";
 
+const MailTemplatePreview = ({ noc, onClose }) => {
+  const studentName = (noc.studentId?.name || noc.studentName || "Student").toUpperCase();
+  const studentRoll = noc.studentId?.rollno || noc.rollNo || "N/A";
+  const studentDept = noc.studentId?.department || noc.department || "N/A";
+  const studentCourse = noc.studentId?.course || noc.course || "B.Tech";
+  const companyName = noc.companyName || "the designated organization";
+  
+  const executionDate = noc.dateOfJoining || noc.internshipFrom || new Date();
+  const formattedReleaseDate = new Date(executionDate).toLocaleDateString('en-GB');
+  const currentRefId = noc.nocId || `CTP/REL/${new Date().toLocaleDateString('en-GB').replace(/\//g, '')}/`;
+
+  return (
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-[9999] overflow-y-auto">
+      <div className="bg-gray-100 rounded-xl shadow-2xl max-w-3xl w-full p-6 my-8 relative">
+        
+        {/* Modal Window Management Header Controls */}
+        <div className="flex justify-between items-center border-b border-gray-300 pb-3 mb-4">
+          <div>
+            <h3 className="text-lg font-bold text-gray-800">Official Outbound Mail Preview</h3>
+            <p className="text-xs text-gray-500">This is exactly how the dispatched document content will render in the student's inbox.</p>
+          </div>
+          <button 
+            onClick={onClose}
+            className="bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold px-3 py-1 rounded-lg transition duration-150"
+          >
+            Close Preview
+          </button>
+        </div>
+
+        {/* Paper Simulation Frame Layout */}
+        <div className="bg-white border border-gray-300 p-8 shadow-inner rounded-md overflow-x-auto select-none" style={{ fontFamily: "'Times New Roman', Times, serif" }}>
+          
+          {/* Institution Header Crest */}
+          <div className="text-center border-b-2 border-black pb-3 mb-5">
+            <h3 className="m-0 text-xl font-bold tracking-tight text-black">
+              Dr. B.R. Ambedkar National Institute of Technology, Jalandhar
+            </h3>
+            <p className="m-0 mt-1 text-xs text-gray-700 italic">
+              (An Institute of National Importance under Ministry of Education, Govt. of India)
+            </p>
+            <p className="m-0 text-xs text-gray-700">
+              GT Road, Bye Pass, Jalandhar: 144027 (Punjab) India
+            </p>
+            <h4 className="mt-2 pt-2 text-sm font-bold border-t border-gray-200 tracking-widest text-black">
+              TRAINING & PLACEMENT OFFICE
+            </h4>
+          </div>
+
+          {/* Document Reference Identification Blocks */}
+          <div className="flex justify-between text-sm mb-6 text-black">
+            <div><strong>Reference No:</strong> <span className="font-mono">{currentRefId}{noc._id?.substring(18).toUpperCase()}/</span></div>
+            <div><strong>Date:</strong> {new Date().toLocaleDateString('en-GB')}</div>
+          </div>
+
+          {/* Subject Context Layer */}
+          <div className="text-sm font-bold mb-6 text-black">
+            Subject: Official Relieving Letter for Joining {companyName}
+          </div>
+
+          <div className="text-sm font-bold mb-4 tracking-wide text-black">
+            TO WHOMSOEVER IT MAY CONCERN
+          </div>
+
+          {/* Core Content Lines */}
+          <div className="text-sm text-justify mb-4 text-black" style={{ textIndent: '30px' }}>
+            This is to certify that <strong>Mr./Ms. {studentName}</strong>, bearing Roll No. <strong>{studentRoll}</strong>, is a bona fide student of the 
+            <strong> {studentCourse}</strong> program in the Department of <strong>{studentDept}</strong> at Dr. B.R. Ambedkar National Institute of Technology, Jalandhar.
+          </div>
+
+          <div className="text-sm text-justify mb-6 text-black" style={{ textIndent: '30px' }}>
+            The Training & Placement Office, in coordination with the Department of <strong>{studentDept}</strong>, has no objection to the student joining <strong>{companyName}</strong>. The student is officially permitted to join their corporate assignment and is relieved from on-campus academic placement tracks effective from <strong>{formattedReleaseDate}</strong>.
+          </div>
+
+          {/* Guidelines Compliance Callout Containment */}
+          <div className="text-xs text-gray-900 bg-gray-50 border-l-4 border-blue-900 p-4 mb-6 rounded-r-md text-justify">
+            <p className="font-bold mb-2 text-black">Important Directives & Conditions:</p>
+            <ul className="list-disc pl-5 space-y-1">
+              <li>This relieving document is issued based on the verified corporate offer details uploaded by the candidate.</li>
+              <li>The student is strictly required to submit their official joining report issued by {companyName} to the TPO within one week of deployment.</li>
+              <li>Failure to submit the official deployment reports will lead to the cancellation of credit weightage evaluations.</li>
+              <li>This clearance is subject to the condition that the student continues to satisfy all pending end-semester academic requirements remotely without disruptions.</li>
+            </ul>
+          </div>
+
+          <p className="text-sm mb-12 text-black">Best regards,</p>
+
+          {/* Multi-Signatory Alignment Elements */}
+          <div className="grid grid-cols-2 text-center text-xs text-black border-t border-dotted border-gray-300 pt-6">
+            <div>
+              <strong>HEAD OF DEPARTMENT</strong><br />
+              <span className="text-gray-700">{studentDept}</span><br />
+              <span className="text-gray-500">NIT JALANDHAR</span>
+            </div>
+            <div>
+              <strong>Professor-in-Charge</strong><br />
+              <span className="text-gray-700">Training & Placement Cell</span><br />
+              <span className="text-gray-500">NIT JALANDHAR</span>
+            </div>
+          </div>
+
+          <div className="border-t border-dashed border-gray-300 mt-6 pt-3 text-center text-[10px] text-gray-400">
+            This document is electronically verified and dispatched through the Training & Placement Management Portal. Physical signatures are not required.
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 const RelievingManagement = () => {
   const { userData } = useSelector((state) => state.auth);
   const [allNocs, setAllNocs] = useState([]);
@@ -1893,7 +2002,7 @@ const RelievingManagement = () => {
                   className="p-6 bg-white rounded-xl shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition-all duration-300 border border-gray-100 relative"
                 >
                   {/* Download Icon Top Right */}
-                  <button
+                  {/* <button
                     onClick={() => handleDownload(noc)}
                     disabled={isDownloading}
                     className="absolute top-3 right-3 text-custom-blue hover:text-blue-700"
@@ -1903,6 +2012,14 @@ const RelievingManagement = () => {
                     ) : (
                       <FaDownload size={18} />
                     )}
+                  </button> */}
+
+                  <button
+                    onClick={() => handlePreview(noc)}
+                    className="absolute top-3 right-3 text-custom-blue hover:text-blue-700 transition duration-150"
+                    title="Quick Preview"
+                  >
+                    <FaEye size={18} />
                   </button>
 
                   <p className="text-lg font-semibold text-gray-900">
@@ -2109,7 +2226,7 @@ const RelievingManagement = () => {
         </div>
       )}
       {showPreview && selectedNoc ? (
-        <NOCPreview noc={selectedNoc} onClose={handleClosePreview} />
+        <MailTemplatePreview noc={selectedNoc} onClose={handleClosePreview} />
       ) : showForm ? (
         renderForm()
       ) : (
