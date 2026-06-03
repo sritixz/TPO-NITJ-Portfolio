@@ -40,6 +40,7 @@ import addRecruiterRoutes from "./routes/addrecruiter.js";
 import questionbankRoutes from "./routes/questionbank.js";
 import brochureRoutes from "./routes/Brochure.js";
 import nocRoutes from "./routes/noc.js";
+import relievingRoutes from "./routes/relieving.js"
 import eventRoutes from "./routes/Event.js";
 import cgpaCheckerRoutes from "./routes/cgpaChecker.js";
 import withdrawRoutes from "./routes/withdraw.js";
@@ -183,6 +184,7 @@ app.use("/reqhelp",authenticate, logMiddleware,reqhelproutes);
 app.use('/contactus',logMiddleware,contactusRoutes);
 app.use('/api',authenticate,logMiddleware, formTemplateroutes);
 app.use('/noc',authenticate, logMiddleware,nocRoutes);
+app.use('/relieving',authenticate,logMiddleware,relievingRoutes);
 app.use('/admin/brochure',authenticate, logMiddleware,brochureRoutes);
 app.use('/admin/documents',authenticate, logMiddleware,documentsRoutes);
 app.use('/admin/student-documents',authenticate, logMiddleware,studentDocumentsRoutes);
