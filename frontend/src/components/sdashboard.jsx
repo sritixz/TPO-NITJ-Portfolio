@@ -61,6 +61,7 @@ import AlertModal from "./StudentDashboard/alert.jsx";
 import FinePayment from "./StudentDashboard/fine-payment.jsx";
 import Suggestions from "./StudentDashboard/suggestions.jsx";
 import RepresentativeApplication from "./StudentDashboard/RepresentativeApplication.jsx";
+import Relieving_letter from "./StudentDashboard/relieving_letter.jsx";
 import OfferUpload from "./StudentDashboard/offerUpload.jsx";
 
 const StudentDashboard = () => {
@@ -335,6 +336,7 @@ const StudentDashboard = () => {
             <Route path="suggestions" element={<Suggestions />} />
             <Route path="offer-upload" element={<OfferUpload /> } />
             {/* <Route path="representativeApplication" element={<RepresentativeApplication/>} /> */}
+            <Route path="relieving-letter" element={<Relieving_letter/>}/>
             </Routes>
         </div>
 
