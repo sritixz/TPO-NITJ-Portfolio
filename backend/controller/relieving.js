@@ -151,7 +151,7 @@ export const updateNOCStatus = async (req, res) => {
             <table style="width: 100%; font-size: 12px; line-height: 1.4; text-align: center; margin-top: 20px;">
               <tr>
                 <td style="width: 50%; padding-top: 40px; border-top: 1px dotted #cbd5e1;">
-                  <strong>Professor-in-Charge</strong><br />
+  
                   Centre of Training & Placement<br />
                   NIT JALANDHAR
                 </td>
