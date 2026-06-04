@@ -974,7 +974,7 @@ const JobProfilesonp = ({ readOnly = false }) => {
               <span className="text-custom-blue">{selectedCompany}</span> Job
               Profiles
             </h1>
-            {/* <button
+            <button
               onClick={() => setShowJAF(true)}
               className="absolute top-0 right-4 group inline-flex items-center gap-2 bg-white border-2 border-custom-blue px-4 py-2 rounded-lg 
                hover:bg-custom-blue transition-all duration-300 shadow-md
@@ -982,7 +982,7 @@ const JobProfilesonp = ({ readOnly = false }) => {
             >
               <FileText className="w-5 h-5 transition-transform group-hover:scale-110" />
               <span>View JAF</span>
-            </button> */}
+            </button>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {groupedApprovedJobs[selectedCompany]?.map((job) => (
