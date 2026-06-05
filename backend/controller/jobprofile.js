@@ -1682,8 +1682,42 @@ if (isNoneShortlisted) {
   job.final_shortlisted_students = [];
   await job.save();
 
+  let emailSent = false;
+  try {
+    if (job.hr_email && !job.thankYouEmailSent) {
+      await stepEmailTransporter.sendMail({
+        from: process.env.EMAIL_USER,
+        to: job.hr_email,
+        subject: `Thank You for Recruiting at NIT Jalandhar – ${job.company_name}`,
+        html: `
+          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: auto; padding: 24px; border: 1px solid #e0e0e0; border-radius: 8px;">
+            <h2 style="color: #1a73e8;">Thank You for Visiting NIT Jalandhar!</h2>
+            <p>Dear HR Team at <strong>${job.company_name}</strong>,</p>
+            <p>We sincerely thank you for recruiting at NIT Jalandhar for the role of <strong>${job.job_profile}</strong>. It was a pleasure hosting your recruitment drive.</p>
+            <p>We would love to hear about your experience. Please take a moment to share your feedback:</p>
+            <p style="text-align:center; margin: 24px 0;">
+              <a href="${process.env.CLIENT_URL}/recruiterFeedback"
+                 style="background-color:#1a73e8; color:white; padding:12px 24px; border-radius:6px; text-decoration:none; font-weight:bold;">
+                Fill Recruiter Feedback Form
+              </a>
+            </p>
+            <p>Your feedback helps us improve and serve you better in the future. We look forward to welcoming you again at NIT Jalandhar.</p>
+            <br/>
+            <p>Warm regards,<br/><strong>Training & Placement Office</strong><br/>NIT Jalandhar</p>
+          </div>
+        `
+      });
+      job.thankYouEmailSent = true;
+      await job.save();
+      emailSent = true;
+    }
+  } catch (mailErr) {
+    console.error("Failed to send HR thank-you email:", mailErr);
+  }
+
   return res.status(200).json({
     message: "Company added with no shortlisted students",
+    emailSent,
   });
 }
     // Validate input
@@ -1955,7 +1989,40 @@ if (isNoneShortlisted) {
 
     await job.save();
 
-    return res.status(200).json({ message: "Shortlist updated successfully" });
+    let emailSent = false;
+    try {
+      if (job.hr_email && !job.thankYouEmailSent) {
+        await stepEmailTransporter.sendMail({
+          from: process.env.EMAIL_USER,
+          to: job.hr_email,
+          subject: `Thank You for Recruiting at NIT Jalandhar – ${job.company_name}`,
+          html: `
+            <div style="font-family: Arial, sans-serif; max-width: 600px; margin: auto; padding: 24px; border: 1px solid #e0e0e0; border-radius: 8px;">
+              <h2 style="color: #1a73e8;">Thank You for Visiting NIT Jalandhar!</h2>
+              <p>Dear HR Team at <strong>${job.company_name}</strong>,</p>
+              <p>We sincerely thank you for recruiting at NIT Jalandhar for the role of <strong>${job.job_profile}</strong>. It was a pleasure hosting your recruitment drive.</p>
+              <p>We would love to hear about your experience. Please take a moment to share your feedback:</p>
+              <p style="text-align:center; margin: 24px 0;">
+                <a href="${process.env.CLIENT_URL}/recruiterFeedback"
+                   style="background-color:#1a73e8; color:white; padding:12px 24px; border-radius:6px; text-decoration:none; font-weight:bold;">
+                  Fill Recruiter Feedback Form
+                </a>
+              </p>
+              <p>Your feedback helps us improve and serve you better in the future. We look forward to welcoming you again at NIT Jalandhar.</p>
+              <br/>
+              <p>Warm regards,<br/><strong>Training & Placement Office</strong><br/>NIT Jalandhar</p>
+            </div>
+          `
+        });
+        job.thankYouEmailSent = true;
+        await job.save();
+        emailSent = true;
+      }
+    } catch (mailErr) {
+      console.error("Failed to send HR thank-you email:", mailErr);
+    }
+
+    return res.status(200).json({ message: "Shortlist updated successfully", emailSent });
   } catch (error) {
     console.error("Error in addfinalshortlistStudent:", error);
     return res
