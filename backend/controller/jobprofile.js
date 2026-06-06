@@ -2003,7 +2003,7 @@ if (isNoneShortlisted) {
               <p>We sincerely thank you for recruiting at NIT Jalandhar for the role of <strong>${job.job_profile}</strong>. It was a pleasure hosting your recruitment drive.</p>
               <p>We would love to hear about your experience. Please take a moment to share your feedback:</p>
               <p style="text-align:center; margin: 24px 0;">
-                <a href="${process.env.CLIENT_URL}/recruiterFeedback"
+                <a href="https://ctp.nitj.ac.in/recruiterFeedback"
                    style="background-color:#1a73e8; color:white; padding:12px 24px; border-radius:6px; text-decoration:none; font-weight:bold;">
                   Fill Recruiter Feedback Form
                 </a>
