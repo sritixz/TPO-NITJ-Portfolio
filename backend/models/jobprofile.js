@@ -413,6 +413,10 @@ data_Sent:{
   type:Boolean,
   default:false
 },
+thankYouEmailSent:{
+  type:Boolean,
+  default:false
+},
     auditLogs: [
       {
         editedBy: {
