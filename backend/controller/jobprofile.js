@@ -1141,7 +1141,7 @@ export const checkEligibility = async (req, res) => {
 
     // Check for isInterested only if the field exists
     if (
-      student.batch === "2026" &&
+      student.batch === "2026" || student.batch === "2027" &&
       typeof student.isInterested !== "undefined" &&
       student.isInterested === false
     ) {
@@ -1303,9 +1303,9 @@ export const checkEligibility = async (req, res) => {
     const jobctc = job.job_salary.ctc;
 
     // if student is 3rd year B.Tech student then checking for summer intern
-    if (updatedStudent.batch == "2027" && updatedStudent.course == "B.Tech") {
+    if (updatedStudent.batch == "2028" && updatedStudent.course == "B.Tech") {
       const SummerInternHistory = await SummerInternTracker.findOne({
-        batch: "2027",
+        batch: "2028",
         course: "B.Tech",
       });
       if (SummerInternHistory?.studentsId.includes(studentId)) {
@@ -1631,7 +1631,7 @@ if (isNoneShortlisted) {
 
     if (!batch || !course) continue;
 
-    if (course === "B.Tech" && batch === "2027") {
+    if (course === "B.Tech" && batch === "2028") {
       let summerIntern = await SummerIntern.findOne({
         jobId,
         batch,
@@ -1800,7 +1800,7 @@ if (isNoneShortlisted) {
     for (const [key, group] of Object.entries(groupedStudents)) {
       const { batch, course, action, students } = group;
 
-      if (course === "B.Tech" && batch === "2027") {
+      if (course === "B.Tech" && batch === "2028") {
         let summerIntern = await SummerIntern.findOne({ jobId, batch, course });
         let summerInternTracker = await SummerInternTracker.findOne({
           batch,
