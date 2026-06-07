@@ -2633,6 +2633,10 @@ const CreateJob = ({ onJobCreated, onCancel }) => {
     job_id: "",
     company_name: "",
     company_logo: "",
+    hr_contact: "",
+    hr_email: "",
+    tpo_spoc_name: "",
+    tpo_spoc_contact: "",
     job_role: "",
     jobdescription: "",
     joblocation: "",
@@ -2934,6 +2938,10 @@ const CreateJob = ({ onJobCreated, onCancel }) => {
 
     const errors = [];
     if (!formData.company_name) errors.push("Company Name is required");
+    if (!formData.hr_contact) errors.push("HR Contact is required");
+    if (!formData.hr_email) errors.push("HR Email is required");
+    if (!formData.tpo_spoc_name) errors.push("TPO SPOC Name is required");
+    if (!formData.tpo_spoc_contact) errors.push("TPO SPOC Contact is required");
     if (!formData.job_role) errors.push("Job Role is required");
     if (!formData.job_type) errors.push("Job Type is required");
     if (!formData.job_category) errors.push("Job Category is required");
@@ -3024,6 +3032,58 @@ const CreateJob = ({ onJobCreated, onCancel }) => {
                 type="text"
                 name="job_role"
                 value={formData.job_role}
+                onChange={handleChange}
+                className="w-full border-2 border-gray-200 rounded-xl p-3 focus:outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-100 transition-all duration-300"
+              />
+            </div>
+            <div>
+              <label className="block text-gray-700 font-semibold mb-2">
+                HR Contact<span className="text-red-500"> *</span>
+              </label>
+              <input
+                required
+                type="text"
+                name="hr_contact"
+                value={formData.hr_contact}
+                onChange={handleChange}
+                className="w-full border-2 border-gray-200 rounded-xl p-3 focus:outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-100 transition-all duration-300"
+              />
+            </div>
+            <div>
+              <label className="block text-gray-700 font-semibold mb-2">
+                HR Email<span className="text-red-500"> *</span>
+              </label>
+              <input
+                required
+                type="email"
+                name="hr_email"
+                value={formData.hr_email}
+                onChange={handleChange}
+                className="w-full border-2 border-gray-200 rounded-xl p-3 focus:outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-100 transition-all duration-300"
+              />
+            </div>
+            <div>
+              <label className="block text-gray-700 font-semibold mb-2">
+                TPO SPOC Name<span className="text-red-500"> *</span>
+              </label>
+              <input
+                required
+                type="text"
+                name="tpo_spoc_name"
+                value={formData.tpo_spoc_name}
+                onChange={handleChange}
+                className="w-full border-2 border-gray-200 rounded-xl p-3 focus:outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-100 transition-all duration-300"
+              />
+            </div>
+            <div>
+              <label className="block text-gray-700 font-semibold mb-2">
+                TPO SPOC Contact<span className="text-red-500"> *</span>
+              </label>
+              <input
+                required
+                type="text"
+                name="tpo_spoc_contact"
+                value={formData.tpo_spoc_contact}
                 onChange={handleChange}
                 className="w-full border-2 border-gray-200 rounded-xl p-3 focus:outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-100 transition-all duration-300"
               />

@@ -299,6 +299,30 @@ const InsightDashboard = () => {
   const isSummer = insightsType === "Summer Internships";
   const activeInsights = isSummer ? summerInternInsights : insights;
 
+  const handleDownloadEligible = async () => {
+    try {
+      const response = await axios.get(
+        `${import.meta.env.REACT_APP_BASE_URL}/insight/download-eligible`,
+        {
+          params: { course: selectedCourse, batch: selectedBatch },
+          responseType: 'blob', 
+          withCredentials: true
+        }
+      );
+
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', `Eligible_Students_${selectedBatch}.xlsx`);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+    } catch (error) {
+      console.error("Download failed:", error);
+      alert("Failed to download Excel file.");
+    }
+  };
+
   const getDeptOptions = (course) => {
     let groups;
     if (course === "B.Tech") groups = btechdepartmentOptions;
@@ -388,8 +412,11 @@ const InsightDashboard = () => {
     value,
     subtitle,
     color = "indigo",
+    onClick,
+    isClickable
   }) => (
-    <div className="bg-white rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 p-6 border border-gray-100 w-full">
+    <div onClick={onClick} className={`bg-white rounded-xl shadow-lg transition-all duration-300 p-6 border border-gray-100 w-full 
+      ${isClickable ? 'cursor-pointer hover:border-indigo-400 hover:scale-[1.02] bg-indigo-50/10' : ''}`}>
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div className="overflow-hidden">
           <p className="text-sm font-medium text-gray-600 mb-1">{title}</p>
@@ -1071,6 +1098,8 @@ const InsightDashboard = () => {
                 value={activeInsights.totalEligibleStudents || 0}
                 subtitle="Total"
                 color="red"
+                isClickable={true}
+                onClick={handleDownloadEligible}
               />
               <StatCard
                 icon={IndianRupee}

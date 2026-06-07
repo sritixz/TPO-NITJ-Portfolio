@@ -61,6 +61,8 @@ import AlertModal from "./StudentDashboard/alert.jsx";
 import FinePayment from "./StudentDashboard/fine-payment.jsx";
 import Suggestions from "./StudentDashboard/suggestions.jsx";
 import RepresentativeApplication from "./StudentDashboard/RepresentativeApplication.jsx";
+import Relieving_letter from "./StudentDashboard/relieving_letter.jsx";
+import OfferUpload from "./StudentDashboard/offerUpload.jsx";
 
 const StudentDashboard = () => {
   const [isMobile, setIsMobile] = useState(false);
@@ -115,10 +117,12 @@ const StudentDashboard = () => {
     { path: "/sdashboard/navigator", label: "Navigator", icon: faLayerGroup, },
     { path: "/sdashboard/change-pass", label: "Change Password", icon: faKey },
 //    { 
+
 //   path: "/sdashboard/representativeApplication", 
 //   label: "Representative Form", 
 //   icon: faUserCheck // or any icon you like
 // },
+{ path: "/sdashboard/offer-upload", label: "Offer Upload", icon: faEnvelope },
   ];
 
   const MenuItem = ({ item, onClick, isSidebarExpanded }) => {
@@ -155,7 +159,7 @@ const StudentDashboard = () => {
 
   return (
     <div className="flex flex-col min-h-screen bg-gray-50">
-        <AlertModal />   {/* 🔔 Global Alert Modal */}
+        <AlertModal />   {/*  Global Alert Modal */}
       {/* Header */}
       <header className="fixed top-0 left-0 right-0 bg-white shadow-sm z-50">
         <div className="flex items-center justify-between px-4 h-16">
@@ -330,7 +334,9 @@ const StudentDashboard = () => {
             <Route path="student-connect" element={<StudentConnect />} />
             {/* <Route path="fine-payment" element={<FinePayment />} /> */}
             <Route path="suggestions" element={<Suggestions />} />
+            <Route path="offer-upload" element={<OfferUpload /> } />
             {/* <Route path="representativeApplication" element={<RepresentativeApplication/>} /> */}
+            <Route path="relieving-letter" element={<Relieving_letter/>}/>
             </Routes>
         </div>
 

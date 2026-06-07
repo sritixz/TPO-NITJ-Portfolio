@@ -104,6 +104,15 @@ const NavigationCards = () => {
     // color: 'bg-red-50',
     // iconColor: 'text-red-600'
     // },
+    {
+      id: 9,
+      title: 'Relieving Letter Application',
+      description: 'Apply for and track your Relieving Letter requests.',
+      icon: FileText,
+      path: '/sdashboard/relieving-letter',
+      color: 'bg-red-50',
+      iconColor: 'text-red-600'
+    }
   ];
 
   const handleCardClick = (path) => {

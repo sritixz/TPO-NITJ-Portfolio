@@ -397,17 +397,20 @@ const Suggestions = () => {
   const [activeTab, setActiveTab] = useState("not_contacted");
   const [showModal, setShowModal] = useState(false);
   const [selectedSuggestion, setSelectedSuggestion] = useState(null);
-  const [invalidFields, setInvalidFields] = useState([]);
 
   const [response, setResponse] = useState("");
   const [otherResponse, setOtherResponse] = useState("");
   const [additionalInfo, setAdditionalInfo] = useState("");
   const [showToStudent, setShowToStudent] = useState(false);
 
+  // Requirement: Excel Export with 3 Sheets (Contacted, Rejected, Non-Contacted)
   const exportToExcel = () => {
-    const dataToExport = suggestions.map((s) => ({
+    const formatData = (list) => list.map((s) => ({
       "Company Name": s.company_name,
-      "HR Name": s.Hr_name,
+"Suggested By": s.professor_id?.name 
+    ? `Prof. ${s.professor_id.name}` 
+    : (s.faculty_id?.name || "N/A"),
+          "HR Name": s.Hr_name,
       "HR Email": s.HR_email,
       "Current Status": s.status,
       "Student": s.student_id ? `${s.student_id.name} (${s.student_id.rollno})` : "N/A",
@@ -415,13 +418,24 @@ const Suggestions = () => {
       "Professor Comment": s.Other_info || "N/A",
     }));
 
-    const worksheet = XLSX.utils.json_to_sheet(dataToExport);
+    const contactedData = suggestions.filter(s => s.status === "Contacted");
+    const rejectedData = suggestions.filter(s => s.status === "Rejected");
+    const pendingData = suggestions.filter(s => s.status === "Not Contacted");
+
     const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, "Suggestions Report");
-    XLSX.writeFile(workbook, "TPO_Suggestions_Export.xlsx");
+
+    const contactedSheet = XLSX.utils.json_to_sheet(formatData(contactedData));
+    const rejectedSheet = XLSX.utils.json_to_sheet(formatData(rejectedData));
+    const pendingSheet = XLSX.utils.json_to_sheet(formatData(pendingData));
+
+    XLSX.utils.book_append_sheet(workbook, contactedSheet, "Contacted");
+    XLSX.utils.book_append_sheet(workbook, rejectedSheet, "Rejected");
+    XLSX.utils.book_append_sheet(workbook, pendingSheet, "Non-Contacted");
+
+    XLSX.writeFile(workbook, "TPO_Suggestions_Report.xlsx");
   };
 
-  
+  // Revert Logic
   const handleRevertToPending = async (id) => {
     try {
       const res = await fetch(`${import.meta.env.REACT_APP_BASE_URL}/psuggestions/updatesuggestion`, {
@@ -446,78 +460,45 @@ const Suggestions = () => {
     }
   };
 
-  const handleDelete = async (suggestion) => {
+  // Update Logic (Step 5)
+  const handleUpdate = async () => {
+    if (!selectedSuggestion || !selectedSuggestion._id) return;
+
+    const finalResponse = response === "Other" ? otherResponse : response;
+    const visibilityString = showToStudent ? "true" : "false";
+
     try {
-      const res = await fetch(`${import.meta.env.REACT_APP_BASE_URL}/psuggestions/deletesuggestion`, {
+      const res = await fetch(`${import.meta.env.REACT_APP_BASE_URL}/psuggestions/updatesuggestion`, {
         method: "PATCH",
         credentials: "include",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ id: suggestion._id }),
+        body: JSON.stringify({ 
+          id: selectedSuggestion._id,
+          option: finalResponse,
+          Other_info: additionalInfo,
+          show_info: visibilityString
+        }),
       });
-      if (!res.ok) throw new Error("Failed to delete suggestion");
-      setSuggestions((prev) =>
-        prev.map((s) => (s._id === suggestion._id ? { ...s, status: "Rejected" } : s))
-      );
+
+      if (res.ok) {
+        setSuggestions((prev) =>
+          prev.map((s) =>
+            s._id === selectedSuggestion._id
+              ? { ...s, status: "Contacted", response: finalResponse, Other_info: additionalInfo }
+              : s
+          )
+        );
+        setShowModal(false);
+        setResponse("");
+        setOtherResponse("");
+        setAdditionalInfo("");
+        setSelectedSuggestion(null);
+      }
     } catch (error) {
-      console.error("Delete error:", error);
+      console.error("Update Error:", error);
     }
   };
 
-const handleUpdate = async () => {
-  
-  if (!selectedSuggestion || !selectedSuggestion._id) {
-    console.error("No suggestion selected");
-    return;
-  }
-
-  const finalResponse = response === "Other" ? otherResponse : response;
-  
-  const visibilityString = showToStudent ? "true" : "false";
-
-  try {
-    const res = await fetch(`${import.meta.env.REACT_APP_BASE_URL}/psuggestions/updatesuggestion`, {
-      method: "PATCH",
-      credentials: "include",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ 
-        id: selectedSuggestion._id,  // Controller expects 'id'
-        option: finalResponse,       // Controller expects 'option'
-        Other_info: additionalInfo,  // Controller expects 'Other_info'
-        show_info: visibilityString  // Controller expects 'show_info'
-      }),
-    });
-
-    if (res.ok) {
-     
-      setSuggestions((prev) =>
-        prev.map((s) =>
-          s._id === selectedSuggestion._id
-            ? { 
-                ...s, 
-                status: "Contacted", 
-                response: finalResponse, 
-                Other_info: additionalInfo 
-              }
-            : s
-        )
-      );
-
-      // 2. Clear UI state and close modal
-      setShowModal(false);
-      setResponse("");
-      setOtherResponse("");
-      setAdditionalInfo("");
-      setSelectedSuggestion(null);
-      
-      console.log("Update successful");
-    } else {
-      const errorData = await res.json();
-      console.error("Server Rejected:", errorData.message);
-    }
-  } catch (error) {
-    console.error("Network Error:", error);
-  }
-};
   useEffect(() => {
     const fetchSuggestions = async () => {
       try {
@@ -528,7 +509,7 @@ const handleUpdate = async () => {
         const data = await res.json();
         setSuggestions(data);
       } catch (error) {
-        console.error("Error fetching suggestions:", error);
+        console.error("Error fetching:", error);
       }
     };
     fetchSuggestions();
@@ -543,8 +524,14 @@ const handleUpdate = async () => {
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center mb-2">
-        <h2 className="text-xl font-bold text-gray-800">Corporate Outreach History</h2>
-        <button onClick={exportToExcel} className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-all text-sm font-medium shadow-sm">
+        {/* Requirement: Uses 'text-custom-blue' from Navbar/Dashboard */}
+        <h2 className="text-xl font-bold text-custom-blue">Company Suggestions</h2>
+        
+        {/* Requirement: Uses 'bg-custom-blue' from Dashboard Sidebar */}
+        <button 
+          onClick={exportToExcel} 
+          className="flex items-center gap-2 px-4 py-2 bg-custom-blue text-white rounded-lg hover:opacity-90 transition-all text-sm font-medium shadow-sm"
+        >
           <Download size={16} /> Export to Excel
         </button>
       </div>
@@ -552,7 +539,13 @@ const handleUpdate = async () => {
       <div className="mb-6">
         <div className="grid grid-cols-3 bg-gray-100 rounded-xl p-1 w-full max-w-8xl">
           {["not_contacted", "contacted", "rejected"].map((tab) => (
-            <button key={tab} onClick={() => setActiveTab(tab)} className={`py-3 rounded-lg text-sm font-medium transition-all capitalize ${activeTab === tab ? "bg-white text-gray-900 shadow-sm" : "text-gray-500 hover:text-gray-700"}`}>
+            <button 
+              key={tab} 
+              onClick={() => setActiveTab(tab)} 
+              className={`py-3 rounded-lg text-sm font-medium transition-all capitalize ${
+                activeTab === tab ? "bg-white text-gray-900 shadow-sm" : "text-gray-500 hover:text-gray-700"
+              }`}
+            >
               {tab.replace("_", " ")}
             </button>
           ))}
@@ -571,21 +564,39 @@ const handleUpdate = async () => {
               </div>
 
               <div className="text-sm text-gray-600 space-y-1">
-                <p><span className="font-medium text-gray-700">LinkedIn:</span> <a href={suggestion.company_linkedin} target="_blank" rel="noreferrer" className="text-blue-600 underline">View Profile</a></p>
+                {/* LinkedIn link using the custom blue */}
+                <p><span className="font-medium text-gray-700">LinkedIn:</span> <a href={suggestion.company_linkedin} target="_blank" rel="noreferrer" className="text-custom-blue underline">View Profile</a></p>
                 <p><span className="font-medium text-gray-700">HR:</span> {suggestion.Hr_name} | {suggestion.Hr_contact}</p>
                 <p><span className="font-medium text-gray-700">Email:</span> {suggestion.HR_email}</p>
-                {suggestion.company_type && <p><span className="font-medium text-gray-700">Type:</span> {suggestion.company_type}</p>}
-                {suggestion.student_id && <p className="pt-2 border-t mt-2 text-xs italic text-gray-500">Submitted By: {suggestion.student_id.name} ({suggestion.student_id.rollno})</p>}
-              </div>
+             <div className="pt-2 border-t mt-2">
+  {/* Priority 1: Professor */}
+  {suggestion.professor_id?.name && (
+    <p className="text-xs font-bold text-custom-blue">
+      Suggested By: Prof. {suggestion.professor_id.name}
+    </p>
+  )}
 
+    {/* Show Student if it exists (e.g., 28... style) */}
+    {suggestion.student_id?.name && (
+      <p className="text-[10px] text-gray-500 italic">
+        Submitted By: {suggestion.student_id.name} ({suggestion.student_id.rollno})
+      </p>
+    )}
+  </div>
+</div>
               {(suggestion.status === "Contacted" || suggestion.status === "Rejected") && (
+                /* Requirement: Remarks section using light blue-50 background and custom-blue icons */
                 <div className="mt-4 p-3 bg-blue-50 border border-blue-100 rounded-lg">
                   <div className="flex items-center gap-2 mb-1">
-                    <MessageSquare size={14} className="text-blue-600" />
-                    <span className="text-[10px] font-bold text-blue-700 uppercase">Professor Remarks</span>
+                    <MessageSquare size={14} className="text-custom-blue" />
+                    <span className="text-[10px] font-bold text-custom-blue uppercase">Professor Remarks</span>
                   </div>
                   <p className="text-sm text-gray-700 italic">"{suggestion.Other_info || "No comments."}"</p>
-                  {suggestion.option && <span className="mt-2 inline-block text-[10px] bg-blue-100 text-blue-800 px-2 py-0.5 rounded font-semibold">Decision: {suggestion.option}</span>}
+                  {suggestion.option && (
+                    <span className="mt-2 inline-block text-[10px] bg-white text-custom-blue border border-blue-100 px-2 py-0.5 rounded font-semibold">
+                      Decision: {suggestion.option}
+                    </span>
+                  )}
                 </div>
               )}
             </div>
@@ -599,7 +610,7 @@ const handleUpdate = async () => {
                     <button className="px-3 py-1 text-xs font-semibold rounded-lg border border-red-500 text-red-600 hover:bg-red-50" onClick={() => handleDelete(suggestion)}>Reject</button>
                   </>
                 ) : (
-                  <button onClick={() => handleRevertToPending(suggestion._id)} className="p-2 text-gray-400 hover:text-blue-600 rounded-lg transition-colors"><RotateCcw size={18} /></button>
+                  <button onClick={() => handleRevertToPending(suggestion._id)} className="p-2 text-gray-400 hover:text-custom-blue rounded-lg transition-colors"><RotateCcw size={18} /></button>
                 )}
               </div>
             </div>
@@ -610,19 +621,19 @@ const handleUpdate = async () => {
       {showModal && (
         <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
           <div className="bg-white rounded-xl shadow-lg w-full max-w-md p-6">
-            <h3 className="text-lg font-semibold mb-4">Company Response</h3>
+            <h3 className="text-lg font-semibold mb-4 text-custom-blue">Company Response</h3>
             <div className="space-y-2 mb-4">
               {["Interested", "Not Interested", "Does Not Meet Policy", "Not Able to Contact", "No Vacancy", "Position Closed", "No Response", "Other"].map((opt) => (
                 <label key={opt} className="flex items-center gap-2 cursor-pointer">
-                  <input type="radio" name="response" value={opt} checked={response === opt} onChange={(e) => setResponse(e.target.value)} />
+                  <input type="radio" name="response" value={opt} checked={response === opt} onChange={(e) => setResponse(e.target.value)} className="accent-custom-blue" />
                   <span className="text-sm text-gray-700">{opt}</span>
                 </label>
               ))}
             </div>
             {response === "Other" && (
-              <input type="text" placeholder="Specify response" className="w-full border rounded-lg p-2 text-sm mb-4 outline-none focus:ring-1 focus:ring-blue-500" value={otherResponse} onChange={(e) => setOtherResponse(e.target.value)} />
+              <input type="text" placeholder="Specify response" className="w-full border rounded-lg p-2 text-sm mb-4 outline-none focus:ring-1 focus:ring-custom-blue" value={otherResponse} onChange={(e) => setOtherResponse(e.target.value)} />
             )}
-            <textarea placeholder="Professor Remarks (Optional)" className="w-full border rounded-lg p-2 text-sm mb-4 outline-none focus:ring-1 focus:ring-blue-500" rows={3} value={additionalInfo} onChange={(e) => setAdditionalInfo(e.target.value)} />
+            <textarea placeholder="Professor Remarks (Optional)" className="w-full border rounded-lg p-2 text-sm mb-4 outline-none focus:ring-1 focus:ring-custom-blue" rows={3} value={additionalInfo} onChange={(e) => setAdditionalInfo(e.target.value)} />
             
             <div className="flex items-center justify-between mb-6">
               <span className="text-sm font-medium text-gray-700">Show result to student</span>

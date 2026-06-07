@@ -40,13 +40,15 @@ router.delete("/deletejob/:_id", restrictTo('Professor','Recuiter'), deleteJob);
 router.get("/recruiter/getjobs/:company", restrictTo('Recuiter'), getJobsByRecruiter);
 
 
-router.get("/professor/getjobs", restrictTo('Professor'), getJobProfilesForProfessors);
-router.get("/professor/getjobs/:id", restrictTo('Professor'), getspecificJobProfilesForProfessors);
+router.get("/professor/getjobs", restrictTo('Professor','Faculty'), getJobProfilesForProfessors);
+router.get("/professor/getjobs/:id", restrictTo('Professor,Faculty'), getspecificJobProfilesForProfessors);
 router.put("/approvejob/:_id", restrictTo('Professor'), approveJobProfile);
 router.put("/incompletejob/:_id", restrictTo('Professor'), incompletedJobProfile);
 router.put("/completejob/:_id",restrictTo('Professor'), completedJobProfile);
 router.put("/pendingjob/:_id",restrictTo('Professor'), markJobPending);
 router.put("/status/:jobId",restrictTo('Professor'), updateJobStatus);
+// router.put("/status/:jobId",restrictTo('Professor'), updatePlaStatus);
+
 router.put("/rejectjob/:_id", restrictTo('Professor'), rejectJobProfile);
 router.post("/add-shortlist-students", restrictTo('Professor'), addshortlistStudents);
 router.post("/add-final-shortlist-students", restrictTo('Professor'), addfinalshortlistStudent);

@@ -40,6 +40,7 @@ import addRecruiterRoutes from "./routes/addrecruiter.js";
 import questionbankRoutes from "./routes/questionbank.js";
 import brochureRoutes from "./routes/Brochure.js";
 import nocRoutes from "./routes/noc.js";
+import relievingRoutes from "./routes/relieving.js"
 import eventRoutes from "./routes/Event.js";
 import cgpaCheckerRoutes from "./routes/cgpaChecker.js";
 import withdrawRoutes from "./routes/withdraw.js";
@@ -77,6 +78,7 @@ try {
 } catch (err) {
   console.error('Error creating uploads directory:', err);
 }
+import offerRoutes from "./routes/offerletter.js";
 
 const app = express();
 
@@ -163,6 +165,7 @@ app.use('/psuggestions',authenticate,restrictTo('Professor'),logMiddleware,profe
 app.use("/api/resumes", authenticate,restrictTo('Professor'),logMiddleware, resumeRoutes);
 app.use("/hardRefreshERPData",authenticate,restrictTo('Professor'),logMiddleware, hardRefreshERPDataRoutes)
 
+app.use("/api/offer",authenticate, offerRoutes);
 //Admin routes
 app.use('/admin',authenticate,restrictTo('Admin'),logMiddleware,adminRoutes);
 
@@ -181,6 +184,7 @@ app.use("/reqhelp",authenticate, logMiddleware,reqhelproutes);
 app.use('/contactus',logMiddleware,contactusRoutes);
 app.use('/api',authenticate,logMiddleware, formTemplateroutes);
 app.use('/noc',authenticate, logMiddleware,nocRoutes);
+app.use('/relieving',authenticate,logMiddleware,relievingRoutes);
 app.use('/admin/brochure',authenticate, logMiddleware,brochureRoutes);
 app.use('/admin/documents',authenticate, logMiddleware,documentsRoutes);
 app.use('/admin/student-documents',authenticate, logMiddleware,studentDocumentsRoutes);
