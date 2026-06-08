@@ -872,6 +872,10 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import { useParams, useNavigate } from "react-router-dom";
 import WithdrawOTPVerification from "./withdrawotpverification";
+import {
+  buildJobStatusTimeline,
+  formatStatusTimestamp,
+} from "../../utils/jobStatusTimeline";
 import { use } from "react";
 
 // Function to get the color theme based on step type
@@ -1978,25 +1982,78 @@ deadline: (
           Role: {jobDetails.job_role || "No Job Title Provided"}
         </h2>
       </div>
- <div className="mt-2 mb-8 flex justify-center">
+ <div className="mt-2 mb-8 flex flex-col items-center gap-4">
   <div className="bg-blue-50 border border-blue-200 rounded-xl px-5 py-3 text-center shadow-sm min-w-[250px]">
-    
     <p className="text-xs text-gray-500 mb-1">Current Status</p>
 
     <span className="inline-block px-3 py-1 rounded-full bg-blue-100 text-blue-700 font-semibold text-sm">
       {jobDetails.jobStatusInfo?.status || "Not Updated"}
     </span>
 
-{jobDetails.jobStatusInfo?.comment && (
-  <div className="mt-2">
-    {/* <p className="text-xs text-gray-400">Note</p> */}
-    <p className="text-sm text-gray-900 italic">
-      {jobDetails.jobStatusInfo.comment}
-    </p>
+    {jobDetails.jobStatusInfo?.updatedAt && (
+      <p className="text-xs text-gray-500 mt-2">
+        Last updated: {formatStatusTimestamp(jobDetails.jobStatusInfo.updatedAt)}
+      </p>
+    )}
+
+    {jobDetails.jobStatusInfo?.comment && (
+      <div className="mt-2">
+        <p className="text-sm text-gray-900 italic">
+          {jobDetails.jobStatusInfo.comment}
+        </p>
+      </div>
+    )}
   </div>
-)}
-    
-  </div>
+
+  {(() => {
+    const timeline = buildJobStatusTimeline(
+      jobDetails.jobStatusInfo,
+      jobDetails.jobStatusHistory,
+    );
+    if (timeline.length === 0) return null;
+
+    return (
+      <div className="bg-white border border-gray-200 rounded-xl px-5 py-4 shadow-sm w-full max-w-md">
+        <p className="text-sm font-semibold text-custom-blue mb-3 text-center">
+          Status Timeline
+        </p>
+        <ul className="space-y-3 max-h-64 overflow-y-auto">
+          {timeline.map((entry, idx) => (
+            <li
+              key={`${entry.status}-${entry.updatedAt}-${idx}`}
+              className="border-l-2 border-blue-300 pl-3 py-1"
+            >
+              <div className="flex items-center gap-2 flex-wrap">
+                <span className="text-xs font-semibold text-gray-500">
+                  Step {entry.step}
+                </span>
+                {entry.previousStatus ? (
+                  <span className="text-xs text-gray-600">
+                    {entry.previousStatus} → {entry.status}
+                  </span>
+                ) : (
+                  <p className="text-sm font-medium text-gray-800">{entry.status}</p>
+                )}
+                {entry.isCurrent && (
+                  <span className="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full">
+                    Current
+                  </span>
+                )}
+              </div>
+              {entry.comment && (
+                <p className="text-xs text-gray-500 italic mt-1">{entry.comment}</p>
+              )}
+              {entry.updatedAt && (
+                <p className="text-xs text-gray-400 mt-1">
+                  {formatStatusTimestamp(entry.updatedAt)}
+                </p>
+              )}
+            </li>
+          ))}
+        </ul>
+      </div>
+    );
+  })()}
 </div>
       <div className="flex flex-wrap justify-center gap-2 sm:gap-4 mb-4 sm:mb-8">
         {Object.keys(info).map((key) => (

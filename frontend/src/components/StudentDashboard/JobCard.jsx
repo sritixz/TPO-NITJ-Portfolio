@@ -10,7 +10,8 @@ const JobCard = ({
   company, 
   deadline,
   jpid, 
-  job_status
+  job_status,
+  status_updated_at,
 }) => {
   // Format deadline with more robust date handling
   const formatDeadline = (deadlineDate) => {
@@ -59,12 +60,24 @@ const JobCard = ({
             <span className="font-medium mr-1">ID:</span>
             <span className="text-gray-600">{job_id}</span>
           </div>
-  <div className="flex items-center text-gray-700 text-sm">
-        <Activity className="mr-2 text-blue-500" size={16} />
-             <p>Status: {job_status || "Not Updated"}</p>
-
-
-</div>
+          <div className="flex items-start text-gray-700 text-sm">
+            <Activity className="mr-2 text-blue-500 mt-0.5" size={16} />
+            <div>
+              <p>Status: {job_status || "Not Updated"}</p>
+              {status_updated_at && (
+                <p className="text-xs text-gray-500">
+                  Updated:{" "}
+                  {new Date(status_updated_at).toLocaleString("en-IN", {
+                    day: "2-digit",
+                    month: "short",
+                    year: "numeric",
+                    hour: "2-digit",
+                    minute: "2-digit",
+                  })}
+                </p>
+              )}
+            </div>
+          </div>
 
           {showInternshipDuration && (
             <div className="flex items-center text-gray-700 text-sm">
