@@ -1189,7 +1189,7 @@ export const checkEligibility = async (req, res) => {
 
     // Check for isInterested only if the field exists
     if (
-      student.batch === "2026" || student.batch === "2027" &&
+      (student.batch === "2026" || student.batch === "2027") &&
       typeof student.isInterested !== "undefined" &&
       student.isInterested === false
     ) {
