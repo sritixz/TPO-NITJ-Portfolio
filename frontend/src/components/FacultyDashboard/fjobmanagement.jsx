@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import Swal from "sweetalert2";
-import ViewJobDetails from "./ViewJob";
-import ViewJAF from "./viewjaf";
-import CreateJob from "./createjobprofile";
+import ViewJobDetails from "./fViewJob";
+import ViewJAF from "../ProfessorDashboard/viewjaf";
+import CreateJob from "../ProfessorDashboard/createjobprofile";
 import {
   Card,
   CardHeader,
@@ -29,11 +29,11 @@ import {
   Trash2,
 } from "lucide-react";
 import { FaArrowLeft, FaSpinner } from "react-icons/fa";
-import Notification from "./Notification";
-import GuestHouseBookingForm from "./roomarrangement";
-import VehicleRequisitionForm from "./vehiclerequisitionform";
+import Notification from "../ProfessorDashboard/Notification";
+import GuestHouseBookingForm from "../ProfessorDashboard/roomarrangement";
+import VehicleRequisitionForm from "../ProfessorDashboard/vehiclerequisitionform";
 
-const JobProfilesonp = () => {
+const JobProfilesonp = ({ readOnly = false }) => {
   const [jobProfiles, setJobProfiles] = useState({
     approved: [],
     notApproved: [],
@@ -564,17 +564,19 @@ const JobProfilesonp = () => {
 
   const JobCard = ({ job, showActions }) => (
     <Card className="bg-white border border-gray-200 rounded-2xl shadow-lg hover:shadow-xl transition-shadow duration-300 relative">
-      (
+      {/* CHANGE 1: Delete button hidden in readOnly */}
+      {!readOnly && (
       <div className="absolute top-2 right-2 text-red-600">
         <Trash2
           className="w-7 h-7 bg-red-100 rounded-3xl p-1 cursor-pointer"
           onClick={() => handleDelete(job._id)}
         />
       </div>
-      )
+      )}
 
+      {/* CHANGE 2: Status-change buttons hidden in readOnly */}
       {/* APPROVED / ACTIVE => can go to PENDING or COMPLETED */}
-      {!job.pending && !job.completed && (
+      {!readOnly && !job.pending && !job.completed && (
         <>
           <div className="absolute top-2 right-20 text-yellow-600 cursor-pointer">
             <FaSpinner
@@ -594,7 +596,7 @@ const JobProfilesonp = () => {
       )}
 
       {/* PENDING => can go to APPROVED or COMPLETED */}
-      { job.pending && !job.completed && (
+      {!readOnly && job.pending && !job.completed && (
         <>
           <div className="absolute top-2 right-20 text-blue-600 cursor-pointer">
             <ArrowLeft
@@ -614,7 +616,7 @@ const JobProfilesonp = () => {
       )}
 
       {/* COMPLETED => can go to APPROVED or PENDING */}
-      {job.completed && (
+      {!readOnly && job.completed && (
         <>
           <div className="absolute top-2 right-20 text-blue-600 cursor-pointer">
             <ArrowLeft
@@ -692,7 +694,8 @@ const JobProfilesonp = () => {
         </div>
       </CardContent>
       <CardFooter className="flex flex-col space-y-2">
-        {showActions && (
+        {/* CHANGE 3: Approve/Reject buttons hidden in readOnly */}
+        {showActions && !readOnly &&(
           <div className="flex space-x-2 w-full">
             <button
               className="flex-1 bg-green-700 text-white px-4 py-2 rounded-md hover:bg-green-600 transition-colors"
@@ -930,9 +933,9 @@ const JobProfilesonp = () => {
           onClose={() => setSelectedJob(null)}
           job={selectedJob}
           oneditingAllowedUpdate={handleediting_allowed}
-         
+          readOnly={readOnly}
         />
-      ) : showCreateJob ? (
+      ) : showCreateJob && !readOnly ? (
         <CreateJob
           onJobCreated={() => setShowCreateJob(false)}
           onCancel={() => setShowCreateJob(false)}
@@ -974,7 +977,7 @@ const JobProfilesonp = () => {
               <span className="text-custom-blue">{selectedCompany}</span> Job
               Profiles
             </h1>
-            <button
+            {/* <button
               onClick={() => setShowJAF(true)}
               className="absolute top-0 right-4 group inline-flex items-center gap-2 bg-white border-2 border-custom-blue px-4 py-2 rounded-lg 
                hover:bg-custom-blue transition-all duration-300 shadow-md
@@ -982,7 +985,7 @@ const JobProfilesonp = () => {
             >
               <FileText className="w-5 h-5 transition-transform group-hover:scale-110" />
               <span>View JAF</span>
-            </button>
+            </button> */}
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {groupedApprovedJobs[selectedCompany]?.map((job) => (
@@ -1069,7 +1072,8 @@ const JobProfilesonp = () => {
             <h1 className="absolute left-1/2 -translate-x-1/2 text-4xl font-bold text-custom-blue whitespace-nowrap">
             Job Profiles Dashboard
             </h1>
-           (
+           {/* CHANGE 4: Create Job button hidden in readOnly */}
+           {!readOnly && (
             <div className="flex-1 flex justify-end">
               <button
                 className="bg-gradient-to-r from-blue-600 to-blue-900 text-white px-6 py-3 rounded-full shadow-lg hover:from-blue-600 hover:to-blue-800 hover:scale-105 transition-all duration-300 ease-in-out flex items-center gap-2"
@@ -1092,7 +1096,7 @@ const JobProfilesonp = () => {
                 <span className="font-semibold">Create Job Profile</span>
               </button>
             </div>
-           )
+           )}
           </div>
           <div className="mb-6 bg-gray-50 p-4 rounded-lg shadow-sm">
             <h3 className="text-lg font-semibold mb-4">Filter Jobs</h3>
