@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import Swal from "sweetalert2";
+import * as XLSX from "xlsx";
 import ViewJobDetails from "./ViewJob";
 import ViewJAF from "./viewjaf";
 import CreateJob from "./createjobprofile";
@@ -27,11 +28,13 @@ import {
   MessageCircle,
   FileText,
   Trash2,
+  Download,
 } from "lucide-react";
 import { FaArrowLeft, FaSpinner } from "react-icons/fa";
 import Notification from "./Notification";
 import GuestHouseBookingForm from "./roomarrangement";
 import VehicleRequisitionForm from "./vehiclerequisitionform";
+import { formatStatusTimestamp } from "../../utils/jobStatusTimeline";
 
 const JobProfilesonp = ({ readOnly = false }) => {
   const [jobProfiles, setJobProfiles] = useState({
@@ -689,6 +692,21 @@ const JobProfilesonp = ({ readOnly = false }) => {
               Posted: {new Date(job.createdAt).toLocaleDateString()}
             </p>
           </div>
+          {job.jobStatusInfo?.status && (
+            <div className="flex items-start space-x-2">
+              <MessageCircle className="w-4 h-4 text-custom-blue mt-0.5" />
+              <div>
+                <p className="text-sm text-gray-700">
+                  Status: {job.jobStatusInfo.status}
+                </p>
+                {job.jobStatusInfo.updatedAt && (
+                  <p className="text-xs text-gray-500">
+                    Updated: {formatStatusTimestamp(job.jobStatusInfo.updatedAt)}
+                  </p>
+                )}
+              </div>
+            </div>
+          )}
         </div>
       </CardContent>
       <CardFooter className="flex flex-col space-y-2">
@@ -880,6 +898,37 @@ const JobProfilesonp = ({ readOnly = false }) => {
     }, {});
   };
 
+  const handleExportToExcel = () => {
+    const allJobs = [
+      ...(jobProfiles.approved || []),
+      ...(jobProfiles.notApproved || []),
+      ...(jobProfiles.completed || []),
+      ...(jobProfiles.pending || []),
+    ];
+
+    const uniqueJobs = Array.from(
+      new Map(allJobs.map((job) => [job._id, job])).values(),
+    );
+
+    const exportRows = uniqueJobs.map((job) => ({
+      "Company Name": job.company_name || "",
+      "HR Contact": job.hr_contact || "",
+      "HR Email": job.hr_email || "",
+      "Job Status": job.jobStatusInfo?.status || "Not Updated",
+    }));
+
+    if (exportRows.length === 0) {
+      Swal.fire("No Data", "No jobs available to export.", "info");
+      return;
+    }
+
+    const worksheet = XLSX.utils.json_to_sheet(exportRows);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Job Management");
+    const timestamp = new Date().toISOString().slice(0, 10);
+    XLSX.writeFile(workbook, `Job_Management_Export_${timestamp}.xlsx`);
+  };
+
   const filteredApprovedJobs = filterJobs(
     jobProfiles.approved.filter((job) =>
       job.company_name.toLowerCase().includes(searchTerm.toLowerCase()),
@@ -1064,9 +1113,17 @@ const JobProfilesonp = ({ readOnly = false }) => {
         </>
       ) : (
         <>
-          <div className="flex sm:flex-row flex-col items-center justify-between px-4">
-            <div className="flex-1"></div>
-            <h1 className="absolute left-1/2 -translate-x-1/2 text-4xl font-bold text-custom-blue whitespace-nowrap">
+          <div className="flex sm:flex-row flex-col items-center justify-between px-4 gap-4">
+            <div className="flex-1 flex justify-start">
+              <button
+                onClick={handleExportToExcel}
+                className="flex items-center gap-2 px-4 py-2 bg-custom-blue text-white rounded-lg hover:opacity-90 transition-all text-sm font-medium shadow-sm"
+              >
+                <Download size={16} />
+                Export to Excel
+              </button>
+            </div>
+            <h1 className="text-4xl font-bold text-custom-blue whitespace-nowrap text-center">
             Job Profiles Dashboard
             </h1>
            {!readOnly && (

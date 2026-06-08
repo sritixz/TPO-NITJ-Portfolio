@@ -1876,6 +1876,10 @@ import OaLinkManager from "./oalink";
 import OthersLinkManager from "./otherslink";
 import FinalShortlistStudents from "./finalshortlist";
 import AuditLogs from "../AuditLogs";
+import {
+  buildJobStatusTimeline,
+  formatStatusTimestamp,
+} from "../../utils/jobStatusTimeline";
 import { FaArrowLeft } from "react-icons/fa";
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
@@ -1917,14 +1921,15 @@ const ViewJobDetails = ({ job, onClose, oneditingAllowedUpdate, readOnly = false
   const [editingApplicationForm, setEditingApplicationForm] = useState(false);
   const [editingSection, setEditingSection] = useState(null);
   const [editingStepIndex, setEditingStepIndex] = useState(null);
-    const [jobStatus, setJobStatus] = useState("");
-const [comment, setComment] = useState("");
+    const [jobStatus, setJobStatus] = useState(job.jobStatusInfo?.status || "");
+const [comment, setComment] = useState(job.jobStatusInfo?.comment || "");
   const [editedJob, setEditedJob] = useState({
     ...job,
     eligibility_criteria: job.eligibility_criteria || [],
     job_salary: { ...job.job_salary, stipend: job.job_salary?.stipend || "0" },
     job_sector: job.job_sector || "Private",
-    attachments: job.attachments || [], // Added attachments
+    attachments: job.attachments || [],
+    jobStatusHistory: job.jobStatusHistory || [],
   });
   const [editedWorkflow, setEditedWorkflow] = useState(
     job.Hiring_Workflow || []
@@ -1967,6 +1972,31 @@ const [comment, setComment] = useState("");
     }));
   }
   }, [editedJob.job_type, editingSection]); // Re-run only when job_type or editing section changes
+
+  useEffect(() => {
+    const fetchLatestJob = async () => {
+      try {
+        const res = await axios.get(
+          `${import.meta.env.REACT_APP_BASE_URL}/jobprofile/professor/getjobs/${job._id}`,
+          { withCredentials: true },
+        );
+        const freshJob = res.data;
+        setEditedJob((prev) => ({
+          ...prev,
+          jobStatusInfo: freshJob.jobStatusInfo || prev.jobStatusInfo,
+          jobStatusHistory: freshJob.jobStatusHistory || [],
+        }));
+        if (freshJob.jobStatusInfo?.status) {
+          setJobStatus(freshJob.jobStatusInfo.status);
+          setComment(freshJob.jobStatusInfo.comment || "");
+        }
+      } catch (err) {
+        console.error("Failed to refresh job status history", err);
+      }
+    };
+
+    fetchLatestJob();
+  }, [job._id]);
 
   const stepTypeOptions = [
   { value: "Resume Shortlisting", label: "Resume Shortlisting" },
@@ -3499,18 +3529,25 @@ const [comment, setComment] = useState("");
   }
 
 const updatePlacementStatus = async (jobId, jobStatus, comment) => {
+  if (!jobStatus) {
+    toast.error("Please select a placement status");
+    return;
+  }
+
   try {
     const res = await axios.put(
       `${import.meta.env.REACT_APP_BASE_URL}/jobprofile/status/${jobId}`,
       { jobStatus, comment },
       { withCredentials: true }
     );
-// console.log("Status update response:", res.data);
-    // 👇 THIS IS THE FIX
+
     setEditedJob((prev) => ({
       ...prev,
-      jobStatusInfo: res.data.job.jobStatusInfo
+      jobStatusInfo: res.data.job.jobStatusInfo,
+      jobStatusHistory: res.data.job.jobStatusHistory || [],
     }));
+    setJobStatus(res.data.job.jobStatusInfo?.status || "");
+    setComment(res.data.job.jobStatusInfo?.comment || "");
 
     toast.success("Placement status updated");
   } catch (err) {
@@ -3616,11 +3653,69 @@ const updatePlacementStatus = async (jobId, jobStatus, comment) => {
       Update Status
     </button>
 
-    {/* SHOW CURRENT STATUS */}
-    <div className="mt-3 text-sm text-gray-700">
-      <p><strong>Current:</strong> {job.jobStatusInfo?.status || "Not Updated"}</p>
-      <p className="text-gray-500">{job.jobStatusInfo?.comment}</p>
-    </div>
+    {/* SHOW CURRENT STATUS & TIMELINE */}
+    {(() => {
+      const timeline = buildJobStatusTimeline(
+        editedJob.jobStatusInfo,
+        editedJob.jobStatusHistory,
+      );
+      return (
+        <div className="mt-3 text-sm text-gray-700">
+          <p>
+            <strong>Current:</strong>{" "}
+            {editedJob.jobStatusInfo?.status || "Not Updated"}
+          </p>
+          {editedJob.jobStatusInfo?.updatedAt && (
+            <p className="text-xs text-gray-400 mt-1">
+              Last updated: {formatStatusTimestamp(editedJob.jobStatusInfo.updatedAt)}
+            </p>
+          )}
+          {editedJob.jobStatusInfo?.comment && (
+            <p className="text-gray-500 mt-1">{editedJob.jobStatusInfo.comment}</p>
+          )}
+
+          {timeline.length > 0 && (
+            <div className="mt-4 border-t pt-3">
+              <p className="font-semibold mb-2">Status Timeline</p>
+              <ul className="space-y-3 max-h-64 overflow-y-auto">
+                {timeline.map((entry, idx) => (
+                  <li
+                    key={`${entry.status}-${entry.updatedAt}-${idx}`}
+                    className="border-l-2 border-blue-300 pl-3 py-1"
+                  >
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <span className="text-xs font-semibold text-gray-500">
+                        Step {entry.step}
+                      </span>
+                      {entry.previousStatus ? (
+                        <span className="text-xs text-gray-600">
+                          {entry.previousStatus} → {entry.status}
+                        </span>
+                      ) : (
+                        <p className="font-medium">{entry.status}</p>
+                      )}
+                      {entry.isCurrent && (
+                        <span className="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full">
+                          Current
+                        </span>
+                      )}
+                    </div>
+                    {entry.comment && (
+                      <p className="text-gray-500 text-xs mt-1">{entry.comment}</p>
+                    )}
+                    {entry.updatedAt && (
+                      <p className="text-xs text-gray-400">
+                        {formatStatusTimestamp(entry.updatedAt)}
+                      </p>
+                    )}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+        </div>
+      );
+    })()}
   </div>
 
         {renderEditableCard("Basic Details", renderBasicDetails(), "basic")}

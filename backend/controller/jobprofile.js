@@ -933,7 +933,13 @@ export const getJobProfilesForProfessors = async (req, res) => {
     const approvedJobs = await JobProfile.find({
       Approved_Status: true,
       completed: false,
+      pending: { $ne: true },
     }).sort({ createdAt: -1 });
+    const pendingJobs = await JobProfile.find({
+      Approved_Status: true,
+      completed: false,
+      pending: true,
+    }).sort({ updatedAt: -1 });
     const notApprovedJobs = await JobProfile.find({
       Approved_Status: false,
     }).sort({ createdAt: -1 });
@@ -959,6 +965,7 @@ export const getJobProfilesForProfessors = async (req, res) => {
     });
     res.status(200).json({
       approved: approvedJobs,
+      pending: pendingJobs,
       notApproved: notApprovedJobs,
       completed: completed,
       feedbackByCompany,
@@ -983,8 +990,7 @@ export const getspecificJobProfilesForProfessors = async (req, res) => {
 
 export const updateJobStatus = async (req, res) => {
   const { jobId } = req.params;
-  // const { status } = req.body; // "pending" | "completed" | "incomplete"
-   const { status, jobStatus, comment } = req.body;
+  const { status, jobStatus, comment } = req.body;
 
   try {
     if (!mongoose.Types.ObjectId.isValid(jobId)) {
@@ -999,28 +1005,70 @@ export const updateJobStatus = async (req, res) => {
     if (!job) {
       return res.status(404).json({ error: "Job not found" });
     }
-if (status) {
-  if (status === "pending") {
-    job.pending = true;
-    job.completed = false;
-  } else if (status === "completed") {
-    job.pending = false;
-    job.completed = true;
-  } else {
-    job.pending = false;
-    job.completed = false;
-  }
-}
-   if (jobStatus) {
-      job.jobStatusInfo = {
+
+    const setFields = {};
+
+    if (status) {
+      if (status === "pending") {
+        setFields.pending = true;
+        setFields.completed = false;
+      } else if (status === "completed") {
+        setFields.pending = false;
+        setFields.completed = true;
+      } else {
+        setFields.pending = false;
+        setFields.completed = false;
+      }
+    }
+
+    if (jobStatus) {
+      const statusChanged =
+        jobStatus !== job.jobStatusInfo?.status ||
+        (comment || "") !== (job.jobStatusInfo?.comment || "");
+
+      if (!statusChanged) {
+        if (Object.keys(setFields).length > 0) {
+          const updatedJob = await JobProfile.findByIdAndUpdate(
+            jobId,
+            { $set: setFields },
+            { new: true },
+          );
+          return res.status(200).json({ message: "Job status updated", job: updatedJob });
+        }
+        return res.status(200).json({ message: "Job status unchanged", job });
+      }
+
+      const updatedAt = new Date();
+      const historyEntry = {
         status: jobStatus,
         comment: comment || "",
-        updatedAt: new Date()
+        updatedAt,
       };
-    }
-    await job.save();
 
-    return res.status(200).json({ message: "Job status updated", job });
+      setFields.jobStatusInfo = historyEntry;
+
+      const updatedJob = await JobProfile.findByIdAndUpdate(
+        jobId,
+        {
+          $set: setFields,
+          $push: { jobStatusHistory: historyEntry },
+        },
+        { new: true },
+      );
+
+      return res.status(200).json({ message: "Job status updated", job: updatedJob });
+    }
+
+    if (Object.keys(setFields).length > 0) {
+      const updatedJob = await JobProfile.findByIdAndUpdate(
+        jobId,
+        { $set: setFields },
+        { new: true },
+      );
+      return res.status(200).json({ message: "Job status updated", job: updatedJob });
+    }
+
+    return res.status(400).json({ error: "No valid update provided" });
   } catch (error) {
     return res.status(500).json({ error: "Server error", details: error.message });
   }

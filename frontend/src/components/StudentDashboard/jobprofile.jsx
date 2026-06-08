@@ -78,7 +78,8 @@ const JobApplications = () => {
                 jobtitle={job.job_role}
                 deadline={job.deadline}
                 jpid={job._id}
-                job_status= {job.jobStatusInfo?.status}
+                job_status={job.jobStatusInfo?.status}
+                status_updated_at={job.jobStatusInfo?.updatedAt}
                 isVisible={false}
               />
             ))}
@@ -102,7 +103,8 @@ const JobApplications = () => {
                 jobtitle={job.job_role}
                 deadline={job.deadline}
                 jpid={job._id}
-                  job_status= {job.jobStatusInfo?.status}
+                  job_status={job.jobStatusInfo?.status}
+                  status_updated_at={job.jobStatusInfo?.updatedAt}
                 isVisible={false}
               />
             ))}
@@ -129,7 +131,8 @@ const JobApplications = () => {
                 jobtitle={job.job_role}
                 deadline={job.deadline}
                 jpid={job._id}
-                  job_status= {job.jobStatusInfo?.status}
+                  job_status={job.jobStatusInfo?.status}
+                  status_updated_at={job.jobStatusInfo?.updatedAt}
                 isVisible={false}
               />
             ))}
