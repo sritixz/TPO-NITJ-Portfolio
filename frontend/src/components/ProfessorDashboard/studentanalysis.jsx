@@ -826,7 +826,6 @@ const StudentAnalyticsDashboard = () => {
 
     return stats;
   };
-
   if (error) {
     return <div className="p-6 text-red-500">Error: {error}</div>;
   }
@@ -2009,6 +2008,9 @@ const StudentAnalyticsDashboard = () => {
                                 <h4 className="font-semibold">
                                   Offer {index + 1}
                                 </h4>
+                                <p className="text-gray-600 mt-1">
+                                  Company Name: {student.offersWithCompany[index].company_name}
+                                </p>
                                 <p className="text-gray-600 mt-1">
                                   Type: {offer.offer_type}
                                 </p>
