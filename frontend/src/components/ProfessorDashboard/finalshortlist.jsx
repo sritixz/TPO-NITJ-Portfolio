@@ -188,7 +188,7 @@ const FinalShortlistStudents = ({ jobId, onClose }) => {
           return;
         }
 
-        await axios.post(
+        const noneResponse = await axios.post(
           `${import.meta.env.REACT_APP_BASE_URL}/jobprofile/add-final-shortlist-students`,
           {
             jobId,
@@ -199,6 +199,9 @@ const FinalShortlistStudents = ({ jobId, onClose }) => {
         );
 
         toast.success("Marked as none shortlisted");
+        if (noneResponse.data.emailSent) {
+          toast.success("Thank-you email sent to HR successfully!");
+        }
         onClose();
         return;
       }
@@ -206,7 +209,7 @@ const FinalShortlistStudents = ({ jobId, onClose }) => {
       // =========================
       // NORMAL FLOW
       // =========================
-      await axios.post(
+      const response = await axios.post(
         `${import.meta.env.REACT_APP_BASE_URL}/jobprofile/add-final-shortlist-students`,
         {
           jobId,
@@ -216,6 +219,9 @@ const FinalShortlistStudents = ({ jobId, onClose }) => {
       );
 
       toast.success("Shortlist updated successfully!");
+      if (response.data.emailSent) {
+        toast.success("Thank-you email sent to HR successfully!");
+      }
       onClose();
     } catch (error) {
       console.error(error);

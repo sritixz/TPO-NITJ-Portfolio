@@ -26,7 +26,7 @@ const VisitorTab = ({ visitorDetails, setVisitorDetails, onNext }) => {
       ...visitorDetails,
       companions: newCompanions,
     });
-  };
+  }
 
   const validateForm = () => {
     const newErrors = {};
