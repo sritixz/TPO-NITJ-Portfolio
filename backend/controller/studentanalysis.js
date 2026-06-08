@@ -211,10 +211,12 @@ export const getStudentAnalytics = async (req, res) => {
             adjustedBatch = String(Number(erpData.batch) + adjustment);
           }
 
-          const offers = await OfferTracker.findOne({ studentId: student._id });
+          const offers = await OfferTracker.findOne({
+            studentId: student._id,
+          });
 
           const offersWithCompany = await Promise.all(
-            offers.offer.map(async (o) => {
+            (offers?.offer || []).map(async (o) => {
               const offerDoc = await Offer.findOne({
                 shortlisted_students: {
                   $elemMatch: {
@@ -262,7 +264,7 @@ export const getStudentAnalytics = async (req, res) => {
             linkedin: student.linkedin || "",
             address: student.address || "",
             offers: offers?.offer || [],
-            offersWithCompany: offersWithCompany,
+            offersWithCompany: offersWithCompany || [],
             isInterested: student.isInterested || false,
             applications: { total: 0, jobProfiles: [] },
             assessments: {

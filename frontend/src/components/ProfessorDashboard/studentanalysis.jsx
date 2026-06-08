@@ -2009,7 +2009,7 @@ const StudentAnalyticsDashboard = () => {
                                   Offer {index + 1}
                                 </h4>
                                 <p className="text-gray-600 mt-1">
-                                  Company Name: {student.offersWithCompany[index].company_name}
+                                  Company Name: {student?.offersWithCompany?.[index]?.company_name || "N/A"}
                                 </p>
                                 <p className="text-gray-600 mt-1">
                                   Type: {offer.offer_type}
@@ -2053,12 +2053,12 @@ const StudentAnalyticsDashboard = () => {
                   <Card className="mt-6 border-0 shadow-sm">
                     <CardHeader>
                       <CardTitle className="text-lg">
-                        Applied Jobs ({student.applications.total})
+                        Applied Jobs ({student?.applications?.total || 0})
                       </CardTitle>
                     </CardHeader>
                     <CardContent>
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        {student.applications.jobProfiles.map((job, index) => (
+                        {student?.applications?.jobProfiles?.map((job, index) => (
                           <Card
                             key={index}
                             className="p-4 border border-gray-100"

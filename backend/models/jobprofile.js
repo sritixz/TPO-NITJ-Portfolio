@@ -242,6 +242,13 @@ const JobProfileSchema = new mongoose.Schema(
     default: Date.now
   }
 },
+    jobStatusHistory: [
+      {
+        status: { type: String },
+        comment: { type: String, default: "" },
+        updatedAt: { type: Date, default: Date.now },
+      },
+    ],
     job_sector:{
        type:String,
        default:'Private'

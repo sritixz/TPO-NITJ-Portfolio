@@ -331,29 +331,29 @@ const relieving_letter = () => {
   }, [formData.internshipMode]);
 
   // Validate dates against batch cutoff
-  const validateDate = (dateValue, setter, fieldName) => {
-    if (!dateValue) {
-      setter("");
-      return true;
-    }
-    const selectedDate = new Date(dateValue);
-    const batchYear = parseInt(formData.batch);
-    if (isNaN(batchYear)) {
-      setter("Invalid batch year. Please contact support.");
-      return false;
-    }
-    const cutoff = new Date(batchYear, 5, 11); // June 11 (month 5 is June)
-    cutoff.setHours(23, 59, 59, 999); // End of day for comparison
-    if (selectedDate > cutoff) {
-      setter(
-        `Please select any date before or on June 11, ${batchYear} for ${fieldName}`,
-      );
-      return false;
-    } else {
-      setter("");
-      return true;
-    }
-  };
+  // const validateDate = (dateValue, setter, fieldName) => {
+  //   if (!dateValue) {
+  //     setter("");
+  //     return true;
+  //   }
+  //   const selectedDate = new Date(dateValue);
+  //   const batchYear = parseInt(formData.batch);
+  //   if (isNaN(batchYear)) {
+  //     setter("Invalid batch year. Please contact support.");
+  //     return false;
+  //   }
+  //   const cutoff = new Date(batchYear, 5, 11); // June 11 (month 5 is June)
+  //   cutoff.setHours(23, 59, 59, 999); // End of day for comparison
+  //   if (selectedDate > cutoff) {
+  //     setter(
+  //       `Please select any date before or on June 11, ${batchYear} for ${fieldName}`,
+  //     );
+  //     return false;
+  //   } else {
+  //     setter("");
+  //     return true;
+  //   }
+  // };
 
   // Handle form input changes
   const handleInputChange = (e) => {
@@ -411,11 +411,11 @@ const relieving_letter = () => {
     } else {
       setFormData((prev) => ({ ...prev, [name]: value }));
     }
-    if (name === "internshipFrom") {
-      validateDate(value, setInternshipFromError, "Internship From");
-    } else if (name === "internshipTo") {
-      validateDate(value, setInternshipToError, "Internship To");
-    }
+    // if (name === "internshipFrom") {
+    //   validateDate(value, setInternshipFromError, "Internship From");
+    // } else if (name === "internshipTo") {
+    //   validateDate(value, setInternshipToError, "Internship To");
+    // }
     if (
       name === "startupEstablishedDate" &&
       formData.internshipMode === "Own Startup"
