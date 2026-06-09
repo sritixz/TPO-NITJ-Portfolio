@@ -98,8 +98,8 @@ const RecruiterDashboards = () => {
       label: "Created Job Profile",
       icon: faBriefcase,
     },
-    { path: "/rdashboard/travel", label: "Travel planner", icon: faPlane },
-    { path: "/rdashboard/feedback", label: "Feedback", icon: faComment },
+    // { path: "/rdashboard/feedback", label: "Feedback", icon: faComment },
+    // { path: "/rdashboard/travel", label: "Travel planner", icon: faPlane },
 /* 
     { path: "/rdashboard/rmailbox", 
       label: "Mailbox", 

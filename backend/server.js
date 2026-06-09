@@ -79,6 +79,7 @@ try {
   console.error('Error creating uploads directory:', err);
 }
 import offerRoutes from "./routes/offerletter.js";
+import { createPublicJobAnnouncementForm } from "./controller/jaf.js";
 
 const app = express();
 
@@ -141,7 +142,7 @@ app.use("/placements", logMiddleware, placementroutes);
 app.use("/internships", logMiddleware, internshiptroutes);
 app.use("/recruiterFeedback", logMiddleware, companyFeedbackroutes)
 app.use("/messages", messageRoutes);
-
+app.post('/jaf/public-create', logMiddleware, createPublicJobAnnouncementForm);
 
 //Student routes
 app.use('/interview',authenticate, restrictTo('Student'),logMiddleware, interviewroutes);

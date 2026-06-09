@@ -1913,7 +1913,7 @@ const formatDate = (dateString) => {
   });
 };
 
-const ViewJobDetails = ({ job, onClose, oneditingAllowedUpdate, readOnly = false}) => {
+const ViewJobDetails = ({ job, onClose, oneditingAllowedUpdate}) => {
   const [viewingAppliedStudents, setViewingAppliedStudents] = useState(false);
   const [applicationFormexist, setApplicationFormexist] = useState(null);
   const [selectedJobForForm, setSelectedJobForForm] = useState(null);
@@ -3075,7 +3075,7 @@ const [comment, setComment] = useState(job.jobStatusInfo?.comment || "");
                     {attachment.name || `Attachment ${index + 1}`}
                   </a>
                 </div>
-                {!readOnly &&(
+                
                 <TooltipProvider>
                   <Tooltip>
                     <TooltipTrigger asChild>
@@ -3091,14 +3091,14 @@ const [comment, setComment] = useState(job.jobStatusInfo?.comment || "");
                     </TooltipContent>
                   </Tooltip>
                 </TooltipProvider>
-                )}
+                
               </li>
             ))}
           </ul>
         ) : (
           <p className="text-gray-500 text-center">No attachments uploaded yet.</p>
         )}
-       {!readOnly && (<div className="flex justify-center mt-6">
+        <div className="flex justify-center mt-6">
           <label
             htmlFor="attachment-upload"
             className="bg-gradient-to-r from-blue-900 to-blue-700 text-white px-6 py-3 rounded-2xl hover:from-blue-600 hover:to-blue-700 focus:outline-none focus:ring-4 focus:ring-blue-500 focus:ring-offset-2 transition-all duration-300 transform hover:scale-105 active:scale-95 shadow-lg hover:shadow-xl cursor-pointer flex items-center space-x-2"
@@ -3113,7 +3113,7 @@ const [comment, setComment] = useState(job.jobStatusInfo?.comment || "");
             onChange={handleUploadAttachment}
             className="hidden"
           />
-        </div>)}
+        </div>  
       </div>
     );
   };
@@ -3121,12 +3121,12 @@ const [comment, setComment] = useState(job.jobStatusInfo?.comment || "");
 
   const renderEditableCard = (title, content, section) => (
     <div className="p-8 bg-white border border-gray-200 rounded-2xl shadow-lg hover:shadow-xl transition-shadow duration-300 relative mt-8">
-     {!readOnly &&( <button
+     <button
         className="absolute top-4 right-4 p-2 text-gray-600 hover:text-blue-600 transition-colors"
         onClick={() => handleEdit(section)}
       >
         <Pencil size={20} />
-      </button>)}
+      </button>
       <h3 className="text-2xl font-semibold text-custom-blue mb-6">{title}</h3>
       {content}
       {editingSection === section && (
@@ -3180,13 +3180,13 @@ const [comment, setComment] = useState(job.jobStatusInfo?.comment || "");
                 </button>
               </div>
             )}
-          {!readOnly &&(  <button
+             <button
               onClick={handleAddCriteria}
               className="border border-green-600 text-green-600 hover:text-white px-4 py-2 rounded-full hover:bg-green-600 flex items-center"
             >
               <Plus className="h-5 w-5" />
-            </button>)}
-            { !readOnly && editedJob.eligibility_criteria.length > 0 && (
+            </button>
+            { editedJob.eligibility_criteria.length > 0 && (
               <button
                 onClick={() => handleDeleteCriteria(currentCriteriaIndex)}
                 className=" text-red-600 hover:text-white px-4 py-2 rounded-lg hover:bg-red-600 flex items-center"
@@ -3578,7 +3578,7 @@ const updatePlacementStatus = async (jobId, jobStatus, comment) => {
                 View Applied Students
               </button>
             )}
-            {!readOnly &&(
+            
             <TooltipProvider>
               <Tooltip>
                 <TooltipTrigger asChild>
@@ -3618,7 +3618,7 @@ const updatePlacementStatus = async (jobId, jobStatus, comment) => {
                   </p>
                 </TooltipContent>
               </Tooltip>
-            </TooltipProvider>)}
+            </TooltipProvider>
           </div>
         </div>
          <div className="p-6 bg-gray-50 border border-gray-200 rounded-2xl shadow-md mb-6">
@@ -3746,7 +3746,7 @@ const updatePlacementStatus = async (jobId, jobStatus, comment) => {
                 <FileText className="mr-2 h-4 w-4" />
                 View Form
               </Button>
-              {!readOnly && (
+              
               <Button
                 className="bg-amber-500 hover:bg-amber-600 text-white"
                 onClick={() => setEditingApplicationForm(true)}
@@ -3754,8 +3754,8 @@ const updatePlacementStatus = async (jobId, jobStatus, comment) => {
                 <Edit className="mr-2 h-4 w-4" />
                 Edit Form
               </Button>
-    )}
-    {!readOnly && (
+    
+    
               <Button
                 className="bg-red-500 hover:bg-red-600 text-white"
                 onClick={handleDeleteForm}
@@ -3764,10 +3764,10 @@ const updatePlacementStatus = async (jobId, jobStatus, comment) => {
                 <Trash2 className="mr-2 h-4 w-4" />
                 {isDeleting ? "Deleting..." : "Delete Form"}
               </Button>
-    )}
+   
             </div>
           ) : (
-            job.Approved_Status && !readOnly &&(
+            job.Approved_Status &&(
               <Button
                 className="w-full bg-green-500 hover:bg-green-600 text-white"
                 onClick={() => setSelectedJobForForm(job._id)}
@@ -3782,13 +3782,13 @@ const updatePlacementStatus = async (jobId, jobStatus, comment) => {
           <h3 className="text-2xl font-semibold text-custom-blue mb-6">
             Final Shortlist
           </h3>
-       { !readOnly && ( <Button
+        <Button
             className="w-full bg-green-500 hover:bg-green-600 text-white"
             onClick={() => setAddingFinalShortlist(true)}
           >
             <Plus className="mr-2 h-4 w-4 text-white" />
             Manage Final Shortlist
-          </Button> )}
+          </Button> 
         </div>
         <AuditLogs logs={job.auditLogs || []} />
       </div>
@@ -3993,7 +3993,7 @@ const updatePlacementStatus = async (jobId, jobStatus, comment) => {
 
     return (
       <div className="mt-8 space-y-8">
-     {!readOnly && (
+      
   <div className="flex space-x-4">
     <button className="bg-gradient-to-r from-green-500 to-green-600 text-white px-8 py-3 rounded-2xl hover:from-green-600 hover:to-green-700 focus:outline-none focus:ring-4 focus:ring-green-500 focus:ring-offset-2 transition-all duration-300 transform hover:scale-105 active:scale-95 shadow-lg hover:shadow-xl" onClick={() => setAddingStep(true)}>
       Add Hiring Step
@@ -4004,7 +4004,7 @@ const updatePlacementStatus = async (jobId, jobStatus, comment) => {
       </button>
     )}
   </div>
-)}
+
        {job.Hiring_Workflow.length === 0 && !addingStep ? (
         <p className="text-gray-500">No hiring workflow defined.</p>
       ) : (
@@ -4013,12 +4013,12 @@ const updatePlacementStatus = async (jobId, jobStatus, comment) => {
             key={index}
             className="p-8 bg-white border border-gray-200 rounded-2xl shadow-lg hover:shadow-xl transition-shadow duration-300 relative"
           >
-         {!readOnly &&   ( <button
+          ( <button
               className="absolute top-4 right-4 p-2 text-gray-600 hover:text-blue-600 transition-colors"
               onClick={() => handleEdit("hiring_workflow", index)}
             >
               <Pencil size={20} />
-            </button>)}
+            </button>)
             <h3 className="text-2xl font-semibold text-custom-blue mb-6">
               {step.step_type} Step
             </h3>
@@ -4247,7 +4247,7 @@ const updatePlacementStatus = async (jobId, jobStatus, comment) => {
   </div>
 )}
             <div className="mt-8 flex sm:flex-row flex-col sm:space-x-4 sm:space-y-0 space-y-4">
-              {step.step_type === "Others" && !readOnly && (
+              {step.step_type === "Others" &&  (
                 <button
                   className="bg-gradient-to-r from-purple-500 to-purple-600 text-white px-8 py-3 rounded-2xl hover:from-purple-600 hover:to-purple-700 focus:outline-none focus:ring-4 focus:ring-purple-500 focus:ring-offset-2 transition-all duration-300 transform hover:scale-105 active:scale-95 shadow-lg hover:shadow-xl"
                   onClick={() =>
@@ -4257,7 +4257,7 @@ const updatePlacementStatus = async (jobId, jobStatus, comment) => {
                   Manage Other Assessment Links
                 </button>
               )}
-              {step.step_type === "OA" && !readOnly && (
+              {step.step_type === "OA" &&  (
                 <button
                   className="bg-gradient-to-r from-purple-500 to-purple-600 text-white px-8 py-3 rounded-2xl hover:from-purple-600 hover:to-purple-700 focus:outline-none focus:ring-4 focus:ring-purple-500 focus:ring-offset-2 transition-all duration-300 transform hover:scale-105 active:scale-95 shadow-lg hover:shadow-xl"
                   onClick={() =>
@@ -4267,7 +4267,7 @@ const updatePlacementStatus = async (jobId, jobStatus, comment) => {
                   Manage OA Links
                 </button>
               )}
-              {step.step_type === "GD" && !readOnly &&(
+              {step.step_type === "GD" && (
                 <button
                   className="bg-gradient-to-r from-purple-500 to-purple-600 text-white px-8 py-3 rounded-2xl hover:from-purple-600 hover:to-purple-700 focus:outline-none focus:ring-4 focus:ring-purple-500 focus:ring-offset-2 transition-all duration-300 transform hover:scale-105 active:scale-95 shadow-lg hover:shadow-xl"
                   onClick={() =>
@@ -4277,7 +4277,7 @@ const updatePlacementStatus = async (jobId, jobStatus, comment) => {
                   Manage GD Links
                 </button>
               )}
-              {step.step_type === "Interview" && !readOnly && (
+              {step.step_type === "Interview" &&  (
                 <button
                   className="bg-gradient-to-r from-purple-500 to-purple-600 text-white px-8 py-3 rounded-2xl hover:from-purple-600 hover:to-purple-700 focus:outline-none focus:ring-4 focus:ring-purple-500 focus:ring-offset-2 transition-all duration-300 transform hover:scale-105 active:scale-95 shadow-lg hover:shadow-xl"
                   onClick={() =>
@@ -4290,12 +4290,12 @@ const updatePlacementStatus = async (jobId, jobStatus, comment) => {
                   Manage Interview Links
                 </button>
               )}
-            {!readOnly && ( <button
+             <button
                 className="bg-gradient-to-r from-green-500 to-green-600 text-white px-8 py-3 rounded-2xl hover:from-green-600 hover:to-green-700 focus:outline-none focus:ring-4 focus:ring-green-500 focus:ring-offset-2 transition-all duration-300 transform hover:scale-105 active:scale-95 shadow-lg hover:shadow-xl "
                 onClick={() => setAddingShortlist({ stepIndex: index })}
               >
                 Add Shortlisted Students
-              </button>)}
+              </button>
               <button
                 className="bg-gradient-to-r from-green-500 to-green-600 text-white px-8 py-3 rounded-2xl hover:from-green-600 hover:to-green-700 focus:outline-none focus:ring-4 focus:ring-green-500 focus:ring-offset-2 transition-all duration-300 transform hover:scale-105 active:scale-95 shadow-lg hover:shadow-xl "
                 onClick={() => setViewingShortlist({ stepIndex: index })}
