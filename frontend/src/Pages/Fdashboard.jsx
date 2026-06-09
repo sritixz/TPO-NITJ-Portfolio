@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useSelector, useDispatch } from "react-redux";
-import { logout } from "../Redux/authSlice";
+import { logout } from "../Redux/authSlice.jsx";
 import toast from "react-hot-toast";
 import axios from "axios";
 import { 
@@ -24,12 +24,12 @@ import InsightDashboard from "../components/ProfessorDashboard/InsightDashboard.
 import Fsuggestions from "../components/FacultyDashboard/Fsuggestions.jsx";
 import PlacementRegistrationExportFaculty from "../components/FacultyDashboard/placement-registration.jsx";
 import ProfessorCalendar from "../components/StudentDashboard/placement-calendar.jsx";
-import JobManagement from "../components/ProfessorDashboard/pjobmanagement";
+import JobManagement from "../components/FacultyDashboard/fjobmanagement.jsx";
 
 
 const Fdashboard = () => {
   const [isSidebarExpanded, setIsSidebarExpanded] = useState(true);
-  const [isMobileOpen, setIsMobileOpen] = useState(false); // New state for mobile drawer
+  const [isMobileOpen, setIsMobileOpen] = useState(false);
   const { userData } = useSelector((state) => state.auth);
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -70,18 +70,19 @@ const Fdashboard = () => {
     { label: "Placement Registration", icon: faFileAlt, path: "/fdashboard/placement-registration" },
     { label: "Placement Calendar", icon: faCalendarAlt, path: "/fdashboard/placement-calendar" },
     { label: "Suggestions", icon: faEnvelope, path: "/fdashboard/suggestions" },
-     { label: "Job Management", icon: faBriefcaseClock, path: "/fdashboard/job-management" },
-
+    { label: "Job Management", icon: faBriefcaseClock, path: "/fdashboard/job-management" },
   ];
 
   return (
     <div className="flex flex-col min-h-screen bg-gray-50 font-sans">
-      {/* Navbar Section */}
+      {/* Navbar */}
       <header className="fixed top-0 left-0 right-0 bg-white shadow-sm z-[60] h-16 flex items-center justify-between px-4 md:px-6">
         <div className="flex items-center gap-3">
+          {/* Mobile hamburger */}
           <button 
             onClick={() => setIsMobileOpen(!isMobileOpen)}
             className="p-2 hover:bg-gray-100 rounded-lg lg:hidden text-gray-600"
+            aria-label="Toggle menu"
           >
             {isMobileOpen ? <X size={24} /> : <Menu size={24} />}
           </button>
@@ -90,25 +91,31 @@ const Fdashboard = () => {
           <button 
             onClick={() => setIsSidebarExpanded(!isSidebarExpanded)}
             className="hidden lg:block p-2 hover:bg-gray-100 rounded-lg text-gray-600"
+            aria-label="Toggle sidebar"
           >
             <Menu size={20} />
           </button>
 
-          <img src={NITJlogo} alt="NITJ Logo" className="h-8 w-8 md:h-10 md:w-10" />
-          <h1 className="font-bold text-lg md:text-xl">
-            TPO-<span className="text-custom-blue-600 uppercase">NITJ</span>
+          <img src={NITJlogo} alt="NITJ Logo" className="h-8 w-8 md:h-10 md:w-10 flex-shrink-0" />
+          {/* FIX: "NITJ" now uses text-custom-blue class consistently */}
+          <h1 className="font-bold text-lg md:text-xl whitespace-nowrap">
+            TPO-<span className="text-custom-blue uppercase">NITJ</span>
           </h1>
         </div>
 
         <div className="flex items-center gap-3">
           <div className="text-right hidden sm:block">
-            <p className="text-sm font-semibold text-gray-800 leading-none">{userData?.name || "Faculty Member"}</p>
-            <p className="text-[10px] text-custom-blue-600 font-bold uppercase tracking-tighter mt-1">Faculty Portal</p>
+            <p className="text-sm font-semibold text-gray-800 leading-none truncate max-w-[160px]">
+              {userData?.name || "Faculty Member"}
+            </p>
+            <p className="text-[10px] text-custom-blue font-bold uppercase tracking-tighter mt-1">
+              Faculty Portal
+            </p>
           </div>
           <img 
             src={userData?.image || ProfileImage} 
             alt="User Profile" 
-            className="w-9 h-9 rounded-full border-2 border-custom-blue-100 object-cover" 
+            className="w-9 h-9 rounded-full border-2 border-blue-100 object-cover flex-shrink-0" 
           />
         </div>
       </header>
@@ -128,7 +135,7 @@ const Fdashboard = () => {
           ${isMobileOpen ? "translate-x-0 w-64" : "-translate-x-full lg:translate-x-0"} 
           ${isSidebarExpanded ? "lg:w-64" : "lg:w-20"}`}
         >
-          <nav className="p-4 flex flex-col h-full">
+          <nav className="p-3 flex flex-col h-full overflow-y-auto">
             <div className="space-y-1 flex-1">
               {menuItems.map((item) => {
                 const isActive = location.pathname === item.path;
@@ -138,14 +145,14 @@ const Fdashboard = () => {
                     onClick={() => navigate(item.path)}
                     className={`flex items-center w-full p-3 rounded-xl transition-all duration-200
                     ${isActive 
-                      ? "bg-custom-blue-600 text-white shadow-md" 
-                      : "text-gray-500 hover:bg-custom-blue-50 hover:text-custom-blue-600"}`}
+                      ? "bg-custom-blue text-white shadow-md" 
+                      : "text-gray-500 hover:bg-blue-50 hover:text-custom-blue"}`}
                   >
-                    <div className="w-6 flex justify-center">
+                    <div className="w-6 flex justify-center flex-shrink-0">
                       <FontAwesomeIcon icon={item.icon} className="text-lg" />
                     </div>
                     {(isSidebarExpanded || isMobileOpen) && (
-                      <span className="font-semibold text-sm ml-4 whitespace-nowrap">
+                      <span className="font-semibold text-sm ml-4 whitespace-nowrap overflow-hidden text-ellipsis">
                         {item.label}
                       </span>
                     )}
@@ -158,25 +165,26 @@ const Fdashboard = () => {
               onClick={handleLogout}
               className="mt-auto flex items-center w-full p-3 text-red-500 hover:bg-red-50 rounded-xl transition-colors"
             >
-              <LogOut size={20} className={(isSidebarExpanded || isMobileOpen) ? "mr-4" : "mx-auto"} />
-              {(isSidebarExpanded || isMobileOpen) && <span className="font-medium text-sm">Logout</span>}
+              <LogOut size={20} className={`flex-shrink-0 ${(isSidebarExpanded || isMobileOpen) ? "mr-4" : "mx-auto"}`} />
+              {(isSidebarExpanded || isMobileOpen) && (
+                <span className="font-medium text-sm">Logout</span>
+              )}
             </button>
           </nav>
         </aside>
 
         {/* Main Content Area */}
         <main 
-          className={`flex-1 min-h-full transition-all duration-300 p-4 md:p-6 bg-gray-50
+          className={`flex-1 min-h-full transition-all duration-300 p-3 sm:p-4 md:p-6 bg-gray-50
           ${isSidebarExpanded ? "lg:ml-64" : "lg:ml-20"} ml-0`}
         >
-          <div className="max-w-7xl mx-auto">
+          <div className="max-w-7xl mx-auto w-full">
             <Routes>
               <Route path="home" element={<InsightDashboard readOnly={true} />} />
               <Route path="placement-registration" element={<PlacementRegistrationExportFaculty readOnly={true} />} />
               <Route path="placement-calendar" element={<ProfessorCalendar />} />
               <Route path="suggestions" element={<Fsuggestions />} />
               <Route path="job-management" element={<JobManagement readOnly={true} />} />
-
             </Routes>
           </div>
         </main>
