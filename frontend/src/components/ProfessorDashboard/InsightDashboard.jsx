@@ -36,7 +36,6 @@ ChartJS.register(
   Tooltip,
   Legend,
 );
-import ResponsiveDeptChart from "./ResponsiveDeptChart";
 
 const btechdepartmentOptions = [
   {
@@ -642,12 +641,6 @@ const InsightDashboard = () => {
       },
     ],
   };
-  // Add this below your departmentBarData definition
-const rechartsDeptData = Object.entries(activeInsights?.departmentStats || {}).map(([name, stats]) => ({
-  name: name,
-  count: isSummer ? (stats?.totalOffers || 0) : (stats?.totalOffers || 0),
-  percentage: isSummer ? (stats?.internshipPercentage || 0) : (stats?.placementPercentage || 0)
-}));
 
   const ctcDoughnutData =
     !isSummer && activeInsights?.ctcBuckets
@@ -1221,15 +1214,15 @@ const rechartsDeptData = Object.entries(activeInsights?.departmentStats || {}).m
             </ChartCard>
           )}
           <ChartCard
-               title={isSummer ? "Department-wise Internship Count" : "Department-wise Placement Count"}
-               icon={BarChart3}
+            title={
+              isSummer
+                ? "Department-wise Internship %"
+                : "Department-wise Placement %"
+            }
+            icon={BarChart3}
           >
-            <ResponsiveDeptChart 
-                data={rechartsDeptData} 
-                dataKey="count" 
-                label={isSummer ? "Internship Count" : "Placement Count"} 
-            />
-        </ChartCard>
+            <Bar data={departmentBarData} options={chartOptions} />
+          </ChartCard>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
