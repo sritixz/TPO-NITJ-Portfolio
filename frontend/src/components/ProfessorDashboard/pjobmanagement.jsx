@@ -567,14 +567,14 @@ const JobProfilesonp = () => {
 
   const JobCard = ({ job, showActions }) => (
     <Card className="bg-white border border-gray-200 rounded-2xl shadow-lg hover:shadow-xl transition-shadow duration-300 relative">
-      (
+      
       <div className="absolute top-2 right-2 text-red-600">
         <Trash2
           className="w-7 h-7 bg-red-100 rounded-3xl p-1 cursor-pointer"
           onClick={() => handleDelete(job._id)}
         />
       </div>
-      )
+      
 
       {/* APPROVED / ACTIVE => can go to PENDING or COMPLETED */}
       {!job.pending && !job.completed && (

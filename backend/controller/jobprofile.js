@@ -1751,7 +1751,7 @@ if (isNoneShortlisted) {
             </p>
             <p>Your feedback helps us improve and serve you better in the future. We look forward to welcoming you again at NIT Jalandhar.</p>
             <br/>
-            <p>Warm regards,<br/><strong>Training & Placement Office</strong><br/>NIT Jalandhar</p>
+            <p>Warm regards,<br/><strong>Centre of Training & Placement</strong><br/>NIT Jalandhar</p>
           </div>
         `
       });

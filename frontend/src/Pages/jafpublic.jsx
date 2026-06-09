@@ -1,11 +1,11 @@
 import React, { useState } from "react";
 import axios from "axios";
 import toast from "react-hot-toast";
-import { Card, CardHeader, CardTitle, CardContent } from "../ui/card";
-import { Button } from "../ui/button";
-import { Input } from "../ui/input";
-import { Checkbox } from "../ui/checkbox";
-import { Textarea } from "../ui/textarea";
+import { Card, CardHeader, CardTitle, CardContent } from "../components/ui/card";
+import { Button } from "../components/ui/button";
+import { Input } from "../components/ui/input";
+import { Checkbox } from "../components/ui/checkbox";
+import { Textarea } from "../components/ui/textarea";
 import Swal from "sweetalert2";
 import {
   Building2,
@@ -17,7 +17,7 @@ import {
   Trash2,
 } from "lucide-react";
 
-const JobAnnouncementForm = () => {
+const JobAnnouncementFormPublic = () => {
   const [formData, setFormData] = useState({
     organizationName: "",
     websiteUrl: "",
@@ -41,8 +41,9 @@ const JobAnnouncementForm = () => {
     postalAddress: "",
     approved_status:false,
   });
-  const [isSubmitting, setIsSubmitting] = useState(false);
 
+    const [isSubmitting, setIsSubmitting] = useState(false);
+  
 
   const bTechPrograms = [
     { name: "Computer Science & Engineering", type: "Circuital" },
@@ -267,7 +268,6 @@ const JobAnnouncementForm = () => {
   };
 
   const handleSubmit = async (e) => {
-    
     if (isSubmitting) return;
     setIsSubmitting(true);
     
@@ -285,7 +285,7 @@ const JobAnnouncementForm = () => {
     if (result.isConfirmed) {
       try {
         const response = await axios.post(
-          `${import.meta.env.REACT_APP_BASE_URL}/jaf/create`,
+          `${import.meta.env.REACT_APP_BASE_URL}/jaf/public-create`,
           formData,
           { withCredentials: true }
         );
@@ -329,7 +329,7 @@ const JobAnnouncementForm = () => {
               <h3 className="text-custom-blue">Recruiter Details</h3>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="grid md:grid-cols-2 gap-6">
               <div className="space-y-2">
                 <label className="block text-sm font-medium">
                   Organization Name*
@@ -1083,8 +1083,9 @@ const JobAnnouncementForm = () => {
               type="submit"
               className="bg-custom-blue hover:bg-blue-700 text-white px-8 py-2"
               disabled={isSubmitting}
+
             >
-              {isSubmitting ? "Submitting..." : "Submit Form"}
+              { isSubmitting ? "Submitting..." : "Submit Form" }
             </Button>
           </div>
         </CardContent>
@@ -1092,4 +1093,4 @@ const JobAnnouncementForm = () => {
     </form>
   );
 };
-export default JobAnnouncementForm;
+export default JobAnnouncementFormPublic;

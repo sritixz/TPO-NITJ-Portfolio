@@ -113,6 +113,7 @@ const Pdashboard = () => {
   const menuItems = [
     { label: "Home", icon: faHome, path: "/pdashboard/home" },
     { label: "Job Management", icon: faBriefcaseClock, path: "/pdashboard/job-profile-management" },
+    { label: "JAF Submissions", icon: faFileAlt, path: "/pdashboard/jaf" },
     {label:"Student",icon:faUser, path:"/pdashboard/student-analysis"},
     { label: "Placement Reports", icon: faChartBar, path: "/pdashboard/placement-insights" },
     { label: "OfferAdder", icon: faTags, path: "/pdashboard/offer-adder" },

@@ -317,7 +317,7 @@ const JobAnnouncementForm = () => {
             G T Road Bye Pass, Jalandhar-144008, Punjab
           </p>
           <h2 className="text-xl font-semibold mt-4 text-custom-blue">
-            Job Announcement Form - 2024-25 Batch
+            Job Announcement Form - 2026-27 Batch
           </h2>
         </CardHeader>
 

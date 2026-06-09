@@ -3075,7 +3075,7 @@ const [comment, setComment] = useState(job.jobStatusInfo?.comment || "");
                     {attachment.name || `Attachment ${index + 1}`}
                   </a>
                 </div>
-                (
+                
                 <TooltipProvider>
                   <Tooltip>
                     <TooltipTrigger asChild>
@@ -3091,14 +3091,14 @@ const [comment, setComment] = useState(job.jobStatusInfo?.comment || "");
                     </TooltipContent>
                   </Tooltip>
                 </TooltipProvider>
-                )
+                
               </li>
             ))}
           </ul>
         ) : (
           <p className="text-gray-500 text-center">No attachments uploaded yet.</p>
         )}
-        (<div className="flex justify-center mt-6">
+        <div className="flex justify-center mt-6">
           <label
             htmlFor="attachment-upload"
             className="bg-gradient-to-r from-blue-900 to-blue-700 text-white px-6 py-3 rounded-2xl hover:from-blue-600 hover:to-blue-700 focus:outline-none focus:ring-4 focus:ring-blue-500 focus:ring-offset-2 transition-all duration-300 transform hover:scale-105 active:scale-95 shadow-lg hover:shadow-xl cursor-pointer flex items-center space-x-2"
@@ -3113,7 +3113,7 @@ const [comment, setComment] = useState(job.jobStatusInfo?.comment || "");
             onChange={handleUploadAttachment}
             className="hidden"
           />
-        </div>)
+        </div>  
       </div>
     );
   };
@@ -3121,12 +3121,12 @@ const [comment, setComment] = useState(job.jobStatusInfo?.comment || "");
 
   const renderEditableCard = (title, content, section) => (
     <div className="p-8 bg-white border border-gray-200 rounded-2xl shadow-lg hover:shadow-xl transition-shadow duration-300 relative mt-8">
-     ( <button
+     <button
         className="absolute top-4 right-4 p-2 text-gray-600 hover:text-blue-600 transition-colors"
         onClick={() => handleEdit(section)}
       >
         <Pencil size={20} />
-      </button>)
+      </button>
       <h3 className="text-2xl font-semibold text-custom-blue mb-6">{title}</h3>
       {content}
       {editingSection === section && (
@@ -3993,7 +3993,7 @@ const updatePlacementStatus = async (jobId, jobStatus, comment) => {
 
     return (
       <div className="mt-8 space-y-8">
-      (
+      
   <div className="flex space-x-4">
     <button className="bg-gradient-to-r from-green-500 to-green-600 text-white px-8 py-3 rounded-2xl hover:from-green-600 hover:to-green-700 focus:outline-none focus:ring-4 focus:ring-green-500 focus:ring-offset-2 transition-all duration-300 transform hover:scale-105 active:scale-95 shadow-lg hover:shadow-xl" onClick={() => setAddingStep(true)}>
       Add Hiring Step
@@ -4004,7 +4004,7 @@ const updatePlacementStatus = async (jobId, jobStatus, comment) => {
       </button>
     )}
   </div>
-)
+
        {job.Hiring_Workflow.length === 0 && !addingStep ? (
         <p className="text-gray-500">No hiring workflow defined.</p>
       ) : (
@@ -4290,12 +4290,12 @@ const updatePlacementStatus = async (jobId, jobStatus, comment) => {
                   Manage Interview Links
                 </button>
               )}
-            ( <button
+             <button
                 className="bg-gradient-to-r from-green-500 to-green-600 text-white px-8 py-3 rounded-2xl hover:from-green-600 hover:to-green-700 focus:outline-none focus:ring-4 focus:ring-green-500 focus:ring-offset-2 transition-all duration-300 transform hover:scale-105 active:scale-95 shadow-lg hover:shadow-xl "
                 onClick={() => setAddingShortlist({ stepIndex: index })}
               >
                 Add Shortlisted Students
-              </button>)
+              </button>
               <button
                 className="bg-gradient-to-r from-green-500 to-green-600 text-white px-8 py-3 rounded-2xl hover:from-green-600 hover:to-green-700 focus:outline-none focus:ring-4 focus:ring-green-500 focus:ring-offset-2 transition-all duration-300 transform hover:scale-105 active:scale-95 shadow-lg hover:shadow-xl "
                 onClick={() => setViewingShortlist({ stepIndex: index })}

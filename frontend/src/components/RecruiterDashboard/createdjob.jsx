@@ -173,13 +173,13 @@ const CreatedJobs = () => {
               <span>Job </span>
               <span className="text-custom-blue">Listings</span>
             </h1>
-            <Button
+            {/* <Button
               onClick={() => setIsCreatingJob(true)}
               className="bg-custom-blue hover:bg-blue-700 text-white flex items-center gap-2"
             >
               <Plus className="w-4 h-4" />
               Post New Job
-            </Button>
+            </Button> */}
           </div>
 
           {/* Search and Filter */}
@@ -274,14 +274,14 @@ const CreatedJobs = () => {
                       <Eye className="w-4 h-4" />
                       View
                     </Button>
-                    <Button
+                    {/* <Button
                       variant="outline"
                       className="flex-1 flex items-center justify-center gap-2 hover:bg-red-500 hover:text-white border-red-500"
                       onClick={() => handleDeleteJob(job._id)}
                     >
                       <Trash2 className="w-4 h-4" />
                       Delete
-                    </Button>
+                    </Button> */}
                   </div>
                 </CardContent>
               </Card>
