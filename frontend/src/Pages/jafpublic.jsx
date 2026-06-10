@@ -47,7 +47,9 @@ const JobAnnouncementFormPublic = () => {
 
   const bTechPrograms = [
     { name: "Computer Science & Engineering", type: "Circuital" },
+    { name: "Data Science & Engineering", type: "Circuital" },
     { name: "Electronics & Communication Engineering", type: "Circuital" },
+    { name: "Electronics & VLSI Engineering", type: "Circuital" },
     { name: "Instrumentation and Control Engineering", type: "Circuital" },
     { name: "Electrical Engineering", type: "Circuital" },
     { name: "Information Technology", type: "Circuital" },
@@ -412,7 +414,7 @@ const JobAnnouncementFormPublic = () => {
                         )
                       }
                     />
-                    <span className="ml-2">Virtual Placement</span>
+                    <span className="ml-2">Virtual Visit</span>
                   </label>
                   <label className="flex items-center">
                     <Checkbox
@@ -427,7 +429,7 @@ const JobAnnouncementFormPublic = () => {
                         )
                       }
                     />
-                    <span className="ml-2">Campus Placement</span>
+                    <span className="ml-2">Campus Visit</span>
                   </label>
                 </div>
               </div>
