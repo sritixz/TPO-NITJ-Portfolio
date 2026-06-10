@@ -49,10 +49,11 @@ const JobAnnouncementFormPublic = () => {
     { name: "Computer Science & Engineering", type: "Circuital" },
     { name: "Data Science & Engineering", type: "Circuital" },
     { name: "Electronics & Communication Engineering", type: "Circuital" },
-    { name: "Electronics & VLSI Engineering", type: "Circuital" },
     { name: "Instrumentation and Control Engineering", type: "Circuital" },
+    { name: "Electronics & VLSI Engineering", type: "Circuital" },
     { name: "Electrical Engineering", type: "Circuital" },
     { name: "Information Technology", type: "Circuital" },
+    { name: "Mathematics and Computing", type: "Circuital" },
     { name: "Biotechnology", type: "Non-Circuital" },
     { name: "Chemical Engineering", type: "Non-Circuital" },
     { name: "Civil Engineering", type: "Non-Circuital" },
@@ -68,6 +69,7 @@ const JobAnnouncementFormPublic = () => {
         specializations: [
           "Computer Science & Engineering",
           "Information Security",
+          "Data Science and Engineering"
         ],
       },
       {
@@ -79,9 +81,13 @@ const JobAnnouncementFormPublic = () => {
       },
       {
         name: "Instrumentation & Control Engineering",
-        specializations: ["Machine Intelligence and Automation"],
+        specializations: ["Machine Intelligence and Automation", "Control and Instrumentation Engineering", "Signal Processing and Machine Learning"],
       },
       { name: "Artificial Intelligence", specializations: [] },
+      { name: "Mathematics and Computing", specializations: [] },
+      { name: "Electric Vehicle Design", specializations: [] },
+      { name: "Data Analytics", specializations: [] },
+      { name: "Power Systems and Reliability", specializations: [] },
     ],
     nonCircuital: [
       { name: "Biotechnology", specializations: [] },
@@ -91,18 +97,20 @@ const JobAnnouncementFormPublic = () => {
         specializations: [
           "Structural and Construction Engineering",
           "Geotechnical -GEO-Environmental Engineering",
+          "Geotechnical Engineering and Infrastructure Design",
         ],
       },
       {
         name: "Industrial & Production Engineering",
-        specializations: ["Industrial Engineering", "Manufacturing Technology"],
+        specializations: ["Industrial Engineering and Data Analytics"],
       },
       {
         name: "Mechanical Engineering",
-        specializations: ["Design Engineering", "Thermal Engineering"],
+        specializations: ["Design Engineering", "Thermal and Energy Engineering"],
       },
       { name: "Renewable Energy", specializations: [] },
-      { name: "Textile Engineering & Management", specializations: [] },
+      { name: "Energy and Environmental Engineering", specializations: [] },
+      { name: "Textile Engineering", specializations: ["Textile Engineering & Management", "Textile Technology"] },
     ],
   };
 
