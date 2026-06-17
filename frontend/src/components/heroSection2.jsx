@@ -45,13 +45,13 @@ export default function HeroSection({ totalCompanies, searchQuery, onSearchChang
       <div className="hero-glow" />
 
       <div className="hero-content">
-        <div className="hero-eyebrow">
+        {/* <div className="hero-eyebrow">
           <span className="eyebrow-dot" />
           NIT Jalandhar · Training &amp; Placement Cell
-        </div>
+        </div> */}
 
-        <h1 className="hero-title">
-          Our <span className="hero-title-accent">Recruiters</span>
+        <h1 className="hero-title text-3xl font-bold sm:text-4xl lg:text-5xl">
+          Our <span className="hero-title-accent text-custom-blue">Recruiters</span>
         </h1>
 
         <p className="hero-tagline">{typed}<span className="cursor-blink">|</span></p>

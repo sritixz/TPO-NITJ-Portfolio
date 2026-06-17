@@ -35,7 +35,7 @@
   --font: 'Inter', system-ui, sans-serif;
 }
 
-/* Dark mode overrides — applied via JS toggle (data-theme="dark" on <html>) */
+/* Dark mode overrides — applied via JS toggle (data-theme="dark" on <html>)
 [data-theme="dark"] {
   --bg: #080C14;
   --surface: #0f172a;
@@ -59,7 +59,7 @@
 }
 
 /* ===================== THEME TOGGLE BUTTON ===================== */
-.theme-toggle-btn {
+/* .theme-toggle-btn {
   position: fixed;
   top: 18px;
   right: 20px;
@@ -97,7 +97,7 @@
 
 .theme-toggle-btn:hover .theme-toggle-icon {
   transform: rotate(20deg);
-}
+} */ */
 
 html {
   scroll-behavior: smooth;
@@ -133,7 +133,7 @@ body {
   isolation: isolate;
 }
 
-.hero-grid-bg {
+/* .hero-grid-bg {
   position: absolute;
   inset: 0;
   background-image:
@@ -141,9 +141,9 @@ body {
     linear-gradient(90deg, var(--border) 1px, transparent 1px);
   background-size: 50px 50px;
   z-index: -2;
-}
+} */
 
-.hero-glow {
+/* .hero-glow {
   position: absolute;
   top: -120px;
   left: 50%;
@@ -153,7 +153,7 @@ body {
   background: radial-gradient(ellipse at center, rgba(59, 130, 246, 0.18) 0%, transparent 70%);
   z-index: -1;
   pointer-events: none;
-}
+} */
 
 .hero-content {
   max-width: 860px;
@@ -164,7 +164,7 @@ body {
   gap: 24px;
 }
 
-.hero-eyebrow {
+/* .hero-eyebrow {
   display: inline-flex;
   align-items: center;
   gap: 8px;
@@ -177,36 +177,36 @@ body {
   border: 1px solid rgba(59, 130, 246, 0.25);
   padding: 6px 16px;
   border-radius: 100px;
-}
+} */
 
-.eyebrow-dot {
+/* .eyebrow-dot {
   width: 6px;
   height: 6px;
   border-radius: 50%;
   background: var(--accent);
   display: inline-block;
   animation: pulse-dot 2s ease-in-out infinite;
-}
+} */
 
-@keyframes pulse-dot {
+/* @keyframes pulse-dot {
   0%, 100% { opacity: 1; transform: scale(1); }
   50% { opacity: 0.4; transform: scale(0.7); }
-}
+} */
 
 .hero-title {
   font-size: clamp(42px, 8vw, 80px);
-  font-weight: 800;
+  /* font-weight: 800; */
   letter-spacing: -0.03em;
   line-height: 1.05;
   color: var(--text-primary);
 }
 
-.hero-title-accent {
+/* .hero-title-accent {
   background: linear-gradient(135deg, #3B82F6 0%, #60A5FA 50%, #93C5FD 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
-}
+} */
 
 .hero-tagline {
   font-size: clamp(14px, 2vw, 17px);
@@ -217,16 +217,16 @@ body {
   letter-spacing: 0.01em;
 }
 
-.cursor-blink {
+/* .cursor-blink {
   color: var(--accent);
   animation: blink 0.8s step-end infinite;
   font-weight: 300;
-}
+} */
 
-@keyframes blink {
+/* @keyframes blink {
   0%, 100% { opacity: 1; }
   50% { opacity: 0; }
-}
+} */
 
 /* ===================== STATS ===================== */
 .hero-stats {
@@ -1190,7 +1190,7 @@ body {
 }
 
 .modal-close-btn:hover {
-  background: var(--modal-glow, var(--accent-glow));
+  /* background: var(--modal-glow, var(--accent-glow)); */
   color: var(--modal-accent, var(--accent));
   border-color: var(--modal-border, var(--border-hover));
   transform: scale(1.08) rotate(5deg);
@@ -1367,4 +1367,32 @@ body {
   .modal-title {
     font-size: 17px;
   }
+}
+
+/* Forces all card elements sharing a line inside the grid layout to stay equal height */
+.pp-grid {
+  align-items: stretch;
+}
+
+/* Forces the item card wrapper to stretch perfectly and behave as a flexible flexbox frame */
+.pp-card {
+  height: 100%;
+}
+
+/* Flex layout setup to distribute header, table body, and CTA sections equally */
+.pp-card-inner-layout {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  flex-grow: 1;
+}
+
+/* Tells the table content container to take up all remaining space, which forces the footer down */
+.pp-table-wrap {
+  flex-grow: 1;
+}
+
+/* Locks the call-to-action link and notice text grouping strictly to the bottom of the card block */
+.pp-card-footer-group {
+  margin-top: auto;
 }

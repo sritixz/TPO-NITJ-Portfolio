@@ -1,5 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import Footer from "../components/Footer";
+import Header from "../components/header";
+import { color } from "framer-motion";
 
 /* ─────────────────────────────────────────────
    PROGRAM DATA  (card summary + full popout)
@@ -8,15 +10,17 @@ const programs = [
   {
     id: "7th-sem",
     emoji: "👜",
-    title: "7th Sem Internship",
+    emojiBg: "white",
+    title: "7th Sem Intern",
     policy: "Policy § 3.3",
     tagline: "Industry immersion during 7th semester (2023 batch onwards)",
-    accent: "#6366F1",
-    accentGlow: "rgba(99, 102, 241, 0.12)",
-    accentBorder: "rgba(99, 102, 241, 0.25)",
-    badge: "Internship",
-    badgeBg: "rgba(99, 102, 241, 0.12)",
-    badgeColor: "#6366F1",
+    accent: "#0369A0",
+    accentGlow: "#0369A0",
+    accentBorder: "#0369A0",
+    badge: "Intern",
+    badgeBg: "#0369A0",
+    badgeColor: "white",
+    text: "white",
     note: "Max 50% of class strength. Notify CTP within 24 hrs of off-campus offer.",
     rows: [
       { label: "Duration",    value: "4–6 months (July – Dec)" },
@@ -97,15 +101,17 @@ const programs = [
   {
     id: "8th-sem",
     emoji: "🚀",
-    title: "8th Sem Internship",
+    emojiBg: "white",
+    title: "8th Sem Intern",
     policy: "Policy § 3.3",
     tagline: "Pre-placement opportunity in final semester",
-    accent: "#10B981",
-    accentGlow: "rgba(16, 185, 129, 0.12)",
-    accentBorder: "rgba(16, 185, 129, 0.25)",
-    badge: "Internship",
-    badgeBg: "rgba(16, 185, 129, 0.12)",
-    badgeColor: "#10B981",
+    accent: "#0369A0",
+    accentGlow: "#0369A0",
+    accentBorder: "#0369A0",
+    badge: "Intern",
+    badgeBg: "#0369A0",
+    badgeColor: "white",
+    text : "white",
     note: "2022 batch: 8th sem only. Notify CTP within 24 hrs of off-campus offer.",
     rows: [
       { label: "Duration",    value: "4–6 months (Jan – June)" },
@@ -187,15 +193,17 @@ const programs = [
   {
     id: "mtech",
     emoji: "🎓",
+    emojiBg: "white",
     title: "M.Tech Program",
     policy: "Policy v2.1",
     tagline: "Master of Technology — 2 years",
-    accent: "#F59E0B",
-    accentGlow: "rgba(245, 158, 11, 0.12)",
-    accentBorder: "rgba(245, 158, 11, 0.25)",
+    accent: "#0369A0",
+    accentGlow: "#0369A0",
+    accentBorder: "#0369A0",
     badge: "Degree",
-    badgeBg: "rgba(245, 158, 11, 0.12)",
-    badgeColor: "#F59E0B",
+    badgeBg: "#0369A0",
+    badgeColor: "white",
+    text: "white",
     note: "GATE-qualified students receive stipend.",
     rows: [
       { label: "Duration",        value: "2 years (4 semesters)" },
@@ -265,15 +273,17 @@ const programs = [
   {
     id: "btech",
     emoji: "🎓",
+    emojiBg: "white",
     title: "B.Tech Program",
     policy: "Policy v2.1",
     tagline: "Bachelor of Technology — 4 years",
-    accent: "#3B82F6",
-    accentGlow: "rgba(59, 130, 246, 0.12)",
-    accentBorder: "rgba(59, 130, 246, 0.25)",
+    accent: "#0369A0",
+    accentGlow: "#0369A0",
+    accentBorder: "#0369A0",
     badge: "Degree",
-    badgeBg: "rgba(59, 130, 246, 0.12)",
-    badgeColor: "#3B82F6",
+    badgeBg: "#0369A0",
+    badgeColor: "white",
+    text: "white",
     note: "Industry-aligned, NEP-compliant curriculum.",
     rows: [
       { label: "Duration",        value: "4 years (8 semesters)" },
@@ -380,7 +390,7 @@ function ProgramModal({ prog, onClose }) {
           <div className="modal-header-left">
             <div
               className="modal-emoji-wrap"
-              style={{ background: prog.accentGlow, border: `1px solid ${prog.accentBorder}` }}
+              style={{ background: prog.emojiBg, border: `1px solid ${prog.accentBorder}` }}
             >
               <span className="modal-emoji">{prog.emoji}</span>
             </div>
@@ -462,7 +472,7 @@ function ProgramModal({ prog, onClose }) {
                 <span
                   key={i}
                   className="modal-chip"
-                  style={{ background: prog.accentGlow, color: prog.accent, border: `1px solid ${prog.accentBorder}` }}
+                  style={{ background: prog.accentGlow, color: prog.text, border: `1px solid ${prog.accentBorder}` }}
                 >
                   {item}
                 </span>
@@ -549,17 +559,17 @@ function ProgramModal({ prog, onClose }) {
    MAIN PAGE
 ───────────────────────────────────────────── */
 export default function ProgramsPage() {
-  const [isDark, setIsDark] = useState(false);
+  // const [isDark, setIsDark] = useState(false);
   const [visible, setVisible] = useState([]);
   const [activeModal, setActiveModal] = useState(null);
 
-  useEffect(() => {
-    if (isDark) {
-      document.documentElement.setAttribute("data-theme", "dark");
-    } else {
-      document.documentElement.removeAttribute("data-theme");
-    }
-  }, [isDark]);
+  // useEffect(() => {
+  //   if (isDark) {
+  //     document.documentElement.setAttribute("data-theme", "dark");
+  //   } else {
+  //     document.documentElement.removeAttribute("data-theme");
+  //   }
+  // }, [isDark]);
 
   // Staggered entrance animation
   useEffect(() => {
@@ -574,7 +584,7 @@ export default function ProgramsPage() {
   return (
     <div className="app-root">
       {/* Theme toggle */}
-      <button
+      {/* <button
         className="theme-toggle-btn"
         onClick={() => setIsDark((d) => !d)}
         title={isDark ? "Switch to Light Mode" : "Switch to Dark Mode"}
@@ -582,20 +592,22 @@ export default function ProgramsPage() {
       >
         <span className="theme-toggle-icon">{isDark ? "☀️" : "🌙"}</span>
         {isDark ? "Light Mode" : "Dark Mode"}
-      </button>
+      </button> */}
 
+      <Header/>
       {/* ── Hero ── */}
+
       <section className="pp-hero">
         <div className="hero-grid-bg" />
         <div className="hero-glow" />
         <div className="pp-hero-content">
-          <span className="hero-eyebrow">
+          {/* <span className="hero-eyebrow">
             <span className="eyebrow-dot" />
             NIT Jalandhar · Training &amp; Placement Cell
-          </span>
-          <h1 className="hero-title">
+          </span> */}
+          <h1 className="hero-title text-3xl font-bold sm:text-4xl lg:text-5xl">
             Programs &amp;{" "}
-            <span className="hero-title-accent">Policies</span>
+            <span className="hero-title-accent text-custom-blue">Policies</span>
           </h1>
           <p className="pp-hero-sub">
             Click any card to explore full details — eligibility, documents, timelines &amp; FAQs.
@@ -621,12 +633,13 @@ export default function ProgramsPage() {
               aria-label={`Open details for ${prog.title}`}
               onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); openModal(prog); } }}
             >
+              <div className="pp-card-inner-layout">
               {/* Top accent bar */}
               <div className="pp-card-bar" />
 
               {/* Header */}
               <div className="pp-card-header">
-                <div className="pp-card-emoji-wrap">
+                <div className="pp-card-emoji-wrap" style={{background:prog.emojiBg}} >
                   <span className="pp-card-emoji">{prog.emoji}</span>
                 </div>
                 <div className="pp-card-meta">
@@ -674,7 +687,7 @@ export default function ProgramsPage() {
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0, marginTop: 1 }}>
                   <circle cx="12" cy="12" r="10" /><line x1="12" y1="8" x2="12" y2="12" /><line x1="12" y1="16" x2="12.01" y2="16" />
                 </svg>
-                <span>{prog.note}</span>
+                <span style={{color: prog.text}} >{prog.note}</span>
               </div>
 
               {/* "View Details" affordance */}
@@ -683,6 +696,7 @@ export default function ProgramsPage() {
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                   <line x1="5" y1="12" x2="19" y2="12" /><polyline points="12 5 19 12 12 19" />
                 </svg>
+              </div>
               </div>
             </article>
           ))}
