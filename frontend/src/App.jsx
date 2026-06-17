@@ -40,6 +40,9 @@ import LoginOutsider from "./components/outsource-studentDashboard/login";
 import OutsourceStudentDashboard from "./components/outsource-studentDashboard/osdashboard";
 import ForgotPassword from "./components/outsource-studentDashboard/ForgotPassword";
 
+import ProgramsPage from "./Pages/ProgramsPage";
+import RecruitersPage from "./Pages/RecruitersPage";
+
 const AppContent = () => {
   const location = useLocation();
   const dispatch = useDispatch();
@@ -111,6 +114,9 @@ const AppContent = () => {
         <Route path="/departmental-documents" element={<Document />} />
         <Route path="/whyrecruit" element={<WhyRecruitPage />} />
         <Route path="/recruiterFeedback" element={<FeedbackForm />} />
+        <Route path="/programsPage" element={<ProgramsPage />} />
+        <Route path="recruitersPage" element={<RecruitersPage />} />
+
         <Route
           path="/sdashboard/*"
           element={
