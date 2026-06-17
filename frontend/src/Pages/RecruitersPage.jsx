@@ -65,11 +65,11 @@ export default function RecruitersPage() {
         searchQuery={searchQuery}
         onSearchChange={setSearchQuery}
       />
-      <SectorFilterBar
+      {/* <SectorFilterBar
         activeSector={activeSector}
         onSectorChange={setActiveSector}
         counts={counts}
-      />
+      /> */}
       <CompanyGrid companies={filteredCompanies} />
       <Footer />
     </div>

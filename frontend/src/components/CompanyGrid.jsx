@@ -13,11 +13,11 @@ export default function CompanyGrid({ companies }) {
 
   return (
     <section className="grid-section">
-      <div className="grid-header">
+      {/* <div className="grid-header">
         <span className="grid-count">
           Showing <strong>{companies.length}</strong> recruiter{companies.length !== 1 ? "s" : ""}
         </span>
-      </div>
+      </div> */}
       <div className="company-grid">
         {companies.map((company, index) => (
           <CompanyCard key={`${company.name}-${index}`} company={company} />

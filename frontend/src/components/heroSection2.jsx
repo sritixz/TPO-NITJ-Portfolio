@@ -25,18 +25,18 @@ function useCountUp(target, duration = 1800) {
 
 export default function HeroSection({ totalCompanies, searchQuery, onSearchChange }) {
   const companyCount = useCountUp(totalCompanies);
-  const [typed, setTyped] = useState("");
+  // const [typed, setTyped] = useState("");
   const tagline = "Trusted by India's best. Recruiting from one campus.";
 
-  useEffect(() => {
-    let i = 0;
-    const interval = setInterval(() => {
-      setTyped(tagline.slice(0, i + 1));
-      i++;
-      if (i >= tagline.length) clearInterval(interval);
-    }, 28);
-    return () => clearInterval(interval);
-  }, []);
+  // useEffect(() => {
+  //   let i = 0;
+  //   const interval = setInterval(() => {
+  //     setTyped(tagline.slice(0, i + 1));
+  //     i++;
+  //     if (i >= tagline.length) clearInterval(interval);
+  //   }, 28);
+  //   return () => clearInterval(interval);
+  // }, []);
 
   return (
     <section className="hero-section">
@@ -54,10 +54,14 @@ export default function HeroSection({ totalCompanies, searchQuery, onSearchChang
           Our <span className="hero-title-accent text-custom-blue">Recruiters</span>
         </h1>
 
-        <p className="hero-tagline">{typed}<span className="cursor-blink">|</span></p>
+        <p className="hero-tagline">
+          {/* {typed} */}
+          {/* <span className="cursor-blink">|</span> */}
+          {tagline}
+          </p>
 
         {/* Stat counters */}
-        <div className="hero-stats">
+        {/* <div className="hero-stats">
           <div className="stat-item">
             <span className="stat-number">{companyCount}+</span>
             <span className="stat-label">Recruiters</span>
@@ -72,7 +76,7 @@ export default function HeroSection({ totalCompanies, searchQuery, onSearchChang
             <span className="stat-number">1</span>
             <span className="stat-label">Campus</span>
           </div>
-        </div>
+        </div> */}
 
         {/* Search */}
         <div className="search-wrapper">
