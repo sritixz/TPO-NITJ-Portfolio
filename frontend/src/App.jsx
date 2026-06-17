@@ -42,6 +42,9 @@ import ForgotPassword from "./components/outsource-studentDashboard/ForgotPasswo
 import JobAnnouncementForm from "./components/RecruiterDashboard/jaf";
 import JobAnnouncementFormPublic from "./Pages/jafpublic";
 
+import ProgramsPage from "./Pages/ProgramsPage";
+import RecruitersPage from "./Pages/RecruitersPage";
+
 const AppContent = () => {
   const location = useLocation();
   const dispatch = useDispatch();
@@ -113,6 +116,9 @@ const AppContent = () => {
         <Route path="/departmental-documents" element={<Document />} />
         <Route path="/whyrecruit" element={<WhyRecruitPage />} />
         <Route path="/recruiterFeedback" element={<FeedbackForm />} />
+        <Route path="/programsPage" element={<ProgramsPage />} />
+        <Route path="recruitersPage" element={<RecruitersPage />} />
+
         <Route path="/jaf" element={<JobAnnouncementFormPublic />} />
         <Route
           path="/sdashboard/*"
