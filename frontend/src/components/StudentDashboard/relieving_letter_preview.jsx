@@ -134,7 +134,7 @@ const NOCPreview = ({ noc, onClose }) => {
               {isFTE ? (
                 <>
                   <DetailItem
-                    label="dateOfJoining"
+                    label="Date of Joining"
                     value={formatDate(noc.dateOfJoining)}
                     badge={true}
                   />

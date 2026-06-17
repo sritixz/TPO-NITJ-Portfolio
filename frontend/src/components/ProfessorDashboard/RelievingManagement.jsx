@@ -20,6 +20,9 @@ const MailTemplatePreview = ({ noc, onClose }) => {
   const studentRoll = noc.studentId?.rollno || noc.rollNo || "N/A";
   const studentDept = noc.studentId?.department || noc.department || "N/A";
   const studentCourse = noc.studentId?.course || noc.course || "B.Tech";
+  const year = noc.studentId?.year || noc.year || "";
+  const semester = noc.studentId?.semester || noc.semester || "";
+
   const companyName = noc.companyName || "the designated organization";
   
   const executionDate = noc.dateOfJoining || noc.internshipFrom || new Date();
@@ -74,40 +77,25 @@ const MailTemplatePreview = ({ noc, onClose }) => {
             Subject: Official Relieving Letter for Joining {companyName}
           </div>
 
-          <div className="text-sm font-bold mb-4 tracking-wide text-black">
+          <div className="text-sm text-center font-bold mb-4 tracking-wide text-black">
             TO WHOMSOEVER IT MAY CONCERN
           </div>
 
           {/* Core Content Lines */}
           <div className="text-sm text-justify mb-4 text-black" style={{ textIndent: '30px' }}>
-            This is to certify that <strong>Mr./Ms. {studentName}</strong>, bearing Roll No. <strong>{studentRoll}</strong>, is a bona fide student of the 
-            <strong> {studentCourse}</strong> program in the Department of <strong>{studentDept}</strong> at Dr. B.R. Ambedkar National Institute of Technology, Jalandhar.
+            This is to certify that <strong>Mr./Ms. {studentName}</strong>, bearing Roll No. <strong>{studentRoll}</strong>, is a bonafide student of the 
+            <strong> {studentCourse}</strong> program in <strong>{year} year</strong> in <strong>{semester} semester</strong> the Department of <strong>{studentDept}</strong> at Dr. B.R. Ambedkar National Institute of Technology, Jalandhar.
           </div>
 
           <div className="text-sm text-justify mb-6 text-black" style={{ textIndent: '30px' }}>
             The Training & Placement Office, in coordination with the Department of <strong>{studentDept}</strong>, has no objection to the student joining <strong>{companyName}</strong>. The student is officially permitted to join their corporate assignment and is relieved from on-campus academic placement tracks effective from <strong>{formattedReleaseDate}</strong>.
           </div>
 
-          {/* Guidelines Compliance Callout Containment */}
-          <div className="text-xs text-gray-900 bg-gray-50 border-l-4 border-blue-900 p-4 mb-6 rounded-r-md text-justify">
-            <p className="font-bold mb-2 text-black">Important Directives & Conditions:</p>
-            <ul className="list-disc pl-5 space-y-1">
-              <li>This relieving document is issued based on the verified corporate offer details uploaded by the candidate.</li>
-              <li>The student is strictly required to submit their official joining report issued by {companyName} to the TPO within one week of deployment.</li>
-              <li>Failure to submit the official deployment reports will lead to the cancellation of credit weightage evaluations.</li>
-              <li>This clearance is subject to the condition that the student continues to satisfy all pending end-semester academic requirements remotely without disruptions.</li>
-            </ul>
-          </div>
 
           <p className="text-sm mb-12 text-black">Best regards,</p>
 
           {/* Multi-Signatory Alignment Elements */}
-          <div className="grid grid-cols-2 text-center text-xs text-black border-t border-dotted border-gray-300 pt-6">
-            <div>
-              <strong>HEAD OF DEPARTMENT</strong><br />
-              <span className="text-gray-700">{studentDept}</span><br />
-              <span className="text-gray-500">NIT JALANDHAR</span>
-            </div>
+          <div className="grid grid-cols-1 text-center text-xs text-black border-t border-dotted border-gray-300 pt-6">
             <div>
               <strong>Professor-in-Charge</strong><br />
               <span className="text-gray-700">Training & Placement Cell</span><br />

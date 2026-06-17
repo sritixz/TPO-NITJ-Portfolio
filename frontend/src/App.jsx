@@ -39,6 +39,8 @@ import SignupFlow from "./components/outsource-studentDashboard/signup";
 import LoginOutsider from "./components/outsource-studentDashboard/login";
 import OutsourceStudentDashboard from "./components/outsource-studentDashboard/osdashboard";
 import ForgotPassword from "./components/outsource-studentDashboard/ForgotPassword";
+import JobAnnouncementForm from "./components/RecruiterDashboard/jaf";
+import JobAnnouncementFormPublic from "./Pages/jafpublic";
 
 import ProgramsPage from "./Pages/ProgramsPage";
 import RecruitersPage from "./Pages/RecruitersPage";
@@ -117,6 +119,7 @@ const AppContent = () => {
         <Route path="/programsPage" element={<ProgramsPage />} />
         <Route path="recruitersPage" element={<RecruitersPage />} />
 
+        <Route path="/jaf" element={<JobAnnouncementFormPublic />} />
         <Route
           path="/sdashboard/*"
           element={

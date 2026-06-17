@@ -933,7 +933,13 @@ export const getJobProfilesForProfessors = async (req, res) => {
     const approvedJobs = await JobProfile.find({
       Approved_Status: true,
       completed: false,
+      pending: { $ne: true },
     }).sort({ createdAt: -1 });
+    const pendingJobs = await JobProfile.find({
+      Approved_Status: true,
+      completed: false,
+      pending: true,
+    }).sort({ updatedAt: -1 });
     const notApprovedJobs = await JobProfile.find({
       Approved_Status: false,
     }).sort({ createdAt: -1 });
@@ -959,6 +965,7 @@ export const getJobProfilesForProfessors = async (req, res) => {
     });
     res.status(200).json({
       approved: approvedJobs,
+      pending: pendingJobs,
       notApproved: notApprovedJobs,
       completed: completed,
       feedbackByCompany,
@@ -983,8 +990,7 @@ export const getspecificJobProfilesForProfessors = async (req, res) => {
 
 export const updateJobStatus = async (req, res) => {
   const { jobId } = req.params;
-  // const { status } = req.body; // "pending" | "completed" | "incomplete"
-   const { status, jobStatus, comment } = req.body;
+  const { status, jobStatus, comment } = req.body;
 
   try {
     if (!mongoose.Types.ObjectId.isValid(jobId)) {
@@ -999,28 +1005,70 @@ export const updateJobStatus = async (req, res) => {
     if (!job) {
       return res.status(404).json({ error: "Job not found" });
     }
-if (status) {
-  if (status === "pending") {
-    job.pending = true;
-    job.completed = false;
-  } else if (status === "completed") {
-    job.pending = false;
-    job.completed = true;
-  } else {
-    job.pending = false;
-    job.completed = false;
-  }
-}
-   if (jobStatus) {
-      job.jobStatusInfo = {
+
+    const setFields = {};
+
+    if (status) {
+      if (status === "pending") {
+        setFields.pending = true;
+        setFields.completed = false;
+      } else if (status === "completed") {
+        setFields.pending = false;
+        setFields.completed = true;
+      } else {
+        setFields.pending = false;
+        setFields.completed = false;
+      }
+    }
+
+    if (jobStatus) {
+      const statusChanged =
+        jobStatus !== job.jobStatusInfo?.status ||
+        (comment || "") !== (job.jobStatusInfo?.comment || "");
+
+      if (!statusChanged) {
+        if (Object.keys(setFields).length > 0) {
+          const updatedJob = await JobProfile.findByIdAndUpdate(
+            jobId,
+            { $set: setFields },
+            { new: true },
+          );
+          return res.status(200).json({ message: "Job status updated", job: updatedJob });
+        }
+        return res.status(200).json({ message: "Job status unchanged", job });
+      }
+
+      const updatedAt = new Date();
+      const historyEntry = {
         status: jobStatus,
         comment: comment || "",
-        updatedAt: new Date()
+        updatedAt,
       };
-    }
-    await job.save();
 
-    return res.status(200).json({ message: "Job status updated", job });
+      setFields.jobStatusInfo = historyEntry;
+
+      const updatedJob = await JobProfile.findByIdAndUpdate(
+        jobId,
+        {
+          $set: setFields,
+          $push: { jobStatusHistory: historyEntry },
+        },
+        { new: true },
+      );
+
+      return res.status(200).json({ message: "Job status updated", job: updatedJob });
+    }
+
+    if (Object.keys(setFields).length > 0) {
+      const updatedJob = await JobProfile.findByIdAndUpdate(
+        jobId,
+        { $set: setFields },
+        { new: true },
+      );
+      return res.status(200).json({ message: "Job status updated", job: updatedJob });
+    }
+
+    return res.status(400).json({ error: "No valid update provided" });
   } catch (error) {
     return res.status(500).json({ error: "Server error", details: error.message });
   }
@@ -1141,7 +1189,7 @@ export const checkEligibility = async (req, res) => {
 
     // Check for isInterested only if the field exists
     if (
-      student.batch === "2026" &&
+      (student.batch === "2026" || student.batch === "2027") &&
       typeof student.isInterested !== "undefined" &&
       student.isInterested === false
     ) {
@@ -1303,9 +1351,9 @@ export const checkEligibility = async (req, res) => {
     const jobctc = job.job_salary.ctc;
 
     // if student is 3rd year B.Tech student then checking for summer intern
-    if (updatedStudent.batch == "2027" && updatedStudent.course == "B.Tech") {
+    if (updatedStudent.batch == "2028" && updatedStudent.course == "B.Tech") {
       const SummerInternHistory = await SummerInternTracker.findOne({
-        batch: "2027",
+        batch: "2028",
         course: "B.Tech",
       });
       if (SummerInternHistory?.studentsId.includes(studentId)) {
@@ -1631,7 +1679,7 @@ if (isNoneShortlisted) {
 
     if (!batch || !course) continue;
 
-    if (course === "B.Tech" && batch === "2027") {
+    if (course === "B.Tech" && batch === "2028") {
       let summerIntern = await SummerIntern.findOne({
         jobId,
         batch,
@@ -1682,8 +1730,42 @@ if (isNoneShortlisted) {
   job.final_shortlisted_students = [];
   await job.save();
 
+  let emailSent = false;
+  try {
+    if (job.hr_email && !job.thankYouEmailSent) {
+      await stepEmailTransporter.sendMail({
+        from: process.env.EMAIL_USER,
+        to: job.hr_email,
+        subject: `Thank You for Recruiting at NIT Jalandhar – ${job.company_name}`,
+        html: `
+          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: auto; padding: 24px; border: 1px solid #e0e0e0; border-radius: 8px;">
+            <h2 style="color: #1a73e8;">Thank You for Visiting NIT Jalandhar!</h2>
+            <p>Dear HR Team at <strong>${job.company_name}</strong>,</p>
+            <p>We sincerely thank you for recruiting at NIT Jalandhar for the role of <strong>${job.job_profile}</strong>. It was a pleasure hosting your recruitment drive.</p>
+            <p>We would love to hear about your experience. Please take a moment to share your feedback:</p>
+            <p style="text-align:center; margin: 24px 0;">
+              <a href="${process.env.CLIENT_URL}/recruiterFeedback"
+                 style="background-color:#1a73e8; color:white; padding:12px 24px; border-radius:6px; text-decoration:none; font-weight:bold;">
+                Fill Recruiter Feedback Form
+              </a>
+            </p>
+            <p>Your feedback helps us improve and serve you better in the future. We look forward to welcoming you again at NIT Jalandhar.</p>
+            <br/>
+            <p>Warm regards,<br/><strong>Centre of Training & Placement</strong><br/>NIT Jalandhar</p>
+          </div>
+        `
+      });
+      job.thankYouEmailSent = true;
+      await job.save();
+      emailSent = true;
+    }
+  } catch (mailErr) {
+    console.error("Failed to send HR thank-you email:", mailErr);
+  }
+
   return res.status(200).json({
     message: "Company added with no shortlisted students",
+    emailSent,
   });
 }
     // Validate input
@@ -1766,7 +1848,7 @@ if (isNoneShortlisted) {
     for (const [key, group] of Object.entries(groupedStudents)) {
       const { batch, course, action, students } = group;
 
-      if (course === "B.Tech" && batch === "2027") {
+      if (course === "B.Tech" && batch === "2028") {
         let summerIntern = await SummerIntern.findOne({ jobId, batch, course });
         let summerInternTracker = await SummerInternTracker.findOne({
           batch,
@@ -1955,7 +2037,40 @@ if (isNoneShortlisted) {
 
     await job.save();
 
-    return res.status(200).json({ message: "Shortlist updated successfully" });
+    let emailSent = false;
+    try {
+      if (job.hr_email && !job.thankYouEmailSent) {
+        await stepEmailTransporter.sendMail({
+          from: process.env.EMAIL_USER,
+          to: job.hr_email,
+          subject: `Thank You for Recruiting at NIT Jalandhar – ${job.company_name}`,
+          html: `
+            <div style="font-family: Arial, sans-serif; max-width: 600px; margin: auto; padding: 24px; border: 1px solid #e0e0e0; border-radius: 8px;">
+              <h2 style="color: #1a73e8;">Thank You for Visiting NIT Jalandhar!</h2>
+              <p>Dear HR Team at <strong>${job.company_name}</strong>,</p>
+              <p>We sincerely thank you for recruiting at NIT Jalandhar for the role of <strong>${job.job_profile}</strong>. It was a pleasure hosting your recruitment drive.</p>
+              <p>We would love to hear about your experience. Please take a moment to share your feedback:</p>
+              <p style="text-align:center; margin: 24px 0;">
+                <a href="https://ctp.nitj.ac.in/recruiterFeedback"
+                   style="background-color:#1a73e8; color:white; padding:12px 24px; border-radius:6px; text-decoration:none; font-weight:bold;">
+                  Fill Recruiter Feedback Form
+                </a>
+              </p>
+              <p>Your feedback helps us improve and serve you better in the future. We look forward to welcoming you again at NIT Jalandhar.</p>
+              <br/>
+              <p>Warm regards,<br/><strong>Training & Placement Office</strong><br/>NIT Jalandhar</p>
+            </div>
+          `
+        });
+        job.thankYouEmailSent = true;
+        await job.save();
+        emailSent = true;
+      }
+    } catch (mailErr) {
+      console.error("Failed to send HR thank-you email:", mailErr);
+    }
+
+    return res.status(200).json({ message: "Shortlist updated successfully", emailSent });
   } catch (error) {
     console.error("Error in addfinalshortlistStudent:", error);
     return res

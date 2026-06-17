@@ -15,7 +15,7 @@ export const sendEmails = async (req, res) => {
         from: process.env.EMAIL_USER,
         to: emails.join(","),
         subject: subject,
-        text: text.replace(/<[^>]*>/g, ''),
+        text: text,
         html:text
       };
   

@@ -1,11 +1,11 @@
 import React, { useState } from "react";
 import axios from "axios";
 import toast from "react-hot-toast";
-import { Card, CardHeader, CardTitle, CardContent } from "../ui/card";
-import { Button } from "../ui/button";
-import { Input } from "../ui/input";
-import { Checkbox } from "../ui/checkbox";
-import { Textarea } from "../ui/textarea";
+import { Card, CardHeader, CardTitle, CardContent } from "../components/ui/card";
+import { Button } from "../components/ui/button";
+import { Input } from "../components/ui/input";
+import { Checkbox } from "../components/ui/checkbox";
+import { Textarea } from "../components/ui/textarea";
 import Swal from "sweetalert2";
 import {
   Building2,
@@ -17,7 +17,7 @@ import {
   Trash2,
 } from "lucide-react";
 
-const JobAnnouncementForm = () => {
+const JobAnnouncementFormPublic = () => {
   const [formData, setFormData] = useState({
     organizationName: "",
     websiteUrl: "",
@@ -41,15 +41,19 @@ const JobAnnouncementForm = () => {
     postalAddress: "",
     approved_status:false,
   });
-  const [isSubmitting, setIsSubmitting] = useState(false);
 
+    const [isSubmitting, setIsSubmitting] = useState(false);
+  
 
   const bTechPrograms = [
     { name: "Computer Science & Engineering", type: "Circuital" },
+    { name: "Data Science & Engineering", type: "Circuital" },
     { name: "Electronics & Communication Engineering", type: "Circuital" },
     { name: "Instrumentation and Control Engineering", type: "Circuital" },
+    { name: "Electronics & VLSI Engineering", type: "Circuital" },
     { name: "Electrical Engineering", type: "Circuital" },
     { name: "Information Technology", type: "Circuital" },
+    { name: "Mathematics and Computing", type: "Circuital" },
     { name: "Biotechnology", type: "Non-Circuital" },
     { name: "Chemical Engineering", type: "Non-Circuital" },
     { name: "Civil Engineering", type: "Non-Circuital" },
@@ -65,6 +69,7 @@ const JobAnnouncementForm = () => {
         specializations: [
           "Computer Science & Engineering",
           "Information Security",
+          "Data Science and Engineering"
         ],
       },
       {
@@ -76,9 +81,13 @@ const JobAnnouncementForm = () => {
       },
       {
         name: "Instrumentation & Control Engineering",
-        specializations: ["Machine Intelligence and Automation"],
+        specializations: ["Machine Intelligence and Automation", "Control and Instrumentation Engineering", "Signal Processing and Machine Learning"],
       },
       { name: "Artificial Intelligence", specializations: [] },
+      { name: "Mathematics and Computing", specializations: [] },
+      { name: "Electric Vehicle Design", specializations: [] },
+      { name: "Data Analytics", specializations: [] },
+      { name: "Power Systems and Reliability", specializations: [] },
     ],
     nonCircuital: [
       { name: "Biotechnology", specializations: [] },
@@ -88,18 +97,20 @@ const JobAnnouncementForm = () => {
         specializations: [
           "Structural and Construction Engineering",
           "Geotechnical -GEO-Environmental Engineering",
+          "Geotechnical Engineering and Infrastructure Design",
         ],
       },
       {
         name: "Industrial & Production Engineering",
-        specializations: ["Industrial Engineering", "Manufacturing Technology"],
+        specializations: ["Industrial Engineering and Data Analytics"],
       },
       {
         name: "Mechanical Engineering",
-        specializations: ["Design Engineering", "Thermal Engineering"],
+        specializations: ["Design Engineering", "Thermal and Energy Engineering"],
       },
       { name: "Renewable Energy", specializations: [] },
-      { name: "Textile Engineering & Management", specializations: [] },
+      { name: "Energy and Environmental Engineering", specializations: [] },
+      { name: "Textile Engineering", specializations: ["Textile Engineering & Management", "Textile Technology"] },
     ],
   };
 
@@ -267,7 +278,6 @@ const JobAnnouncementForm = () => {
   };
 
   const handleSubmit = async (e) => {
-    
     if (isSubmitting) return;
     setIsSubmitting(true);
     
@@ -285,7 +295,7 @@ const JobAnnouncementForm = () => {
     if (result.isConfirmed) {
       try {
         const response = await axios.post(
-          `${import.meta.env.REACT_APP_BASE_URL}/jaf/create`,
+          `${import.meta.env.REACT_APP_BASE_URL}/jaf/public-create`,
           formData,
           { withCredentials: true }
         );
@@ -329,7 +339,7 @@ const JobAnnouncementForm = () => {
               <h3 className="text-custom-blue">Recruiter Details</h3>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="grid md:grid-cols-2 gap-6">
               <div className="space-y-2">
                 <label className="block text-sm font-medium">
                   Organization Name*
@@ -412,7 +422,7 @@ const JobAnnouncementForm = () => {
                         )
                       }
                     />
-                    <span className="ml-2">Virtual Placement</span>
+                    <span className="ml-2">Virtual Visit</span>
                   </label>
                   <label className="flex items-center">
                     <Checkbox
@@ -427,7 +437,7 @@ const JobAnnouncementForm = () => {
                         )
                       }
                     />
-                    <span className="ml-2">Campus Placement</span>
+                    <span className="ml-2">Campus Visit</span>
                   </label>
                 </div>
               </div>
@@ -1083,8 +1093,9 @@ const JobAnnouncementForm = () => {
               type="submit"
               className="bg-custom-blue hover:bg-blue-700 text-white px-8 py-2"
               disabled={isSubmitting}
+
             >
-              {isSubmitting ? "Submitting..." : "Submit Form"}
+              { isSubmitting ? "Submitting..." : "Submit Form" }
             </Button>
           </div>
         </CardContent>
@@ -1092,4 +1103,4 @@ const JobAnnouncementForm = () => {
     </form>
   );
 };
-export default JobAnnouncementForm;
+export default JobAnnouncementFormPublic;

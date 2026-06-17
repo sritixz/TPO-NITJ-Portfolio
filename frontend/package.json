@@ -7,7 +7,9 @@
     "dev": "vite",
     "build": "vite build",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "start": "serve -s dist -l 8081"
+
   },
   "dependencies": {
     "@ckeditor/ckeditor5-build-classic": "^44.1.0",
