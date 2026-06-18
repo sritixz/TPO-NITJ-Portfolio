@@ -2,7 +2,7 @@ import { useState, useMemo, useEffect } from "react";
 import HeroSection from "../components/heroSection2";
 import SectorFilterBar from "../components/SectorFilterBar";
 import CompanyGrid from "../components/CompanyGrid";
-import Footer from "../components/Footer";
+import Footer from "../components/footer";
 import { companies, SECTORS } from "../data/companies";
 
 import Header from "../components/header";
