@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
-import Footer from "../components/Footer";
+import Footer from "../components/footer";
 import Header from "../components/header";
 import { color } from "framer-motion";
 
