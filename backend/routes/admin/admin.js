@@ -99,6 +99,12 @@ import {
 } from "../../controller/Admin/offer.js";
 
 import {
+  getPlacementSettings,
+  updatePlacementSettings,
+  toggle7thSem1_5x,
+} from "../../controller/Admin/placementSettings.js";
+
+import {
   createAlert,
   getAllAlerts,
   getActiveAlerts,
@@ -361,5 +367,15 @@ router.delete("/summerIntern/:id/student/:studentId", async (req, res) => {
 router.get("/database/:collectionName/", getDatabaseRecords);
 // ERP Data route (Sir's latest)
 router.get("/erp/student", getERPData);
+
+// ========== Placement Settings Routes ==========
+// Get current placement settings
+router.get("/placement-settings", getPlacementSettings);
+
+// Update placement settings
+router.put("/placement-settings", updatePlacementSettings);
+
+// Toggle 7th Sem 1.5x setting
+router.post("/placement-settings/toggle-7th-sem-1-5x", toggle7thSem1_5x);
 
 export default router;

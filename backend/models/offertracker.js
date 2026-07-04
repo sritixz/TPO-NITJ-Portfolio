@@ -24,6 +24,25 @@ const OfferTrackerSchema = new mongoose.Schema(
         offer_intern_duration:{
             type:String,
         },
+        offer_job_category:{
+            type:String,
+        },
+        isCountable:{
+            type:Boolean,
+            default:true,
+        },
+        isDream:{
+            type:Boolean,
+            default:false,
+        },
+        placementPhase:{
+            type:String,
+            enum:['I','II'],
+        },
+        jobId:{
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "JobProfile",
+        },
     }]
   },
   { timestamps: true }

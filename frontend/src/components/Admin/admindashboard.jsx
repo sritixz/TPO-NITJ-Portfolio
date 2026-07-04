@@ -49,6 +49,7 @@ import Database from "./database";
 import SummerInternTracker from "./summerinterntracker";
 import SummerIntern from "./summerIntern";
 
+
 const Admindashboard = () => {
   const [isMobile, setIsMobile] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -104,6 +105,7 @@ const Admindashboard = () => {
     { label: "Student Documents", icon: faBriefcase, path: "/admindashboard/student-documents" },
     { label: "Outsider Documents", icon: faBriefcase, path: "/admindashboard/outsider-documents" },
     { label: "Placement Registration", icon: faBriefcase, path: "/admindashboard/placement-registration" },
+  
     { label: "Database", icon : faDatabase, path: "/admindashboard/database" },
     { label: "Alerts", icon: faBriefcase, path: "/admindashboard/alerts" },
     {label: "Logs", icon: faCode, path:"/admindashboard/logs"},
@@ -302,6 +304,7 @@ const Admindashboard = () => {
             <Route path="/student-documents" element={<StudentDocumentManager />} />
             <Route path="/outsider-documents" element={<OutsiderDocumentManager/>} />
             <Route path="/placement-registration" element={<PlacementRegistrationAdmin/>} />
+            
             <Route path="/alerts" element={<AlertManager />} />
             <Route path="/logs" element={<LogsTable />} />
             <Route path="/login-attempt" element={<LoginAttempts />} />
