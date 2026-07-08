@@ -1930,6 +1930,7 @@ const [comment, setComment] = useState(job.jobStatusInfo?.comment || "");
     job_sector: job.job_sector || "Private",
     attachments: job.attachments || [],
     jobStatusHistory: job.jobStatusHistory || [],
+    isDream: job.isDream,
   });
   const [editedWorkflow, setEditedWorkflow] = useState(
     job.Hiring_Workflow || []
@@ -2400,6 +2401,11 @@ const [comment, setComment] = useState(job.jobStatusInfo?.comment || "");
     { value: "Private", label: "Private" },
   ];
 
+  const dreamStatusOptions = [
+    { value: "Dream", label: "Dream" },
+    { value: "Non Dream", label: "Non Dream" },
+  ];
+
   useEffect(() => {
     const checkApplicationFormExistence = async () => {
       try {
@@ -2436,6 +2442,7 @@ const [comment, setComment] = useState(job.jobStatusInfo?.comment || "");
       eligibility_criteria: job.eligibility_criteria || [], 
       job_salary: { ...job.job_salary, stipend: job.job_salary?.stipend || "0" },
       job_sector: job.job_sector || "Private",
+      isDream: job.isDream,
       attachments: job.attachments || [], // Reset attachments
     });
     setEditedWorkflow(job.Hiring_Workflow || []);
@@ -2574,6 +2581,7 @@ const [comment, setComment] = useState(job.jobStatusInfo?.comment || "");
           job_category: editedJob.job_category,
           job_class: editedJob.job_class,
           job_sector: editedJob.job_sector,
+          isDream: editedJob.isDream,
           deadline: editedJob.deadline,
         };
       }
@@ -2593,6 +2601,7 @@ const [comment, setComment] = useState(job.jobStatusInfo?.comment || "");
             stipend: refreshedJob.job_salary?.stipend || "0",
           },
           job_sector: refreshedJob.job_sector || "Private",
+          isDream: refreshedJob.isDream,
           attachments: refreshedJob.attachments || [],
         });
         Object.assign(job, refreshedJob);
@@ -2897,8 +2906,9 @@ const [comment, setComment] = useState(job.jobStatusInfo?.comment || "");
           {editingSection === "basic" ? (
             <select
               value={editedJob.job_sector || "Private"}
-              onChange={(e) =>
-                handleInputChange("basic", "job_sector", e.target.value)
+              onChange={(e) =>{
+                 handleInputChange("basic", "job_sector", e.target.value);
+                }
               }
               className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
             >
@@ -2910,6 +2920,27 @@ const [comment, setComment] = useState(job.jobStatusInfo?.comment || "");
             </select>
           ) : (
             <span className="flex-1">{editedJob.job_sector || "Private"}</span>
+          )}
+        </div>
+        <div className="flex items-center">
+          <strong className="w-1/3 text-gray-800">Dream Status:</strong>
+          {editingSection === "basic" ? (
+            <select
+              value={editedJob.job_sector==="PSU"?"Dream":editedJob.isDream?"Dream":"Non Dream"}
+              onChange={(e) =>
+                handleInputChange("basic", "isDream", e.target.value==="Dream"?true:false)
+              }
+              disabled={editedJob.job_sector==="PSU"}
+              className={`flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${editedJob.job_sector==="PSU"?"cursor-not-allowed":""} `}
+            >
+              {dreamStatusOptions.map((option) => (
+                <option key={option.value} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
+            </select>
+          ) : (
+            <span className="flex-1">{editedJob.job_sector==="PSU"?"Dream":editedJob.isDream?"Dream":"Non Dream"}</span>
           )}
         </div>
         {/* for debugging purpose only this shows when we update ctc then it must update job class */}
