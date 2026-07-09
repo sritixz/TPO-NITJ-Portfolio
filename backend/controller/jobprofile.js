@@ -42,13 +42,13 @@ import fs from "fs";
 import path from "path";
 
 
-// const stepEmailTransporter = nodemailer.createTransport({
-//   service: "gmail",
-//   auth: {
-//     user: process.env.EMAIL_USER,
-//     pass: process.env.EMAIL_PASS,
-//   },
-// });
+const stepEmailTransporter = nodemailer.createTransport({
+  service: "gmail",
+  auth: {
+    user: process.env.EMAIL_USER,
+    pass: process.env.EMAIL_PASS,
+  },
+});
 
 export const getAllCompanies = async (req, res) => {
   try {
@@ -2119,6 +2119,8 @@ if (isNoneShortlisted) {
             } else {
               offer_category = "D"; // Default for invalid/undefined CTC
             }
+
+            offer_category=String(batch)===BATCH_2027?(job.isDream?"Dream":"Non Dream"):offer_category
 
             const offerDetails = {
               offer_type: student.job_type,
