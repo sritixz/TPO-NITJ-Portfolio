@@ -35,19 +35,20 @@ import {
   BATCH_PLACED_THRESHOLD,
   CTP_WORKSHOP_THRESHOLD,
   MAX_PHASE_I_APPLICATIONS,
+  can7thSemApplyInPhaseIWithEarlyAccess,
 } from "../utils/placementPolicy2027.js";
 import PlacementRegistration from "../models/placement-registration.js";
 import fs from "fs";
 import path from "path";
 
 
-const stepEmailTransporter = nodemailer.createTransport({
-  service: "gmail",
-  auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS,
-  },
-});
+// const stepEmailTransporter = nodemailer.createTransport({
+//   service: "gmail",
+//   auth: {
+//     user: process.env.EMAIL_USER,
+//     pass: process.env.EMAIL_PASS,
+//   },
+// });
 
 export const getAllCompanies = async (req, res) => {
   try {
@@ -71,13 +72,13 @@ export const getAllCompanies = async (req, res) => {
 };
 
 //commented
-const transporter = nodemailer.createTransport({
-  service: "gmail",
-  auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS,
-  },
-});
+// const transporter = nodemailer.createTransport({
+//   service: "gmail",
+//   auth: {
+//     user: process.env.EMAIL_USER,
+//     pass: process.env.EMAIL_PASS,
+//   },
+// });
 
 // Function to send email to a single student
 const sendEmailToStudent = async (student, jobProfile) => {
@@ -1420,6 +1421,13 @@ export const checkEligibility = async (req, res) => {
           reason:
             "You have a PSU offer and are finally placed. Further participation is not allowed",
         });
+      }
+
+      if(countableOffers.length >=2){
+        return res.json({
+          eligible:false,
+          reason: "Cannot apply if you already have two or more offers"
+        })
       }
 
       const jobCtcForPolicy =

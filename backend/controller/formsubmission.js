@@ -12,6 +12,8 @@ import {
   countDistinctAppliedCompanies,
   MAX_PHASE_I_APPLICATIONS,
   can7thSemApplyInPhaseIWithEarlyAccess,
+  parseCtcForPolicy,
+  DREAM_CTC_MULTIPLIER,
 } from '../utils/placementPolicy2027.js';
 import nodemailer from "nodemailer";
 import Withdrawtoken from '../models/withdrawtoken.js';
@@ -77,16 +79,22 @@ export const submitForm = async (req, res) => {
       const countableOffers = getCountableOffers(offerTracker);
       const targetJob = await JobProfile.findById(jobId);
 
+      if(countableOffers.length >= 2){
+        return res.status(403).json({
+          message: "Cannot apply if you already have two or more offers"
+        })
+      }
+
       if (getPlacementPhase() === 'I' && countableOffers.length === 0) {
         // Check if 7th sem student can use the Phase I 1.5x early-access policy
-        const canApplyToDreamEarly = can7thSemApplyInPhaseIWithEarlyAccess(student, targetJob);
+        // const canApplyToDreamEarly = can7thSemApplyInPhaseIWithEarlyAccess(student, targetJob);
 
-        // If it's a dream company and student doesn't qualify for early access, restrict Phase I applications
-        if (targetJob.isDream && !canApplyToDreamEarly) {
-          return res.status(403).json({
-            message: 'Dream companies are only available in Phase II until you secure an offer, unless you are a 7th semester student with early access enabled',
-          });
-        }
+        // // If it's a dream company and student doesn't qualify for early access, restrict Phase I applications
+        // if (targetJob.isDream && !canApplyToDreamEarly) {
+        //   return res.status(403).json({
+        //     message: 'Dream companies are only available in Phase II until you secure an offer, unless you are a 7th semester student with early access enabled',
+        //   });
+        // }
 
         const appliedCompanyCount = await countDistinctAppliedCompanies(
           studentId,
