@@ -21,6 +21,7 @@ import Recruiter from "../models/user_model/recuiter.js";
 import GuestHouseBooking from "../models/travel_planner/room.js";
 import VehicleRequisition from "../models/travel_planner/vehicle.js";
 import { encryptValue, decryptValue } from "../utils/security.js";
+<<<<<<< HEAD
 import {
   buildJobPolicyFields,
   validateInternDurationFor2027,
@@ -38,6 +39,8 @@ import {
   can7thSemApplyInPhaseIWithEarlyAccess,
 } from "../utils/placementPolicy2027.js";
 import PlacementRegistration from "../models/placement-registration.js";
+=======
+>>>>>>> 95a9aacb050b56a2207ab2e65cacc9af1e91bbc2
 import fs from "fs";
 import path from "path";
 
@@ -72,6 +75,7 @@ export const getAllCompanies = async (req, res) => {
 };
 
 //commented
+<<<<<<< HEAD
 // const transporter = nodemailer.createTransport({
 //   service: "gmail",
 //   auth: {
@@ -79,6 +83,15 @@ export const getAllCompanies = async (req, res) => {
 //     pass: process.env.EMAIL_PASS,
 //   },
 // });
+=======
+const transporter = nodemailer.createTransport({
+  service: "gmail",
+  auth: {
+    user: process.env.EMAIL_USER,
+    pass: process.env.EMAIL_PASS,
+  },
+});
+>>>>>>> 95a9aacb050b56a2207ab2e65cacc9af1e91bbc2
 
 // Function to send email to a single student
 const sendEmailToStudent = async (student, jobProfile) => {
@@ -185,7 +198,10 @@ const sendEmailToStudent = async (student, jobProfile) => {
     console.error(`Failed to send email to ${student.email}:`, error);
   }
 };
+<<<<<<< HEAD
 
+=======
+>>>>>>> 95a9aacb050b56a2207ab2e65cacc9af1e91bbc2
 export const createJobProfilecopy = async (req, res) => {
   try {
     // Extract recruiter ID from authenticated user
@@ -213,6 +229,7 @@ export const createJobProfilecopy = async (req, res) => {
       deadline,
       Hiring_Workflow,
       eligibility_criteria,
+<<<<<<< HEAD
       isDream,
       ctcMin,
     } = req.body;
@@ -248,6 +265,10 @@ export const createJobProfilecopy = async (req, res) => {
       });
     }
 
+=======
+    } = req.body;
+
+>>>>>>> 95a9aacb050b56a2207ab2e65cacc9af1e91bbc2
     // Check if the recruiter is a TPO (Professor)
     const tpo = await Professor.findById(recruiter_id);
     const Approved_Status = !!tpo;
@@ -318,8 +339,24 @@ export const createJobProfilecopy = async (req, res) => {
       return processedStep;
     });
 
+<<<<<<< HEAD
     // Determine job_class based on CTC (legacy bands retained for all batches)
     const job_class = policyFields.job_class;
+=======
+    // Determine job_class based on CTC
+    let job_class;
+    if (ctc > 20 || job_sector === "PSU") {
+      job_class = "A";
+    } else if (ctc > 12 && ctc <= 20) {
+      job_class = "B";
+    } else if (ctc > 5 && ctc <= 12) {
+      job_class = "C";
+    } else if (ctc <= 5) {
+      job_class = "D";
+    } else {
+      job_class = "D"; // Default for invalid/undefined CTC
+    }
+>>>>>>> 95a9aacb050b56a2207ab2e65cacc9af1e91bbc2
     console.log(job_class);
     // Create new JobProfile
     const jobProfile = new JobProfile({
@@ -327,10 +364,13 @@ export const createJobProfilecopy = async (req, res) => {
       job_id: job_id || "",
       company_name: company_name || "",
       company_logo: company_logo || "",
+<<<<<<< HEAD
       hr_contact: hr_contact || "",
       hr_email: hr_email || "",
       tpo_spoc_name: tpo_spoc_name || "",
       tpo_spoc_contact: tpo_spoc_contact || "",
+=======
+>>>>>>> 95a9aacb050b56a2207ab2e65cacc9af1e91bbc2
       job_role: job_role || "",
       jobdescription: jobdescription || "",
       joblocation: joblocation || "",
@@ -346,10 +386,13 @@ export const createJobProfilecopy = async (req, res) => {
       Hiring_Workflow: processedWorkflow || [],
       eligibility_criteria: eligibility_criteria || [],
       job_class,
+<<<<<<< HEAD
       isDream: policyFields.isDream,
       isCountable: policyFields.isCountable,
       ctcForPolicy: policyFields.ctcForPolicy,
       ctcMin: ctcMin != null && ctcMin !== "" ? parseFloat(ctcMin) : undefined,
+=======
+>>>>>>> 95a9aacb050b56a2207ab2e65cacc9af1e91bbc2
       deadline: deadline || new Date(),
       Approved_Status,
       Applied_Students: [],
@@ -382,7 +425,11 @@ export const createJobProfilecopy = async (req, res) => {
       uniqueGroups.add(key);
     });
 
+<<<<<<< HEAD
     // // Mapping of course names to email prefixes
+=======
+    // Mapping of course names to email prefixes
+>>>>>>> 95a9aacb050b56a2207ab2e65cacc9af1e91bbc2
     const coursePrefixMap = {
       "B.Tech": "btech",
       "M.Tech": "mtech",
@@ -404,7 +451,11 @@ export const createJobProfilecopy = async (req, res) => {
         const email = `${prefix}${admissionYear}@nitj.ac.in`;
 
         const pseudoStudent = { email };
+<<<<<<< HEAD
         await sendEmailToStudent(pseudoStudent, savedProfile); 
+=======
+        await sendEmailToStudent(pseudoStudent, savedProfile); //commented
+>>>>>>> 95a9aacb050b56a2207ab2e65cacc9af1e91bbc2
       }),
     );
 
@@ -646,6 +697,7 @@ export const updateJob = async (req, res) => {
     const changes = detectNestedChanges(oldJob, updateData);
     console.log(changes);
 
+<<<<<<< HEAD
     // Handle CTC / policy field changes
     if (
       changes?.job_salary?.ctc ||
@@ -654,6 +706,11 @@ export const updateJob = async (req, res) => {
       changes?.isDream !== undefined ||
       changes?.ctcMin !== undefined
     ) {
+=======
+    // Handle CTC change
+    if (changes?.job_salary?.ctc || changes?.job_sector) {
+      // const ctc = parseFloat(updateData?.job_salary?.ctc || oldJob?.job_salary?.ctc || 0);
+>>>>>>> 95a9aacb050b56a2207ab2e65cacc9af1e91bbc2
       let ctc;
       if (updateData?.job_salary?.ctc === "") {
         ctc = 0;
@@ -666,6 +723,7 @@ export const updateJob = async (req, res) => {
       }
 
       const sector = updateData?.job_sector || oldJob?.job_sector || "Private";
+<<<<<<< HEAD
       const category = updateData?.job_category || oldJob?.job_category;
       const ctcMinValue =
         updateData?.ctcMin !== undefined ? updateData.ctcMin : oldJob?.ctcMin;
@@ -684,6 +742,25 @@ export const updateJob = async (req, res) => {
       updateData.isCountable = policyFields.isCountable;
       updateData.ctcForPolicy = policyFields.ctcForPolicy;
       updateData.isDream = policyFields.isDream;
+=======
+      console.log("CTC:", ctc, "Sector:", sector);
+      let job_class;
+
+      if (ctc > 20 || sector === "PSU") {
+        job_class = "A";
+      } else if (ctc > 12 && ctc <= 20) {
+        job_class = "B";
+      } else if (ctc > 5 && ctc <= 12) {
+        job_class = "C";
+      } else if (ctc <= 5) {
+        job_class = "D";
+      } else {
+        job_class = "D"; // Default for invalid/undefined CTC
+      }
+      console.log(job_class);
+
+      updateData.job_class = job_class;
+>>>>>>> 95a9aacb050b56a2207ab2e65cacc9af1e91bbc2
     }
 
     if (Object.keys(changes).length > 0) {
@@ -968,6 +1045,7 @@ export const getJobProfilesForProfessors = async (req, res) => {
     const approvedJobs = await JobProfile.find({
       Approved_Status: true,
       completed: false,
+<<<<<<< HEAD
       pending: { $ne: true },
     }).sort({ createdAt: -1 });
     const pendingJobs = await JobProfile.find({
@@ -975,6 +1053,9 @@ export const getJobProfilesForProfessors = async (req, res) => {
       completed: false,
       pending: true,
     }).sort({ updatedAt: -1 });
+=======
+    }).sort({ createdAt: -1 });
+>>>>>>> 95a9aacb050b56a2207ab2e65cacc9af1e91bbc2
     const notApprovedJobs = await JobProfile.find({
       Approved_Status: false,
     }).sort({ createdAt: -1 });
@@ -1025,14 +1106,22 @@ export const getspecificJobProfilesForProfessors = async (req, res) => {
 
 export const updateJobStatus = async (req, res) => {
   const { jobId } = req.params;
+<<<<<<< HEAD
   const { status, jobStatus, comment } = req.body;
+=======
+  const { status } = req.body; // "pending" | "completed" | "incomplete"
+>>>>>>> 95a9aacb050b56a2207ab2e65cacc9af1e91bbc2
 
   try {
     if (!mongoose.Types.ObjectId.isValid(jobId)) {
       return res.status(400).json({ error: "Invalid Job ID" });
     }
 
+<<<<<<< HEAD
     if (status && !["pending", "completed", "incomplete"].includes(status)) {
+=======
+    if (!["pending", "completed", "incomplete"].includes(status)) {
+>>>>>>> 95a9aacb050b56a2207ab2e65cacc9af1e91bbc2
       return res.status(400).json({ error: "Invalid status value" });
     }
 
@@ -1041,6 +1130,7 @@ export const updateJobStatus = async (req, res) => {
       return res.status(404).json({ error: "Job not found" });
     }
 
+<<<<<<< HEAD
     const setFields = {};
 
     if (status) {
@@ -1104,6 +1194,22 @@ export const updateJobStatus = async (req, res) => {
     }
 
     return res.status(400).json({ error: "No valid update provided" });
+=======
+    if (status === "pending") {
+      job.pending = true;
+      job.completed = false;
+    } else if (status === "completed") {
+      job.pending = false;
+      job.completed = true;
+    } else {
+      job.pending = false;
+      job.completed = false;
+    }
+
+    await job.save();
+
+    return res.status(200).json({ message: "Job status updated", job });
+>>>>>>> 95a9aacb050b56a2207ab2e65cacc9af1e91bbc2
   } catch (error) {
     return res.status(500).json({ error: "Server error", details: error.message });
   }
@@ -1224,7 +1330,11 @@ export const checkEligibility = async (req, res) => {
 
     // Check for isInterested only if the field exists
     if (
+<<<<<<< HEAD
       (student.batch === "2026" || student.batch === "2027") &&
+=======
+      student.batch === "2026" &&
+>>>>>>> 95a9aacb050b56a2207ab2e65cacc9af1e91bbc2
       typeof student.isInterested !== "undefined" &&
       student.isInterested === false
     ) {
@@ -1276,6 +1386,7 @@ export const checkEligibility = async (req, res) => {
       updatedStudent = student.toObject();
     }
 
+<<<<<<< HEAD
     // if (
     //   (job.job_type === "Intern" ||
     //     job.job_type === "Intern+FTE" ||
@@ -1287,6 +1398,19 @@ export const checkEligibility = async (req, res) => {
     //     reason: "You have more than 3 active backlogs",
     //   });
     // }
+=======
+    if (
+      (job.job_type === "Intern" ||
+        job.job_type === "Intern+FTE" ||
+        job.job_type === "Intern+PPO") &&
+      updatedStudent.activeBacklogCount > 3
+    ) {
+      return res.json({
+        eligible: false,
+        reason: "You have more than 3 active backlogs",
+      });
+    }
+>>>>>>> 95a9aacb050b56a2207ab2e65cacc9af1e91bbc2
 
     const eligibilityCriteria = job.eligibility_criteria;
     let isEligible = false;
@@ -1386,9 +1510,15 @@ export const checkEligibility = async (req, res) => {
     const jobctc = job.job_salary.ctc;
 
     // if student is 3rd year B.Tech student then checking for summer intern
+<<<<<<< HEAD
     if (updatedStudent.batch == "2028" && updatedStudent.course == "B.Tech") {
       const SummerInternHistory = await SummerInternTracker.findOne({
         batch: "2028",
+=======
+    if (updatedStudent.batch == "2027" && updatedStudent.course == "B.Tech") {
+      const SummerInternHistory = await SummerInternTracker.findOne({
+        batch: "2027",
+>>>>>>> 95a9aacb050b56a2207ab2e65cacc9af1e91bbc2
         course: "B.Tech",
       });
       if (SummerInternHistory?.studentsId.includes(studentId)) {
@@ -1397,6 +1527,7 @@ export const checkEligibility = async (req, res) => {
           reason: "You have already Summer Intern",
         });
       }
+<<<<<<< HEAD
     } else if (String(updatedStudent.batch) === BATCH_2027) {
       const phase = getPlacementPhase(currentDate);
       const registration = await PlacementRegistration.findOne({
@@ -1526,6 +1657,12 @@ export const checkEligibility = async (req, res) => {
 
     // Legacy offer policy for batches other than 2028 summer intern and 2027
     else if (String(updatedStudent.batch) !== BATCH_2027) {
+=======
+    }
+
+    // if student is not btech 3rd year student then we will deal with offer tracker
+    else {
+>>>>>>> 95a9aacb050b56a2207ab2e65cacc9af1e91bbc2
       if (
         (jobType === "Intern+FTE" || jobType === "FTE") &&
         (jobctc == 0 || !jobctc)
@@ -1839,7 +1976,11 @@ if (isNoneShortlisted) {
 
     if (!batch || !course) continue;
 
+<<<<<<< HEAD
     if (course === "B.Tech" && batch === "2028") {
+=======
+    if (course === "B.Tech" && batch === "2027") {
+>>>>>>> 95a9aacb050b56a2207ab2e65cacc9af1e91bbc2
       let summerIntern = await SummerIntern.findOne({
         jobId,
         batch,
@@ -1890,6 +2031,7 @@ if (isNoneShortlisted) {
   job.final_shortlisted_students = [];
   await job.save();
 
+<<<<<<< HEAD
   let emailSent = false;
   try {
     if (job.hr_email && !job.thankYouEmailSent) {
@@ -1926,6 +2068,10 @@ if (isNoneShortlisted) {
   return res.status(200).json({
     message: "Company added with no shortlisted students",
     emailSent,
+=======
+  return res.status(200).json({
+    message: "Company added with no shortlisted students",
+>>>>>>> 95a9aacb050b56a2207ab2e65cacc9af1e91bbc2
   });
 }
     // Validate input
@@ -2008,7 +2154,11 @@ if (isNoneShortlisted) {
     for (const [key, group] of Object.entries(groupedStudents)) {
       const { batch, course, action, students } = group;
 
+<<<<<<< HEAD
       if (course === "B.Tech" && batch === "2028") {
+=======
+      if (course === "B.Tech" && batch === "2027") {
+>>>>>>> 95a9aacb050b56a2207ab2e65cacc9af1e91bbc2
         let summerIntern = await SummerIntern.findOne({ jobId, batch, course });
         let summerInternTracker = await SummerInternTracker.findOne({
           batch,
@@ -2120,14 +2270,18 @@ if (isNoneShortlisted) {
               offer_category = "D"; // Default for invalid/undefined CTC
             }
 
+<<<<<<< HEAD
             offer_category=String(batch)===BATCH_2027?(job.isDream?"Dream":"Non Dream"):offer_category
 
+=======
+>>>>>>> 95a9aacb050b56a2207ab2e65cacc9af1e91bbc2
             const offerDetails = {
               offer_type: student.job_type,
               offer_category: offer_category,
               offer_sector: job.job_sector || "Private",
               offer_ctc: student.ctc,
               offer_intern_duration: student.intern_duration,
+<<<<<<< HEAD
               offer_job_category: job.job_category,
               isCountable:
                 String(batch) === BATCH_2027
@@ -2142,6 +2296,8 @@ if (isNoneShortlisted) {
               isDream: !!job.isDream,
               placementPhase: getPlacementPhase(),
               jobId: job._id,
+=======
+>>>>>>> 95a9aacb050b56a2207ab2e65cacc9af1e91bbc2
             };
 
             let offerTracker = await OfferTracker.findOne({
@@ -2158,6 +2314,7 @@ if (isNoneShortlisted) {
               offerTracker.offer.push(offerDetails);
             }
             await offerTracker.save();
+<<<<<<< HEAD
 
             if (String(batch) === BATCH_2027) {
               const studentDoc = await Student.findById(student.studentId);
@@ -2173,6 +2330,8 @@ if (isNoneShortlisted) {
                 await studentDoc.save();
               }
             }
+=======
+>>>>>>> 95a9aacb050b56a2207ab2e65cacc9af1e91bbc2
           }
         } else if (action === "remove") {
           if (offer) {
@@ -2228,6 +2387,7 @@ if (isNoneShortlisted) {
 
     await job.save();
 
+<<<<<<< HEAD
     let emailSent = false;
     try {
       if (job.hr_email && !job.thankYouEmailSent) {
@@ -2262,6 +2422,9 @@ if (isNoneShortlisted) {
     }
 
     return res.status(200).json({ message: "Shortlist updated successfully", emailSent });
+=======
+    return res.status(200).json({ message: "Shortlist updated successfully" });
+>>>>>>> 95a9aacb050b56a2207ab2e65cacc9af1e91bbc2
   } catch (error) {
     console.error("Error in addfinalshortlistStudent:", error);
     return res
@@ -3250,6 +3413,175 @@ export const updateOthersLink = async (req, res) => {
     return res.status(500).json({
       message: "Failed to update others links.",
       error: error.message,
+<<<<<<< HEAD
+    });
+  }
+};
+
+export const sendStepEmail = async (req, res) => {
+  try {
+    const { jobId, stepIndex } = req.params;
+    const { message } = req.body;
+    const files = req.files || [];
+    // const file = req.file;
+    const emailAttachments = [];
+const dbAttachments = [];
+
+for (const file of files) {
+  emailAttachments.push({
+    filename: file.originalname,
+    path: file.path,
+  });
+
+  dbAttachments.push({
+    file_name: file.originalname,
+    file_url: `/uploads/job_attachments/${file.filename}`
+  });
+}
+
+    if (!mongoose.Types.ObjectId.isValid(jobId)) {
+      return res.status(400).json({ message: "Invalid job ID" });
+    }
+
+    const index = Number(stepIndex);
+    if (Number.isNaN(index) || index < 0) {
+      return res.status(400).json({ message: "Invalid step index" });
+    }
+
+    const job = await JobProfile.findById(jobId);
+    if (!job) {
+      return res.status(404).json({ message: "Job profile not found" });
+    }
+
+    const step = job.Hiring_Workflow[index];
+    if (!step) {
+      return res.status(404).json({ message: "Hiring workflow step not found" });
+    }
+
+    const eligibleStudentIds = step.eligible_students || [];
+    if (!eligibleStudentIds.length) {
+      return res
+        .status(400)
+        .json({ message: "No eligible students found for this step" });
+    }
+
+    const students = await Student.find(
+      { _id: { $in: eligibleStudentIds } },
+      "email name",
+    );
+
+    const emails = students
+      .map((s) => s.email)
+      .filter((email) => typeof email === "string" && email.trim() !== "");
+
+    if (!emails.length) {
+      return res
+        .status(400)
+        .json({ message: "No valid email addresses for eligible students" });
+    }
+
+    const subject = `Hiring Step Scheduled: ${step.step_type} for ${job.job_role} at ${job.company_name}`;
+
+    const plainDetailsLines = Object.entries(step.details || {}).map(
+      ([key, value]) => `${key.replace(/_/g, " ")}: ${value || "N/A"}`,
+    );
+
+    const textBody = [
+      "Dear Student,",
+      "",
+      // message || "This is a Test Email.Please Ignore it.",
+      message || "You have a new hiring process step scheduled.",
+      "",
+      `Job: ${job.job_role} at ${job.company_name}`,
+      `Step: ${step.step_type}`,
+      "",
+      "Step details:",
+      ...plainDetailsLines,
+      "",
+      "Regards,",
+      "TPO-NITJ",
+    ].join("\n");
+
+    const htmlDetailsRows = Object.entries(step.details || {})
+      .map(
+        ([key, value]) => `
+          <tr>
+            <td style="padding:8px;font-weight:bold;text-transform:capitalize;">
+              ${key.replace(/_/g, " ")}:
+            </td>
+            <td style="padding:8px;">${value || "N/A"}</td>
+          </tr>`,
+      )
+      .join("");
+
+    const safeMessage = (message || "").replace(/\n/g, "<br />");
+
+    const htmlBody = `
+      <div style="font-family:Arial,sans-serif;color:#333;line-height:1.6;">
+        <div style="max-width:650px;margin:auto;border:1px solid #e0e0e0;border-radius:10px;overflow:hidden;box-shadow:0 4px 10px rgba(0,0,0,0.05);">
+          <div style="background:linear-gradient(90deg,#0369A0,#04A6CF);padding:24px;text-align:center;color:#ffffff;">
+            <h2 style="margin:0;font-size:22px;">Hiring Step Scheduled</h2>
+            <p style="margin:4px 0 0;font-size:16px;">
+              ${step.step_type} for ${job.job_role} at ${job.company_name}
+            </p>
+          </div>
+          <div style="padding:24px;background-color:#fafafa;">
+            <p style="font-size:16px;">Dear <strong>Student</strong>,</p>
+            <p style="font-size:15px;margin-top:10px;">
+              ${safeMessage || "You have a new hiring process step scheduled."}
+            </p>
+            <table style="width:100%;margin-top:16px;border-collapse:collapse;font-size:15px;">
+              ${htmlDetailsRows}
+            </table>
+          </div>
+          <div style="background-color:#f4f4f4;padding:16px;text-align:center;font-size:13px;color:#777;">
+            <p style="margin:0;">Best regards,</p>
+            <p style="margin:0;font-weight:bold;color:#0369A0;">TPO-NITJ</p>
+            <p style="margin-top:8px;font-size:12px;color:#999;">
+              This is an automated message. Please do not reply to this email.
+            </p>
+          </div>
+        </div>
+      </div>
+    `;
+
+    // const attachments = [];
+    // if (files) {
+    //   attachments.push({
+    //     filename: file.originalname,
+    //     path: file.path,
+    //   });
+    // }
+
+    // commented latest - send email to students
+ 
+
+     stepEmailTransporter.sendMail({
+  from: process.env.EMAIL_USER,
+  to: emails,
+  subject,
+  text: textBody,
+  html: htmlBody,
+  attachments: emailAttachments,
+});
+
+step.step_announcements.push({
+  message: message || "",
+  attachments: dbAttachments,
+
+});
+
+await job.save();
+    return res
+      .status(200)
+      .json({ message: "Emails being sent to eligible students " });
+  } catch (error) {
+    console.error("Error sending step email:", error);
+    return res.status(500).json({
+      message: "Failed to send emails for this hiring step",
+      error: error.message,
+=======
+>>>>>>> 95a9aacb050b56a2207ab2e65cacc9af1e91bbc2
     });
   }
 };

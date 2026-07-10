@@ -1849,8 +1849,11 @@ const StudentManager = () => {
         internshipstatus: "No Intern",
         account_deactivate: false,
         isInterested: false,
+<<<<<<< HEAD
         dreamApplied: false,
         allow7thSem1_5xEarlyAccess: false,
+=======
+>>>>>>> 95a9aacb050b56a2207ab2e65cacc9af1e91bbc2
         linkedin: "",
       },
     );
@@ -2937,6 +2940,7 @@ const StudentManager = () => {
               }
             />
 
+<<<<<<< HEAD
             {/* Toggle Switches Section */}
             <div className="col-span-1 md:col-span-2">
               <p className="text-sm text-gray-600 mb-3 font-semibold">
@@ -2944,6 +2948,8 @@ const StudentManager = () => {
               </p>
             </div>
 
+=======
+>>>>>>> 95a9aacb050b56a2207ab2e65cacc9af1e91bbc2
             {/* Toggle Switches */}
             <div className="col-span-1 md:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-4">
               <FormControlLabel
@@ -3024,6 +3030,7 @@ const StudentManager = () => {
               <FormControlLabel
                 control={
                   <Switch
+<<<<<<< HEAD
                     checked={editProfile?.dreamApplied || false}
                     onChange={(e) =>
                       setEditProfile({
@@ -3054,6 +3061,8 @@ const StudentManager = () => {
               <FormControlLabel
                 control={
                   <Switch
+=======
+>>>>>>> 95a9aacb050b56a2207ab2e65cacc9af1e91bbc2
                     checked={editProfile?.account_deactivate || false}
                     onChange={(e) =>
                       setEditProfile({
@@ -3068,6 +3077,7 @@ const StudentManager = () => {
               />
             </div>
 
+<<<<<<< HEAD
             {/* Helper Text for 7th Sem 1.5x */}
             {/* <div className="col-span-1 md:col-span-2 bg-blue-50 border-l-4 border-blue-500 p-3 rounded">
               <p className="text-sm text-blue-700">
@@ -3077,6 +3087,8 @@ const StudentManager = () => {
               </p>
             </div> */}
 
+=======
+>>>>>>> 95a9aacb050b56a2207ab2e65cacc9af1e91bbc2
             {/* Image URL */}
             <TextField
               label="Profile Image URL"

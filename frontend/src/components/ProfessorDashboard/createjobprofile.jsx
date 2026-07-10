@@ -2599,11 +2599,14 @@ const jobSectorOptions = [
   { value: "PSU", label: "PSU" },
 ];
 
+<<<<<<< HEAD
 const dreamStatusOptions = [
   { value: "Dream", label: "Dream" },
   { value: "Non Dream", label: "Non Dream" },
 ];
 
+=======
+>>>>>>> 95a9aacb050b56a2207ab2e65cacc9af1e91bbc2
 const workflowStepOptions = [
   { value: "Resume Shortlisting", label: "Resume Shortlisting" },
   { value: "OA", label: "Online Assessment" },
@@ -2650,7 +2653,10 @@ const CreateJob = ({ onJobCreated, onCancel }) => {
     job_category: "",
     job_sector: "Private",
     ctc: 0,
+<<<<<<< HEAD
     ctcMin: "",
+=======
+>>>>>>> 95a9aacb050b56a2207ab2e65cacc9af1e91bbc2
     base_salary: "",
     stipend: "",
     deadline: "",
@@ -2718,6 +2724,7 @@ const CreateJob = ({ onJobCreated, onCancel }) => {
   };
 
   const handleSelectChange = (field, selectedOption) => {
+<<<<<<< HEAD
     const value = selectedOption ? selectedOption.value : "";
 
     if (field === "job_sector") {
@@ -2732,11 +2739,17 @@ const CreateJob = ({ onJobCreated, onCancel }) => {
     setFormData((prev) => ({
       ...prev,
       [field]: value,
+=======
+    setFormData({
+      ...formData,
+      [field]: selectedOption ? selectedOption.value : "",
+>>>>>>> 95a9aacb050b56a2207ab2e65cacc9af1e91bbc2
       ...(field === "job_type" && selectedOption && selectedOption.value === "FTE"
         ? { internship_duration: "N/A", stipend: "0" }
         : field === "job_type" && selectedOption && ["Intern", "Intern+PPO", "Intern+FTE"].includes(selectedOption.value)
         ? { internship_duration: "", stipend: "" }
         : {}),
+<<<<<<< HEAD
     }));
   };
 
@@ -2746,6 +2759,9 @@ const CreateJob = ({ onJobCreated, onCancel }) => {
       ...prev,
       isDream: dreamStatus === "Dream" || prev.job_sector === "PSU",
     }));
+=======
+    });
+>>>>>>> 95a9aacb050b56a2207ab2e65cacc9af1e91bbc2
   };
 
   const handleEligibilityChange = (e) => {
@@ -2964,10 +2980,13 @@ const CreateJob = ({ onJobCreated, onCancel }) => {
 
     const errors = [];
     if (!formData.company_name) errors.push("Company Name is required");
+<<<<<<< HEAD
     if (!formData.hr_contact) errors.push("HR Contact is required");
     if (!formData.hr_email) errors.push("HR Email is required");
     if (!formData.tpo_spoc_name) errors.push("TPO SPOC Name is required");
     if (!formData.tpo_spoc_contact) errors.push("TPO SPOC Contact is required");
+=======
+>>>>>>> 95a9aacb050b56a2207ab2e65cacc9af1e91bbc2
     if (!formData.job_role) errors.push("Job Role is required");
     if (!formData.job_type) errors.push("Job Type is required");
     if (!formData.job_category) errors.push("Job Category is required");
@@ -2986,6 +3005,7 @@ const CreateJob = ({ onJobCreated, onCancel }) => {
       }
     }
 
+<<<<<<< HEAD
     const targetsBatch2027 = formData.eligibility_criteria.some(
       (c) => String(c.eligible_batch) === "2027",
     );
@@ -3003,6 +3023,8 @@ const CreateJob = ({ onJobCreated, onCancel }) => {
       }
     }
 
+=======
+>>>>>>> 95a9aacb050b56a2207ab2e65cacc9af1e91bbc2
     if (errors.length > 0) {
       errors.forEach((error) => toast.error(error));
       return;
@@ -3015,8 +3037,12 @@ const CreateJob = ({ onJobCreated, onCancel }) => {
         {
           ...formData,
           ctc: Number(formData.ctc),
+<<<<<<< HEAD
           ctcMin: formData.ctcMin ? Number(formData.ctcMin) : undefined,
           isDream: !!formData.isDream,
+=======
+          // stipend: Number(formData.stipend),
+>>>>>>> 95a9aacb050b56a2207ab2e65cacc9af1e91bbc2
         },
         { withCredentials: true }
       );
@@ -3200,6 +3226,7 @@ const CreateJob = ({ onJobCreated, onCancel }) => {
                 onChange={(option) => handleSelectChange("job_category", option)}
                 value={jobCategoryOptions.find((option) => option.value === formData.job_category)}
                 className="w-full border-2 border-gray-200 rounded-xl p-1.5 focus:outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-100 transition-all duration-300"
+<<<<<<< HEAD
               />
             </div>
             <div>
@@ -3239,10 +3266,13 @@ const CreateJob = ({ onJobCreated, onCancel }) => {
                 value={formData.ctc}
                 onChange={handleChange}
                 className="w-full border-2 border-gray-200 rounded-xl p-3 focus:outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-100 transition-all duration-300"
+=======
+>>>>>>> 95a9aacb050b56a2207ab2e65cacc9af1e91bbc2
               />
             </div>
             <div>
               <label className="block text-gray-700 font-semibold mb-2">
+<<<<<<< HEAD
                 Minimum CTC (if range)
                 <span className="text-gray-500 text-sm"> (in Lakhs, optional — used for batch 2027 policy)</span>
               </label>
@@ -3250,6 +3280,26 @@ const CreateJob = ({ onJobCreated, onCancel }) => {
                 type="number"
                 name="ctcMin"
                 value={formData.ctcMin}
+=======
+                Job Sector
+              </label>
+              <Select
+                options={jobSectorOptions}
+                onChange={(option) => handleSelectChange("job_sector", option)}
+                value={jobSectorOptions.find((option) => option.value === formData.job_sector)}
+                className="w-full border-2 border-gray-200 rounded-xl p-1.5 focus:outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-100 transition-all duration-300"
+              />
+            </div>
+            <div>
+              <label className="block text-gray-700 font-semibold mb-2">
+                CTC<span className="text-red-500 text-sm">(in Lakhs) *</span>
+              </label>
+              <input
+                required
+                type="text"
+                name="ctc"
+                value={formData.ctc}
+>>>>>>> 95a9aacb050b56a2207ab2e65cacc9af1e91bbc2
                 onChange={handleChange}
                 min="0"
                 step="0.1"

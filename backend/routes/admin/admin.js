@@ -99,12 +99,15 @@ import {
 } from "../../controller/Admin/offer.js";
 
 import {
+<<<<<<< HEAD
   getPlacementSettings,
   updatePlacementSettings,
   toggle7thSem1_5x,
 } from "../../controller/Admin/placementSettings.js";
 
 import {
+=======
+>>>>>>> 95a9aacb050b56a2207ab2e65cacc9af1e91bbc2
   createAlert,
   getAllAlerts,
   getActiveAlerts,
@@ -368,6 +371,7 @@ router.get("/database/:collectionName/", getDatabaseRecords);
 // ERP Data route (Sir's latest)
 router.get("/erp/student", getERPData);
 
+<<<<<<< HEAD
 // ========== Placement Settings Routes ==========
 // Get current placement settings
 router.get("/placement-settings", getPlacementSettings);
@@ -378,4 +382,6 @@ router.put("/placement-settings", updatePlacementSettings);
 // Toggle 7th Sem 1.5x setting
 router.post("/placement-settings/toggle-7th-sem-1-5x", toggle7thSem1_5x);
 
+=======
+>>>>>>> 95a9aacb050b56a2207ab2e65cacc9af1e91bbc2
 export default router;

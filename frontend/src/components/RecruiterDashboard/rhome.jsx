@@ -255,6 +255,7 @@ const RHome = () => {
       icon: <FaCommentDots size={24} />,
       label: "Feedback",
       description: "Your Feedback is valuable to us.",
+<<<<<<< HEAD
       route: "https://ctp.nitj.ac.in/recruiterFeedback",
       color: "bg-green-50 hover:bg-green-100"
     },
@@ -265,6 +266,18 @@ const RHome = () => {
     //   route: "/rdashboard/guidelines",
     //   color: "bg-orange-50 hover:bg-orange-100"
     // }
+=======
+      route: "/rdashboard/feedback",
+      color: "bg-green-50 hover:bg-green-100"
+    },
+    {
+      icon: <FaFileAlt size={24} />,
+      label: "View Policy",
+      description: "View placement/internship policies of college",
+      route: "/rdashboard/guidelines",
+      color: "bg-orange-50 hover:bg-orange-100"
+    }
+>>>>>>> 95a9aacb050b56a2207ab2e65cacc9af1e91bbc2
   ];
   
 
@@ -297,6 +310,7 @@ const RHome = () => {
       fun: handleDownloadPdf1,
       color: "bg-blue-50 hover:bg-blue-100"
     },
+<<<<<<< HEAD
     // {
     //   icon: <FaFileDownload size={24} />,
     //   label: "Placement brochure",
@@ -304,6 +318,15 @@ const RHome = () => {
     //   fun: handleDownloadPdf2,
     //   color: "bg-purple-50 hover:bg-purple-100"
     // },
+=======
+    {
+      icon: <FaFileDownload size={24} />,
+      label: "Placement borchure",
+      description: "Click to download placement borchure of NITJ",
+      fun: handleDownloadPdf2,
+      color: "bg-purple-50 hover:bg-purple-100"
+    },
+>>>>>>> 95a9aacb050b56a2207ab2e65cacc9af1e91bbc2
   ];
 
   return (

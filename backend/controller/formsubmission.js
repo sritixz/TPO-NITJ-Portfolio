@@ -2,6 +2,7 @@ import FormSubmission from '../models/FormSubmission.js';
 import JobProfile from '../models/jobprofile.js';
 import JobEligibility from '../models/eligibility.js';
 import Student from '../models/user_model/student.js';
+<<<<<<< HEAD
 import PlacementRegistration from '../models/placement-registration.js';
 import OfferTracker from '../models/offertracker.js';
 import mongoose from 'mongoose';
@@ -15,6 +16,9 @@ import {
   parseCtcForPolicy,
   DREAM_CTC_MULTIPLIER,
 } from '../utils/placementPolicy2027.js';
+=======
+import mongoose from 'mongoose';
+>>>>>>> 95a9aacb050b56a2207ab2e65cacc9af1e91bbc2
 import nodemailer from "nodemailer";
 import Withdrawtoken from '../models/withdrawtoken.js';
 import jwt from "jsonwebtoken";
@@ -63,6 +67,7 @@ export const submitForm = async (req, res) => {
       return res.status(403).json({ message: 'You are not eligible to apply for this job' });
     }
 
+<<<<<<< HEAD
     if (String(student.batch) === BATCH_2027) {
       const registration = await PlacementRegistration.findOne({
         studentId,
@@ -116,6 +121,8 @@ export const submitForm = async (req, res) => {
       }
     }
 
+=======
+>>>>>>> 95a9aacb050b56a2207ab2e65cacc9af1e91bbc2
     const updatedFields = fields.map((field) => {
       if (field.isAutoFilled && field.studentPropertyPath) {
         let value;

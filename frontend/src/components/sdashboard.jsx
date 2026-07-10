@@ -61,8 +61,11 @@ import AlertModal from "./StudentDashboard/alert.jsx";
 import FinePayment from "./StudentDashboard/fine-payment.jsx";
 import Suggestions from "./StudentDashboard/suggestions.jsx";
 import RepresentativeApplication from "./StudentDashboard/RepresentativeApplication.jsx";
+<<<<<<< HEAD
 import Relieving_letter from "./StudentDashboard/relieving_letter.jsx";
 import OfferUpload from "./StudentDashboard/offerUpload.jsx";
+=======
+>>>>>>> 95a9aacb050b56a2207ab2e65cacc9af1e91bbc2
 
 const StudentDashboard = () => {
   const [isMobile, setIsMobile] = useState(false);
@@ -117,12 +120,18 @@ const StudentDashboard = () => {
     { path: "/sdashboard/navigator", label: "Navigator", icon: faLayerGroup, },
     { path: "/sdashboard/change-pass", label: "Change Password", icon: faKey },
 //    { 
+<<<<<<< HEAD
 
+=======
+>>>>>>> 95a9aacb050b56a2207ab2e65cacc9af1e91bbc2
 //   path: "/sdashboard/representativeApplication", 
 //   label: "Representative Form", 
 //   icon: faUserCheck // or any icon you like
 // },
+<<<<<<< HEAD
 { path: "/sdashboard/offer-upload", label: "Offer Upload", icon: faEnvelope },
+=======
+>>>>>>> 95a9aacb050b56a2207ab2e65cacc9af1e91bbc2
   ];
 
   const MenuItem = ({ item, onClick, isSidebarExpanded }) => {
@@ -159,7 +168,11 @@ const StudentDashboard = () => {
 
   return (
     <div className="flex flex-col min-h-screen bg-gray-50">
+<<<<<<< HEAD
         <AlertModal />   {/*  Global Alert Modal */}
+=======
+        <AlertModal />   {/* 🔔 Global Alert Modal */}
+>>>>>>> 95a9aacb050b56a2207ab2e65cacc9af1e91bbc2
       {/* Header */}
       <header className="fixed top-0 left-0 right-0 bg-white shadow-sm z-50">
         <div className="flex items-center justify-between px-4 h-16">
@@ -334,9 +347,13 @@ const StudentDashboard = () => {
             <Route path="student-connect" element={<StudentConnect />} />
             {/* <Route path="fine-payment" element={<FinePayment />} /> */}
             <Route path="suggestions" element={<Suggestions />} />
+<<<<<<< HEAD
             <Route path="offer-upload" element={<OfferUpload /> } />
             {/* <Route path="representativeApplication" element={<RepresentativeApplication/>} /> */}
             <Route path="relieving-letter" element={<Relieving_letter/>}/>
+=======
+            {/* <Route path="representativeApplication" element={<RepresentativeApplication/>} /> */}
+>>>>>>> 95a9aacb050b56a2207ab2e65cacc9af1e91bbc2
             </Routes>
         </div>
 

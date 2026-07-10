@@ -24,6 +24,7 @@ const OfferTrackerSchema = new mongoose.Schema(
         offer_intern_duration:{
             type:String,
         },
+<<<<<<< HEAD
         offer_job_category:{
             type:String,
         },
@@ -43,6 +44,8 @@ const OfferTrackerSchema = new mongoose.Schema(
             type: mongoose.Schema.Types.ObjectId,
             ref: "JobProfile",
         },
+=======
+>>>>>>> 95a9aacb050b56a2207ab2e65cacc9af1e91bbc2
     }]
   },
   { timestamps: true }

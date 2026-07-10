@@ -56,6 +56,7 @@ function Profile() {
   const dispatch = useDispatch();
 
   useEffect(() => {
+<<<<<<< HEAD
     const loadProfile = async () => {
       try {
         const response = await axios.get(
@@ -131,6 +132,36 @@ function Profile() {
 
     loadProfile();
   }, [dispatch, userData]);
+=======
+    if (userData) {
+      setUser(userData);
+      setFormData({
+        name: userData.name ?? "",
+        email: userData.email ?? "",
+        phone: userData.phone ?? "",
+        rollno: userData.rollno ?? "",
+        department: userData.department ?? "",
+        batch: userData.batch ?? "",
+        address: userData.address ?? "",
+        cgpa: userData.cgpa ?? "",
+        gender: userData.gender ?? "",
+        course: userData.course ?? "",
+        debarred: userData.debarred ?? false,
+        placementstatus: userData.placementstatus ?? "",
+        internshipstatus: userData.internshipstatus ?? "",
+        active_backlogs: userData.active_backlogs ?? false,
+        backlogs_history: userData.backlogs_history ?? false,
+        activeBacklogCount: userData.activeBacklogCount ?? "",
+        image: userData.image ?? "",
+        dob: userData.dob ?? "",
+        personalEmail: userData.personalEmail ?? "",
+        Xth: userData.Xth ?? "",
+        XIIth: userData.XIIth ?? "",
+        linkedin: userData.linkedin ?? "",
+      });
+    }
+  }, [userData]);
+>>>>>>> 95a9aacb050b56a2207ab2e65cacc9af1e91bbc2
 
   const handleEditToggle = () => {
     setIsEditing(!isEditing);
@@ -431,6 +462,7 @@ function Profile() {
                   value={formData.activeBacklogCount}
                 />
                 <AboutItem
+<<<<<<< HEAD
                   label="Applied Count"
                   value={user?.appliedCount ?? 0}
                 />
@@ -439,6 +471,8 @@ function Profile() {
                   value={user?.dreamApplied ? "Yes" : "No"}
                 />
                 <AboutItem
+=======
+>>>>>>> 95a9aacb050b56a2207ab2e65cacc9af1e91bbc2
                   label="Debarred"
                   value={formData.debarred ? "Yes" : "No"}
                 />

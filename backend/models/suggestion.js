@@ -10,8 +10,11 @@ const SuggestionSchema=new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: "Faculty", 
     },
+<<<<<<< HEAD
     professor_id: { type: mongoose.Schema.Types.ObjectId,
          ref: "Professor" },
+=======
+>>>>>>> 95a9aacb050b56a2207ab2e65cacc9af1e91bbc2
     company_name:{
         type:String,
         // required: true,

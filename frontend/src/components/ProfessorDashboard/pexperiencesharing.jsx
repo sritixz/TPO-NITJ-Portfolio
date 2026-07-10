@@ -1,5 +1,9 @@
 import React, { useState, useEffect } from "react";
+<<<<<<< HEAD
 import { FaArrowLeft, FaStar, FaEdit, FaTrash, FaPlus, FaSearch } from "react-icons/fa";
+=======
+import { FaArrowLeft, FaStar, FaEdit, FaTrash, FaPlus } from "react-icons/fa";
+>>>>>>> 95a9aacb050b56a2207ab2e65cacc9af1e91bbc2
 import axios from "axios";
 import Editor from "../StudentDashboard/ckeditor";
 import parse from "html-react-parser";
@@ -23,7 +27,11 @@ const StarRating = ({ rating }) => {
 const TruncatedText = ({ text, maxLength }) => {
   const [isExpanded, setIsExpanded] = useState(false);
 
+<<<<<<< HEAD
   if (text?.length <= maxLength || isExpanded) {
+=======
+  if (text.length <= maxLength || isExpanded) {
+>>>>>>> 95a9aacb050b56a2207ab2e65cacc9af1e91bbc2
     return <p>{text}</p>;
   }
 
@@ -49,7 +57,10 @@ const ProfessorExperienceManagement = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [activeTab, setActiveTab] = useState("myExperiences");
+<<<<<<< HEAD
   const [searchQuery, setSearchQuery] = useState("");
+=======
+>>>>>>> 95a9aacb050b56a2207ab2e65cacc9af1e91bbc2
 
   useEffect(() => {
     const fetchExperiences = async () => {
@@ -153,6 +164,7 @@ const ProfessorExperienceManagement = () => {
     setSelectedExperience(null);
   };
 
+<<<<<<< HEAD
   const filterFeedback = (feedback) => {
     if (!searchQuery.trim()) return feedback;
     const query = searchQuery.toLowerCase();
@@ -173,6 +185,8 @@ const ProfessorExperienceManagement = () => {
     );
   };
 
+=======
+>>>>>>> 95a9aacb050b56a2207ab2e65cacc9af1e91bbc2
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
@@ -308,8 +322,13 @@ const ProfessorExperienceManagement = () => {
         {/* Recruiter Feedbacks Tab */}
       {activeTab === "myExperiences" && (
   <section>
+<<<<<<< HEAD
     <div className="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
       {filterFeedback(recruiterFeedback).map((feedback) => (
+=======
+    <div class="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+      {recruiterFeedback.map((feedback) => (
+>>>>>>> 95a9aacb050b56a2207ab2e65cacc9af1e91bbc2
         <div
           key={feedback._id}
           className="border border-gray-200 rounded-xl shadow-lg hover:shadow-xl transform transition-all duration-300 hover:scale-105 bg-gradient-to-br from-white to-gray-50 p-6 flex flex-col items-start justify-between text-left h-auto w-auto"
@@ -366,7 +385,11 @@ const ProfessorExperienceManagement = () => {
         {activeTab === "otherExperiences" && (
           <section>
             <div className="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+<<<<<<< HEAD
               {filterExperiences(otherExperiences).map((experience) => (
+=======
+              {otherExperiences.map((experience) => (
+>>>>>>> 95a9aacb050b56a2207ab2e65cacc9af1e91bbc2
                 <div
                   key={experience._id}
                   className="border border-gray-200 rounded-xl shadow-md hover:shadow-2xl transition-transform hover:scale-105 hover:border-blue-500 duration-300 cursor-pointer overflow-hidden p-4 flex flex-col items-center justify-between text-center h-auto w-auto"
@@ -409,11 +432,14 @@ const ProfessorExperienceManagement = () => {
                 </div>
               ))}
             </div>
+<<<<<<< HEAD
             {filterExperiences(otherExperiences).length === 0 && searchQuery && (
               <div className="text-center text-gray-500 py-8">
                 <p className="text-lg">No experiences found matching "{searchQuery}"</p>
               </div>
             )}
+=======
+>>>>>>> 95a9aacb050b56a2207ab2e65cacc9af1e91bbc2
           </section>
         )}
       </div>

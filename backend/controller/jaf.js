@@ -172,7 +172,12 @@ export const createJobAnnouncementForm = async (req, res) => {
       data: savedJobAnnouncement
     });
   } catch (error) {
+<<<<<<< HEAD
     return res.status(400).json({
+=======
+ 
+    res.status(400).json({
+>>>>>>> 95a9aacb050b56a2207ab2e65cacc9af1e91bbc2
       message: 'Error creating Job Announcement Form',
       error: error.message
     });
@@ -182,6 +187,7 @@ export const createJobAnnouncementForm = async (req, res) => {
 // 3. Role-aware data fetching for both dashboards
 export const getjaf = async (req, res) => {
   try {
+<<<<<<< HEAD
     const targetUserId = req.user?.userId || req.user?._id;
     const targetRole = req.user?.userType || req.user?.role;
 
@@ -211,6 +217,20 @@ export const getjaf = async (req, res) => {
 
   } catch(error){
     return res.status(400).json({ message: 'Error fetching Job Announcement Form', error: error.message });
+=======
+ 
+    const { _id } = req.params;
+ 
+    const approvedJAF = await JobAnnouncementForm.findByIdAndUpdate(
+      _id,
+      { approved_status: true },
+      { new: true }
+    );
+    if (!approvedJAF) return res.status(404).json({ message: "JAF not found" });
+    res.status(200).json({ message: "JAF approved successfully", approvedJAF });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+>>>>>>> 95a9aacb050b56a2207ab2e65cacc9af1e91bbc2
   }
 };
 

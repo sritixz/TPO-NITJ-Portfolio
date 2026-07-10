@@ -36,6 +36,10 @@ ChartJS.register(
   Tooltip,
   Legend,
 );
+<<<<<<< HEAD
+=======
+import ResponsiveDeptChart from "./ResponsiveDeptChart";
+>>>>>>> 95a9aacb050b56a2207ab2e65cacc9af1e91bbc2
 
 const btechdepartmentOptions = [
   {
@@ -299,6 +303,7 @@ const InsightDashboard = () => {
   const isSummer = insightsType === "Summer Internships";
   const activeInsights = isSummer ? summerInternInsights : insights;
 
+<<<<<<< HEAD
   const handleDownloadEligible = async () => {
     try {
       const response = await axios.get(
@@ -323,6 +328,8 @@ const InsightDashboard = () => {
     }
   };
 
+=======
+>>>>>>> 95a9aacb050b56a2207ab2e65cacc9af1e91bbc2
   const getDeptOptions = (course) => {
     let groups;
     if (course === "B.Tech") groups = btechdepartmentOptions;
@@ -412,11 +419,16 @@ const InsightDashboard = () => {
     value,
     subtitle,
     color = "indigo",
+<<<<<<< HEAD
     onClick,
     isClickable
   }) => (
     <div onClick={onClick} className={`bg-white rounded-xl shadow-lg transition-all duration-300 p-6 border border-gray-100 w-full 
       ${isClickable ? 'cursor-pointer hover:border-indigo-400 hover:scale-[1.02] bg-indigo-50/10' : ''}`}>
+=======
+  }) => (
+    <div className="bg-white rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 p-6 border border-gray-100 w-full">
+>>>>>>> 95a9aacb050b56a2207ab2e65cacc9af1e91bbc2
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div className="overflow-hidden">
           <p className="text-sm font-medium text-gray-600 mb-1">{title}</p>
@@ -641,6 +653,15 @@ const InsightDashboard = () => {
       },
     ],
   };
+<<<<<<< HEAD
+=======
+  // Add this below your departmentBarData definition
+const rechartsDeptData = Object.entries(activeInsights?.departmentStats || {}).map(([name, stats]) => ({
+  name: name,
+  count: isSummer ? (stats?.totalOffers || 0) : (stats?.totalOffers || 0),
+  percentage: isSummer ? (stats?.internshipPercentage || 0) : (stats?.placementPercentage || 0)
+}));
+>>>>>>> 95a9aacb050b56a2207ab2e65cacc9af1e91bbc2
 
   const ctcDoughnutData =
     !isSummer && activeInsights?.ctcBuckets
@@ -1098,8 +1119,11 @@ const InsightDashboard = () => {
                 value={activeInsights.totalEligibleStudents || 0}
                 subtitle="Total"
                 color="red"
+<<<<<<< HEAD
                 isClickable={true}
                 onClick={handleDownloadEligible}
+=======
+>>>>>>> 95a9aacb050b56a2207ab2e65cacc9af1e91bbc2
               />
               <StatCard
                 icon={IndianRupee}
@@ -1214,6 +1238,7 @@ const InsightDashboard = () => {
             </ChartCard>
           )}
           <ChartCard
+<<<<<<< HEAD
             title={
               isSummer
                 ? "Department-wise Internship %"
@@ -1223,6 +1248,17 @@ const InsightDashboard = () => {
           >
             <Bar data={departmentBarData} options={chartOptions} />
           </ChartCard>
+=======
+               title={isSummer ? "Department-wise Internship Count" : "Department-wise Placement Count"}
+               icon={BarChart3}
+          >
+            <ResponsiveDeptChart 
+                data={rechartsDeptData} 
+                dataKey="count" 
+                label={isSummer ? "Internship Count" : "Placement Count"} 
+            />
+        </ChartCard>
+>>>>>>> 95a9aacb050b56a2207ab2e65cacc9af1e91bbc2
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
@@ -1420,4 +1456,8 @@ const InsightDashboard = () => {
   );
 };
 
+<<<<<<< HEAD
 export default InsightDashboard;
+=======
+export default InsightDashboard;
+>>>>>>> 95a9aacb050b56a2207ab2e65cacc9af1e91bbc2

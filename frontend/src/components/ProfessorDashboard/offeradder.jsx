@@ -1090,6 +1090,7 @@ const EditForm = ({ offer, type, onSave, onCancel }) => {
                 onChange={(e) => setOfferCategory(e.target.value)}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               >
+<<<<<<< HEAD
                 {batch>=2027 && 
                     <>
                       <option value="Dream">Dream</option>
@@ -1104,6 +1105,12 @@ const EditForm = ({ offer, type, onSave, onCancel }) => {
                       <option value="D">D</option>
                     </>
                   }
+=======
+                <option value="A">A</option>
+                <option value="B">B</option>
+                <option value="C">C</option>
+                <option value="D">D</option>
+>>>>>>> 95a9aacb050b56a2207ab2e65cacc9af1e91bbc2
               </select>
             </div>
             <div>
@@ -1798,6 +1805,7 @@ const OfferAdder = ({ onDone }) => {
                   onChange={(e) => setOfferCategory(e.target.value)}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 >
+<<<<<<< HEAD
                   {batch>=2027 && 
                     <>
                       <option value="Dream">Dream</option>
@@ -1812,6 +1820,12 @@ const OfferAdder = ({ onDone }) => {
                       <option value="D">D</option>
                     </>
                   }
+=======
+                  <option value="A">A</option>
+                  <option value="B">B</option>
+                  <option value="C">C</option>
+                  <option value="D">D</option>
+>>>>>>> 95a9aacb050b56a2207ab2e65cacc9af1e91bbc2
                 </select>
               </div>
               <div>

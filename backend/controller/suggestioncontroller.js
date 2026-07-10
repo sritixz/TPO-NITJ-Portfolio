@@ -1,5 +1,6 @@
 import Suggestions from "../models/suggestion.js";
 import Student from "../models/user_model/student.js";
+<<<<<<< HEAD
 import Faculty from "../models/user_model/professor.js";
 export const savesuggestions = async (req, res) => {
   const companyType =
@@ -41,12 +42,57 @@ export const getsuggestions = async (req, res) => {
       .populate("professor_id", "name")        // Fetch faculty details
       .sort({ createdAt: -1 });
 
+=======
+export const savesuggestions= async(req,res)=>{
+        const companyType =
+      req.body.company_type_other &&
+      req.body.company_type_other.trim() !== ""
+        ? req.body.company_type_other
+        : req.body.company_type;
+     try{const newSuggestions= new Suggestions({
+      student_id:req.user.userId,
+      company_name:req.body.company_name,
+    company_linkedin:req.body.company_linkedin,
+    Hr_name:req.body.Hr_name,
+    Hr_contact:req.body.Hr_contact,
+    HR_email:req.body.HR_email,
+    company_type:companyType,
+    sector:req.body.sector,
+    hiring_status:req.body.hiring_status,
+    Additional_Info:req.body.Additional_Info,
+  });
+const savedSuggestion=await newSuggestions.save();
+console.log("suggestion saved successfully");
+  res.status(201).json({
+      message: "Suggestion submitted successfully",
+      suggestion: savedSuggestion,
+    });
+}
+catch(error)
+{
+  console.error(error);
+  console.log("error saving suggestions");
+    res.status(500).json({
+      message: "Error saving suggestion",
+    });
+}
+}
+
+export const getsuggestions=async(req,res)=>{
+     try {
+    const suggestions = await Suggestions.find().populate("student_id", "name rollno"); 
+>>>>>>> 95a9aacb050b56a2207ab2e65cacc9af1e91bbc2
     res.status(200).json(suggestions);
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Failed to fetch suggestions" });
   }
+<<<<<<< HEAD
 };
+=======
+}
+
+>>>>>>> 95a9aacb050b56a2207ab2e65cacc9af1e91bbc2
 export const getContactedCompanies = async (req, res) => {
   try {
     const suggestions = await Suggestions.find({

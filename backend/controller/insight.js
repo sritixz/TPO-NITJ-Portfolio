@@ -6,7 +6,10 @@ import { encryptValue, decryptValue } from "../utils/security.js";
 import JobProfile from "../models/jobprofile.js";
 import Internship from "../models/internship.js"; // for getOfferInsights company count
 import SummerIntern from "../models/summer_internship.js"; // ← correct model for summer intern insights
+<<<<<<< HEAD
 import ExcelJS from 'exceljs';
+=======
+>>>>>>> 95a9aacb050b56a2207ab2e65cacc9af1e91bbc2
 
 const parseCTC = (ctc) => {
   if (!ctc) return 0;
@@ -823,6 +826,7 @@ export const getSummerInternInsights = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
+<<<<<<< HEAD
 
 export const downloadEligibleExcel = async (req, res) => {
   try {
@@ -908,3 +912,5 @@ export const downloadEligibleExcel = async (req, res) => {
     res.status(500).json({ message: "Server Error during Excel generation" });
   }
 };
+=======
+>>>>>>> 95a9aacb050b56a2207ab2e65cacc9af1e91bbc2

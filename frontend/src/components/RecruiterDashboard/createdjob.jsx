@@ -173,13 +173,21 @@ const CreatedJobs = () => {
               <span>Job </span>
               <span className="text-custom-blue">Listings</span>
             </h1>
+<<<<<<< HEAD
             {/* <Button
+=======
+            <Button
+>>>>>>> 95a9aacb050b56a2207ab2e65cacc9af1e91bbc2
               onClick={() => setIsCreatingJob(true)}
               className="bg-custom-blue hover:bg-blue-700 text-white flex items-center gap-2"
             >
               <Plus className="w-4 h-4" />
               Post New Job
+<<<<<<< HEAD
             </Button> */}
+=======
+            </Button>
+>>>>>>> 95a9aacb050b56a2207ab2e65cacc9af1e91bbc2
           </div>
 
           {/* Search and Filter */}
@@ -274,14 +282,22 @@ const CreatedJobs = () => {
                       <Eye className="w-4 h-4" />
                       View
                     </Button>
+<<<<<<< HEAD
                     {/* <Button
+=======
+                    <Button
+>>>>>>> 95a9aacb050b56a2207ab2e65cacc9af1e91bbc2
                       variant="outline"
                       className="flex-1 flex items-center justify-center gap-2 hover:bg-red-500 hover:text-white border-red-500"
                       onClick={() => handleDeleteJob(job._id)}
                     >
                       <Trash2 className="w-4 h-4" />
                       Delete
+<<<<<<< HEAD
                     </Button> */}
+=======
+                    </Button>
+>>>>>>> 95a9aacb050b56a2207ab2e65cacc9af1e91bbc2
                   </div>
                 </CardContent>
               </Card>

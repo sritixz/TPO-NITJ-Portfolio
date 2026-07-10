@@ -28,13 +28,19 @@ import {
   MessageCircle,
   FileText,
   Trash2,
+<<<<<<< HEAD
   Download,
+=======
+>>>>>>> 95a9aacb050b56a2207ab2e65cacc9af1e91bbc2
 } from "lucide-react";
 import { FaArrowLeft, FaSpinner } from "react-icons/fa";
 import Notification from "./Notification";
 import GuestHouseBookingForm from "./roomarrangement";
 import VehicleRequisitionForm from "./vehiclerequisitionform";
+<<<<<<< HEAD
 import { formatStatusTimestamp } from "../../utils/jobStatusTimeline";
+=======
+>>>>>>> 95a9aacb050b56a2207ab2e65cacc9af1e91bbc2
 
 const JobProfilesonp = () => {
   const [jobProfiles, setJobProfiles] = useState({
@@ -567,14 +573,22 @@ const JobProfilesonp = () => {
 
   const JobCard = ({ job, showActions }) => (
     <Card className="bg-white border border-gray-200 rounded-2xl shadow-lg hover:shadow-xl transition-shadow duration-300 relative">
+<<<<<<< HEAD
       
+=======
+      (
+>>>>>>> 95a9aacb050b56a2207ab2e65cacc9af1e91bbc2
       <div className="absolute top-2 right-2 text-red-600">
         <Trash2
           className="w-7 h-7 bg-red-100 rounded-3xl p-1 cursor-pointer"
           onClick={() => handleDelete(job._id)}
         />
       </div>
+<<<<<<< HEAD
       
+=======
+      )
+>>>>>>> 95a9aacb050b56a2207ab2e65cacc9af1e91bbc2
 
       {/* APPROVED / ACTIVE => can go to PENDING or COMPLETED */}
       {!job.pending && !job.completed && (
@@ -898,6 +912,7 @@ const JobProfilesonp = () => {
     }, {});
   };
 
+<<<<<<< HEAD
   const handleExportToExcel = () => {
     const allJobs = [
       ...(jobProfiles.approved || []),
@@ -929,6 +944,8 @@ const JobProfilesonp = () => {
     XLSX.writeFile(workbook, `Job_Management_Export_${timestamp}.xlsx`);
   };
 
+=======
+>>>>>>> 95a9aacb050b56a2207ab2e65cacc9af1e91bbc2
   const filteredApprovedJobs = filterJobs(
     jobProfiles.approved.filter((job) =>
       job.company_name.toLowerCase().includes(searchTerm.toLowerCase()),
@@ -1023,7 +1040,11 @@ const JobProfilesonp = () => {
               <span className="text-custom-blue">{selectedCompany}</span> Job
               Profiles
             </h1>
+<<<<<<< HEAD
             <button
+=======
+            {/* <button
+>>>>>>> 95a9aacb050b56a2207ab2e65cacc9af1e91bbc2
               onClick={() => setShowJAF(true)}
               className="absolute top-0 right-4 group inline-flex items-center gap-2 bg-white border-2 border-custom-blue px-4 py-2 rounded-lg 
                hover:bg-custom-blue transition-all duration-300 shadow-md
@@ -1031,7 +1052,11 @@ const JobProfilesonp = () => {
             >
               <FileText className="w-5 h-5 transition-transform group-hover:scale-110" />
               <span>View JAF</span>
+<<<<<<< HEAD
             </button>
+=======
+            </button> */}
+>>>>>>> 95a9aacb050b56a2207ab2e65cacc9af1e91bbc2
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {groupedApprovedJobs[selectedCompany]?.map((job) => (
@@ -1113,6 +1138,7 @@ const JobProfilesonp = () => {
         </>
       ) : (
         <>
+<<<<<<< HEAD
           <div className="flex sm:flex-row flex-col items-center justify-between px-4 gap-4">
             <div className="flex-1 flex justify-start">
               <button
@@ -1124,6 +1150,11 @@ const JobProfilesonp = () => {
               </button>
             </div>
             <h1 className="text-4xl font-bold text-custom-blue whitespace-nowrap text-center">
+=======
+          <div className="flex sm:flex-row flex-col items-center justify-between px-4">
+            <div className="flex-1"></div>
+            <h1 className="absolute left-1/2 -translate-x-1/2 text-4xl font-bold text-custom-blue whitespace-nowrap">
+>>>>>>> 95a9aacb050b56a2207ab2e65cacc9af1e91bbc2
             Job Profiles Dashboard
             </h1>
            (

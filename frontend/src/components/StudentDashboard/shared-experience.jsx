@@ -6,7 +6,11 @@ import parse from "html-react-parser";
 import Swal from "sweetalert2";
 import toast from "react-hot-toast";
 import BouncingLoader from "../BouncingLoader";
+<<<<<<< HEAD
 import { FaEdit, FaTrash, FaPlus, FaSearch } from "react-icons/fa";
+=======
+import { FaEdit, FaTrash, FaPlus } from "react-icons/fa";
+>>>>>>> 95a9aacb050b56a2207ab2e65cacc9af1e91bbc2
 import Notification from "../ProfessorDashboard/Notification";
 
 const SharedExperience = () => {
@@ -231,7 +235,11 @@ const SharedExperience = () => {
                   <FaPlus />
                 </div>
               {/* )} */}
+<<<<<<< HEAD
               {filterExperiences(currentUserExperiences).map((experience) => (
+=======
+              {currentUserExperiences.map((experience) => (
+>>>>>>> 95a9aacb050b56a2207ab2e65cacc9af1e91bbc2
                 <div
                   key={experience._id}
                   className=" border border-gray-200 rounded-xl shadow-md hover:shadow-2xl transition-transform hover:scale-105 hover:border-blue-500 duration-300 cursor-pointer overflow-hidden p-4 flex flex-col  items-center justify-between text-center h-auto w-auto"

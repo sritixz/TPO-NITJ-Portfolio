@@ -40,7 +40,10 @@ import addRecruiterRoutes from "./routes/addrecruiter.js";
 import questionbankRoutes from "./routes/questionbank.js";
 import brochureRoutes from "./routes/Brochure.js";
 import nocRoutes from "./routes/noc.js";
+<<<<<<< HEAD
 import relievingRoutes from "./routes/relieving.js"
+=======
+>>>>>>> 95a9aacb050b56a2207ab2e65cacc9af1e91bbc2
 import eventRoutes from "./routes/Event.js";
 import cgpaCheckerRoutes from "./routes/cgpaChecker.js";
 import withdrawRoutes from "./routes/withdraw.js";
@@ -78,9 +81,12 @@ try {
 } catch (err) {
   console.error('Error creating uploads directory:', err);
 }
+<<<<<<< HEAD
 import offerRoutes from "./routes/offerletter.js";
 import { createPublicJobAnnouncementForm } from "./controller/jaf.js";
 import { sendOtp, verifyOtp } from "./controller/otp.js";
+=======
+>>>>>>> 95a9aacb050b56a2207ab2e65cacc9af1e91bbc2
 
 const app = express();
 
@@ -143,9 +149,13 @@ app.use("/placements", logMiddleware, placementroutes);
 app.use("/internships", logMiddleware, internshiptroutes);
 app.use("/recruiterFeedback", logMiddleware, companyFeedbackroutes)
 app.use("/messages", messageRoutes);
+<<<<<<< HEAD
 app.post('/jaf/send-otp', logMiddleware, sendOtp);
 app.post('/jaf/verify-otp', logMiddleware, verifyOtp);
 app.post('/jaf/public-create', logMiddleware, createPublicJobAnnouncementForm);
+=======
+
+>>>>>>> 95a9aacb050b56a2207ab2e65cacc9af1e91bbc2
 
 //Student routes
 app.use('/interview',authenticate, restrictTo('Student'),logMiddleware, interviewroutes);
@@ -169,7 +179,10 @@ app.use('/psuggestions',authenticate,restrictTo('Professor'),logMiddleware,profe
 app.use("/api/resumes", authenticate,restrictTo('Professor'),logMiddleware, resumeRoutes);
 app.use("/hardRefreshERPData",authenticate,restrictTo('Professor'),logMiddleware, hardRefreshERPDataRoutes)
 
+<<<<<<< HEAD
 app.use("/api/offer",authenticate, offerRoutes);
+=======
+>>>>>>> 95a9aacb050b56a2207ab2e65cacc9af1e91bbc2
 //Admin routes
 app.use('/admin',authenticate,restrictTo('Admin'),logMiddleware,adminRoutes);
 
@@ -188,7 +201,10 @@ app.use("/reqhelp",authenticate, logMiddleware,reqhelproutes);
 app.use('/contactus',logMiddleware,contactusRoutes);
 app.use('/api',authenticate,logMiddleware, formTemplateroutes);
 app.use('/noc',authenticate, logMiddleware,nocRoutes);
+<<<<<<< HEAD
 app.use('/relieving',authenticate,logMiddleware,relievingRoutes);
+=======
+>>>>>>> 95a9aacb050b56a2207ab2e65cacc9af1e91bbc2
 app.use('/admin/brochure',authenticate, logMiddleware,brochureRoutes);
 app.use('/admin/documents',authenticate, logMiddleware,documentsRoutes);
 app.use('/admin/student-documents',authenticate, logMiddleware,studentDocumentsRoutes);

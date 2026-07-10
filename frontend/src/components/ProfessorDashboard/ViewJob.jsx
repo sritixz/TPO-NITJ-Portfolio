@@ -1876,10 +1876,13 @@ import OaLinkManager from "./oalink";
 import OthersLinkManager from "./otherslink";
 import FinalShortlistStudents from "./finalshortlist";
 import AuditLogs from "../AuditLogs";
+<<<<<<< HEAD
 import {
   buildJobStatusTimeline,
   formatStatusTimestamp,
 } from "../../utils/jobStatusTimeline";
+=======
+>>>>>>> 95a9aacb050b56a2207ab2e65cacc9af1e91bbc2
 import { FaArrowLeft } from "react-icons/fa";
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
@@ -1921,16 +1924,23 @@ const ViewJobDetails = ({ job, onClose, oneditingAllowedUpdate}) => {
   const [editingApplicationForm, setEditingApplicationForm] = useState(false);
   const [editingSection, setEditingSection] = useState(null);
   const [editingStepIndex, setEditingStepIndex] = useState(null);
+<<<<<<< HEAD
     const [jobStatus, setJobStatus] = useState(job.jobStatusInfo?.status || "");
 const [comment, setComment] = useState(job.jobStatusInfo?.comment || "");
+=======
+>>>>>>> 95a9aacb050b56a2207ab2e65cacc9af1e91bbc2
   const [editedJob, setEditedJob] = useState({
     ...job,
     eligibility_criteria: job.eligibility_criteria || [],
     job_salary: { ...job.job_salary, stipend: job.job_salary?.stipend || "0" },
     job_sector: job.job_sector || "Private",
+<<<<<<< HEAD
     attachments: job.attachments || [],
     jobStatusHistory: job.jobStatusHistory || [],
     isDream: job.isDream,
+=======
+    attachments: job.attachments || [], // Added attachments
+>>>>>>> 95a9aacb050b56a2207ab2e65cacc9af1e91bbc2
   });
   const [editedWorkflow, setEditedWorkflow] = useState(
     job.Hiring_Workflow || []
@@ -1961,7 +1971,10 @@ const [comment, setComment] = useState(job.jobStatusInfo?.comment || "");
 
   // Add this useEffect after your state declarations (e.g., after const [addingFinalShortlist, setAddingFinalShortlist] = useState(false);)
   useEffect(() => {
+<<<<<<< HEAD
     // console.log("Checking job type and editing section for dynamic field adjustments...");
+=======
+>>>>>>> 95a9aacb050b56a2207ab2e65cacc9af1e91bbc2
   if (editedJob.job_type === "FTE" && editingSection === "basic") {
     setEditedJob((prev) => ({
       ...prev,
@@ -1974,6 +1987,7 @@ const [comment, setComment] = useState(job.jobStatusInfo?.comment || "");
   }
   }, [editedJob.job_type, editingSection]); // Re-run only when job_type or editing section changes
 
+<<<<<<< HEAD
   useEffect(() => {
     const fetchLatestJob = async () => {
       try {
@@ -1999,6 +2013,8 @@ const [comment, setComment] = useState(job.jobStatusInfo?.comment || "");
     fetchLatestJob();
   }, [job._id]);
 
+=======
+>>>>>>> 95a9aacb050b56a2207ab2e65cacc9af1e91bbc2
   const stepTypeOptions = [
   { value: "Resume Shortlisting", label: "Resume Shortlisting" },
   { value: "OA", label: "Online Assessment (OA)" },
@@ -2401,11 +2417,14 @@ const [comment, setComment] = useState(job.jobStatusInfo?.comment || "");
     { value: "Private", label: "Private" },
   ];
 
+<<<<<<< HEAD
   const dreamStatusOptions = [
     { value: "Dream", label: "Dream" },
     { value: "Non Dream", label: "Non Dream" },
   ];
 
+=======
+>>>>>>> 95a9aacb050b56a2207ab2e65cacc9af1e91bbc2
   useEffect(() => {
     const checkApplicationFormExistence = async () => {
       try {
@@ -2442,7 +2461,10 @@ const [comment, setComment] = useState(job.jobStatusInfo?.comment || "");
       eligibility_criteria: job.eligibility_criteria || [], 
       job_salary: { ...job.job_salary, stipend: job.job_salary?.stipend || "0" },
       job_sector: job.job_sector || "Private",
+<<<<<<< HEAD
       isDream: job.isDream,
+=======
+>>>>>>> 95a9aacb050b56a2207ab2e65cacc9af1e91bbc2
       attachments: job.attachments || [], // Reset attachments
     });
     setEditedWorkflow(job.Hiring_Workflow || []);
@@ -2581,7 +2603,10 @@ const [comment, setComment] = useState(job.jobStatusInfo?.comment || "");
           job_category: editedJob.job_category,
           job_class: editedJob.job_class,
           job_sector: editedJob.job_sector,
+<<<<<<< HEAD
           isDream: editedJob.isDream,
+=======
+>>>>>>> 95a9aacb050b56a2207ab2e65cacc9af1e91bbc2
           deadline: editedJob.deadline,
         };
       }
@@ -2765,6 +2790,7 @@ const [comment, setComment] = useState(job.jobStatusInfo?.comment || "");
             <span className="flex-1">{editedJob.job_role}</span>
           )}
         </div>
+<<<<<<< HEAD
         <div className="flex items-center">
           <strong className="w-1/3 text-gray-800">HR Contact:</strong>
           {editingSection === "basic" ? (
@@ -2825,6 +2851,8 @@ const [comment, setComment] = useState(job.jobStatusInfo?.comment || "");
             <span className="flex-1">{editedJob.tpo_spoc_contact || "N/A"}</span>
           )}
         </div>
+=======
+>>>>>>> 95a9aacb050b56a2207ab2e65cacc9af1e91bbc2
         <div className="flex items-center">
           <strong className="w-1/3 text-gray-800">Job Type:</strong>
           {editingSection === "basic" ? (
@@ -2906,9 +2934,14 @@ const [comment, setComment] = useState(job.jobStatusInfo?.comment || "");
           {editingSection === "basic" ? (
             <select
               value={editedJob.job_sector || "Private"}
+<<<<<<< HEAD
               onChange={(e) =>{
                  handleInputChange("basic", "job_sector", e.target.value);
                 }
+=======
+              onChange={(e) =>
+                handleInputChange("basic", "job_sector", e.target.value)
+>>>>>>> 95a9aacb050b56a2207ab2e65cacc9af1e91bbc2
               }
               className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
             >
@@ -2922,6 +2955,7 @@ const [comment, setComment] = useState(job.jobStatusInfo?.comment || "");
             <span className="flex-1">{editedJob.job_sector || "Private"}</span>
           )}
         </div>
+<<<<<<< HEAD
         <div className="flex items-center">
           <strong className="w-1/3 text-gray-800">Dream Status:</strong>
           {editingSection === "basic" ? (
@@ -2953,6 +2987,8 @@ const [comment, setComment] = useState(job.jobStatusInfo?.comment || "");
             </span>
           </span>
         </div> */}
+=======
+>>>>>>> 95a9aacb050b56a2207ab2e65cacc9af1e91bbc2
         <div className="flex items-center">
           <strong className="w-1/3 text-gray-800">Location:</strong>
           {editingSection === "basic" ? (
@@ -3106,7 +3142,11 @@ const [comment, setComment] = useState(job.jobStatusInfo?.comment || "");
                     {attachment.name || `Attachment ${index + 1}`}
                   </a>
                 </div>
+<<<<<<< HEAD
                 
+=======
+                (
+>>>>>>> 95a9aacb050b56a2207ab2e65cacc9af1e91bbc2
                 <TooltipProvider>
                   <Tooltip>
                     <TooltipTrigger asChild>
@@ -3122,14 +3162,22 @@ const [comment, setComment] = useState(job.jobStatusInfo?.comment || "");
                     </TooltipContent>
                   </Tooltip>
                 </TooltipProvider>
+<<<<<<< HEAD
                 
+=======
+                )
+>>>>>>> 95a9aacb050b56a2207ab2e65cacc9af1e91bbc2
               </li>
             ))}
           </ul>
         ) : (
           <p className="text-gray-500 text-center">No attachments uploaded yet.</p>
         )}
+<<<<<<< HEAD
         <div className="flex justify-center mt-6">
+=======
+        (<div className="flex justify-center mt-6">
+>>>>>>> 95a9aacb050b56a2207ab2e65cacc9af1e91bbc2
           <label
             htmlFor="attachment-upload"
             className="bg-gradient-to-r from-blue-900 to-blue-700 text-white px-6 py-3 rounded-2xl hover:from-blue-600 hover:to-blue-700 focus:outline-none focus:ring-4 focus:ring-blue-500 focus:ring-offset-2 transition-all duration-300 transform hover:scale-105 active:scale-95 shadow-lg hover:shadow-xl cursor-pointer flex items-center space-x-2"
@@ -3144,7 +3192,11 @@ const [comment, setComment] = useState(job.jobStatusInfo?.comment || "");
             onChange={handleUploadAttachment}
             className="hidden"
           />
+<<<<<<< HEAD
         </div>  
+=======
+        </div>)
+>>>>>>> 95a9aacb050b56a2207ab2e65cacc9af1e91bbc2
       </div>
     );
   };
@@ -3152,12 +3204,20 @@ const [comment, setComment] = useState(job.jobStatusInfo?.comment || "");
 
   const renderEditableCard = (title, content, section) => (
     <div className="p-8 bg-white border border-gray-200 rounded-2xl shadow-lg hover:shadow-xl transition-shadow duration-300 relative mt-8">
+<<<<<<< HEAD
      <button
+=======
+     ( <button
+>>>>>>> 95a9aacb050b56a2207ab2e65cacc9af1e91bbc2
         className="absolute top-4 right-4 p-2 text-gray-600 hover:text-blue-600 transition-colors"
         onClick={() => handleEdit(section)}
       >
         <Pencil size={20} />
+<<<<<<< HEAD
       </button>
+=======
+      </button>)
+>>>>>>> 95a9aacb050b56a2207ab2e65cacc9af1e91bbc2
       <h3 className="text-2xl font-semibold text-custom-blue mb-6">{title}</h3>
       {content}
       {editingSection === section && (
@@ -3559,6 +3619,7 @@ const [comment, setComment] = useState(job.jobStatusInfo?.comment || "");
     );
   }
 
+<<<<<<< HEAD
 const updatePlacementStatus = async (jobId, jobStatus, comment) => {
   if (!jobStatus) {
     toast.error("Please select a placement status");
@@ -3586,6 +3647,8 @@ const updatePlacementStatus = async (jobId, jobStatus, comment) => {
   }
 };
 
+=======
+>>>>>>> 95a9aacb050b56a2207ab2e65cacc9af1e91bbc2
   return (
     <>
       <div className="-mt-10 ml-4">
@@ -3652,6 +3715,7 @@ const updatePlacementStatus = async (jobId, jobStatus, comment) => {
             </TooltipProvider>
           </div>
         </div>
+<<<<<<< HEAD
          <div className="p-6 bg-gray-50 border border-gray-200 rounded-2xl shadow-md mb-6">
     <h3 className="text-xl font-semibold text-custom-blue mb-3">
       Placement Status
@@ -3749,6 +3813,9 @@ const updatePlacementStatus = async (jobId, jobStatus, comment) => {
     })()}
   </div>
 
+=======
+        
+>>>>>>> 95a9aacb050b56a2207ab2e65cacc9af1e91bbc2
         {renderEditableCard("Basic Details", renderBasicDetails(), "basic")}
          <div className="p-8 bg-white border border-gray-200 rounded-2xl shadow-lg hover:shadow-xl transition-shadow duration-300 relative mt-8">
           <h3 className="text-2xl font-semibold text-custom-blue mb-6">Attachments</h3>
@@ -4024,7 +4091,11 @@ const updatePlacementStatus = async (jobId, jobStatus, comment) => {
 
     return (
       <div className="mt-8 space-y-8">
+<<<<<<< HEAD
       
+=======
+      (
+>>>>>>> 95a9aacb050b56a2207ab2e65cacc9af1e91bbc2
   <div className="flex space-x-4">
     <button className="bg-gradient-to-r from-green-500 to-green-600 text-white px-8 py-3 rounded-2xl hover:from-green-600 hover:to-green-700 focus:outline-none focus:ring-4 focus:ring-green-500 focus:ring-offset-2 transition-all duration-300 transform hover:scale-105 active:scale-95 shadow-lg hover:shadow-xl" onClick={() => setAddingStep(true)}>
       Add Hiring Step
@@ -4035,7 +4106,11 @@ const updatePlacementStatus = async (jobId, jobStatus, comment) => {
       </button>
     )}
   </div>
+<<<<<<< HEAD
 
+=======
+)
+>>>>>>> 95a9aacb050b56a2207ab2e65cacc9af1e91bbc2
        {job.Hiring_Workflow.length === 0 && !addingStep ? (
         <p className="text-gray-500">No hiring workflow defined.</p>
       ) : (
@@ -4321,12 +4396,16 @@ const updatePlacementStatus = async (jobId, jobStatus, comment) => {
                   Manage Interview Links
                 </button>
               )}
+<<<<<<< HEAD
              <button
+=======
+            ( <button
+>>>>>>> 95a9aacb050b56a2207ab2e65cacc9af1e91bbc2
                 className="bg-gradient-to-r from-green-500 to-green-600 text-white px-8 py-3 rounded-2xl hover:from-green-600 hover:to-green-700 focus:outline-none focus:ring-4 focus:ring-green-500 focus:ring-offset-2 transition-all duration-300 transform hover:scale-105 active:scale-95 shadow-lg hover:shadow-xl "
                 onClick={() => setAddingShortlist({ stepIndex: index })}
               >
                 Add Shortlisted Students
-              </button>
+              </button>)
               <button
                 className="bg-gradient-to-r from-green-500 to-green-600 text-white px-8 py-3 rounded-2xl hover:from-green-600 hover:to-green-700 focus:outline-none focus:ring-4 focus:ring-green-500 focus:ring-offset-2 transition-all duration-300 transform hover:scale-105 active:scale-95 shadow-lg hover:shadow-xl "
                 onClick={() => setViewingShortlist({ stepIndex: index })}

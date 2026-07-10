@@ -6,7 +6,10 @@ import mongoose from "mongoose";
 import axios from "axios";
 import { encryptValue, decryptValue } from "../utils/security.js";
 import SummerIntern from "../models/summer_internship.js";
+<<<<<<< HEAD
 import Offer from "../models/offer.js";
+=======
+>>>>>>> 95a9aacb050b56a2207ab2e65cacc9af1e91bbc2
 
 const normalize = (v) =>
   String(v || "")
@@ -211,6 +214,7 @@ export const getStudentAnalytics = async (req, res) => {
             adjustedBatch = String(Number(erpData.batch) + adjustment);
           }
 
+<<<<<<< HEAD
           const offers = await OfferTracker.findOne({
             studentId: student._id,
           });
@@ -234,6 +238,9 @@ export const getStudentAnalytics = async (req, res) => {
             }),
           );
 
+=======
+          const offers = await OfferTracker.findOne({ studentId: student._id });
+>>>>>>> 95a9aacb050b56a2207ab2e65cacc9af1e91bbc2
           const data = {
             _id: student._id,
             name: student.name || "",
@@ -264,7 +271,10 @@ export const getStudentAnalytics = async (req, res) => {
             linkedin: student.linkedin || "",
             address: student.address || "",
             offers: offers?.offer || [],
+<<<<<<< HEAD
             offersWithCompany: offersWithCompany || [],
+=======
+>>>>>>> 95a9aacb050b56a2207ab2e65cacc9af1e91bbc2
             isInterested: student.isInterested || false,
             applications: { total: 0, jobProfiles: [] },
             assessments: {
@@ -703,9 +713,17 @@ export const updateOfferTracker = async (req, res) => {
       if (offer.jobId) {
         const job = await JobProfile.findById(offerItem.jobId);
         if (!job) {
+<<<<<<< HEAD
           return res.status(404).json({
             message: `Job profile not found for jobId: ${offerItem.jobId}`,
           });
+=======
+          return res
+            .status(404)
+            .json({
+              message: `Job profile not found for jobId: ${offerItem.jobId}`,
+            });
+>>>>>>> 95a9aacb050b56a2207ab2e65cacc9af1e91bbc2
         }
       }
     }
@@ -723,10 +741,19 @@ export const updateOfferTracker = async (req, res) => {
       });
     }
 
+<<<<<<< HEAD
     res.status(200).json({
       message: "Offer tracker updated successfully",
       data: offerTracker,
     });
+=======
+    res
+      .status(200)
+      .json({
+        message: "Offer tracker updated successfully",
+        data: offerTracker,
+      });
+>>>>>>> 95a9aacb050b56a2207ab2e65cacc9af1e91bbc2
   } catch (error) {
     console.error("Error updating offer tracker:", error);
     res.status(500).json({ message: "Server error" });
@@ -753,9 +780,17 @@ export const updateSummerInternTracker = async (req, res) => {
           .json({ message: `Student not found: ${studentId}` });
       }
       if (student.batch !== batch || student.course !== course) {
+<<<<<<< HEAD
         return res.status(400).json({
           message: `Student ${studentId} does not match batch or course`,
         });
+=======
+        return res
+          .status(400)
+          .json({
+            message: `Student ${studentId} does not match batch or course`,
+          });
+>>>>>>> 95a9aacb050b56a2207ab2e65cacc9af1e91bbc2
       }
     }
 
@@ -773,10 +808,19 @@ export const updateSummerInternTracker = async (req, res) => {
       });
     }
 
+<<<<<<< HEAD
     res.status(200).json({
       message: "Summer intern tracker updated successfully",
       data: tracker,
     });
+=======
+    res
+      .status(200)
+      .json({
+        message: "Summer intern tracker updated successfully",
+        data: tracker,
+      });
+>>>>>>> 95a9aacb050b56a2207ab2e65cacc9af1e91bbc2
   } catch (error) {
     console.error("Error updating summer intern tracker:", error);
     res.status(500).json({ message: "Server error" });

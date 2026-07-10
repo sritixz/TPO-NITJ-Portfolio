@@ -188,7 +188,11 @@ const FinalShortlistStudents = ({ jobId, onClose }) => {
           return;
         }
 
+<<<<<<< HEAD
         const noneResponse = await axios.post(
+=======
+        await axios.post(
+>>>>>>> 95a9aacb050b56a2207ab2e65cacc9af1e91bbc2
           `${import.meta.env.REACT_APP_BASE_URL}/jobprofile/add-final-shortlist-students`,
           {
             jobId,
@@ -199,9 +203,12 @@ const FinalShortlistStudents = ({ jobId, onClose }) => {
         );
 
         toast.success("Marked as none shortlisted");
+<<<<<<< HEAD
         if (noneResponse.data.emailSent) {
           toast.success("Thank-you email sent to HR successfully!");
         }
+=======
+>>>>>>> 95a9aacb050b56a2207ab2e65cacc9af1e91bbc2
         onClose();
         return;
       }
@@ -209,7 +216,11 @@ const FinalShortlistStudents = ({ jobId, onClose }) => {
       // =========================
       // NORMAL FLOW
       // =========================
+<<<<<<< HEAD
       const response = await axios.post(
+=======
+      await axios.post(
+>>>>>>> 95a9aacb050b56a2207ab2e65cacc9af1e91bbc2
         `${import.meta.env.REACT_APP_BASE_URL}/jobprofile/add-final-shortlist-students`,
         {
           jobId,
@@ -219,9 +230,12 @@ const FinalShortlistStudents = ({ jobId, onClose }) => {
       );
 
       toast.success("Shortlist updated successfully!");
+<<<<<<< HEAD
       if (response.data.emailSent) {
         toast.success("Thank-you email sent to HR successfully!");
       }
+=======
+>>>>>>> 95a9aacb050b56a2207ab2e65cacc9af1e91bbc2
       onClose();
     } catch (error) {
       console.error(error);
@@ -719,4 +733,8 @@ const FinalShortlistStudents = ({ jobId, onClose }) => {
   );
 };
 
+<<<<<<< HEAD
 export default FinalShortlistStudents;
+=======
+export default FinalShortlistStudents;
+>>>>>>> 95a9aacb050b56a2207ab2e65cacc9af1e91bbc2

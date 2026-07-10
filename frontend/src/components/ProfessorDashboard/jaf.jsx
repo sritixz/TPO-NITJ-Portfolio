@@ -24,8 +24,14 @@ const JAF = () => {
   const [error, setError] = useState("");
   const [selectedJAF, setSelectedJAF] = useState(null);
 
+<<<<<<< HEAD
   const handleBack = () => {
     setSelectedJAF(null); 
+=======
+
+  const handleBack = () => {
+    setSelectedJAF(null); // Reset the selected JAF to go back to the dashboard
+>>>>>>> 95a9aacb050b56a2207ab2e65cacc9af1e91bbc2
   };
 
   const formatDateTime = (dateString) => {
@@ -57,11 +63,15 @@ const JAF = () => {
           { withCredentials: true }
         );
  
+<<<<<<< HEAD
         const fetchedData = response.data || {};
         setJAFProfiles({
           approved: fetchedData.approved || fetchedData.approved_jaf || [],
           notApproved: fetchedData.notApproved || fetchedData.notApproved_jaf || [],
         });
+=======
+        setJAFProfiles(response.data);
+>>>>>>> 95a9aacb050b56a2207ab2e65cacc9af1e91bbc2
  
       } catch (err) {
         console.error("Axios capture trace exception:", err);
