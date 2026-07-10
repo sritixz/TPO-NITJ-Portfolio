@@ -47,6 +47,22 @@ router.put("/incompletejob/:_id", restrictTo('Professor'), incompletedJobProfile
 router.put("/completejob/:_id",restrictTo('Professor'), completedJobProfile);
 router.put("/pendingjob/:_id",restrictTo('Professor'), markJobPending);
 router.put("/status/:jobId",restrictTo('Professor'), updateJobStatus);
+<<<<<<< HEAD
+// router.put("/status/:jobId",restrictTo('Professor'), updatePlaStatus);
+
+router.put("/rejectjob/:_id", restrictTo('Professor'), rejectJobProfile);
+router.post("/add-shortlist-students", restrictTo('Professor', 'Recuiter'), addshortlistStudents);
+router.post("/add-final-shortlist-students", restrictTo('Professor', 'Recuiter'), addfinalshortlistStudent);
+
+
+router.post("/eligible_students", restrictTo('Professor', 'Recuiter', 'Faculty'),eligibleinthis);
+router.post("/final_eligible_students", restrictTo('Professor', 'Recuiter', 'Faculty'),finalshortlisteligible);
+router.post("/shortlisted_students", restrictTo('Professor', 'Recuiter', 'Faculty'),viewshortlisting);
+router.post("/set-interview-links", restrictTo('Professor', 'Recuiter'),updateInterviewLink );
+router.post("/set-gd-links", restrictTo('Professor', 'Recuiter'),updategdLink );
+router.post("/set-oa-links", restrictTo('Professor', 'Recuiter'),updateoaLink );
+router.post("/set-others-links", restrictTo('Professor', 'Recuiter'),updateOthersLink );
+=======
 router.put("/rejectjob/:_id", restrictTo('Professor'), rejectJobProfile);
 router.post("/add-shortlist-students", restrictTo('Professor'), addshortlistStudents);
 router.post("/add-final-shortlist-students", restrictTo('Professor'), addfinalshortlistStudent);
@@ -59,6 +75,7 @@ router.post("/set-interview-links", restrictTo('Professor'),updateInterviewLink 
 router.post("/set-gd-links", restrictTo('Professor'),updategdLink );
 router.post("/set-oa-links", restrictTo('Professor'),updateoaLink );
 router.post("/set-others-links", restrictTo('Professor'),updateOthersLink );
+>>>>>>> 95a9aacb050b56a2207ab2e65cacc9af1e91bbc2
 
 
 router.get("/editing-allowed-status/:company",restrictTo('Professor','Recuiter'),getEditingAllowedStatus );

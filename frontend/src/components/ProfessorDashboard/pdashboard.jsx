@@ -61,7 +61,15 @@ import RecruiterFeedbackList from "./companyFeedback.jsx";
 import InternshipsManagement from "./internshipManagement.jsx";
 import ManageEventAnnouncements from "./ManageEventAnnouncements.jsx";
 import ProfessorRepresentativeDashboard from "./RepresentativeApplication.jsx"
+<<<<<<< HEAD
+import OfferUpload from "./offerUpload.jsx";
+import RelievingManagement from "./RelievingManagement.jsx"
+=======
+>>>>>>> 95a9aacb050b56a2207ab2e65cacc9af1e91bbc2
 
+import Suggestions from "./suggestions.jsx";
+import BulkResumeUpload from "./resumeZip.jsx";
+import downloadResult from "./downloadResult.jsx";
 
 import Suggestions from "./suggestions.jsx";
 import BulkResumeUpload from "./resumeZip.jsx";
@@ -112,6 +120,10 @@ const Pdashboard = () => {
   const menuItems = [
     { label: "Home", icon: faHome, path: "/pdashboard/home" },
     { label: "Job Management", icon: faBriefcaseClock, path: "/pdashboard/job-profile-management" },
+<<<<<<< HEAD
+    { label: "JAF Submissions", icon: faFileAlt, path: "/pdashboard/jaf" },
+=======
+>>>>>>> 95a9aacb050b56a2207ab2e65cacc9af1e91bbc2
     {label:"Student",icon:faUser, path:"/pdashboard/student-analysis"},
     { label: "Placement Reports", icon: faChartBar, path: "/pdashboard/placement-insights" },
     { label: "OfferAdder", icon: faTags, path: "/pdashboard/offer-adder" },
@@ -119,6 +131,10 @@ const Pdashboard = () => {
     { label: "Placement Calendar", icon: faCalendarAlt, path: "/pdashboard/placement-calendar" },
     { label: "CGPA Validator", icon: faCheckCircle, path: "/pdashboard/check-cgpa" },
     {label:"NOC",icon:faUser, path:"/pdashboard/noc-management"},
+<<<<<<< HEAD
+    {label:"Relieving Letter",icon:faUser, path:"/pdashboard/relieving-management"},
+=======
+>>>>>>> 95a9aacb050b56a2207ab2e65cacc9af1e91bbc2
     { label: "Conversation Log", icon: faComment, path: "/pdashboard/conversation" },
     {label:"Resume Zip",icon:faFileZipper, path:"/pdashboard/resumeZip"},
     { label: "Help Requests", icon: faQuestionCircle, path: "/pdashboard/help-requests" },
@@ -130,6 +146,10 @@ const Pdashboard = () => {
     {label:"Suggestions",icon:faEnvelope, path:"/pdashboard/suggestions"},
     // {label:"Representative Application",icon:faEnvelope, path:"/pdashboard/representativeApplication"},
     // {label:"Download Result",icon:faDownload, path:"/pdashboard/downloadResult"},
+<<<<<<< HEAD
+    { label: "Offer Upload ", icon: faFileAlt, path: "/pdashboard/offerUpload" },
+=======
+>>>>>>> 95a9aacb050b56a2207ab2e65cacc9af1e91bbc2
   ];
 
 
@@ -323,6 +343,10 @@ const Pdashboard = () => {
             <Route path="help-requests" element={<RequestHelpManager />} />
             <Route path="student-analysis" element={<StudentAnalyticsDashboard />} />
             <Route path="noc-management" element={<NOCManagement />} />
+<<<<<<< HEAD
+            <Route path="relieving-management" element={<RelievingManagement/>} />
+=======
+>>>>>>> 95a9aacb050b56a2207ab2e65cacc9af1e91bbc2
             {/* <Route path="mock-assessment" element={<MockAssessmentProfessorDashboard/>} /> */}
             <Route path="experience-sharing" element={<ExperienceSharing />} />
             <Route path="contact-request" element={<ContactRequests />} />
@@ -343,6 +367,10 @@ const Pdashboard = () => {
             {/* <Route path="representativeApplication" element={<ProfessorRepresentativeDashboard/>} /> */}
             {/* <Route path="downloadResult" element={<downloadResult/>} /> */}
             {/* <Route path="uploads" element={<Upload />} /> */}
+<<<<<<< HEAD
+            <Route path="offerUpload" element={<OfferUpload />} />
+=======
+>>>>>>> 95a9aacb050b56a2207ab2e65cacc9af1e91bbc2
             </Routes>
         </div>
 

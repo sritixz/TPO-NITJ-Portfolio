@@ -1876,6 +1876,13 @@ import OaLinkManager from "./oalink";
 import OthersLinkManager from "./otherslink";
 import FinalShortlistStudents from "./finalshortlist";
 import AuditLogs from "../AuditLogs";
+<<<<<<< HEAD
+import {
+  buildJobStatusTimeline,
+  formatStatusTimestamp,
+} from "../../utils/jobStatusTimeline";
+=======
+>>>>>>> 95a9aacb050b56a2207ab2e65cacc9af1e91bbc2
 import { FaArrowLeft } from "react-icons/fa";
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
@@ -1917,12 +1924,23 @@ const ViewJobDetails = ({ job, onClose, oneditingAllowedUpdate}) => {
   const [editingApplicationForm, setEditingApplicationForm] = useState(false);
   const [editingSection, setEditingSection] = useState(null);
   const [editingStepIndex, setEditingStepIndex] = useState(null);
+<<<<<<< HEAD
+    const [jobStatus, setJobStatus] = useState(job.jobStatusInfo?.status || "");
+const [comment, setComment] = useState(job.jobStatusInfo?.comment || "");
+=======
+>>>>>>> 95a9aacb050b56a2207ab2e65cacc9af1e91bbc2
   const [editedJob, setEditedJob] = useState({
     ...job,
     eligibility_criteria: job.eligibility_criteria || [],
     job_salary: { ...job.job_salary, stipend: job.job_salary?.stipend || "0" },
     job_sector: job.job_sector || "Private",
+<<<<<<< HEAD
+    attachments: job.attachments || [],
+    jobStatusHistory: job.jobStatusHistory || [],
+    isDream: job.isDream,
+=======
     attachments: job.attachments || [], // Added attachments
+>>>>>>> 95a9aacb050b56a2207ab2e65cacc9af1e91bbc2
   });
   const [editedWorkflow, setEditedWorkflow] = useState(
     job.Hiring_Workflow || []
@@ -1953,6 +1971,10 @@ const ViewJobDetails = ({ job, onClose, oneditingAllowedUpdate}) => {
 
   // Add this useEffect after your state declarations (e.g., after const [addingFinalShortlist, setAddingFinalShortlist] = useState(false);)
   useEffect(() => {
+<<<<<<< HEAD
+    // console.log("Checking job type and editing section for dynamic field adjustments...");
+=======
+>>>>>>> 95a9aacb050b56a2207ab2e65cacc9af1e91bbc2
   if (editedJob.job_type === "FTE" && editingSection === "basic") {
     setEditedJob((prev) => ({
       ...prev,
@@ -1965,6 +1987,34 @@ const ViewJobDetails = ({ job, onClose, oneditingAllowedUpdate}) => {
   }
   }, [editedJob.job_type, editingSection]); // Re-run only when job_type or editing section changes
 
+<<<<<<< HEAD
+  useEffect(() => {
+    const fetchLatestJob = async () => {
+      try {
+        const res = await axios.get(
+          `${import.meta.env.REACT_APP_BASE_URL}/jobprofile/professor/getjobs/${job._id}`,
+          { withCredentials: true },
+        );
+        const freshJob = res.data;
+        setEditedJob((prev) => ({
+          ...prev,
+          jobStatusInfo: freshJob.jobStatusInfo || prev.jobStatusInfo,
+          jobStatusHistory: freshJob.jobStatusHistory || [],
+        }));
+        if (freshJob.jobStatusInfo?.status) {
+          setJobStatus(freshJob.jobStatusInfo.status);
+          setComment(freshJob.jobStatusInfo.comment || "");
+        }
+      } catch (err) {
+        console.error("Failed to refresh job status history", err);
+      }
+    };
+
+    fetchLatestJob();
+  }, [job._id]);
+
+=======
+>>>>>>> 95a9aacb050b56a2207ab2e65cacc9af1e91bbc2
   const stepTypeOptions = [
   { value: "Resume Shortlisting", label: "Resume Shortlisting" },
   { value: "OA", label: "Online Assessment (OA)" },
@@ -2367,6 +2417,14 @@ const ViewJobDetails = ({ job, onClose, oneditingAllowedUpdate}) => {
     { value: "Private", label: "Private" },
   ];
 
+<<<<<<< HEAD
+  const dreamStatusOptions = [
+    { value: "Dream", label: "Dream" },
+    { value: "Non Dream", label: "Non Dream" },
+  ];
+
+=======
+>>>>>>> 95a9aacb050b56a2207ab2e65cacc9af1e91bbc2
   useEffect(() => {
     const checkApplicationFormExistence = async () => {
       try {
@@ -2376,6 +2434,7 @@ const ViewJobDetails = ({ job, onClose, oneditingAllowedUpdate}) => {
           }`,
           { withCredentials: true }
         );
+        // console.log("Application form existence response:", response.data);
         setApplicationFormexist(response.data.exist);
       } catch (error) {
         console.error("Error checking application form existence:", error);
@@ -2402,6 +2461,10 @@ const ViewJobDetails = ({ job, onClose, oneditingAllowedUpdate}) => {
       eligibility_criteria: job.eligibility_criteria || [], 
       job_salary: { ...job.job_salary, stipend: job.job_salary?.stipend || "0" },
       job_sector: job.job_sector || "Private",
+<<<<<<< HEAD
+      isDream: job.isDream,
+=======
+>>>>>>> 95a9aacb050b56a2207ab2e65cacc9af1e91bbc2
       attachments: job.attachments || [], // Reset attachments
     });
     setEditedWorkflow(job.Hiring_Workflow || []);
@@ -2529,6 +2592,10 @@ const ViewJobDetails = ({ job, onClose, oneditingAllowedUpdate}) => {
           company_name: editedJob.company_name,
           job_id: editedJob.job_id,
           job_role: editedJob.job_role,
+          hr_contact: editedJob.hr_contact,
+          hr_email: editedJob.hr_email,
+          tpo_spoc_name: editedJob.tpo_spoc_name,
+          tpo_spoc_contact: editedJob.tpo_spoc_contact,
           job_type: editedJob.job_type,
           internship_duration: editedJob.internship_duration,
           jobdescription: editedJob.jobdescription,
@@ -2536,6 +2603,10 @@ const ViewJobDetails = ({ job, onClose, oneditingAllowedUpdate}) => {
           job_category: editedJob.job_category,
           job_class: editedJob.job_class,
           job_sector: editedJob.job_sector,
+<<<<<<< HEAD
+          isDream: editedJob.isDream,
+=======
+>>>>>>> 95a9aacb050b56a2207ab2e65cacc9af1e91bbc2
           deadline: editedJob.deadline,
         };
       }
@@ -2547,7 +2618,18 @@ const ViewJobDetails = ({ job, onClose, oneditingAllowedUpdate}) => {
 
       if (response.data.success) {
         toast.success("Job updated successfully!");
-        Object.assign(job, editedJob);
+        const refreshedJob = response.data.job || editedJob;
+        setEditedJob({
+          ...refreshedJob,
+          job_salary: {
+            ...refreshedJob.job_salary,
+            stipend: refreshedJob.job_salary?.stipend || "0",
+          },
+          job_sector: refreshedJob.job_sector || "Private",
+          isDream: refreshedJob.isDream,
+          attachments: refreshedJob.attachments || [],
+        });
+        Object.assign(job, refreshedJob);
         setEditingSection(null);
         setEditingStepIndex(null);
         setEditingCriteriaIndex(null);
@@ -2708,6 +2790,69 @@ const ViewJobDetails = ({ job, onClose, oneditingAllowedUpdate}) => {
             <span className="flex-1">{editedJob.job_role}</span>
           )}
         </div>
+<<<<<<< HEAD
+        <div className="flex items-center">
+          <strong className="w-1/3 text-gray-800">HR Contact:</strong>
+          {editingSection === "basic" ? (
+            <input
+              type="text"
+              value={editedJob.hr_contact || ""}
+              onChange={(e) =>
+                handleInputChange("basic", "hr_contact", e.target.value)
+              }
+              className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            />
+          ) : (
+            <span className="flex-1">{editedJob.hr_contact || "N/A"}</span>
+          )}
+        </div>
+        <div className="flex items-center">
+          <strong className="w-1/3 text-gray-800">HR Email:</strong>
+          {editingSection === "basic" ? (
+            <input
+              type="email"
+              value={editedJob.hr_email || ""}
+              onChange={(e) =>
+                handleInputChange("basic", "hr_email", e.target.value)
+              }
+              className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            />
+          ) : (
+            <span className="flex-1">{editedJob.hr_email || "N/A"}</span>
+          )}
+        </div>
+        <div className="flex items-center">
+          <strong className="w-1/3 text-gray-800">TPO SPOC Name:</strong>
+          {editingSection === "basic" ? (
+            <input
+              type="text"
+              value={editedJob.tpo_spoc_name || ""}
+              onChange={(e) =>
+                handleInputChange("basic", "tpo_spoc_name", e.target.value)
+              }
+              className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            />
+          ) : (
+            <span className="flex-1">{editedJob.tpo_spoc_name || "N/A"}</span>
+          )}
+        </div>
+        <div className="flex items-center">
+          <strong className="w-1/3 text-gray-800">TPO SPOC Contact:</strong>
+          {editingSection === "basic" ? (
+            <input
+              type="text"
+              value={editedJob.tpo_spoc_contact || ""}
+              onChange={(e) =>
+                handleInputChange("basic", "tpo_spoc_contact", e.target.value)
+              }
+              className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            />
+          ) : (
+            <span className="flex-1">{editedJob.tpo_spoc_contact || "N/A"}</span>
+          )}
+        </div>
+=======
+>>>>>>> 95a9aacb050b56a2207ab2e65cacc9af1e91bbc2
         <div className="flex items-center">
           <strong className="w-1/3 text-gray-800">Job Type:</strong>
           {editingSection === "basic" ? (
@@ -2789,8 +2934,14 @@ const ViewJobDetails = ({ job, onClose, oneditingAllowedUpdate}) => {
           {editingSection === "basic" ? (
             <select
               value={editedJob.job_sector || "Private"}
+<<<<<<< HEAD
+              onChange={(e) =>{
+                 handleInputChange("basic", "job_sector", e.target.value);
+                }
+=======
               onChange={(e) =>
                 handleInputChange("basic", "job_sector", e.target.value)
+>>>>>>> 95a9aacb050b56a2207ab2e65cacc9af1e91bbc2
               }
               className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
             >
@@ -2804,6 +2955,40 @@ const ViewJobDetails = ({ job, onClose, oneditingAllowedUpdate}) => {
             <span className="flex-1">{editedJob.job_sector || "Private"}</span>
           )}
         </div>
+<<<<<<< HEAD
+        <div className="flex items-center">
+          <strong className="w-1/3 text-gray-800">Dream Status:</strong>
+          {editingSection === "basic" ? (
+            <select
+              value={editedJob.job_sector==="PSU"?"Dream":editedJob.isDream?"Dream":"Non Dream"}
+              onChange={(e) =>
+                handleInputChange("basic", "isDream", e.target.value==="Dream"?true:false)
+              }
+              disabled={editedJob.job_sector==="PSU"}
+              className={`flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${editedJob.job_sector==="PSU"?"cursor-not-allowed":""} `}
+            >
+              {dreamStatusOptions.map((option) => (
+                <option key={option.value} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
+            </select>
+          ) : (
+            <span className="flex-1">{editedJob.job_sector==="PSU"?"Dream":editedJob.isDream?"Dream":"Non Dream"}</span>
+          )}
+        </div>
+        {/* for debugging purpose only this shows when we update ctc then it must update job class */}
+        {/* <div className="flex items-center">
+          <strong className="w-1/3 text-gray-800">Job Class (Auto):</strong>
+          <span className="flex-1">
+            {editedJob.job_class || "N/A"}
+            <span className="ml-2 text-xs text-gray-500">
+              (derived from CTC and sector)
+            </span>
+          </span>
+        </div> */}
+=======
+>>>>>>> 95a9aacb050b56a2207ab2e65cacc9af1e91bbc2
         <div className="flex items-center">
           <strong className="w-1/3 text-gray-800">Location:</strong>
           {editingSection === "basic" ? (
@@ -2957,7 +3142,11 @@ const ViewJobDetails = ({ job, onClose, oneditingAllowedUpdate}) => {
                     {attachment.name || `Attachment ${index + 1}`}
                   </a>
                 </div>
+<<<<<<< HEAD
+                
+=======
                 (
+>>>>>>> 95a9aacb050b56a2207ab2e65cacc9af1e91bbc2
                 <TooltipProvider>
                   <Tooltip>
                     <TooltipTrigger asChild>
@@ -2973,14 +3162,22 @@ const ViewJobDetails = ({ job, onClose, oneditingAllowedUpdate}) => {
                     </TooltipContent>
                   </Tooltip>
                 </TooltipProvider>
+<<<<<<< HEAD
+                
+=======
                 )
+>>>>>>> 95a9aacb050b56a2207ab2e65cacc9af1e91bbc2
               </li>
             ))}
           </ul>
         ) : (
           <p className="text-gray-500 text-center">No attachments uploaded yet.</p>
         )}
+<<<<<<< HEAD
+        <div className="flex justify-center mt-6">
+=======
         (<div className="flex justify-center mt-6">
+>>>>>>> 95a9aacb050b56a2207ab2e65cacc9af1e91bbc2
           <label
             htmlFor="attachment-upload"
             className="bg-gradient-to-r from-blue-900 to-blue-700 text-white px-6 py-3 rounded-2xl hover:from-blue-600 hover:to-blue-700 focus:outline-none focus:ring-4 focus:ring-blue-500 focus:ring-offset-2 transition-all duration-300 transform hover:scale-105 active:scale-95 shadow-lg hover:shadow-xl cursor-pointer flex items-center space-x-2"
@@ -2995,7 +3192,11 @@ const ViewJobDetails = ({ job, onClose, oneditingAllowedUpdate}) => {
             onChange={handleUploadAttachment}
             className="hidden"
           />
+<<<<<<< HEAD
+        </div>  
+=======
         </div>)
+>>>>>>> 95a9aacb050b56a2207ab2e65cacc9af1e91bbc2
       </div>
     );
   };
@@ -3003,12 +3204,20 @@ const ViewJobDetails = ({ job, onClose, oneditingAllowedUpdate}) => {
 
   const renderEditableCard = (title, content, section) => (
     <div className="p-8 bg-white border border-gray-200 rounded-2xl shadow-lg hover:shadow-xl transition-shadow duration-300 relative mt-8">
+<<<<<<< HEAD
+     <button
+=======
      ( <button
+>>>>>>> 95a9aacb050b56a2207ab2e65cacc9af1e91bbc2
         className="absolute top-4 right-4 p-2 text-gray-600 hover:text-blue-600 transition-colors"
         onClick={() => handleEdit(section)}
       >
         <Pencil size={20} />
+<<<<<<< HEAD
+      </button>
+=======
       </button>)
+>>>>>>> 95a9aacb050b56a2207ab2e65cacc9af1e91bbc2
       <h3 className="text-2xl font-semibold text-custom-blue mb-6">{title}</h3>
       {content}
       {editingSection === section && (
@@ -3410,6 +3619,36 @@ const ViewJobDetails = ({ job, onClose, oneditingAllowedUpdate}) => {
     );
   }
 
+<<<<<<< HEAD
+const updatePlacementStatus = async (jobId, jobStatus, comment) => {
+  if (!jobStatus) {
+    toast.error("Please select a placement status");
+    return;
+  }
+
+  try {
+    const res = await axios.put(
+      `${import.meta.env.REACT_APP_BASE_URL}/jobprofile/status/${jobId}`,
+      { jobStatus, comment },
+      { withCredentials: true }
+    );
+
+    setEditedJob((prev) => ({
+      ...prev,
+      jobStatusInfo: res.data.job.jobStatusInfo,
+      jobStatusHistory: res.data.job.jobStatusHistory || [],
+    }));
+    setJobStatus(res.data.job.jobStatusInfo?.status || "");
+    setComment(res.data.job.jobStatusInfo?.comment || "");
+
+    toast.success("Placement status updated");
+  } catch (err) {
+    toast.error("Failed to update placement status");
+  }
+};
+
+=======
+>>>>>>> 95a9aacb050b56a2207ab2e65cacc9af1e91bbc2
   return (
     <>
       <div className="-mt-10 ml-4">
@@ -3476,7 +3715,107 @@ const ViewJobDetails = ({ job, onClose, oneditingAllowedUpdate}) => {
             </TooltipProvider>
           </div>
         </div>
+<<<<<<< HEAD
+         <div className="p-6 bg-gray-50 border border-gray-200 rounded-2xl shadow-md mb-6">
+    <h3 className="text-xl font-semibold text-custom-blue mb-3">
+      Placement Status
+    </h3>
+
+  <select
+  className="border p-2 rounded w-full"
+  value={jobStatus}
+  onChange={(e) => setJobStatus(e.target.value)}
+>
+  <option value="">Select Status</option>
+  <option value="Data Sent">Data Sent</option>
+  <option value="Shortlisting in Progress">Shortlisting in Progress</option>
+  <option value="OA Scheduled">OA Scheduled</option>
+  <option value="OA Completed">OA Completed</option>
+  <option value="Interview Round 1">Interview Round 1</option>
+  <option value="Final Results Awaited">Final Results Awaited</option>
+  <option value="Other">Other</option>
+</select>
+<textarea
+  value={comment}
+  placeholder="Add comment..."
+  className="border p-2 rounded w-full mt-3"
+  onChange={(e) => setComment(e.target.value)}
+/>
+    <button
+      className="bg-blue-600 text-white px-4 py-2 rounded mt-3"
+      onClick={() => updatePlacementStatus(job._id, jobStatus, comment)}
+    >
+      Update Status
+    </button>
+
+    {/* SHOW CURRENT STATUS & TIMELINE */}
+    {(() => {
+      const timeline = buildJobStatusTimeline(
+        editedJob.jobStatusInfo,
+        editedJob.jobStatusHistory,
+      );
+      return (
+        <div className="mt-3 text-sm text-gray-700">
+          <p>
+            <strong>Current:</strong>{" "}
+            {editedJob.jobStatusInfo?.status || "Not Updated"}
+          </p>
+          {editedJob.jobStatusInfo?.updatedAt && (
+            <p className="text-xs text-gray-400 mt-1">
+              Last updated: {formatStatusTimestamp(editedJob.jobStatusInfo.updatedAt)}
+            </p>
+          )}
+          {editedJob.jobStatusInfo?.comment && (
+            <p className="text-gray-500 mt-1">{editedJob.jobStatusInfo.comment}</p>
+          )}
+
+          {timeline.length > 0 && (
+            <div className="mt-4 border-t pt-3">
+              <p className="font-semibold mb-2">Status Timeline</p>
+              <ul className="space-y-3 max-h-64 overflow-y-auto">
+                {timeline.map((entry, idx) => (
+                  <li
+                    key={`${entry.status}-${entry.updatedAt}-${idx}`}
+                    className="border-l-2 border-blue-300 pl-3 py-1"
+                  >
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <span className="text-xs font-semibold text-gray-500">
+                        Step {entry.step}
+                      </span>
+                      {entry.previousStatus ? (
+                        <span className="text-xs text-gray-600">
+                          {entry.previousStatus} → {entry.status}
+                        </span>
+                      ) : (
+                        <p className="font-medium">{entry.status}</p>
+                      )}
+                      {entry.isCurrent && (
+                        <span className="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full">
+                          Current
+                        </span>
+                      )}
+                    </div>
+                    {entry.comment && (
+                      <p className="text-gray-500 text-xs mt-1">{entry.comment}</p>
+                    )}
+                    {entry.updatedAt && (
+                      <p className="text-xs text-gray-400">
+                        {formatStatusTimestamp(entry.updatedAt)}
+                      </p>
+                    )}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+        </div>
+      );
+    })()}
+  </div>
+
+=======
         
+>>>>>>> 95a9aacb050b56a2207ab2e65cacc9af1e91bbc2
         {renderEditableCard("Basic Details", renderBasicDetails(), "basic")}
          <div className="p-8 bg-white border border-gray-200 rounded-2xl shadow-lg hover:shadow-xl transition-shadow duration-300 relative mt-8">
           <h3 className="text-2xl font-semibold text-custom-blue mb-6">Attachments</h3>
@@ -3752,7 +4091,11 @@ const ViewJobDetails = ({ job, onClose, oneditingAllowedUpdate}) => {
 
     return (
       <div className="mt-8 space-y-8">
+<<<<<<< HEAD
+      
+=======
       (
+>>>>>>> 95a9aacb050b56a2207ab2e65cacc9af1e91bbc2
   <div className="flex space-x-4">
     <button className="bg-gradient-to-r from-green-500 to-green-600 text-white px-8 py-3 rounded-2xl hover:from-green-600 hover:to-green-700 focus:outline-none focus:ring-4 focus:ring-green-500 focus:ring-offset-2 transition-all duration-300 transform hover:scale-105 active:scale-95 shadow-lg hover:shadow-xl" onClick={() => setAddingStep(true)}>
       Add Hiring Step
@@ -3763,7 +4106,11 @@ const ViewJobDetails = ({ job, onClose, oneditingAllowedUpdate}) => {
       </button>
     )}
   </div>
+<<<<<<< HEAD
+
+=======
 )
+>>>>>>> 95a9aacb050b56a2207ab2e65cacc9af1e91bbc2
        {job.Hiring_Workflow.length === 0 && !addingStep ? (
         <p className="text-gray-500">No hiring workflow defined.</p>
       ) : (
@@ -4049,7 +4396,11 @@ const ViewJobDetails = ({ job, onClose, oneditingAllowedUpdate}) => {
                   Manage Interview Links
                 </button>
               )}
+<<<<<<< HEAD
+             <button
+=======
             ( <button
+>>>>>>> 95a9aacb050b56a2207ab2e65cacc9af1e91bbc2
                 className="bg-gradient-to-r from-green-500 to-green-600 text-white px-8 py-3 rounded-2xl hover:from-green-600 hover:to-green-700 focus:outline-none focus:ring-4 focus:ring-green-500 focus:ring-offset-2 transition-all duration-300 transform hover:scale-105 active:scale-95 shadow-lg hover:shadow-xl "
                 onClick={() => setAddingShortlist({ stepIndex: index })}
               >

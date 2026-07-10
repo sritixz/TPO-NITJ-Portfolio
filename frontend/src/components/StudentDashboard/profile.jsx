@@ -56,6 +56,83 @@ function Profile() {
   const dispatch = useDispatch();
 
   useEffect(() => {
+<<<<<<< HEAD
+    const loadProfile = async () => {
+      try {
+        const response = await axios.get(
+          `${import.meta.env.REACT_APP_BASE_URL}/profile/get`,
+          { withCredentials: true }
+        );
+        const profileUser = response.data.user || userData;
+        setUser(profileUser);
+        setFormData({
+          name: profileUser.name ?? "",
+          email: profileUser.email ?? "",
+          phone: profileUser.phone ?? "",
+          rollno: profileUser.rollno ?? "",
+          department: profileUser.department ?? "",
+          batch: profileUser.batch ?? "",
+          address: profileUser.address ?? "",
+          cgpa: profileUser.cgpa ?? "",
+          gender: profileUser.gender ?? "",
+          course: profileUser.course ?? "",
+          debarred: profileUser.debarred ?? false,
+          placementstatus: profileUser.placementstatus ?? "",
+          internshipstatus: profileUser.internshipstatus ?? "",
+          active_backlogs: profileUser.active_backlogs ?? false,
+          backlogs_history: profileUser.backlogs_history ?? false,
+          activeBacklogCount: profileUser.activeBacklogCount ?? "",
+          image: profileUser.image ?? "",
+          dob: profileUser.dob ?? "",
+          personalEmail: profileUser.personalEmail ?? "",
+          Xth: profileUser.Xth ?? "",
+          XIIth: profileUser.XIIth ?? "",
+          linkedin: profileUser.linkedin ?? "",
+        });
+        dispatch(
+          setAuthUser({
+            authUser: true,
+            userData: profileUser,
+            userType: "Student",
+          })
+        );
+      } catch (err) {
+        console.error(err);
+        if (userData) {
+          setUser(userData);
+          setFormData({
+            name: userData.name ?? "",
+            email: userData.email ?? "",
+            phone: userData.phone ?? "",
+            rollno: userData.rollno ?? "",
+            department: userData.department ?? "",
+            batch: userData.batch ?? "",
+            address: userData.address ?? "",
+            cgpa: userData.cgpa ?? "",
+            gender: userData.gender ?? "",
+            course: userData.course ?? "",
+            debarred: userData.debarred ?? false,
+            placementstatus: userData.placementstatus ?? "",
+            internshipstatus: userData.internshipstatus ?? "",
+            active_backlogs: userData.active_backlogs ?? false,
+            backlogs_history: userData.backlogs_history ?? false,
+            activeBacklogCount: userData.activeBacklogCount ?? "",
+            image: userData.image ?? "",
+            dob: userData.dob ?? "",
+            personalEmail: userData.personalEmail ?? "",
+            Xth: userData.Xth ?? "",
+            XIIth: userData.XIIth ?? "",
+            linkedin: userData.linkedin ?? "",
+          });
+        } else {
+          setError("Failed to fetch profile");
+        }
+      }
+    };
+
+    loadProfile();
+  }, [dispatch, userData]);
+=======
     if (userData) {
       setUser(userData);
       setFormData({
@@ -84,6 +161,7 @@ function Profile() {
       });
     }
   }, [userData]);
+>>>>>>> 95a9aacb050b56a2207ab2e65cacc9af1e91bbc2
 
   const handleEditToggle = () => {
     setIsEditing(!isEditing);
@@ -384,6 +462,17 @@ function Profile() {
                   value={formData.activeBacklogCount}
                 />
                 <AboutItem
+<<<<<<< HEAD
+                  label="Applied Count"
+                  value={user?.appliedCount ?? 0}
+                />
+                <AboutItem
+                  label="Dream Applied"
+                  value={user?.dreamApplied ? "Yes" : "No"}
+                />
+                <AboutItem
+=======
+>>>>>>> 95a9aacb050b56a2207ab2e65cacc9af1e91bbc2
                   label="Debarred"
                   value={formData.debarred ? "Yes" : "No"}
                 />

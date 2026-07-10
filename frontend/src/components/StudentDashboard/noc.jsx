@@ -1632,7 +1632,11 @@ const NOC = () => {
     }
     const cutoff = new Date(batchYear, 5, 11); // June 11 (month 5 is June)
     cutoff.setHours(23, 59, 59, 999); // End of day for comparison
+<<<<<<< HEAD
+    if (formData.course != "M.Tech" && selectedDate > cutoff) {
+=======
     if (selectedDate > cutoff) {
+>>>>>>> 95a9aacb050b56a2207ab2e65cacc9af1e91bbc2
       setter(
         `Please select any date before or on June 11, ${batchYear} for ${fieldName}`,
       );

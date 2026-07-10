@@ -6,6 +6,10 @@ import { encryptValue, decryptValue } from "../utils/security.js";
 import JobProfile from "../models/jobprofile.js";
 import Internship from "../models/internship.js"; // for getOfferInsights company count
 import SummerIntern from "../models/summer_internship.js"; // ← correct model for summer intern insights
+<<<<<<< HEAD
+import ExcelJS from 'exceljs';
+=======
+>>>>>>> 95a9aacb050b56a2207ab2e65cacc9af1e91bbc2
 
 const parseCTC = (ctc) => {
   if (!ctc) return 0;
@@ -822,3 +826,91 @@ export const getSummerInternInsights = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
+<<<<<<< HEAD
+
+export const downloadEligibleExcel = async (req, res) => {
+  try {
+    const { course, batch } = req.query;
+
+    let offerQuery = { visibility: true };
+    if (course) offerQuery.course = course;
+    if (batch) offerQuery.batch = batch;
+    const offers = await Offer.find(offerQuery);
+    const placedStudentIds = new Set(
+      offers.flatMap(o => o.shortlisted_students || [])
+            .map(s => s.studentId?.toString())
+            .filter(Boolean)
+    );
+
+    const interestedQuery = { interested: true };
+    if (course) interestedQuery.course = course;
+    if (batch) interestedQuery.batch = batch;
+
+    const interestedStudents = await PlacementRegistration.find(interestedQuery);
+    const studentIds = interestedStudents.map(s => s.studentId).filter(Boolean);
+    const students = await Student.find({ _id: { $in: studentIds } });
+
+    const eligibleList = interestedStudents.map(pr => {
+      const student = students.find(s => s._id.toString() === pr.studentId.toString());
+      if (!student) return null;
+      
+      const cgpa = parseFloat(student.cgpa ?? 0);
+      const active_backlogs = student.active_backlogs ?? false;
+      const isPlaced = placedStudentIds.has(pr.studentId.toString());
+      
+      if (isPlaced || (cgpa >= 6 && !active_backlogs)) return student;
+      return null;
+    }).filter(Boolean);
+
+    const workbook = new ExcelJS.Workbook();
+
+    const groupedData = eligibleList.reduce((acc, student) => {
+      const dept = student.department || "General";
+      if (!acc[dept]) acc[dept] = [];
+      acc[dept].push(student);
+      return acc;
+    }, {});
+
+    const deptNames = Object.keys(groupedData).sort();
+
+    deptNames.forEach((dept) => {
+      const safeSheetName = dept.replace(/[/\\?*\[\]]/g, "").substring(0, 31);
+      const worksheet = workbook.addWorksheet(safeSheetName);
+
+      worksheet.columns = [
+        { header: 'Roll Number', key: 'rollno', width: 15 },
+        { header: 'Student Name', key: 'name', width: 25 },
+        { header: 'Course', key: 'course', width: 12 },
+        { header: 'CGPA', key: 'cgpa', width: 10 },
+        { header: 'Email', key: 'email', width: 30 },
+      ];
+
+      worksheet.getRow(1).eachCell((cell) => {
+        cell.font = { bold: true};
+        cell.alignment = { horizontal: 'center' };
+      });
+
+      groupedData[dept].forEach(s => {
+        worksheet.addRow({
+          rollno: s.rollno,
+          name: s.name,
+          course: s.course,
+          cgpa: parseFloat(s.cgpa || 0),
+          email: s.email
+        });
+      });
+    });
+
+    res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+    res.setHeader('Content-Disposition', `attachment; filename=Eligible_Students_${batch}.xlsx`);
+
+    await workbook.xlsx.write(res);
+    res.end();
+
+  } catch (error) {
+    console.error("Excel Error:", error);
+    res.status(500).json({ message: "Server Error during Excel generation" });
+  }
+};
+=======
+>>>>>>> 95a9aacb050b56a2207ab2e65cacc9af1e91bbc2

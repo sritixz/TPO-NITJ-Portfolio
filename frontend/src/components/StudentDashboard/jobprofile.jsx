@@ -73,10 +73,16 @@ const JobApplications = () => {
                 key={`${activeTab}-${job._id}`}
                 job_id={job.job_id}
                 jobtype={job.job_type}
+<<<<<<< HEAD
+                internshipDuration={job.internship_duration}
+=======
+>>>>>>> 95a9aacb050b56a2207ab2e65cacc9af1e91bbc2
                 company={job.company_name}
                 jobtitle={job.job_role}
                 deadline={job.deadline}
                 jpid={job._id}
+                job_status={job.jobStatusInfo?.status}
+                status_updated_at={job.jobStatusInfo?.updatedAt}
                 isVisible={false}
               />
             ))}
@@ -95,10 +101,16 @@ const JobApplications = () => {
                 key={`${activeTab}-${job._id}`}
                 job_id={job.job_id}
                 jobtype={job.job_type}
+<<<<<<< HEAD
+                internshipDuration={job.internship_duration}
+=======
+>>>>>>> 95a9aacb050b56a2207ab2e65cacc9af1e91bbc2
                 company={job.company_name}
                 jobtitle={job.job_role}
                 deadline={job.deadline}
                 jpid={job._id}
+                  job_status={job.jobStatusInfo?.status}
+                  status_updated_at={job.jobStatusInfo?.updatedAt}
                 isVisible={false}
               />
             ))}
@@ -120,10 +132,16 @@ const JobApplications = () => {
                 key={`${activeTab}-${job._id}`}
                 job_id={job.job_id}
                 jobtype={job.job_type}
+<<<<<<< HEAD
+                internshipDuration={job.internship_duration}
+=======
+>>>>>>> 95a9aacb050b56a2207ab2e65cacc9af1e91bbc2
                 company={job.company_name}
                 jobtitle={job.job_role}
                 deadline={job.deadline}
                 jpid={job._id}
+                  job_status={job.jobStatusInfo?.status}
+                  status_updated_at={job.jobStatusInfo?.updatedAt}
                 isVisible={false}
               />
             ))}

@@ -32,7 +32,7 @@ const JAFPDFDocument = ({ formData }) => (
     <Page size="A4" style={styles.page}>
       <View style={styles.section}>
         <Text style={styles.header}>Dr. B R Ambedkar National Institute of Technology</Text>
-        <Text style={styles.subHeader}>Job Announcement Form - 2024-25 Batch</Text>
+        <Text style={styles.subHeader}>Job Announcement Form - 2026-27 Batch</Text>
 
         {/* Recruiter Details */}
         <Text style={styles.subHeader}>Recruiter Details</Text>

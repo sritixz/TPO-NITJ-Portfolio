@@ -16,6 +16,10 @@ export const sendEmails = async (req, res) => {
         to: emails.join(","),
         subject: subject,
         text: text,
+<<<<<<< HEAD
+        html:text
+=======
+>>>>>>> 95a9aacb050b56a2207ab2e65cacc9af1e91bbc2
       };
   
       await transporter.sendMail(mailOptions);

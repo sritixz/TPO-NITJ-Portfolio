@@ -1,5 +1,9 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
+<<<<<<< HEAD
+import * as XLSX from "xlsx";
+=======
+>>>>>>> 95a9aacb050b56a2207ab2e65cacc9af1e91bbc2
 import {
   FaEye,
   FaFastBackward,
@@ -245,6 +249,69 @@ export default function InternshipsManagement() {
     }
   };
 
+<<<<<<< HEAD
+  const getInternshipFieldValue = (item, shortField, longField) => {
+    const isShort = item.filterType === FILTERS.SHORT;
+    return isShort ? item[shortField] : item[longField];
+  };
+
+  const getFilteredInternshipsForExport = () => {
+    let filtered = allInternships.filter(
+      (item) => item.filterType === activeFilter
+    );
+
+    filtered = filtered.filter(
+      (item) => (item.status ?? "").toLowerCase() === activeStatus.toLowerCase()
+    );
+
+    if (searchQuery) {
+      const q = searchQuery.toLowerCase();
+      filtered = filtered.filter((item) =>
+        [
+          getInternshipFieldValue(item, "name", "ApplicantName"),
+          getInternshipFieldValue(item, "departmentAppliedFor", "department"),
+          getInternshipFieldValue(item, "proposedFacultyMember", "facultySupervisor"),
+        ]
+          .filter(Boolean)
+          .some((field) => field.toLowerCase().includes(q))
+      );
+    }
+
+    return filtered;
+  };
+
+  const handleExportExcel = () => {
+    const exportRows = getFilteredInternshipsForExport().map((item) => ({
+      "Applicant Name": getInternshipFieldValue(item, "name", "ApplicantName") || "",
+      "Roll Number": item.rollNo || item.rollNumber || "",
+      Department: getInternshipFieldValue(item, "departmentAppliedFor", "department") || "",
+      "Supervisor / Faculty": getInternshipFieldValue(
+        item,
+        "proposedFacultyMember",
+        "facultySupervisor"
+      ) || "",
+      "Internship Type": item.filterType === FILTERS.SHORT ? "Winter / Summer" : "Long Term",
+      Company: item.companyName || item.company || item.organizationName || "",
+      Status: (item.status || "").toUpperCase(),
+      "Application Date": item.createdAt ? new Date(item.createdAt).toLocaleDateString() : "",
+    }));
+
+    if (exportRows.length === 0) {
+      showToast("No internship records match the current view.", "error");
+      return;
+    }
+
+    const worksheet = XLSX.utils.json_to_sheet(exportRows);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Internships");
+
+    const fileName = `Internship_Management_${activeFilter}_${activeStatus}.xlsx`;
+    XLSX.writeFile(workbook, fileName);
+    showToast("Excel export generated successfully!", "success");
+  };
+
+=======
+>>>>>>> 95a9aacb050b56a2207ab2e65cacc9af1e91bbc2
   const renderStatusTabs = () => (
     <div
       className={`flex justify-center space-x-1 border-b border-gray-200 ${activeFilter === FILTERS.SHORT ? "ml-8 pl-4" : "ml-4"}`}
@@ -466,7 +533,11 @@ export default function InternshipsManagement() {
             Internship <span className="text-custom-blue">Management</span>
           </span>
         </h2>
+<<<<<<< HEAD
+        <div className="flex flex-wrap items-center gap-3 mt-4 sm:mt-0">
+=======
         <div className="flex items-center space-x-3 mt-4 sm:mt-0">
+>>>>>>> 95a9aacb050b56a2207ab2e65cacc9af1e91bbc2
           <div className="relative">
             <FaSearch
               className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
@@ -480,6 +551,15 @@ export default function InternshipsManagement() {
               className="pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-custom-blue"
             />
           </div>
+<<<<<<< HEAD
+          <button
+            onClick={handleExportExcel}
+            className="px-4 py-2 rounded-md border border-custom-blue text-custom-blue hover:bg-custom-blue hover:text-white transition-colors"
+          >
+            Export Excel
+          </button>
+=======
+>>>>>>> 95a9aacb050b56a2207ab2e65cacc9af1e91bbc2
           <div className="flex border border-gray-300 rounded-3xl bg-white">
             <button
               onClick={() => setActiveFilter(FILTERS.SHORT)}

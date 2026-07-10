@@ -199,6 +199,23 @@ const JobProfileSchema = new mongoose.Schema(
     company_logo: {
       type: String,
     },
+    hr_contact: {
+      type: String,
+      trim: true,
+    },
+    hr_email: {
+      type: String,
+      trim: true,
+      lowercase: true,
+    },
+    tpo_spoc_name: {
+      type: String,
+      trim: true,
+    },
+    tpo_spoc_contact: {
+      type: String,
+      trim: true,
+    },
     job_role: {
       type: String,
     },
@@ -212,6 +229,29 @@ const JobProfileSchema = new mongoose.Schema(
       type: String,
       enum: ['Tech', 'Non-Tech','Tech+Non-Tech'],
     },
+<<<<<<< HEAD
+   jobStatusInfo: {
+  status: {
+    type: String,
+  },
+  comment: {
+    type: String,
+    default: ""
+  },
+  updatedAt: {
+    type: Date,
+    default: Date.now
+  }
+},
+    jobStatusHistory: [
+      {
+        status: { type: String },
+        comment: { type: String, default: "" },
+        updatedAt: { type: Date, default: Date.now },
+      },
+    ],
+=======
+>>>>>>> 95a9aacb050b56a2207ab2e65cacc9af1e91bbc2
     job_sector:{
        type:String,
        default:'Private'
@@ -343,6 +383,24 @@ const JobProfileSchema = new mongoose.Schema(
     },
     job_class: {
       type: String,
+<<<<<<< HEAD
+    },
+    isDream: {
+      type: Boolean,
+      default: false,
+    },
+    isCountable: {
+      type: Boolean,
+      default: true,
+    },
+    ctcForPolicy: {
+      type: Number,
+      default: 0,
+    },
+    ctcMin: {
+      type: Number,
+=======
+>>>>>>> 95a9aacb050b56a2207ab2e65cacc9af1e91bbc2
     },
     Applied_Students:[{
       type: mongoose.Schema.Types.ObjectId,
@@ -378,10 +436,21 @@ const JobProfileSchema = new mongoose.Schema(
     url: { type: String }
   }
 ],
+<<<<<<< HEAD
+
+=======
+>>>>>>> 95a9aacb050b56a2207ab2e65cacc9af1e91bbc2
 data_Sent:{
   type:Boolean,
   default:false
 },
+<<<<<<< HEAD
+thankYouEmailSent:{
+  type:Boolean,
+  default:false
+},
+=======
+>>>>>>> 95a9aacb050b56a2207ab2e65cacc9af1e91bbc2
     auditLogs: [
       {
         editedBy: {

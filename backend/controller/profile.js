@@ -1,6 +1,7 @@
 import Recuiter from "../models/user_model/recuiter.js";
 import Professor from "../models/user_model/professor.js";
 import Student from "../models/user_model/student.js";
+import JobProfile from "../models/jobprofile.js";
 import bcrypt from "bcrypt";
 
 
@@ -11,8 +12,19 @@ export const sprofile = async (req, res) => {
         if (!student) {
             return res.status(404).json({ message: "User not found" });
         }
-        res.status(200).json({ message: "Profile fetched successfully", user: student });
+
+        const [appliedCount, dreamAppliedRecord] = await Promise.all([
+            JobProfile.countDocuments({ Applied_Students: req.user.userId }),
+            JobProfile.findOne({ Applied_Students: req.user.userId, isDream: true }).select('_id')
+        ]);
+
+        const studentProfile = student.toObject();
+        studentProfile.appliedCount = appliedCount;
+        studentProfile.dreamApplied = student.dreamApplied ?? Boolean(dreamAppliedRecord);
+
+        res.status(200).json({ message: "Profile fetched successfully", user: studentProfile });
     } catch (error) {
+        console.error("Error fetching student profile:", error);
         res.status(500).json({ message: "Internal Server Error" });
     }
 }

@@ -54,7 +54,7 @@ const JobAnnouncementFormSchema = new mongoose.Schema({
 
   bTechPrograms: {
     type:[String],
-    enum:['Computer Science & Engineering','Electronics & Communication Engineering','Instrumentation and Control Engineering','Electrical Engineering','Information Technology','Biotechnology','Chemical Engineering','Civil Engineering','Industrial & Production Engineering','Mechanical Engineering','Textile Technology'],
+    enum:['Computer Science & Engineering','Data Science & Engineering','Electronics & Communication Engineering','Electronics & VLSI Engineering','Instrumentation and Control Engineering','Electrical Engineering','Information Technology','Biotechnology','Chemical Engineering','Civil Engineering','Industrial & Production Engineering','Mechanical Engineering','Textile Technology'],
   },
   
   mTechPrograms: {

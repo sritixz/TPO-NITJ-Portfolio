@@ -39,6 +39,14 @@ import SignupFlow from "./components/outsource-studentDashboard/signup";
 import LoginOutsider from "./components/outsource-studentDashboard/login";
 import OutsourceStudentDashboard from "./components/outsource-studentDashboard/osdashboard";
 import ForgotPassword from "./components/outsource-studentDashboard/ForgotPassword";
+<<<<<<< HEAD
+import JobAnnouncementForm from "./components/RecruiterDashboard/jaf";
+import JobAnnouncementFormPublic from "./Pages/jafpublic";
+
+import ProgramsPage from "./Pages/ProgramsPage";
+import RecruitersPage from "./Pages/RecruitersPage";
+=======
+>>>>>>> 95a9aacb050b56a2207ab2e65cacc9af1e91bbc2
 
 const AppContent = () => {
   const location = useLocation();
@@ -111,6 +119,13 @@ const AppContent = () => {
         <Route path="/departmental-documents" element={<Document />} />
         <Route path="/whyrecruit" element={<WhyRecruitPage />} />
         <Route path="/recruiterFeedback" element={<FeedbackForm />} />
+<<<<<<< HEAD
+        <Route path="/programsPage" element={<ProgramsPage />} />
+        <Route path="recruitersPage" element={<RecruitersPage />} />
+
+        <Route path="/jaf" element={<JobAnnouncementFormPublic />} />
+=======
+>>>>>>> 95a9aacb050b56a2207ab2e65cacc9af1e91bbc2
         <Route
           path="/sdashboard/*"
           element={

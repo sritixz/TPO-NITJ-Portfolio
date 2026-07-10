@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import Swal from "sweetalert2";
+import * as XLSX from "xlsx";
 import ViewJobDetails from "./ViewJob";
 import ViewJAF from "./viewjaf";
 import CreateJob from "./createjobprofile";
@@ -27,11 +28,19 @@ import {
   MessageCircle,
   FileText,
   Trash2,
+<<<<<<< HEAD
+  Download,
+=======
+>>>>>>> 95a9aacb050b56a2207ab2e65cacc9af1e91bbc2
 } from "lucide-react";
 import { FaArrowLeft, FaSpinner } from "react-icons/fa";
 import Notification from "./Notification";
 import GuestHouseBookingForm from "./roomarrangement";
 import VehicleRequisitionForm from "./vehiclerequisitionform";
+<<<<<<< HEAD
+import { formatStatusTimestamp } from "../../utils/jobStatusTimeline";
+=======
+>>>>>>> 95a9aacb050b56a2207ab2e65cacc9af1e91bbc2
 
 const JobProfilesonp = () => {
   const [jobProfiles, setJobProfiles] = useState({
@@ -564,14 +573,22 @@ const JobProfilesonp = () => {
 
   const JobCard = ({ job, showActions }) => (
     <Card className="bg-white border border-gray-200 rounded-2xl shadow-lg hover:shadow-xl transition-shadow duration-300 relative">
+<<<<<<< HEAD
+      
+=======
       (
+>>>>>>> 95a9aacb050b56a2207ab2e65cacc9af1e91bbc2
       <div className="absolute top-2 right-2 text-red-600">
         <Trash2
           className="w-7 h-7 bg-red-100 rounded-3xl p-1 cursor-pointer"
           onClick={() => handleDelete(job._id)}
         />
       </div>
+<<<<<<< HEAD
+      
+=======
       )
+>>>>>>> 95a9aacb050b56a2207ab2e65cacc9af1e91bbc2
 
       {/* APPROVED / ACTIVE => can go to PENDING or COMPLETED */}
       {!job.pending && !job.completed && (
@@ -689,6 +706,21 @@ const JobProfilesonp = () => {
               Posted: {new Date(job.createdAt).toLocaleDateString()}
             </p>
           </div>
+          {job.jobStatusInfo?.status && (
+            <div className="flex items-start space-x-2">
+              <MessageCircle className="w-4 h-4 text-custom-blue mt-0.5" />
+              <div>
+                <p className="text-sm text-gray-700">
+                  Status: {job.jobStatusInfo.status}
+                </p>
+                {job.jobStatusInfo.updatedAt && (
+                  <p className="text-xs text-gray-500">
+                    Updated: {formatStatusTimestamp(job.jobStatusInfo.updatedAt)}
+                  </p>
+                )}
+              </div>
+            </div>
+          )}
         </div>
       </CardContent>
       <CardFooter className="flex flex-col space-y-2">
@@ -880,6 +912,40 @@ const JobProfilesonp = () => {
     }, {});
   };
 
+<<<<<<< HEAD
+  const handleExportToExcel = () => {
+    const allJobs = [
+      ...(jobProfiles.approved || []),
+      ...(jobProfiles.notApproved || []),
+      ...(jobProfiles.completed || []),
+      ...(jobProfiles.pending || []),
+    ];
+
+    const uniqueJobs = Array.from(
+      new Map(allJobs.map((job) => [job._id, job])).values(),
+    );
+
+    const exportRows = uniqueJobs.map((job) => ({
+      "Company Name": job.company_name || "",
+      "HR Contact": job.hr_contact || "",
+      "HR Email": job.hr_email || "",
+      "Job Status": job.jobStatusInfo?.status || "Not Updated",
+    }));
+
+    if (exportRows.length === 0) {
+      Swal.fire("No Data", "No jobs available to export.", "info");
+      return;
+    }
+
+    const worksheet = XLSX.utils.json_to_sheet(exportRows);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Job Management");
+    const timestamp = new Date().toISOString().slice(0, 10);
+    XLSX.writeFile(workbook, `Job_Management_Export_${timestamp}.xlsx`);
+  };
+
+=======
+>>>>>>> 95a9aacb050b56a2207ab2e65cacc9af1e91bbc2
   const filteredApprovedJobs = filterJobs(
     jobProfiles.approved.filter((job) =>
       job.company_name.toLowerCase().includes(searchTerm.toLowerCase()),
@@ -974,7 +1040,11 @@ const JobProfilesonp = () => {
               <span className="text-custom-blue">{selectedCompany}</span> Job
               Profiles
             </h1>
+<<<<<<< HEAD
+            <button
+=======
             {/* <button
+>>>>>>> 95a9aacb050b56a2207ab2e65cacc9af1e91bbc2
               onClick={() => setShowJAF(true)}
               className="absolute top-0 right-4 group inline-flex items-center gap-2 bg-white border-2 border-custom-blue px-4 py-2 rounded-lg 
                hover:bg-custom-blue transition-all duration-300 shadow-md
@@ -982,7 +1052,11 @@ const JobProfilesonp = () => {
             >
               <FileText className="w-5 h-5 transition-transform group-hover:scale-110" />
               <span>View JAF</span>
+<<<<<<< HEAD
+            </button>
+=======
             </button> */}
+>>>>>>> 95a9aacb050b56a2207ab2e65cacc9af1e91bbc2
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {groupedApprovedJobs[selectedCompany]?.map((job) => (
@@ -1064,9 +1138,23 @@ const JobProfilesonp = () => {
         </>
       ) : (
         <>
+<<<<<<< HEAD
+          <div className="flex sm:flex-row flex-col items-center justify-between px-4 gap-4">
+            <div className="flex-1 flex justify-start">
+              <button
+                onClick={handleExportToExcel}
+                className="flex items-center gap-2 px-4 py-2 bg-custom-blue text-white rounded-lg hover:opacity-90 transition-all text-sm font-medium shadow-sm"
+              >
+                <Download size={16} />
+                Export to Excel
+              </button>
+            </div>
+            <h1 className="text-4xl font-bold text-custom-blue whitespace-nowrap text-center">
+=======
           <div className="flex sm:flex-row flex-col items-center justify-between px-4">
             <div className="flex-1"></div>
             <h1 className="absolute left-1/2 -translate-x-1/2 text-4xl font-bold text-custom-blue whitespace-nowrap">
+>>>>>>> 95a9aacb050b56a2207ab2e65cacc9af1e91bbc2
             Job Profiles Dashboard
             </h1>
            (

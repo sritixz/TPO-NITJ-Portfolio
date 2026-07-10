@@ -1,14 +1,27 @@
 import React from 'react';
+<<<<<<< HEAD
+import { Clock, Briefcase, Tag , Loader2, Activity} from 'lucide-react';
+=======
 import { Clock, Briefcase, Tag } from 'lucide-react';
+>>>>>>> 95a9aacb050b56a2207ab2e65cacc9af1e91bbc2
 import { useNavigate } from 'react-router-dom';
 
 const JobCard = ({ 
   job_id, 
   jobtype, 
+<<<<<<< HEAD
+  internshipDuration,
+=======
+>>>>>>> 95a9aacb050b56a2207ab2e65cacc9af1e91bbc2
   jobtitle, 
   company, 
   deadline,
   jpid, 
+<<<<<<< HEAD
+  job_status,
+  status_updated_at,
+=======
+>>>>>>> 95a9aacb050b56a2207ab2e65cacc9af1e91bbc2
 }) => {
   // Format deadline with more robust date handling
   const formatDeadline = (deadlineDate) => {
@@ -28,6 +41,12 @@ const JobCard = ({
   };
 
   const navigate = useNavigate();
+<<<<<<< HEAD
+  const isInternshipType = ["Intern", "Intern+PPO", "Intern+FTE"].includes(jobtype);
+  const showInternshipDuration =
+    isInternshipType && internshipDuration && internshipDuration !== "N/A";
+=======
+>>>>>>> 95a9aacb050b56a2207ab2e65cacc9af1e91bbc2
    const handleClick = () => {
     navigate(`${jpid}`);
   };
@@ -54,11 +73,45 @@ const JobCard = ({
             <span className="font-medium mr-1">ID:</span>
             <span className="text-gray-600">{job_id}</span>
           </div>
+<<<<<<< HEAD
+          <div className="flex items-start text-gray-700 text-sm">
+            <Activity className="mr-2 text-blue-500 mt-0.5" size={16} />
+            <div>
+              <p>Status: {job_status || "Not Updated"}</p>
+              {status_updated_at && (
+                <p className="text-xs text-gray-500">
+                  Updated:{" "}
+                  {new Date(status_updated_at).toLocaleString("en-IN", {
+                    day: "2-digit",
+                    month: "short",
+                    year: "numeric",
+                    hour: "2-digit",
+                    minute: "2-digit",
+                  })}
+                </p>
+              )}
+            </div>
+          </div>
+
+          {showInternshipDuration && (
+            <div className="flex items-center text-gray-700 text-sm">
+              <Clock className="mr-2 text-custom-blue" size={16} />
+              <span className="font-medium mr-1">Duration:</span>
+              <span className="text-gray-600">{internshipDuration}</span>
+            </div>
+          )}
+
+=======
+>>>>>>> 95a9aacb050b56a2207ab2e65cacc9af1e91bbc2
 
           <div className="flex items-center text-gray-700 text-sm">
             <Clock className="mr-2 text-custom-blue" size={16} />
             <span className="font-medium mr-1">Deadline:</span>
             <span className="text-gray-600">
+<<<<<<< HEAD
+             
+=======
+>>>>>>> 95a9aacb050b56a2207ab2e65cacc9af1e91bbc2
               {formatDeadline(deadline)}
             </span>
           </div>

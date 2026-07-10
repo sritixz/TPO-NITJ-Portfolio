@@ -34,6 +34,13 @@ const studentSchema = new mongoose.Schema({
   course:{
     type:String,
     // enum:["B.Tech","M.Tech","MBA","M.Sc.","PHD","B.Sc.-B.Ed."]
+<<<<<<< HEAD
+  },
+  currentSemester: {
+    type: Number,
+    description: "Current semester of the student (1-8 for B.Tech, used for placement policy eligibility)",
+=======
+>>>>>>> 95a9aacb050b56a2207ab2e65cacc9af1e91bbc2
   },
   address: {
     type: String,
@@ -96,6 +103,32 @@ const studentSchema = new mongoose.Schema({
     type:Boolean,
     default: false
   },
+<<<<<<< HEAD
+  dreamAttemptUsed: {
+    type: Boolean,
+    default: false
+  },
+  dreamApplied: {
+    type: Boolean,
+    default: false,
+    description: "Manual dream applied status used for placement policy visibility"
+  },
+  allow7thSem1_5xEarlyAccess: {
+    type: Boolean,
+    default: false,
+    description: "Allow this student to apply to 1.5x dream companies in Phase I if in 7th semester"
+  },
+  
+  ppoRejectionCount: {
+    type: Number,
+    default: 0,
+  },
+  ctpWorkshopAttendancePercent: {
+    type: Number,
+    default: null,
+  },
+=======
+>>>>>>> 95a9aacb050b56a2207ab2e65cacc9af1e91bbc2
   linkedin: {
     type: String
   },

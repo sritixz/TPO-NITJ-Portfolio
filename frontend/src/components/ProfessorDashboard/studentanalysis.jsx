@@ -826,7 +826,6 @@ const StudentAnalyticsDashboard = () => {
 
     return stats;
   };
-
   if (error) {
     return <div className="p-6 text-red-500">Error: {error}</div>;
   }
@@ -2010,6 +2009,12 @@ const StudentAnalyticsDashboard = () => {
                                   Offer {index + 1}
                                 </h4>
                                 <p className="text-gray-600 mt-1">
+<<<<<<< HEAD
+                                  Company Name: {student?.offersWithCompany?.[index]?.company_name || "N/A"}
+                                </p>
+                                <p className="text-gray-600 mt-1">
+=======
+>>>>>>> 95a9aacb050b56a2207ab2e65cacc9af1e91bbc2
                                   Type: {offer.offer_type}
                                 </p>
                                 <p className="text-gray-600">
@@ -2051,12 +2056,20 @@ const StudentAnalyticsDashboard = () => {
                   <Card className="mt-6 border-0 shadow-sm">
                     <CardHeader>
                       <CardTitle className="text-lg">
+<<<<<<< HEAD
+                        Applied Jobs ({student?.applications?.total || 0})
+=======
                         Applied Jobs ({student.applications.total})
+>>>>>>> 95a9aacb050b56a2207ab2e65cacc9af1e91bbc2
                       </CardTitle>
                     </CardHeader>
                     <CardContent>
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+<<<<<<< HEAD
+                        {student?.applications?.jobProfiles?.map((job, index) => (
+=======
                         {student.applications.jobProfiles.map((job, index) => (
+>>>>>>> 95a9aacb050b56a2207ab2e65cacc9af1e91bbc2
                           <Card
                             key={index}
                             className="p-4 border border-gray-100"
