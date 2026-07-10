@@ -3,6 +3,7 @@ import Recuiter from "../models/user_model/recuiter.js";
 import crypto from "crypto";
 import nodemailer from "nodemailer";
 import mongoose from "mongoose";
+import jwt from "jsonwebtoken";
 
 // Secure helper to generate an 8-10 character random alphanumeric password
 const generateRandomPassword = () => {
@@ -35,6 +36,40 @@ export const createPublicJobAnnouncementForm = async (req, res) => {
       hrContacts,
       postalAddress,
     } = req.body;
+
+    const primaryHrEmail = (hrContacts?.[0]?.email || "").toLowerCase().trim();
+
+    if (!primaryHrEmail) {
+      return res.status(400).json({
+        message: "At least one HR contact with a valid email is required.",
+      });
+    }
+
+    // 🔒 Require a valid jafEmailVerified cookie (set by controller/otp.js
+    // verifyOtp) whose email matches the primary HR contact on this form.
+    const cookieToken = req.cookies?.jafEmailVerified;
+
+    if (!cookieToken) {
+      return res.status(403).json({
+        message: "Please verify the primary HR contact's email with OTP before submitting.",
+      });
+    }
+
+    let decoded;
+    try {
+      decoded = jwt.verify(cookieToken, process.env.JWT_SECRET);
+    } catch (err) {
+      res.clearCookie("jafEmailVerified");
+      return res.status(403).json({
+        message: "Email verification has expired. Please verify your email again.",
+      });
+    }
+
+    if (decoded.purpose !== "jaf-email-verification" || decoded.email !== primaryHrEmail) {
+      return res.status(403).json({
+        message: "Email verification does not match the primary HR contact. Please verify again.",
+      });
+    }
     
     const newJobAnnouncement = new JobAnnouncementForm({
       recruiterId: null, // Public submissions are unlinked until TPO Admin approves
@@ -62,6 +97,10 @@ export const createPublicJobAnnouncementForm = async (req, res) => {
     });
 
     const savedJobAnnouncement = await newJobAnnouncement.save();
+
+    // Single-use: clear the cookie so it can't be replayed for another submit
+    res.clearCookie("jafEmailVerified");
+
     return res.status(201).json({
       message: 'Job Announcement Form submitted successfully and is pending approval.',
       data: savedJobAnnouncement

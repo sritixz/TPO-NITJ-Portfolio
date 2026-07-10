@@ -43,23 +43,12 @@ const otpEmailHtml = (otp, organizationName) => `
         </p>
 
         <div style="margin: 20px 0; text-align: center;">
-          <span style="display: inline-block; padding: 12px 24px; font-size: 22px; font-weight: bold; color: #ffffff; background-color: #0369A0; border-radius: 6px; letter-spacing: 4px;">
+          <span style="display: inline-block; padding: 12px 24px; font-size: 24px; font-weight: bold; color: #ffffff; background-color: #0369A0; border-radius: 6px; letter-spacing: 4px; font-family: 'Courier New', Courier, monospace; user-select: all; -webkit-user-select: all; -moz-user-select: all; -ms-user-select: all; cursor: pointer;" title="Double-click to copy">
             ${otp}
           </span>
-        </div>
-
-        <!--
-          Note: click-to-copy via onclick/JS is stripped by most email
-          clients (Gmail, Outlook, Apple Mail all block inline scripts),
-          so this is a best-effort convenience link, not a guarantee.
-          The code above is spaced out and large so it's easy to select
-          and copy manually as the reliable fallback everywhere.
-        -->
-        <div style="text-align: center; margin-top: -8px;">
-          <a href="javascript:navigator.clipboard.writeText('${otp}');"
-             style="display:inline-block; margin-top: 10px; padding: 6px 16px; background-color:#e1e8ed; color:#0369A0; text-decoration:none; border-radius:6px; font-size: 12px; font-weight: 600;">
-            Copy OTP
-          </a>
+          <p style="font-size: 12px; color: #888; margin-top: 8px; margin-bottom: 24px;">
+            (Double-click or tap the code above to copy it)
+          </p>
         </div>
 
         <p style="font-size: 15px; margin-top: 16px; color: #555;">

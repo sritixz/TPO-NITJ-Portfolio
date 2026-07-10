@@ -15,6 +15,9 @@ import {
   Contact,
   Plus,
   Trash2,
+  Loader2,
+  CheckCircle2,
+  ShieldCheck,
 } from "lucide-react";
 
 const JobAnnouncementFormPublic = () => {
@@ -43,7 +46,83 @@ const JobAnnouncementFormPublic = () => {
   });
 
     const [isSubmitting, setIsSubmitting] = useState(false);
-  
+
+  // --- Email OTP verification state (tied to primary HR contact, hrContacts[0]) ---
+  const [otpSent, setOtpSent] = useState(false);
+  const [isSendingOtp, setIsSendingOtp] = useState(false);
+  const [isVerifyingOtp, setIsVerifyingOtp] = useState(false);
+  const [otpValue, setOtpValue] = useState("");
+  const [verifiedEmail, setVerifiedEmail] = useState("");
+  const [resendCooldown, setResendCooldown] = useState(0);
+  const [otpError, setOtpError] = useState("");
+
+  const isEmailVerified =
+    verifiedEmail &&
+    formData.hrContacts[0]?.email?.toLowerCase().trim() === verifiedEmail;
+
+  React.useEffect(() => {
+    if (resendCooldown <= 0) return;
+    const timer = setInterval(() => {
+      setResendCooldown((prev) => (prev <= 1 ? 0 : prev - 1));
+    }, 1000);
+    return () => clearInterval(timer);
+  }, [resendCooldown]);
+
+  const handleSendOtp = async () => {
+    const email = formData.hrContacts[0]?.email?.trim();
+    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      toast.error("Please enter a valid HR email first.");
+      return;
+    }
+    setIsSendingOtp(true);
+    setOtpError("");
+    try {
+      await axios.post(
+        `${import.meta.env.REACT_APP_BASE_URL}/jaf/send-otp`,
+        { email, organizationName: formData.organizationName },
+        { withCredentials: true }
+      );
+      setOtpSent(true);
+      setResendCooldown(45);
+      toast.success("OTP sent to " + email);
+    } catch (error) {
+      toast.error(error?.response?.data?.message || "Failed to send OTP");
+    } finally {
+      setIsSendingOtp(false);
+    }
+  };
+
+  const handleVerifyOtp = async () => {
+    const email = formData.hrContacts[0]?.email?.trim();
+    if (!otpValue || otpValue.length !== 6) {
+      setOtpError("Enter the 6-character OTP.");
+      return;
+    }
+    setIsVerifyingOtp(true);
+    setOtpError("");
+    try {
+      await axios.post(
+        `${import.meta.env.REACT_APP_BASE_URL}/jaf/verify-otp`,
+        { email, otp: otpValue },
+        { withCredentials: true } // needed so the jafEmailVerified cookie gets set
+      );
+      setVerifiedEmail(email.toLowerCase().trim());
+      toast.success("Email verified successfully!");
+    } catch (error) {
+      setOtpError(error?.response?.data?.message || "Invalid OTP, please try again.");
+    } finally {
+      setIsVerifyingOtp(false);
+    }
+  };
+
+  const resetEmailVerification = () => {
+    setOtpSent(false);
+    setOtpValue("");
+    setVerifiedEmail("");
+    setOtpError("");
+    setResendCooldown(0);
+  };
+
 
   const bTechPrograms = [
     { name: "Computer Science & Engineering", type: "Circuital" },
@@ -262,6 +341,12 @@ const JobAnnouncementFormPublic = () => {
     const newContacts = [...formData.hrContacts];
     newContacts[index][field] = value;
     setFormData((prev) => ({ ...prev, hrContacts: newContacts }));
+
+    // If the verified (primary) contact's email is edited, the old
+    // verification no longer applies — force re-verification.
+    if (index === 0 && field === "email" && verifiedEmail) {
+      resetEmailVerification();
+    }
   };
 
   const removeHrContact = (index) => {
@@ -270,36 +355,50 @@ const JobAnnouncementFormPublic = () => {
   };
 
   const handleSubmit = async (e) => {
-    if (isSubmitting) return;
-    setIsSubmitting(true);
-    
     e.preventDefault();
-    const result = await Swal.fire({
-      title: "Are you sure?",
-      text: "You won’t be able to edit this in Future!",
-      icon: "warning",
-      showCancelButton: true,
-      confirmButtonColor: "green-300",
-      cancelButtonColor: "#3085d",
-      confirmButtonText: "Yes, submit it!",
-    });
+    if (isSubmitting) return; // guards against double-clicks/double-submits
 
-    if (result.isConfirmed) {
-      try {
-        const response = await axios.post(
-          `${import.meta.env.REACT_APP_BASE_URL}/jaf/public-create`,
-          formData,
-          { withCredentials: true }
-        );
-        toast.success("JAF form submitted successfully😊");
- 
-      } catch (error) {
-        toast.error("Error in submitting JAF form");
-        console.error("Submission error:", error);
+    if (!isEmailVerified) {
+      toast.error("Please verify the primary HR contact's email (OTP) before submitting.");
+      return;
+    }
+
+    setIsSubmitting(true);
+
+    try {
+      const result = await Swal.fire({
+        title: "Are you sure?",
+        text: "You won’t be able to edit this in Future!",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "green-300",
+        cancelButtonColor: "#3085d",
+        confirmButtonText: "Yes, submit it!",
+      });
+
+      if (!result.isConfirmed) {
+        return; // handled in finally below
       }
-      finally {
-        setIsSubmitting(false);
-      }
+
+      await axios.post(
+        `${import.meta.env.REACT_APP_BASE_URL}/jaf/public-create`,
+        formData,
+        { withCredentials: true } // sends the jafEmailVerified cookie automatically
+      );
+      toast.success("JAF form submitted successfully😊");
+    } catch (error) {
+      const dbError = error?.response?.data?.error;
+      toast.error(
+        dbError 
+          ? `Submission failed: ${dbError}` 
+          : (error?.response?.data?.message || "Error in submitting JAF form")
+      );
+      console.error("Submission error:", error);
+    } finally {
+      // Always reset, whether the user cancelled, the request failed,
+      // or it succeeded — this is what was leaving the button stuck
+      // disabled (or letting a second click sneak through) before.
+      setIsSubmitting(false);
     }
   };
 
@@ -1036,7 +1135,11 @@ const JobAnnouncementFormPublic = () => {
                     </div>
                     <div className="space-y-2">
                       <label className="block text-sm font-medium">
-                        Email*
+                        Email* {index === 0 && (
+                          <span className="text-xs font-normal text-gray-500">
+                            (must be verified via OTP)
+                          </span>
+                        )}
                       </label>
                       <Input
                         type="email"
@@ -1046,7 +1149,99 @@ const JobAnnouncementFormPublic = () => {
                         }
                         placeholder="Enter email"
                         className="border-gray-300"
+                        disabled={index === 0 && isEmailVerified}
                       />
+
+                      {index === 0 && (
+                        <div className="mt-2">
+                          {isEmailVerified ? (
+                            <div className="flex items-center justify-between gap-2 text-sm text-green-700 bg-green-50 border border-green-200 rounded-md px-3 py-2">
+                              <span className="flex items-center gap-1.5">
+                                <CheckCircle2 className="w-4 h-4" />
+                                Email verified
+                              </span>
+                              <button
+                                type="button"
+                                onClick={resetEmailVerification}
+                                className="text-xs underline text-gray-500 hover:text-gray-700"
+                              >
+                                Change email
+                              </button>
+                            </div>
+                          ) : !otpSent ? (
+                            <Button
+                              type="button"
+                              size="sm"
+                              variant="outline"
+                              onClick={handleSendOtp}
+                              disabled={isSendingOtp || !contact.email}
+                              className="flex items-center gap-2 text-custom-blue"
+                            >
+                              {isSendingOtp ? (
+                                <>
+                                  <Loader2 className="w-4 h-4 animate-spin" />
+                                  Sending OTP...
+                                </>
+                              ) : (
+                                <>
+                                  <ShieldCheck className="w-4 h-4" />
+                                  Send OTP to verify
+                                </>
+                              )}
+                            </Button>
+                          ) : (
+                            <div className="p-3 border rounded-md bg-blue-50 border-blue-200 space-y-2">
+                              <label className="block text-xs font-medium text-gray-600">
+                                Enter the 6-character OTP sent to {contact.email}
+                              </label>
+                              <div className="flex gap-2">
+                                <Input
+                                  value={otpValue}
+                                  onChange={(e) =>
+                                    setOtpValue(
+                                      e.target.value
+                                        .toUpperCase()
+                                        .replace(/[^A-Z0-9]/g, "")
+                                        .slice(0, 6)
+                                    )
+                                  }
+                                  placeholder="A1B2C3"
+                                  className="border-gray-300 tracking-widest font-mono w-32 uppercase"
+                                />
+                                <Button
+                                  type="button"
+                                  size="sm"
+                                  onClick={handleVerifyOtp}
+                                  disabled={isVerifyingOtp || otpValue.length !== 6}
+                                  className="bg-custom-blue hover:bg-blue-700 text-white flex items-center gap-2"
+                                >
+                                  {isVerifyingOtp ? (
+                                    <>
+                                      <Loader2 className="w-4 h-4 animate-spin" />
+                                      Verifying...
+                                    </>
+                                  ) : (
+                                    "Verify"
+                                  )}
+                                </Button>
+                              </div>
+                              {otpError && (
+                                <p className="text-xs text-red-600">{otpError}</p>
+                              )}
+                              <button
+                                type="button"
+                                onClick={handleSendOtp}
+                                disabled={resendCooldown > 0 || isSendingOtp}
+                                className="text-xs text-custom-blue underline disabled:text-gray-400 disabled:no-underline"
+                              >
+                                {resendCooldown > 0
+                                  ? `Resend OTP in ${resendCooldown}s`
+                                  : "Resend OTP"}
+                              </button>
+                            </div>
+                          )}
+                        </div>
+                      )}
                     </div>
                     <div className="space-y-2">
                       <label className="block text-sm font-medium">
@@ -1080,14 +1275,19 @@ const JobAnnouncementFormPublic = () => {
           </div>
 
           {/* Submit Button */}
-          <div className="flex justify-end pt-6">
+          <div className="flex flex-col items-end gap-2 pt-6">
+            {!isEmailVerified && (
+              <p className="text-xs text-amber-600">
+                Verify the primary HR contact's email above to enable submission.
+              </p>
+            )}
             <Button
               type="submit"
-              className="bg-custom-blue hover:bg-blue-700 text-white px-8 py-2"
-              disabled={isSubmitting}
-
+              className="bg-custom-blue hover:bg-blue-700 text-white px-8 py-2 flex items-center gap-2"
+              disabled={isSubmitting || !isEmailVerified}
             >
-              { isSubmitting ? "Submitting..." : "Submit Form" }
+              {isSubmitting && <Loader2 className="w-4 h-4 animate-spin" />}
+              {isSubmitting ? "Submitting..." : "Submit Form"}
             </Button>
           </div>
         </CardContent>

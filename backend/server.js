@@ -80,6 +80,7 @@ try {
 }
 import offerRoutes from "./routes/offerletter.js";
 import { createPublicJobAnnouncementForm } from "./controller/jaf.js";
+import { sendOtp, verifyOtp } from "./controller/otp.js";
 
 const app = express();
 
@@ -142,6 +143,8 @@ app.use("/placements", logMiddleware, placementroutes);
 app.use("/internships", logMiddleware, internshiptroutes);
 app.use("/recruiterFeedback", logMiddleware, companyFeedbackroutes)
 app.use("/messages", messageRoutes);
+app.post('/jaf/send-otp', logMiddleware, sendOtp);
+app.post('/jaf/verify-otp', logMiddleware, verifyOtp);
 app.post('/jaf/public-create', logMiddleware, createPublicJobAnnouncementForm);
 
 //Student routes
