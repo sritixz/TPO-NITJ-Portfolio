@@ -2,7 +2,19 @@ import FormSubmission from '../models/FormSubmission.js';
 import JobProfile from '../models/jobprofile.js';
 import JobEligibility from '../models/eligibility.js';
 import Student from '../models/user_model/student.js';
+import PlacementRegistration from '../models/placement-registration.js';
+import OfferTracker from '../models/offertracker.js';
 import mongoose from 'mongoose';
+import {
+  BATCH_2027,
+  getPlacementPhase,
+  getCountableOffers,
+  countDistinctAppliedCompanies,
+  MAX_PHASE_I_APPLICATIONS,
+  can7thSemApplyInPhaseIWithEarlyAccess,
+  parseCtcForPolicy,
+  DREAM_CTC_MULTIPLIER,
+} from '../utils/placementPolicy2027.js';
 import nodemailer from "nodemailer";
 import Withdrawtoken from '../models/withdrawtoken.js';
 import jwt from "jsonwebtoken";
@@ -49,6 +61,59 @@ export const submitForm = async (req, res) => {
     const eligibility = await JobEligibility.findOne({ jobId, studentId });
     if (!eligibility || !eligibility.eligible) {
       return res.status(403).json({ message: 'You are not eligible to apply for this job' });
+    }
+
+    if (String(student.batch) === BATCH_2027) {
+      const registration = await PlacementRegistration.findOne({
+        studentId,
+        interested: true,
+      });
+      if (!registration) {
+        return res.status(403).json({
+          message:
+            'You must register for placement before applying to companies',
+        });
+      }
+
+      const offerTracker = await OfferTracker.findOne({ studentId });
+      const countableOffers = getCountableOffers(offerTracker);
+      const targetJob = await JobProfile.findById(jobId);
+
+      if(countableOffers.length >= 2){
+        return res.status(403).json({
+          message: "Cannot apply if you already have two or more offers"
+        })
+      }
+
+      if (getPlacementPhase() === 'I' && countableOffers.length === 0) {
+        // Check if 7th sem student can use the Phase I 1.5x early-access policy
+        // const canApplyToDreamEarly = can7thSemApplyInPhaseIWithEarlyAccess(student, targetJob);
+
+        // // If it's a dream company and student doesn't qualify for early access, restrict Phase I applications
+        // if (targetJob.isDream && !canApplyToDreamEarly) {
+        //   return res.status(403).json({
+        //     message: 'Dream companies are only available in Phase II until you secure an offer, unless you are a 7th semester student with early access enabled',
+        //   });
+        // }
+
+        const appliedCompanyCount = await countDistinctAppliedCompanies(
+          studentId,
+          JobProfile,
+        );
+        const alreadyAppliedToCompany = await JobProfile.findOne({
+          Applied_Students: studentId,
+          company_name: targetJob?.company_name,
+        });
+
+        if (
+          !alreadyAppliedToCompany &&
+          appliedCompanyCount >= MAX_PHASE_I_APPLICATIONS
+        ) {
+          return res.status(403).json({
+            message: `Phase I limit reached: maximum ${MAX_PHASE_I_APPLICATIONS} company applications allowed until you secure an offer`,
+          });
+        }
+      }
     }
 
     const updatedFields = fields.map((field) => {

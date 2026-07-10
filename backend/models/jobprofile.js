@@ -381,6 +381,21 @@ const JobProfileSchema = new mongoose.Schema(
     job_class: {
       type: String,
     },
+    isDream: {
+      type: Boolean,
+      default: false,
+    },
+    isCountable: {
+      type: Boolean,
+      default: true,
+    },
+    ctcForPolicy: {
+      type: Number,
+      default: 0,
+    },
+    ctcMin: {
+      type: Number,
+    },
     Applied_Students:[{
       type: mongoose.Schema.Types.ObjectId,
       ref: "Student",

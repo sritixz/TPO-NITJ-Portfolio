@@ -21,6 +21,23 @@ import Recruiter from "../models/user_model/recuiter.js";
 import GuestHouseBooking from "../models/travel_planner/room.js";
 import VehicleRequisition from "../models/travel_planner/vehicle.js";
 import { encryptValue, decryptValue } from "../utils/security.js";
+import {
+  buildJobPolicyFields,
+  validateInternDurationFor2027,
+  BATCH_2027,
+  getPlacementPhase,
+  getCountableOffers,
+  getBatchPlacedPercent,
+  countDistinctAppliedCompanies,
+  parseCtcForPolicy,
+  computeIsCountable,
+  DREAM_CTC_MULTIPLIER,
+  BATCH_PLACED_THRESHOLD,
+  CTP_WORKSHOP_THRESHOLD,
+  MAX_PHASE_I_APPLICATIONS,
+  can7thSemApplyInPhaseIWithEarlyAccess,
+} from "../utils/placementPolicy2027.js";
+import PlacementRegistration from "../models/placement-registration.js";
 import fs from "fs";
 import path from "path";
 
@@ -55,13 +72,13 @@ export const getAllCompanies = async (req, res) => {
 };
 
 //commented
-const transporter = nodemailer.createTransport({
-  service: "gmail",
-  auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS,
-  },
-});
+// const transporter = nodemailer.createTransport({
+//   service: "gmail",
+//   auth: {
+//     user: process.env.EMAIL_USER,
+//     pass: process.env.EMAIL_PASS,
+//   },
+// });
 
 // Function to send email to a single student
 const sendEmailToStudent = async (student, jobProfile) => {
@@ -196,7 +213,26 @@ export const createJobProfilecopy = async (req, res) => {
       deadline,
       Hiring_Workflow,
       eligibility_criteria,
+      isDream,
+      ctcMin,
     } = req.body;
+
+    const durationError = validateInternDurationFor2027(
+      job_type,
+      internship_duration,
+      eligibility_criteria,
+    );
+    if (durationError) {
+      return res.status(400).json({ error: durationError });
+    }
+
+    const policyFields = buildJobPolicyFields({
+      job_category,
+      job_sector,
+      ctc,
+      ctcMin,
+      isDream,
+    });
 
     const requiredFields = [
       ["hr_contact", hr_contact],
@@ -282,19 +318,8 @@ export const createJobProfilecopy = async (req, res) => {
       return processedStep;
     });
 
-    // Determine job_class based on CTC
-    let job_class;
-    if (ctc > 20 || job_sector === "PSU") {
-      job_class = "A";
-    } else if (ctc > 12 && ctc <= 20) {
-      job_class = "B";
-    } else if (ctc > 5 && ctc <= 12) {
-      job_class = "C";
-    } else if (ctc <= 5) {
-      job_class = "D";
-    } else {
-      job_class = "D"; // Default for invalid/undefined CTC
-    }
+    // Determine job_class based on CTC (legacy bands retained for all batches)
+    const job_class = policyFields.job_class;
     console.log(job_class);
     // Create new JobProfile
     const jobProfile = new JobProfile({
@@ -321,6 +346,10 @@ export const createJobProfilecopy = async (req, res) => {
       Hiring_Workflow: processedWorkflow || [],
       eligibility_criteria: eligibility_criteria || [],
       job_class,
+      isDream: policyFields.isDream,
+      isCountable: policyFields.isCountable,
+      ctcForPolicy: policyFields.ctcForPolicy,
+      ctcMin: ctcMin != null && ctcMin !== "" ? parseFloat(ctcMin) : undefined,
       deadline: deadline || new Date(),
       Approved_Status,
       Applied_Students: [],
@@ -617,9 +646,14 @@ export const updateJob = async (req, res) => {
     const changes = detectNestedChanges(oldJob, updateData);
     console.log(changes);
 
-    // Handle CTC change
-    if (changes?.job_salary?.ctc || changes?.job_sector) {
-      // const ctc = parseFloat(updateData?.job_salary?.ctc || oldJob?.job_salary?.ctc || 0);
+    // Handle CTC / policy field changes
+    if (
+      changes?.job_salary?.ctc ||
+      changes?.job_sector ||
+      changes?.job_category ||
+      changes?.isDream !== undefined ||
+      changes?.ctcMin !== undefined
+    ) {
       let ctc;
       if (updateData?.job_salary?.ctc === "") {
         ctc = 0;
@@ -632,23 +666,24 @@ export const updateJob = async (req, res) => {
       }
 
       const sector = updateData?.job_sector || oldJob?.job_sector || "Private";
-      console.log("CTC:", ctc, "Sector:", sector);
-      let job_class;
+      const category = updateData?.job_category || oldJob?.job_category;
+      const ctcMinValue =
+        updateData?.ctcMin !== undefined ? updateData.ctcMin : oldJob?.ctcMin;
+      const dreamFlag =
+        updateData?.isDream !== undefined ? updateData.isDream : oldJob?.isDream;
 
-      if (ctc > 20 || sector === "PSU") {
-        job_class = "A";
-      } else if (ctc > 12 && ctc <= 20) {
-        job_class = "B";
-      } else if (ctc > 5 && ctc <= 12) {
-        job_class = "C";
-      } else if (ctc <= 5) {
-        job_class = "D";
-      } else {
-        job_class = "D"; // Default for invalid/undefined CTC
-      }
-      console.log(job_class);
+      const policyFields = buildJobPolicyFields({
+        job_category: category,
+        job_sector: sector,
+        ctc,
+        ctcMin: ctcMinValue,
+        isDream: dreamFlag,
+      });
 
-      updateData.job_class = job_class;
+      updateData.job_class = policyFields.job_class;
+      updateData.isCountable = policyFields.isCountable;
+      updateData.ctcForPolicy = policyFields.ctcForPolicy;
+      updateData.isDream = policyFields.isDream;
     }
 
     if (Object.keys(changes).length > 0) {
@@ -1362,10 +1397,135 @@ export const checkEligibility = async (req, res) => {
           reason: "You have already Summer Intern",
         });
       }
+    } else if (String(updatedStudent.batch) === BATCH_2027) {
+      const phase = getPlacementPhase(currentDate);
+      const registration = await PlacementRegistration.findOne({
+        studentId,
+        interested: true,
+      });
+
+      if (!registration) {
+        return res.json({
+          eligible: false,
+          reason:
+            "You must register for placement to participate in campus recruitment",
+        });
+      }
+
+      const studentOfferHistory = await OfferTracker.findOne({ studentId });
+      const countableOffers = getCountableOffers(studentOfferHistory);
+
+      if (studentOfferHistory?.offer?.some((o) => o.offer_sector === "PSU")) {
+        return res.json({
+          eligible: false,
+          reason:
+            "You have a PSU offer and are finally placed. Further participation is not allowed",
+        });
+      }
+
+      if(countableOffers.length >=2){
+        return res.json({
+          eligible:false,
+          reason: "Cannot apply if you already have two or more offers"
+        })
+      }
+
+      const jobCtcForPolicy =
+        job.ctcForPolicy ??
+        parseCtcForPolicy(job.job_salary?.ctc, job.ctcMin);
+      const jobIsCountable =
+        job.isCountable ??
+        computeIsCountable(job.job_category, jobCtcForPolicy, job.job_sector);
+
+      if (countableOffers.length >= 1) {
+        const canApplyDream =
+          phase === "II" &&
+          job.isDream &&
+          !updatedStudent.dreamAttemptUsed;
+
+        if (!canApplyDream) {
+          return res.json({
+            eligible: false,
+            reason:
+              "You already have a placement offer. One Student One Job Offer policy applies",
+            applied: hasApplied,
+          });
+        }
+
+        const previousOffer = countableOffers[countableOffers.length - 1];
+        const previousCtc = parseFloat(previousOffer.offer_ctc) || 0;
+
+        if (jobCtcForPolicy < previousCtc * DREAM_CTC_MULTIPLIER) {
+          return res.json({
+            eligible: false,
+            reason: `Dream company requires CTC at least 1.5× your current offer (${previousCtc} LPA). Minimum required: ${(previousCtc * DREAM_CTC_MULTIPLIER).toFixed(2)} LPA`,
+            applied: hasApplied,
+          });
+        }
+
+        if (
+          updatedStudent.ctpWorkshopAttendancePercent != null &&
+          updatedStudent.ctpWorkshopAttendancePercent < CTP_WORKSHOP_THRESHOLD
+        ) {
+          return res.json({
+            eligible: false,
+            reason:
+              "Minimum 80% attendance in CTP workshops/events is required for dream company participation",
+            applied: hasApplied,
+          });
+        }
+
+        const placedPercent = await getBatchPlacedPercent(
+          BATCH_2027,
+          updatedStudent.course,
+        );
+        if (
+          placedPercent != null &&
+          placedPercent < BATCH_PLACED_THRESHOLD
+        ) {
+          return res.json({
+            eligible: false,
+            reason:
+              "Dream companies are available only after at least 70% of registered students are placed",
+            applied: hasApplied,
+          });
+        }
+      }
+
+      if (phase === "I" && countableOffers.length === 0 && !hasApplied) {
+        const appliedCompanyCount = await countDistinctAppliedCompanies(
+          studentId,
+          JobProfile,
+        );
+        if (appliedCompanyCount >= MAX_PHASE_I_APPLICATIONS) {
+          return res.json({
+            eligible: false,
+            reason: `Phase I limit reached: you can apply to a maximum of ${MAX_PHASE_I_APPLICATIONS} companies until you secure an offer`,
+            applied: hasApplied,
+          });
+        }
+      }
+
+      if (
+        jobType === "Intern+PPO" &&
+        updatedStudent.ppoRejectionCount >= 1 &&
+        countableOffers.length === 0
+      ) {
+        return res.json({
+          eligible: false,
+          reason:
+            "Only one PPO rejection is permitted under the placement policy",
+          applied: hasApplied,
+        });
+      }
+
+      if (!jobIsCountable && countableOffers.length === 0) {
+        // Uncountable offers do not block applications; eligibility continues
+      }
     }
 
-    // if student is not btech 3rd year student then we will deal with offer tracker
-    else {
+    // Legacy offer policy for batches other than 2028 summer intern and 2027
+    else if (String(updatedStudent.batch) !== BATCH_2027) {
       if (
         (jobType === "Intern+FTE" || jobType === "FTE") &&
         (jobctc == 0 || !jobctc)
@@ -1960,12 +2120,28 @@ if (isNoneShortlisted) {
               offer_category = "D"; // Default for invalid/undefined CTC
             }
 
+            offer_category=String(batch)===BATCH_2027?(job.isDream?"Dream":"Non Dream"):offer_category
+
             const offerDetails = {
               offer_type: student.job_type,
               offer_category: offer_category,
               offer_sector: job.job_sector || "Private",
               offer_ctc: student.ctc,
               offer_intern_duration: student.intern_duration,
+              offer_job_category: job.job_category,
+              isCountable:
+                String(batch) === BATCH_2027
+                  ? job.isCountable ??
+                    computeIsCountable(
+                      job.job_category,
+                      job.ctcForPolicy ??
+                        parseCtcForPolicy(job.job_salary?.ctc, job.ctcMin),
+                      job.job_sector,
+                    )
+                  : true,
+              isDream: !!job.isDream,
+              placementPhase: getPlacementPhase(),
+              jobId: job._id,
             };
 
             let offerTracker = await OfferTracker.findOne({
@@ -1982,6 +2158,21 @@ if (isNoneShortlisted) {
               offerTracker.offer.push(offerDetails);
             }
             await offerTracker.save();
+
+            if (String(batch) === BATCH_2027) {
+              const studentDoc = await Student.findById(student.studentId);
+              if (studentDoc) {
+                if (offerDetails.isCountable) {
+                  studentDoc.placementstatus = job.isDream
+                    ? "Dream"
+                    : "Placed";
+                }
+                if (job.isDream) {
+                  studentDoc.dreamAttemptUsed = true;
+                }
+                await studentDoc.save();
+              }
+            }
           }
         } else if (action === "remove") {
           if (offer) {

@@ -869,6 +869,7 @@ import {
   faInfoCircle,
   faBriefcase,
   faIndianRupeeSign,
+  faBullseye
 } from "@fortawesome/free-solid-svg-icons";
 import { useParams, useNavigate } from "react-router-dom";
 import WithdrawOTPVerification from "./withdrawotpverification";
@@ -1182,6 +1183,11 @@ const Jobdetail = () => {
       icon: faMapMarkerAlt,
       label: "LOCATION",
       value: jobDetails.joblocation || "N/A",
+    },
+    {
+      icon: faBullseye,
+      label: "Dream Status",
+      value: jobDetails.isDream ? "Dream" : "Non-Dream" || "N/A",
     },
     {
       icon: faInfoCircle,

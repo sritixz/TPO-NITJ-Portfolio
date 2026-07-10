@@ -2599,6 +2599,11 @@ const jobSectorOptions = [
   { value: "PSU", label: "PSU" },
 ];
 
+const dreamStatusOptions = [
+  { value: "Dream", label: "Dream" },
+  { value: "Non Dream", label: "Non Dream" },
+];
+
 const workflowStepOptions = [
   { value: "Resume Shortlisting", label: "Resume Shortlisting" },
   { value: "OA", label: "Online Assessment" },
@@ -2645,9 +2650,11 @@ const CreateJob = ({ onJobCreated, onCancel }) => {
     job_category: "",
     job_sector: "Private",
     ctc: 0,
+    ctcMin: "",
     base_salary: "",
     stipend: "",
     deadline: "",
+    isDream: false,
     Hiring_Workflow: [],
     eligibility_criteria: [],
   });
@@ -2711,15 +2718,34 @@ const CreateJob = ({ onJobCreated, onCancel }) => {
   };
 
   const handleSelectChange = (field, selectedOption) => {
-    setFormData({
-      ...formData,
-      [field]: selectedOption ? selectedOption.value : "",
+    const value = selectedOption ? selectedOption.value : "";
+
+    if (field === "job_sector") {
+      setFormData((prev) => ({
+        ...prev,
+        job_sector: value,
+        isDream: value === "PSU" ? true : prev.isDream,
+      }));
+      return;
+    }
+
+    setFormData((prev) => ({
+      ...prev,
+      [field]: value,
       ...(field === "job_type" && selectedOption && selectedOption.value === "FTE"
         ? { internship_duration: "N/A", stipend: "0" }
         : field === "job_type" && selectedOption && ["Intern", "Intern+PPO", "Intern+FTE"].includes(selectedOption.value)
         ? { internship_duration: "", stipend: "" }
         : {}),
-    });
+    }));
+  };
+
+  const handleDreamStatusChange = (selectedOption) => {
+    const dreamStatus = selectedOption ? selectedOption.value : "Non Dream";
+    setFormData((prev) => ({
+      ...prev,
+      isDream: dreamStatus === "Dream" || prev.job_sector === "PSU",
+    }));
   };
 
   const handleEligibilityChange = (e) => {
@@ -2960,6 +2986,23 @@ const CreateJob = ({ onJobCreated, onCancel }) => {
       }
     }
 
+    const targetsBatch2027 = formData.eligibility_criteria.some(
+      (c) => String(c.eligible_batch) === "2027",
+    );
+    if (targetsBatch2027) {
+      if (
+        ["Intern", "Intern+PPO", "Intern+FTE"].includes(formData.job_type) &&
+        !String(formData.internship_duration).includes("6")
+      ) {
+        errors.push(
+          "Batch 2027 policy: internship-based offers must be 6 months duration",
+        );
+      }
+      if (formData.ctcMin && Number(formData.ctcMin) > Number(formData.ctc)) {
+        errors.push("Minimum CTC cannot be greater than the stated CTC");
+      }
+    }
+
     if (errors.length > 0) {
       errors.forEach((error) => toast.error(error));
       return;
@@ -2972,7 +3015,8 @@ const CreateJob = ({ onJobCreated, onCancel }) => {
         {
           ...formData,
           ctc: Number(formData.ctc),
-          // stipend: Number(formData.stipend),
+          ctcMin: formData.ctcMin ? Number(formData.ctcMin) : undefined,
+          isDream: !!formData.isDream,
         },
         { withCredentials: true }
       );
@@ -3171,6 +3215,21 @@ const CreateJob = ({ onJobCreated, onCancel }) => {
             </div>
             <div>
               <label className="block text-gray-700 font-semibold mb-2">
+                Dream Status<span className="text-gray-500 text-sm"> (Batch 2027 Placement Policy)</span>
+              </label>
+              <Select
+                options={dreamStatusOptions}
+                onChange={handleDreamStatusChange}
+                value={dreamStatusOptions.find((option) => option.value === (formData.isDream ? "Dream" : "Non Dream"))}
+                isDisabled={formData.job_sector === "PSU"}
+                className="w-full border-2 border-gray-200 rounded-xl p-1.5 focus:outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-100 transition-all duration-300"
+              />
+              {formData.job_sector === "PSU" && (
+                <p className="text-sm text-green-600 mt-2">PSU sector automatically marks this profile as Dream.</p>
+              )}
+            </div>
+            <div>
+              <label className="block text-gray-700 font-semibold mb-2">
                 CTC<span className="text-red-500 text-sm">(in Lakhs) *</span>
               </label>
               <input
@@ -3179,6 +3238,21 @@ const CreateJob = ({ onJobCreated, onCancel }) => {
                 name="ctc"
                 value={formData.ctc}
                 onChange={handleChange}
+                className="w-full border-2 border-gray-200 rounded-xl p-3 focus:outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-100 transition-all duration-300"
+              />
+            </div>
+            <div>
+              <label className="block text-gray-700 font-semibold mb-2">
+                Minimum CTC (if range)
+                <span className="text-gray-500 text-sm"> (in Lakhs, optional — used for batch 2027 policy)</span>
+              </label>
+              <input
+                type="number"
+                name="ctcMin"
+                value={formData.ctcMin}
+                onChange={handleChange}
+                min="0"
+                step="0.1"
                 className="w-full border-2 border-gray-200 rounded-xl p-3 focus:outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-100 transition-all duration-300"
               />
             </div>
