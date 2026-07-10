@@ -35,6 +35,7 @@ import {
   BATCH_PLACED_THRESHOLD,
   CTP_WORKSHOP_THRESHOLD,
   MAX_PHASE_I_APPLICATIONS,
+  can7thSemApplyInPhaseIWithEarlyAccess,
 } from "../utils/placementPolicy2027.js";
 import PlacementRegistration from "../models/placement-registration.js";
 import fs from "fs";
@@ -71,13 +72,13 @@ export const getAllCompanies = async (req, res) => {
 };
 
 //commented
-const transporter = nodemailer.createTransport({
-  service: "gmail",
-  auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS,
-  },
-});
+// const transporter = nodemailer.createTransport({
+//   service: "gmail",
+//   auth: {
+//     user: process.env.EMAIL_USER,
+//     pass: process.env.EMAIL_PASS,
+//   },
+// });
 
 // Function to send email to a single student
 const sendEmailToStudent = async (student, jobProfile) => {
@@ -1422,6 +1423,13 @@ export const checkEligibility = async (req, res) => {
         });
       }
 
+      if(countableOffers.length >=2){
+        return res.json({
+          eligible:false,
+          reason: "Cannot apply if you already have two or more offers"
+        })
+      }
+
       const jobCtcForPolicy =
         job.ctcForPolicy ??
         parseCtcForPolicy(job.job_salary?.ctc, job.ctcMin);
@@ -2111,6 +2119,8 @@ if (isNoneShortlisted) {
             } else {
               offer_category = "D"; // Default for invalid/undefined CTC
             }
+
+            offer_category=String(batch)===BATCH_2027?(job.isDream?"Dream":"Non Dream"):offer_category
 
             const offerDetails = {
               offer_type: student.job_type,
